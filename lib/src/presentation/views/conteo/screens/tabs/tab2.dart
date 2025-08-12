@@ -1,10 +1,12 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2ScreenConteo extends StatefulWidget {
@@ -20,14 +22,15 @@ class Tab2ScreenConteo extends StatefulWidget {
 }
 
 class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
-  FocusNode focusNode1 = FocusNode(); //cantidad textformfield
+  FocusNode focusNode1 = FocusNode(); //location focus
 
-  final TextEditingController _controllerToDo = TextEditingController();
+  final TextEditingController _controllerToProduct = TextEditingController();
+  final TextEditingController _controllerToLocation = TextEditingController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // FocusScope.of(context).requestFocus(focusNode1);
+    FocusScope.of(context).requestFocus(focusNode1);
   }
 
   @override
@@ -37,116 +40,163 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
   }
 
   void validateBarcode(String value, BuildContext context) {
-    // final bloc = context.read<RecepcionBatchBloc>();
+    final bloc = context.read<ConteoBloc>();
 
-    // String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-    //     ? value.trim().toLowerCase()
-    //     : bloc.scannedValue5.trim().toLowerCase();
+    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue5.trim().toLowerCase();
 
-    // _controllerToDo.text = "";
+    _controllerToProduct.text = "";
 
-    // // Obtener la lista de productos desde el Bloc
-    // final listOfProducts = bloc.listProductsEntrada.where((element) {
-    //   return (element.isSeparate == 0 || element.isSeparate == null) &&
-    //       (element.isDoneItem == 0 || element.isDoneItem == null);
-    // }).toList();
+    //traer los productos de la ubicacion expandida
+    final listOfProducts = bloc.lineasContadas
+        .where((element) =>
+            (element.isSeparate == 0 || element.isSeparate == null) &&
+            (element.isDoneItem == 0 || element.isDoneItem == null) &&
+            (element.locationName?.toLowerCase() ==
+                bloc.ubicacionExpanded.toLowerCase()))
+        .toList();
 
-    // // Buscar el producto que coincide con el código de barras escaneado
-    // final LineasRecepcionBatch product = listOfProducts.firstWhere(
-    //   (product) => product.productBarcode == scan.trim(),
-    //   orElse: () =>
-    //       LineasRecepcionBatch(), // Devuelve null si no se encuentra ningún producto
-    // );
+    // Buscar el producto que coincide con el código de barras escaneado
+    final CountedLine product = listOfProducts.firstWhere(
+      (product) => product.productBarcode == scan.trim(),
+      orElse: () =>
+          CountedLine(), // Devuelve null si no se encuentra ningún producto
+    );
 
-    // if (product.idMove != null) {
-    //   showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return const DialogLoading(
-    //         message: 'Cargando información del producto...',
-    //       );
-    //     },
-    //   );
-    //   // Si el producto existe, ejecutar los estados necesarios
+    if (product.idMove != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
+      );
+      // Si el producto existe, ejecutar los estados necesarios
 
-    //   bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
+      bloc.add(ChangeLocationIsOkEvent(
+        product.productId ?? 0,
+        product.orderId ?? 0,
+        product.idMove ?? 0,
+      ));
 
-    //   bloc.add(ChangeQuantitySeparate(
-    //     0,
-    //     int.parse(product.productId),
-    //     product.idRecepcion ?? 0,
-    //     product.idMove ?? 0,
-    //   ));
-    //   bloc.add(ChangeProductIsOkEvent(
-    //     product.idRecepcion ?? 0,
-    //     true,
-    //     int.parse(product.productId),
-    //     0,
-    //     product.idMove ?? 0,
-    //   ));
+      bloc.add(ValidateFieldsEvent(field: "toProduct", isOk: true));
 
-    //   context.read<RecepcionBatchBloc>().add(FetchPorductOrder(
-    //         product,
-    //       ));
+      bloc.add(ChangeQuantitySeparate(
+        0,
+        product.productId ?? 0,
+        product.orderId ?? 0,
+        product.idMove ?? 0,
+      ));
+      bloc.add(ChangeProductIsOkEvent(
+        product.orderId ?? 0,
+        true,
+        product.productId ?? 0,
+        0,
+        product.idMove ?? 0,
+      ));
 
-    //   Future.delayed(const Duration(milliseconds: 1000), () {
-    //     Navigator.pop(context);
-    //     Navigator.pushReplacementNamed(
-    //       context,
-    //       'scan-product-reception-batch',
-    //       arguments: [widget.ordenCompra, product],
-    //     );
-    //   });
-    //   print(product.toMap());
-    //   // Limpiar el valor escaneado
-    //   bloc.add(ClearScannedValueOrderEvent('toDo'));
-    // } else {
-    //   // Mostrar alerta de error si el producto no se encuentra
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //     content: const Text("Código erroneo"),
-    //     backgroundColor: Colors.red[200],
-    //     duration: const Duration(milliseconds: 500),
-    //   ));
-    //   bloc.add(ClearScannedValueOrderEvent('toDo'));
-    // }
+      context.read<ConteoBloc>().add(
+            LoadCurrentProductEvent(currentProduct: product),
+          );
+      Future.delayed(const Duration(milliseconds: 300), () {
+        Navigator.pop(context);
+        Navigator.pushReplacementNamed(
+          context,
+          'scan-product-conteo',
+        );
+      });
+      print(product.toMap());
+      // Limpiar el valor escaneado
+      bloc.add(ClearScannedValueEvent('toProduct'));
+    } else {
+      // Mostrar alerta de error si el producto no se encuentra
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text("El producto no se encuentra en esta ubicación"),
+        backgroundColor: Colors.red[200],
+        duration: const Duration(milliseconds: 1000),
+      ));
+      bloc.add(ClearScannedValueEvent('toProduct'));
+    }
+  }
+
+void validateLocation(String value, BuildContext context) {
+  final bloc = context.read<ConteoBloc>();
+
+  // Determinar cuál es el valor que vamos a validar (del escáner o del input)
+  String scan = bloc.scannedValue6.trim().toLowerCase().isEmpty
+      ? value.trim().toLowerCase()
+      : bloc.scannedValue6.trim().toLowerCase();
+
+  _controllerToLocation.text = "";
+
+  // Obtener los productos sin terminar
+  final productosSinTerminar = bloc.lineasContadas
+      .where((element) => element.isDoneItem != 1)
+      .toList();
+
+  // Agrupar por ubicación
+  final productosPorUbicacion = _groupByLocation(productosSinTerminar);
+
+  // 🔹 Obtener solo los barcodes de ubicaciones con productos sin terminar
+  final ubicacionesValidas = productosPorUbicacion.values
+      .map((listaProductos) => listaProductos.first.locationBarcode ?? "")
+      .map((barcode) => barcode.toLowerCase())
+      .where((barcode) => barcode.isNotEmpty)
+      .toSet();
+
+  // Validar por barcode en lugar de nombre
+  if (ubicacionesValidas.contains(scan)) {
+    // Encontrar el nombre de ubicación que corresponde a ese barcode
+    final ubicacionEncontrada = productosPorUbicacion.keys.firstWhere(
+      (ubic) {
+        final barcode = productosPorUbicacion[ubic]!.first.locationBarcode ?? "";
+        return barcode.toLowerCase() == scan;
+      },
+      orElse: () => "",
+    );
+
+    if (ubicacionEncontrada.isNotEmpty) {
+      bloc.add(ExpandLocationEvent(ubicacionEncontrada)); // Expande por nombre
+    }
+
+    bloc.add(ClearScannedValueEvent('toLocation'));
+  } else {
+    bloc.add(ClearScannedValueEvent('toLocation'));
+    print("Ubicación no válida (barcode): $scan");
+  }
+}
+
+
+// Método para agrupar productos por ubicación
+  Map<String, List<CountedLine>> _groupByLocation(List<CountedLine> productos) {
+    final map = <String, List<CountedLine>>{};
+    for (final producto in productos) {
+      final location = producto.locationName ?? 'Sin ubicación';
+      map.putIfAbsent(location, () => []).add(producto);
+    }
+    return map;
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+      onWillPop: () async => false,
       child: BlocConsumer<ConteoBloc, ConteoState>(
         listener: (context, state) {
-          // if (state is SendProductToOrderFailure) {
-          //   Get.defaultDialog(
-          //     title: '360 Software Informa',
-          //     titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-          //     middleText: state.error,
-          //     middleTextStyle: TextStyle(color: black, fontSize: 14),
-          //     backgroundColor: Colors.white,
-          //     radius: 10,
-          //     actions: [
-          //       ElevatedButton(
-          //         onPressed: () {
-          //           Get.back();
-          //         },
-          //         style: ElevatedButton.styleFrom(
-          //           backgroundColor: primaryColorApp,
-          //           shape: RoundedRectangleBorder(
-          //             borderRadius: BorderRadius.circular(10),
-          //           ),
-          //         ),
-          //         child: Text('Aceptar', style: TextStyle(color: white)),
-          //       ),
-          //     ],
-          //   );
-          // }
+         
         },
         builder: (context, state) {
           final conteoBloc = context.read<ConteoBloc>();
+          final productosSinTerminar = conteoBloc.lineasContadas
+              .where((element) => element.isDoneItem != 1)
+              .toList();
+
+          final productosPorUbicacion = _groupByLocation(productosSinTerminar);
+          // ✅ Extraer ubicación expandida del estado (si aplica)
+
           return Scaffold(
             backgroundColor: white,
             body: Container(
@@ -155,254 +205,252 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
               height: size.height * 0.8,
               child: Column(
                 children: [
-                  //*espacio para escanear y buscar el producto
-
-                  // context.read<UserBloc>().fabricante.contains("Zebra")
-                  //     ? Container(
-                  //         height: 15,
-                  //         margin: const EdgeInsets.only(bottom: 5),
-                  //         child: TextFormField(
-                  //           autofocus: true,
-                  //           showCursor: false,
-                  //           controller: _controllerToDo,
-                  //           focusNode: focusNode1,
-                  //           onChanged: (value) {
-                  //             // Llamamos a la validación al cambiar el texto
-                  //             validateBarcode(value, context);
-                  //           },
-                  //           decoration: InputDecoration(
-                  //             // hintText:
-                  //             //     batchBloc.currentProduct.locationId.toString(),
-                  //             disabledBorder: InputBorder.none,
-                  //             hintStyle:
-                  //                 const TextStyle(fontSize: 14, color: black),
-                  //             border: InputBorder.none,
-                  //           ),
-                  //         ),
-                  //       )
-                  //     :
+                  context.read<UserBloc>().fabricante.contains("Zebra")
+                      ? Container(
+                          height: 15,
+                          margin: const EdgeInsets.only(bottom: 5),
+                          child: TextFormField(
+                            autofocus: true,
+                            showCursor: false,
+                            controller: focusNode1.hasFocus
+                                ? _controllerToLocation
+                                : _controllerToProduct,
+                            focusNode: focusNode1,
+                            onChanged: (value) {
+                              //Validacion segun el focus
+                              if (conteoBloc.ubicacionExpanded.isEmpty) {
+                                validateLocation(value, context);
+                              } else {
+                                validateBarcode(value, context);
+                              }
+                            },
+                            decoration: InputDecoration(
+                              disabledBorder: InputBorder.none,
+                              hintStyle:
+                                  const TextStyle(fontSize: 14, color: black),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        )
+                      :
 
                       //*focus para leer los productos
-                      // Focus(
-                      //     focusNode: focusNode1,
-                      //     autofocus: true,
-                      //     onKey: (FocusNode node, RawKeyEvent event) {
-                      //       if (event is RawKeyDownEvent) {
-                      //         if (event.logicalKey ==
-                      //             LogicalKeyboardKey.enter) {
-                      //           validateBarcode(
-                      //               context.read<RecepcionBatchBloc>().scannedValue5,
-                      //               context);
-                      //           return KeyEventResult.handled;
-                      //         } else {
-                      //           context.read<RecepcionBatchBloc>().add(
-                      //               UpdateScannedValueOrderEvent(
-                      //                   event.data.keyLabel, 'toDo'));
-                      //           return KeyEventResult.handled;
-                      //         }
-                      //       }
-                      //       return KeyEventResult.ignored;
-                      //     },
-                      //     child: Container()),
+                      Focus(
+                          focusNode: //validacion segun el focus
+                              focusNode1,
+                          autofocus: true,
+                          onKey: (FocusNode node, RawKeyEvent event) {
+                            if (event is RawKeyDownEvent) {
+                              if (event.logicalKey ==
+                                  LogicalKeyboardKey.enter) {
+                                //validacion segun el focus
+                                if (conteoBloc.ubicacionExpanded.isEmpty) {
+                                  validateLocation(
+                                      context.read<ConteoBloc>().scannedValue6,
+                                      context);
+                                } else {
+                                  validateBarcode(
+                                      context.read<ConteoBloc>().scannedValue5,
+                                      context);
+                                }
+                                return KeyEventResult.handled;
+                              } else {
+                                if (conteoBloc.ubicacionExpanded.isEmpty) {
+                                  context.read<ConteoBloc>().add(
+                                      UpdateScannedValueEvent(
+                                          event.data.keyLabel, 'toLocation'));
+                                  return KeyEventResult.handled;
+                                } else {
+                                  context.read<ConteoBloc>().add(
+                                      UpdateScannedValueEvent(
+                                          event.data.keyLabel, 'toProduct'));
+                                  return KeyEventResult.handled;
+                                }
+                              }
+                            }
+                            return KeyEventResult.ignored;
+                          },
+                          child: Container()),
+                  productosPorUbicacion.isEmpty
+                      ? _buildEmptyState()
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: productosPorUbicacion.length,
+                            itemBuilder: (context, index) {
+                              final ubicacion =
+                                  productosPorUbicacion.keys.elementAt(index);
+                              final productos =
+                                  productosPorUbicacion[ubicacion]!;
 
-                      (conteoBloc.lineasContadas?.where((element) {
-                                return (element.isDoneItem == 0 ||
-                                    element.isDoneItem == null);
-                              }).length ==
-                              0)
-                          ? Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  const Text('No hay productos',
-                                      style:
-                                          TextStyle(fontSize: 14, color: grey)),
-                                  const Text('Intente buscar otro producto',
-                                      style:
-                                          TextStyle(fontSize: 12, color: grey)),
-                                  Visibility(
-                                    visible: context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra"),
-                                    child: Container(
-                                      height: 60,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Expanded(
-                              child: ListView.builder(
-                                itemCount:
-                                    conteoBloc.lineasContadas.where((element) {
-                                  return (element.isDoneItem == 0 ||
-                                      element.isDoneItem == null);
-                                }).length,
-                                itemBuilder: (context, index) {
-                                  final product = conteoBloc
-                                      .lineasContadas //recepcionBloc.listProductsEntrada
-                                      .where((element) {
-                                    return (element.isDoneItem == 0 ||
-                                        element.isDoneItem == null);
-                                  }).elementAt(index);
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    child: Card(
-                                      color: white,
-                                      // Cambia el color de la tarjeta si el producto está seleccionado
-                                      // color: product.isSelected == 1
-                                      //     ? primaryColorAppLigth // Color amarillo si está seleccionado
-                                      //     : Colors
-                                      //         .white, // Color blanco si no está seleccionado
-                                      elevation: 5,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            // showDialog(
-                                            //     context: context,
-                                            //     builder: (context) {
-                                            //       return const DialogLoading(
-                                            //         message:
-                                            //             'Cargando información del producto',
-                                            //       );
-                                            //     });
-
-                                            // context
-                                            //     .read<RecepcionBatchBloc>()
-                                            //     .add(FetchPorductOrder(
-                                            //       product,
-                                            //     ));
-
-                                            // // Esperar 3 segundos antes de continuar
-                                            // Future.delayed(
-                                            //     const Duration(milliseconds: 300),
-                                            //     () {
-                                            //   Navigator.pop(context);
-
-                                            //   Navigator.pushReplacementNamed(
-                                            //     context,
-                                            //     'scan-product-reception-batch',
-                                            //     arguments: [
-                                            //       widget.ordenCompra,
-                                            //       product
-                                            //     ],
-                                            //   );
-                                            // });
-                                            // print(product.toMap());
-                                          },
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  "Producto:",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp,
-                                                  ),
-                                                ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  "${product.productName}",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                ),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    "Codigo: ",
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: primaryColorApp,
-                                                    ),
-                                                  ),
-                                                  Text("${product.productCode}",
-                                                      style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: black)),
-                                                ],
-                                              ),
-                                              Visibility(
-                                                visible:
-                                                    product.productTracking ==
-                                                        'lot',
-                                                child: Row(
-                                                  children: [
-                                                    Text(
-                                                      "Lote: ",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp,
-                                                      ),
-                                                    ),
-                                                    Text("${product.lotName}",
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: black)),
-                                                  ],
-                                                ),
-                                              ),
-                                              Text(
-                                                "Ubicación: ",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp,
-                                                ),
-                                              ),
-                                              Text("${product.locationName}",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black)),
-                                              // Visibility(
-                                              //   visible: recepcionBloc
-                                              //           .configurations
-                                              //           .result
-                                              //           ?.result
-                                              //           ?.hideExpectedQty ==
-                                              //       false,
-                                              //   child: Row(
-                                              //     children: [
-                                              //       Text(
-                                              //         "Cantidad: ",
-                                              //         style: TextStyle(
-                                              //           fontSize: 12,
-                                              //           color: primaryColorApp,
-                                              //         ),
-                                              //       ),
-                                              //       Text(
-                                              //           "${product.cantidadFaltante}",
-                                              //           style: const TextStyle(
-                                              //               fontSize: 12,
-                                              //               color: black)),
-                                              //     ],
-                                              //   ),
-                                              // ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
+                              return CustomExpansionTile(
+                                key: ValueKey(ubicacion.toLowerCase()),
+                                title: ubicacion,
+                                subtitle: '${productos.length} producto(s)',
+                                isExpanded: conteoBloc.ubicacionExpanded
+                                        .toLowerCase() ==
+                                    ubicacion.toLowerCase(),
+                                onTap: () {
+                                  if (conteoBloc.ubicacionExpanded
+                                          .toLowerCase() ==
+                                      ubicacion.toLowerCase()) {
+                                    // Si ya está expandida, la colapsamos
+                                    conteoBloc
+                                        .add(ClearExpandedLocationEvent());
+                                  } else {
+                                    // Si no está expandida, la expandimos
+                                    conteoBloc
+                                        .add(ExpandLocationEvent(ubicacion));
+                                  }
                                 },
-                              ),
-                            ),
+                                children: productos
+                                    .map((product) =>
+                                        _buildProductItem(product, size))
+                                    .toList(),
+                              );
+                            },
+                          ),
+                        ),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('No hay productos',
+              style: TextStyle(fontSize: 14, color: grey)),
+          const Text('Intente buscar otro producto',
+              style: TextStyle(fontSize: 12, color: grey)),
+          if (context.read<UserBloc>().fabricante.contains("Zebra"))
+            const SizedBox(height: 60),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductItem(CountedLine product, Size size) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      child: Card(
+        elevation: 2,
+        child: GestureDetector(
+          onTap: () => _handleProductTap(context, product),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow("Producto:", product.productName ?? ''),
+                _buildInfoRow("Código:", product.productCode ?? ''),
+                if (product.productTracking == 'lot')
+                  _buildInfoRow("Lote:", product.lotName ?? ''),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: primaryColorApp,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 12, color: black),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleProductTap(BuildContext context, CountedLine product) {
+    showDialog(
+      context: context,
+      builder: (context) => const DialogLoading(
+        message: 'Cargando información del producto',
+      ),
+    );
+    context.read<ConteoBloc>().add(
+          LoadCurrentProductEvent(currentProduct: product),
+        );
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      Navigator.pop(context);
+      Navigator.pushReplacementNamed(
+        context,
+        'scan-product-conteo',
+      );
+    });
+  }
+}
+
+class CustomExpansionTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool isExpanded;
+  final VoidCallback onTap;
+  final List<Widget> children;
+
+  const CustomExpansionTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.isExpanded,
+    required this.onTap,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      elevation: 3,
+      child: Column(
+        children: [
+          ListTile(
+            onTap: onTap,
+            title: Text(
+              title,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: primaryColorApp),
+            ),
+            subtitle: Text(
+              subtitle,
+              style: const TextStyle(fontSize: 12),
+            ),
+            trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+          ),
+          AnimatedCrossFade(
+            firstChild: Container(),
+            secondChild: Column(children: children),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
       ),
     );
   }

@@ -314,6 +314,8 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
       if (infoRapida.result?.code == 200) {
         infoRapidaResult = infoRapida.result!;
+
+       
         emit(InfoRapidaLoaded(infoRapidaResult, infoRapida.result!.type!));
       } else {
         emit(InfoRapidaError());

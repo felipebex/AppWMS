@@ -389,7 +389,7 @@ class ListDevolutionsScreen extends StatelessWidget {
                                               child: Row(
                                                 children: [
                                                   Icon(
-                                                    Icons.shopping_cart_sharp,
+                                                    Icons.receipt,
                                                     color: primaryColorApp,
                                                     size: 15,
                                                   ),

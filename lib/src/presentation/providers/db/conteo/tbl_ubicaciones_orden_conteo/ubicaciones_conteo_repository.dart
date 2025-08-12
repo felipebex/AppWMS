@@ -22,6 +22,7 @@ class UbicacionesConteoRepository {
             UbicacionesConteoTable.columnId: ubicacion.id,
             UbicacionesConteoTable.columnName: ubicacion.name ?? '',
             UbicacionesConteoTable.columnOrdenConteoId: ubicacion.ordenConteoId ?? 0,
+            UbicacionesConteoTable.columnBarcode: ubicacion.barcode ?? '',
           };
 
           batch.insert(

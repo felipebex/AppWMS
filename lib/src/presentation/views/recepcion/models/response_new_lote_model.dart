@@ -36,20 +36,24 @@ class ResponseNewLote {
 
 class ResponseNewLoteResult {
     int? code;
+    String? msg;
     LotesProduct? result;
 
     ResponseNewLoteResult({
         this.code,
+        this.msg,
         this.result,
     });
 
     factory ResponseNewLoteResult.fromMap(Map<String, dynamic> json) => ResponseNewLoteResult(
         code: json["code"],
+        msg: json["msg"],
         result: json["result"] == null ? null : LotesProduct.fromMap(json["result"]),
     );
 
     Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "result": result?.toMap(),
     };
 }

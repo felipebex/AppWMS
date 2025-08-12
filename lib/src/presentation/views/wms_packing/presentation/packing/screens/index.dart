@@ -36,7 +36,12 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
 
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
         listener: (context, state) {
+      print("Estado del bloc: $state");
       if (state is AssignUserToPedidoError) {
+        //validamos que este un dialog abierto
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
         Get.snackbar(
           '360 Software Informa',
           state.error,
@@ -451,35 +456,12 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                             ],
                                           ),
                                         ),
-                                        Visibility(
-                                          visible: batch.backorderId != 0,
-                                          child: Row(
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Icon(
-                                                    Icons.shopping_cart_rounded,
-                                                    color: primaryColorApp,
-                                                    size: 15),
-                                              ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(batch.backorderName ?? '',
-                                                  style: TextStyle(
-                                                      color: black,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ],
-                                          ),
-                                        ),
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
                                               Icon(
-                                                Icons.shopping_cart_rounded,
+                                                Icons.receipt,
                                                 color: primaryColorApp,
                                                 size: 15,
                                               ),
@@ -505,6 +487,30 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                             ],
                                           ),
                                         ),
+                                        Visibility(
+                                          visible: batch.backorderId != 0,
+                                          child: Row(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Icon(
+                                                    Icons.file_copy,
+                                                    color: primaryColorApp,
+                                                    size: 15),
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(batch.backorderName ?? '',
+                                                  style: TextStyle(
+                                                      color: black,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                            ],
+                                          ),
+                                        ),
+                                        
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Row(
@@ -715,7 +721,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
             Navigator.pushReplacementNamed(context, 'detail-packing-pedido',
                 arguments: [0]);
           },
-          title: 'Iniciar Recepcion',
+          title: 'Iniciar Packing',
         ),
       );
     } else {

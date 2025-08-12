@@ -596,6 +596,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             'location_dest_id',
             event.muelle.completeName ?? '',
             product.idMove ?? 0);
+
+          //actualizamos el id del muelle del producto
+        await db.setFieldTableBatchProducts(
+            product.batchId ?? 0,
+            product.idProduct ?? 0,
+            'id_location_dest',
+            event.muelle.id ?? 0,
+            product.idMove ?? 0);
+
         //Actualizamos el barcode del muelle del producto
         await db.setFieldStringTableBatchProducts(
             product.batchId ?? 0,

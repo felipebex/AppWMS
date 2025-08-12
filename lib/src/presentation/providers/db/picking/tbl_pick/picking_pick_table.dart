@@ -35,6 +35,7 @@ class PickingPickTable {
   static const String columnMuelle = 'muelle';
   static const String columnBarcodeMuelle = 'barcode_muelle';
   static const String columnMuelleId = 'muelle_id';
+  static const String columnIdMuellePadre = 'id_muelle_padre';
   static const String columnIndexList = 'index_list';
 
   static const String columnIsSendOddo = 'is_send_oddo';
@@ -91,6 +92,7 @@ class PickingPickTable {
         $columnMuelle TEXT,
         $columnBarcodeMuelle TEXT,
         $columnMuelleId INTEGER,
+        $columnIdMuellePadre INTEGER,
         $columnIndexList INTEGER,
         $columnIsSendOddo INTEGER,
         $columnIsSendOddoDate VARCHAR(255),

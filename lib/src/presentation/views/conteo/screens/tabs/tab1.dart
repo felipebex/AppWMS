@@ -173,7 +173,33 @@ class Tab1ScreenConteo extends StatelessWidget {
                               Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    ordeConteoBd.numeroLineas.toString(),
+                                    context
+                                        .read<ConteoBloc>()
+                                        .ubicacionesConteo
+                                        .length
+                                        .toString(),
+                                    style:
+                                        TextStyle(fontSize: 14, color: black),
+                                  )),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Total categorias : ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    context
+                                        .read<ConteoBloc>()
+                                        .categoriasConteo
+                                        .length
+                                        .toString(),
                                     style:
                                         TextStyle(fontSize: 14, color: black),
                                   )),
@@ -242,67 +268,75 @@ class Tab1ScreenConteo extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 5),
-                Text(
-                  'Ubicaciones de conteo',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: primaryColorApp,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 5),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    itemCount:
-                        context.read<ConteoBloc>().ubicacionesConteo.length,
-                    itemBuilder: (context, index) {
-                      return Card(
+                if (context.read<ConteoBloc>().ubicacionesConteo.isNotEmpty ==
+                    true) ...[
+                  Text(
+                    'Ubicaciones de conteo',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: primaryColorApp,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 5),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      itemCount:
+                          context.read<ConteoBloc>().ubicacionesConteo.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                            elevation: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                  context
+                                          .read<ConteoBloc>()
+                                          .ubicacionesConteo[index]
+                                          .name ??
+                                      '',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: black)),
+                            ));
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+
+                if (context.read<ConteoBloc>().categoriasConteo.isNotEmpty ==
+                    true) ...[
+                  Text(
+                    'Categorias de conteo',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: primaryColorApp,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 5),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      itemCount:
+                          context.read<ConteoBloc>().categoriasConteo.length,
+                      itemBuilder: (context, index) {
+                        return Card(
                           elevation: 4,
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(5.0),
                             child: Text(
                                 context
                                         .read<ConteoBloc>()
-                                        .ubicacionesConteo[index]
+                                        .categoriasConteo[index]
                                         .name ??
                                     '',
-                                style:
-                                    const TextStyle(fontSize: 12, color: black)),
-                          ));
-                    },
+                                style: const TextStyle(
+                                    fontSize: 12, color: black)),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Categorias de conteo',
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: primaryColorApp,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 5),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    itemCount:
-                        context.read<ConteoBloc>().categoriasConteo.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        elevation: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Text(
-                              context
-                                      .read<ConteoBloc>()
-                                      .categoriasConteo[index]
-                                      .name ??
-                                  '',
-                              style: const TextStyle(fontSize: 12, color: black)),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                ],
                 const SizedBox(height: 10),
 
                 // const Spacer(),

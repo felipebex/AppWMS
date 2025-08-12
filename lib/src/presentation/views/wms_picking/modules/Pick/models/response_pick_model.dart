@@ -104,6 +104,7 @@ class ResultPick {
   final int? indexList;
   final String? barcodeMuelle;
   final dynamic muelleId;
+  final dynamic idMuellePadre;
   final String? isSendOdoo;
   final String? isSendOdooDate;
   final String? observation;
@@ -153,6 +154,7 @@ class ResultPick {
     this.muelle,
     this.barcodeMuelle,
     this.muelleId,
+    this.idMuellePadre,
     this.indexList,
     this.isSendOdoo,
     this.isSendOdooDate,
@@ -210,6 +212,7 @@ class ResultPick {
         muelle: json["muelle"],
         barcodeMuelle: json["barcode_muelle"],
         muelleId: json["muelle_id"],
+        idMuellePadre: json["id_muelle_padre"],
         indexList: json["index_list"],
         isSendOdoo: json["is_send_odoo"],
         isSendOdooDate: json["is_send_odoo_date"],
@@ -263,6 +266,7 @@ class ResultPick {
         "muelle": muelle,
         "barcode_muelle": barcodeMuelle,
         "muelle_id": muelleId,
+        "id_muelle_padre": idMuellePadre,
         "index_list": indexList,
         "is_send_odoo": isSendOdoo,
         "is_send_odoo_date": isSendOdooDate,

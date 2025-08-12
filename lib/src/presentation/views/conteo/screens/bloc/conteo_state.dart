@@ -5,7 +5,6 @@ sealed class ConteoState {}
 
 final class ConteoInitial extends ConteoState {}
 
-
 class ConteoLoading extends ConteoState {}
 
 final class ConteoLoaded extends ConteoState {
@@ -25,7 +24,6 @@ class LoadConteoSuccess extends ConteoState {
   LoadConteoSuccess(this.ordenConteo);
 }
 
-
 //estados para cargar la lista de conteos desde la bd
 class ConteoFromDBLoaded extends ConteoState {
   final List<DatumConteo> conteos;
@@ -41,4 +39,109 @@ class ConteoFromDBError extends ConteoState {
   ConteoFromDBError(this.message);
 }
 
+//*estado para validar campos
+class ValidateFieldsStateSuccess extends ConteoState {
+  final bool isOk;
+  ValidateFieldsStateSuccess(this.isOk);
+}
 
+class ValidateFieldsStateError extends ConteoState {
+  final String msg;
+  ValidateFieldsStateError(this.msg);
+}
+
+class LoadCurrentProductError extends ConteoState {
+  final String message;
+  LoadCurrentProductError(this.message);
+}
+
+class LoadCurrentProductSuccess extends ConteoState {
+  final CountedLine currentProduct;
+  LoadCurrentProductSuccess(this.currentProduct);
+}
+
+//*estado para actualizar el valor escaneado
+
+class UpdateScannedValueState extends ConteoState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueState(this.scannedValue, this.scan);
+}
+
+class ClearScannedValueState extends ConteoState {}
+
+class ConfigurationLoading extends ConteoState {}
+
+class ConfigurationPickingLoaded extends ConteoState {
+  final Configurations configurations;
+
+  ConfigurationPickingLoaded(this.configurations);
+}
+
+class ConfigurationError extends ConteoState {
+  final String error;
+
+  ConfigurationError(this.error);
+}
+
+class ChangeLocationIsOkState extends ConteoState {
+  final bool isOk;
+  ChangeLocationIsOkState(this.isOk);
+}
+
+class ChangeIsOkState extends ConteoState {
+  final bool isOk;
+  ChangeIsOkState(this.isOk);
+}
+
+class ChangeQuantitySeparateState extends ConteoState {
+  final dynamic quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}
+
+class ChangeProductOrderIsOkState extends ConteoState {
+  final bool isOk;
+  ChangeProductOrderIsOkState(this.isOk);
+}
+
+class ClearExpandedLocationState extends ConteoState {
+  ClearExpandedLocationState();
+}
+
+class ShowQuantityState extends ConteoState {
+  final bool showQuantity;
+  ShowQuantityState(this.showQuantity);
+}
+
+//*estado para separar la cantidad
+class ChangeQuantitySeparateStateSuccess extends ConteoState {
+  final dynamic quantity;
+  ChangeQuantitySeparateStateSuccess(this.quantity);
+}
+
+class ChangeQuantitySeparateStateError extends ConteoState {
+  final String msg;
+  ChangeQuantitySeparateStateError(this.msg);
+}
+
+class BarcodesProductLoadedState extends ConteoState {
+  final List<Barcodes> listOfBarcodes;
+  BarcodesProductLoadedState({required this.listOfBarcodes});
+}
+
+class GetLotesProductLoading extends ConteoState {}
+
+class GetLotesProductSuccess extends ConteoState {
+  final List<LotesProduct> lotesProduct;
+  GetLotesProductSuccess(this.lotesProduct);
+}
+
+class GetLotesProductFailure extends ConteoState {
+  final String error;
+  GetLotesProductFailure(this.error);
+}
+
+class ChangeLoteIsOkState extends ConteoState {
+  final bool isOk;
+  ChangeLoteIsOkState(this.isOk);
+}

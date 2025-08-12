@@ -326,38 +326,38 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                     fontSize: 12,
                                                   )),
                                             ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.shopping_cart_sharp,
-                                                    color: primaryColorApp,
-                                                    size: 15,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    recepcionBatch[index]
-                                                                .purchaseOrderName ==
-                                                            ""
-                                                        ? recepcionBatch[index]
-                                                                    .origin ==
-                                                                ""
-                                                            ? 'Sin orden de compra'
-                                                            : recepcionBatch[
-                                                                        index]
-                                                                    .origin ??
-                                                                ''
-                                                        : recepcionBatch[index]
-                                                                .purchaseOrderName ??
-                                                            '',
-                                                    style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: black),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                            // Align(
+                                            //   alignment: Alignment.centerLeft,
+                                            //   child: Row(
+                                            //     children: [
+                                            //       Icon(
+                                            //         Icons.shopping_cart_sharp,
+                                            //         color: primaryColorApp,
+                                            //         size: 15,
+                                            //       ),
+                                            //       const SizedBox(width: 5),
+                                            //       Text(
+                                            //         recepcionBatch[index]
+                                            //                     .purchaseOrderName ==
+                                            //                 ""
+                                            //             ? recepcionBatch[index]
+                                            //                         .origin ==
+                                            //                     ""
+                                            //                 ? 'Sin orden de compra'
+                                            //                 : recepcionBatch[
+                                            //                             index]
+                                            //                         .origin ??
+                                            //                     ''
+                                            //             : recepcionBatch[index]
+                                            //                     .purchaseOrderName ??
+                                            //                 '',
+                                            //         style: const TextStyle(
+                                            //             fontSize: 12,
+                                            //             color: black),
+                                            //       ),
+                                            //     ],
+                                            //   ),
+                                            // ),
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(

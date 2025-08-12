@@ -25,6 +25,8 @@ class ProductScannerWidget extends StatelessWidget {
   final Widget expiryWidget;
   final List<Barcodes> listOfBarcodes;
   final VoidCallback onBarcodesDialogTap;
+  final String category;
+  final bool isViewLote;
 
   const ProductScannerWidget({
     super.key,
@@ -47,6 +49,8 @@ class ProductScannerWidget extends StatelessWidget {
     required this.expiryWidget,
     required this.listOfBarcodes,
     required this.onBarcodesDialogTap,
+    this.category = "",
+    this.isViewLote = true,
   });
 
   @override
@@ -125,6 +129,20 @@ class ProductScannerWidget extends StatelessWidget {
                             ),
                           ],
                         ),
+                         if (category != "")
+                          Row(
+                            children: [
+                              Text('Categoria:',
+                                  style: TextStyle(
+                                      fontSize: 13, color: primaryColorApp)),
+                              const SizedBox(width: 5),
+                              Text(category,
+                                  style: const TextStyle(
+                                      fontSize: 13, color: black)),
+                            
+                            ],
+                          ),
+                        if(isViewLote)...[
                         if (lotId != null)
                           Row(
                             children: [
@@ -148,6 +166,7 @@ class ProductScannerWidget extends StatelessWidget {
                               ),
                             ],
                           ),
+                        ],
                         if (origin != null && origin!.isNotEmpty)
                           Row(
                             children: [
@@ -214,6 +233,7 @@ class ProductScannerWidget extends StatelessWidget {
                           ),
                         ],
                       ),
+                      if(isViewLote)...[
                       if (lotId != null)
                         Row(
                           children: [
@@ -237,6 +257,7 @@ class ProductScannerWidget extends StatelessWidget {
                             ),
                           ],
                         ),
+                      ],
                       if (origin != null && origin!.isNotEmpty)
                         Row(
                           children: [

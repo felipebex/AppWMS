@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/widgets/LocationCardButton_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -348,7 +349,8 @@ class _InventarioScreenState extends State<InventarioScreen>
             context: context,
             builder: (context) {
               return WillPopScope(
-                onWillPop: () async => false, // Deshabilitar el botón de retroceso
+                onWillPop: () async =>
+                    false, // Deshabilitar el botón de retroceso
                 child: const DialogLoading(
                   message: "Cargando productos...",
                 ),
@@ -358,7 +360,8 @@ class _InventarioScreenState extends State<InventarioScreen>
         }
 
         if (state is GetProductsSuccessBD) {
-          Navigator.pop(context);
+          //cerramos solo si hay un dialogo abierto
+          // Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',
             "Se han cargado los productos ${state.products.length} correctamente",
@@ -592,246 +595,154 @@ class _InventarioScreenState extends State<InventarioScreen>
                                       : Colors.grey[300]
                                   : Colors.red[200],
                               elevation: 5,
-                              child: Container(
-                                // color: Colors.amber,
-                                width: size.width * 0.85,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 0, vertical: 5),
-                                child: context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra")
-                                    ? Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          children: [
-                                            GestureDetector(
-                                              onTap: !bloc
-                                                          .locationIsOk && //false
-                                                      !bloc
-                                                          .productIsOk && //false
-                                                      !bloc.quantityIsOk
-                                                  ? () {
-                                                      if (bloc
-                                                          .ubicacionesFilters
-                                                          .isEmpty) {
-                                                        Get.defaultDialog(
-                                                          title:
-                                                              '360 Software Informa',
-                                                          titleStyle: TextStyle(
-                                                              color: Colors.red,
-                                                              fontSize: 18),
-                                                          middleText:
-                                                              "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
-                                                          middleTextStyle:
-                                                              TextStyle(
-                                                                  color: black,
-                                                                  fontSize: 14),
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                          radius: 10,
-                                                        );
-                                                      } else {
-                                                        Navigator
-                                                            .pushReplacementNamed(
-                                                          context,
-                                                          'search-location',
-                                                        );
-                                                      }
-                                                    }
-                                                  : null,
-                                              child: Card(
-                                                color: white,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(6.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Ubicación de existencias',
-                                                          style: TextStyle(
-                                                            fontSize: 15,
-                                                            color:
-                                                                primaryColorApp,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const Spacer(),
-                                                      Image.asset(
-                                                        "assets/icons/ubicacion.png",
-                                                        color: primaryColorApp,
-                                                        width: 20,
-                                                      ),
-                                                    ],
-                                                  ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    // color: Colors.amber,
+                                    width: size.width * 0.85,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 0, vertical: 5),
+                                    child: context
+                                            .read<UserBloc>()
+                                            .fabricante
+                                            .contains("Zebra")
+                                        ? Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                                LocationCardButton(
+                                                  bloc:
+                                                      bloc, // Tu instancia de BLoC/Controlador
+                                                  cardColor:
+                                                      white, // Asegúrate que 'white' esté definido en tus colores
+                                                  textAndIconColor:
+                                                      primaryColorApp, // Usa tu color primario
+                                                  title:
+                                                      'Ubicación de existencias',
+                                                  iconPath:
+                                                      "assets/icons/ubicacion.png",
+                                                  dialogTitle:
+                                                      '360 Software Informa',
+                                                  dialogMessage:
+                                                      "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
+                                                  routeName: 'search-location',
+                                                  ubicacionFija: true,
                                                 ),
-                                              ),
-                                            ),
-                                            Container(
-                                              height: 20,
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 5, top: 5),
-                                              child: TextFormField(
-                                                autofocus: true,
-                                                showCursor: false,
-                                                controller: bloc
-                                                    .controllerLocation, // Asignamos el controlador
-                                                enabled: !bloc
-                                                        .locationIsOk && // false
-                                                    !bloc
-                                                        .productIsOk && // false
-                                                    !bloc.quantityIsOk,
-
-                                                focusNode: focusNode1,
-                                                onChanged: (value) {
-                                                  // Llamamos a la validación al cambiar el texto
-                                                  validateLocation(value);
-                                                },
-                                                decoration: InputDecoration(
-                                                  hintText: bloc.currentUbication
-                                                                  ?.name ==
-                                                              "" ||
-                                                          bloc.currentUbication
-                                                                  ?.name ==
-                                                              null
-                                                      ? 'Esperando escaneo'
-                                                      : bloc.currentUbication
-                                                          ?.name,
-                                                  disabledBorder:
-                                                      InputBorder.none,
-                                                  hintStyle: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                  border: InputBorder.none,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Focus(
-                                        focusNode: focusNode1,
-                                        onKey: (FocusNode node,
-                                            RawKeyEvent event) {
-                                          if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                LogicalKeyboardKey.enter) {
-                                              validateLocation(
-                                                  //validamos la ubicacion
-                                                  bloc.scannedValue1);
-
-                                              return KeyEventResult.handled;
-                                            } else {
-                                              bloc.add(UpdateScannedValueEvent(
-                                                  event.data.keyLabel,
-                                                  'location'));
-
-                                              return KeyEventResult.handled;
-                                            }
-                                          }
-                                          return KeyEventResult.ignored;
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: !bloc
-                                                            .locationIsOk && //false
+                                                Container(
+                                                  height: 20,
+                                                  margin: const EdgeInsets.only(
+                                                      bottom: 5, top: 5),
+                                                  child: TextFormField(
+                                                    autofocus: true,
+                                                    showCursor: false,
+                                                    controller: bloc
+                                                        .controllerLocation, // Asignamos el controlador
+                                                    enabled: !bloc
+                                                            .locationIsOk && // false
                                                         !bloc
-                                                            .productIsOk && //false
-                                                        !bloc.quantityIsOk
-                                                    ? () {
-                                                        if (bloc
-                                                            .ubicacionesFilters
-                                                            .isEmpty) {
-                                                          Get.defaultDialog(
-                                                            title:
-                                                                '360 Software Informa',
-                                                            titleStyle:
-                                                                TextStyle(
-                                                                    color: Colors
-                                                                        .red,
-                                                                    fontSize:
-                                                                        18),
-                                                            middleText:
-                                                                "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
-                                                            middleTextStyle:
-                                                                TextStyle(
-                                                                    color:
-                                                                        black,
-                                                                    fontSize:
-                                                                        14),
-                                                            backgroundColor:
-                                                                Colors.white,
-                                                            radius: 10,
-                                                          );
-                                                        } else {
-                                                          Navigator
-                                                              .pushReplacementNamed(
-                                                            context,
-                                                            'search-location',
-                                                          );
-                                                        }
-                                                      }
-                                                    : null,
-                                                child: Card(
-                                                  color: white,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            6.0),
-                                                    child: Row(
-                                                      children: [
-                                                        Align(
-                                                          alignment: Alignment
-                                                              .centerLeft,
-                                                          child: Text(
-                                                            'Ubicación de existencias',
-                                                            style: TextStyle(
-                                                              fontSize: 15,
-                                                              color:
-                                                                  primaryColorApp,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const Spacer(),
-                                                        Image.asset(
-                                                          "assets/icons/ubicacion.png",
-                                                          color:
-                                                              primaryColorApp,
-                                                          width: 20,
-                                                        ),
-                                                      ],
+                                                            .productIsOk && // false
+                                                        !bloc.quantityIsOk,
+
+                                                    focusNode: focusNode1,
+                                                    onChanged: (value) {
+                                                      // Llamamos a la validación al cambiar el texto
+                                                      validateLocation(value);
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      hintText: bloc.currentUbication
+                                                                      ?.name ==
+                                                                  "" ||
+                                                              bloc.currentUbication
+                                                                      ?.name ==
+                                                                  null
+                                                          ? 'Esperando escaneo'
+                                                          : bloc
+                                                              .currentUbication
+                                                              ?.name,
+                                                      disabledBorder:
+                                                          InputBorder.none,
+                                                      hintStyle:
+                                                          const TextStyle(
+                                                              fontSize: 12,
+                                                              color: black),
+                                                      border: InputBorder.none,
                                                     ),
                                                   ),
                                                 ),
+                                              ],
+                                            ),
+                                          )
+                                        : Focus(
+                                            focusNode: focusNode1,
+                                            onKey: (FocusNode node,
+                                                RawKeyEvent event) {
+                                              if (event is RawKeyDownEvent) {
+                                                if (event.logicalKey ==
+                                                    LogicalKeyboardKey.enter) {
+                                                  validateLocation(
+                                                      //validamos la ubicacion
+                                                      bloc.scannedValue1);
+
+                                                  return KeyEventResult.handled;
+                                                } else {
+                                                  bloc.add(
+                                                      UpdateScannedValueEvent(
+                                                          event.data.keyLabel,
+                                                          'location'));
+
+                                                  return KeyEventResult.handled;
+                                                }
+                                              }
+                                              return KeyEventResult.ignored;
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                children: [
+                                                  LocationCardButton(
+                                                    bloc:
+                                                        bloc, // Tu instancia de BLoC/Controlador
+                                                    cardColor:
+                                                        white, // Asegúrate que 'white' esté definido en tus colores
+                                                    textAndIconColor:
+                                                        primaryColorApp, // Usa tu color primario
+                                                    title:
+                                                        'Ubicación de existencias',
+                                                    iconPath:
+                                                        "assets/icons/ubicacion.png",
+                                                    dialogTitle:
+                                                        '360 Software Informa',
+                                                    dialogMessage:
+                                                        "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
+                                                    routeName:
+                                                        'search-location',
+                                                        ubicacionFija: true,
+                                                  ),
+                                                  Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        bloc.currentUbication
+                                                                        ?.name ==
+                                                                    "" ||
+                                                                bloc.currentUbication
+                                                                        ?.name ==
+                                                                    null
+                                                            ? 'Esperando escaneo'
+                                                            : bloc.currentUbication
+                                                                    ?.name ??
+                                                                "",
+                                                        style: TextStyle(
+                                                            color: black,
+                                                            fontSize: 14),
+                                                      ))
+                                                ],
                                               ),
-                                              Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    bloc.currentUbication
-                                                                    ?.name ==
-                                                                "" ||
-                                                            bloc.currentUbication
-                                                                    ?.name ==
-                                                                null
-                                                        ? 'Esperando escaneo'
-                                                        : bloc.currentUbication
-                                                                ?.name ??
-                                                            "",
-                                                    style: TextStyle(
-                                                        color: black,
-                                                        fontSize: 14),
-                                                  ))
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

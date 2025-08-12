@@ -4,6 +4,10 @@ class UbicacionesConteoTable {
   static const String columnId = 'id';
   static const String columnName = 'name';
   static const String columnOrdenConteoId = 'orden_conteo_id';
+  //barcode
+  static const String columnBarcode = 'barcode';
+
+
 
   static String createTable() {
     return '''
@@ -11,6 +15,7 @@ class UbicacionesConteoTable {
       $columnId INTEGER PRIMARY KEY,
       $columnName TEXT,
       $columnOrdenConteoId INTEGER,
+      $columnBarcode TEXT,
       FOREIGN KEY ($columnOrdenConteoId) REFERENCES tbl_orden_conteo(id)
     )
     ''';

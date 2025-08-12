@@ -390,14 +390,19 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         listOfPickCompoFiltered = listOfPickCompo.where((batch) {
           final name = batch.name?.toLowerCase() ?? '';
           final origin = batch.origin?.toLowerCase() ?? '';
-          return name.contains(query) || origin.contains(query);
+          final proveedor = batch.proveedor?.toLowerCase() ?? '';
+          final backorder = batch.backorderName?.toLowerCase() ?? '';
+          return name.contains(query) || origin.contains(query) || proveedor.contains(query) || backorder.contains(query);
+
         }).toList();
       } else {
         //parte de picking
         listOfPickFiltered = listOfPick.where((batch) {
           final name = batch.name?.toLowerCase() ?? '';
           final origin = batch.origin?.toLowerCase() ?? '';
-          return name.contains(query) || origin.contains(query);
+          final proveedor = batch.proveedor?.toLowerCase() ?? '';
+          final backorder = batch.backorderName?.toLowerCase() ?? '';
+          return name.contains(query) || origin.contains(query) || proveedor.contains(query) || backorder.contains(query);
         }).toList();
       }
     }

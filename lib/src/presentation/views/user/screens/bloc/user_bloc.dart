@@ -81,7 +81,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     try {
       emit(RegisterDeviceIdLoading());
       final response = await userRepository.sendIdPda(
-          idDispositivo, modelo, "$modelo $fabricante");
+          idDispositivo, modelo, "$modelo $fabricante", versionApp);
       if (response.result?.code == 200) {
         if (response.result?.data?.isAuthorized == "no") {
           PrefUtils.setIsLoggedIn(false);

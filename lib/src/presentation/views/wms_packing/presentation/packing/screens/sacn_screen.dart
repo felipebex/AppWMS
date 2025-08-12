@@ -278,12 +278,6 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                           .currentProduct.manejaTemperatura ==
                                       true) {
 
-
-
-
-
-
-
                                 if (packinghBloc.configurations.result?.result
                                         ?.showPhotoTemperature ==
                                     true) {

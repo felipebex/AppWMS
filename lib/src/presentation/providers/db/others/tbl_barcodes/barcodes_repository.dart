@@ -138,7 +138,8 @@ class BarcodesRepository {
             BarcodesPackagesTable.columnBatchId: b.batchId,
             BarcodesPackagesTable.columnIdMove: b.idMove,
             BarcodesPackagesTable.columnBarcode: b.barcode,
-            BarcodesPackagesTable.columnCantidad: b.cantidad ?? 1,
+              BarcodesPackagesTable.columnCantidad:
+              (b.cantidad == null || b.cantidad == 0) ? 1 : b.cantidad,
             BarcodesPackagesTable.columnBarcodeType: barcodeType,
           };
 

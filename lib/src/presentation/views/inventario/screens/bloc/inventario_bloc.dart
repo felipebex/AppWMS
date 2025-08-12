@@ -53,6 +53,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
 
+  bool ubicacionFija = false;
+
   dynamic quantitySelected = 0;
 
   bool isLoading = false;
@@ -137,6 +139,20 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     //*obtener las configuraciones y permisos del usuario desde la bd
     on<LoadConfigurationsUserInventory>(_onLoadConfigurationsUserEvent);
     on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+
+    //metodo para poner una ubicacion fija
+    on<SetUbicacionFijaEvent>(_onSetUbicacionFijaEvent);
+  }
+
+  void _onSetUbicacionFijaEvent(
+      SetUbicacionFijaEvent event, Emitter<InventarioState> emit) {
+    try {
+      ubicacionFija = event.ubicacionFija;
+      emit(ChangeLocationIsOkState(locationIsOk));
+    } catch (e, s) {
+      print("❌ Error en SetUbicacionFijaEvent: $e, $s");
+      emit(ChangeLocationIsOkState(false));
+    }
   }
 
   void _onFilterUbicacionesEvent(
@@ -194,7 +210,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         event.fechaCaducidad,
       );
 
-      if (response != null) {
+      if (response.result?.code == 200) {
         //agregamos el nuevo lote a la lista de lotes
         listLotesProduct.add(response.result?.result ?? LotesProduct());
         listLotesProductFilters.add(response.result?.result ?? LotesProduct());
@@ -205,7 +221,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         add(SelectecLoteEvent(currentProductLote!));
         emit(CreateLoteProductSuccess());
       } else {
-        emit(CreateLoteProductFailure('Error al crear el lote'));
+        emit(CreateLoteProductFailure(response.result?.msg ??
+            'Error al crear el lote concactarse con el administrador'));
       }
     } catch (e, s) {
       emit(CreateLoteProductFailure('Error al crear el lote'));
@@ -251,13 +268,12 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     scannedValue4 = '';
 
     // Reset validation flags
-    locationIsOk = false;
+
     productIsOk = false;
     quantityIsOk = false;
     viewQuantity = false;
     loteIsOk = false;
 
-    isLocationOk = true;
     isProductOk = true;
     isQuantityOk = true;
     isLoteOk = true;
@@ -271,7 +287,11 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
     // Clear current product
     currentProduct = null;
-    currentUbication = null;
+    if (!ubicacionFija) {
+      currentUbication = null;
+      locationIsOk = false;
+      isLocationOk = true;
+    }
     currentProductLote = null;
 
     listLotesProduct.clear();
@@ -372,14 +392,33 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       GetLotesProduct event, Emitter<InventarioState> emit) async {
     try {
       emit(GetLotesProductLoading());
+
+      // Siempre obtener los lotes frescos del servidor
       final response = await _inventarioRepository.fetchAllLotesProduct(
           false, currentProduct?.productId ?? 0);
+
       listLotesProduct = response;
       listLotesProductFilters = response;
+
+      if (event.isManual) {
+        // Búsqueda optimizada sin caché - versión eficiente
+        LotesProduct? foundLote;
+        for (final lote in response) {
+          if (lote.id == event.idLote) {
+            foundLote = lote;
+            break; // Rompe el ciclo al encontrar el lote
+          }
+        }
+
+        currentProductLote = foundLote ?? LotesProduct();
+        loteIsOk = true;
+        add(ChangeIsOkQuantity(true));
+      }
+
       emit(GetLotesProductSuccess(response));
     } catch (e, s) {
       emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
-      print('Error en el _onGetLotesProduct: $e, $s');
+      debugPrint('Error en _onGetLotesProduct: $e\n$s');
     }
   }
 
@@ -402,9 +441,12 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       if (isProductOk) {
         currentProduct = event.productSelect;
         add(FetchBarcodesProductEvent());
+
         if (currentProduct?.tracking == 'lot') {
-          // loteIsOk = true;
-          add(GetLotesProduct());
+          add(GetLotesProduct(
+            isManual: event.isManual,
+            idLote: currentProduct?.lotId ?? 0,
+          ));
         } else {
           viewQuantity = false;
         }

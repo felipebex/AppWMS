@@ -281,7 +281,7 @@ class LocationInfoScreen extends StatelessWidget {
   void getInfoProduct(String id, BuildContext context) {
     context
         .read<InfoRapidaBloc>()
-        .add(GetInfoRapida(id.toUpperCase(), true, true));
+        .add(GetInfoRapida(id.toUpperCase(), true, true, false));
   }
 }
 

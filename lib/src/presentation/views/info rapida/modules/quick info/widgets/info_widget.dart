@@ -5,11 +5,13 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class ProductInfoRow extends StatelessWidget {
   final String title;
   final String value;
+  final Color color;
 
   const ProductInfoRow({
     Key? key,
     required this.title,
     required this.value,
+    this.color = black,
   }) : super(key: key);
 
   @override
@@ -27,7 +29,7 @@ class ProductInfoRow extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             value,
-            style: TextStyle(fontSize: 12, color: black),
+            style: TextStyle(fontSize: 12, color: color),
           ),
         ),
       ],

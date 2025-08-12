@@ -44,8 +44,6 @@ class InventarioRepository {
               products.map((data) => Product.fromMap(data)).toList();
 
           return productsResponse;
-
-          
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -256,6 +254,14 @@ class InventarioRepository {
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 200) {
+            return ResponseNewLote(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: jsonResponse['result'] != null
+                  ? ResponseNewLoteResult.fromMap(jsonResponse['result'])
+                  : null,
+            );
+          } else {
             return ResponseNewLote(
               jsonrpc: jsonResponse['jsonrpc'],
               id: jsonResponse['id'],

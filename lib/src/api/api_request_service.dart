@@ -215,7 +215,7 @@ class ApiRequestService {
           colorText: primaryColorApp,
           duration: const Duration(seconds: 5),
           leftBarIndicatorColor: yellow,
-          icon:  Icon(Icons.error, color: primaryColorApp),
+          icon: Icon(Icons.error, color: primaryColorApp),
         );
         return http.Response('Error de red', 404);
       }
@@ -280,242 +280,237 @@ class ApiRequestService {
       return http.Response('Error en la solicitud: $e', 500);
     }
   }
-  
-Future<http.Response> postMultipart({
-  required String endpoint,
-  required File imageFile,
-  required int idMoveLine,
-  required dynamic temperature,
-  required bool isLoadinDialog,
-}) async {
-  final urlBase = await PrefUtils.getEnterprise();
-  final fullUrl = Uri.parse('$urlBase/api/$endpoint');
-  final cookie = await PrefUtils.getCookie(); // 👈 Obtener cookie almacenada
 
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.snackbar(
-        'Error de red',
-        'No se pudo conectar al servidor',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        duration: const Duration(seconds: 5),
-        leftBarIndicatorColor: yellow,
-        icon: Icon(Icons.error, color: primaryColorApp),
-      );
-      return http.Response('Error de red', 404);
-    }
+  Future<http.Response> postMultipart({
+    required String endpoint,
+    required File imageFile,
+    required int idMoveLine,
+    required dynamic temperature,
+    required bool isLoadinDialog,
+  }) async {
+    final urlBase = await PrefUtils.getEnterprise();
+    final fullUrl = Uri.parse('$urlBase/api/$endpoint');
+    final cookie = await PrefUtils.getCookie(); // 👈 Obtener cookie almacenada
 
-    final result = await InternetAddress.lookup('example.com');
-    if (result.isEmpty || result[0].rawAddress.isEmpty) {
-      return http.Response('No se pudo resolver DNS', 404);
-    }
-
-    if (isLoadinDialog) {
-      Get.dialog(
-        DialogLoadingNetwork(titel: endpoint),
-        barrierDismissible: false,
-      );
-    }
-
-    final extension = p.extension(imageFile.path).toLowerCase();
-    final subtype = extension == '.png' ? 'png' : 'jpeg';
-
-    final request = http.MultipartRequest('POST', fullUrl);
-
-    // 🔧 Cambia 'image' por 'image_data' como espera el backend
-    request.files.add(await http.MultipartFile.fromPath(
-      'image_data',
-      imageFile.path,
-      contentType: MediaType('image', subtype),
-    ));
-
-    // 🔧 Campos con nombres exactos que el backend espera
-    request.fields['move_line_id'] = idMoveLine.toString();
-    request.fields['temperatura'] = temperature.toString();
-
-    // 🔐 Agrega la cookie (como en Postman)
-    request.headers.addAll({
-      'Cookie': cookie,
-    });
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (isLoadinDialog) {
-      Get.back();
-    }
-
-    print('--------------------------------------------');
-    print('Petición MULTIPART a $endpoint');
-    print('status code: ${response.statusCode}');
-    print('respuesta: ${response.body}');
-    print('--------------------------------------------');
-
-    return response;
-  } catch (e, s) {
-    if (isLoadinDialog) Get.back();
-    print("Error en postMultipart: $e\n$s");
-    return http.Response('Error en la solicitud: $e', 500);
-  }
-}
-Future<http.Response> postMultipartManual({
-  required String endpoint,
-  required int idMoveLine,
-  required dynamic temperature,
-  required bool isLoadinDialog,
-}) async {
-  final urlBase = await PrefUtils.getEnterprise();
-  final fullUrl = Uri.parse('$urlBase/api/$endpoint');
-  final cookie = await PrefUtils.getCookie(); // 👈 Obtener cookie almacenada
-
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.snackbar(
-        'Error de red',
-        'No se pudo conectar al servidor',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        duration: const Duration(seconds: 5),
-        leftBarIndicatorColor: yellow,
-        icon: Icon(Icons.error, color: primaryColorApp),
-      );
-      return http.Response('Error de red', 404);
-    }
-
-    final result = await InternetAddress.lookup('example.com');
-    if (result.isEmpty || result[0].rawAddress.isEmpty) {
-      return http.Response('No se pudo resolver DNS', 404);
-    }
-
-    if (isLoadinDialog) {
-      Get.dialog(
-        DialogLoadingNetwork(titel: endpoint),
-        barrierDismissible: false,
-      );
-    }
-
-
-    final request = http.MultipartRequest('POST', fullUrl);
-
-    // 🔧 Cambia 'image' por 'image_data' como espera el backend
-
-    // 🔧 Campos con nombres exactos que el backend espera
-    request.fields['move_line_id'] = idMoveLine.toString();
-    request.fields['temperatura'] = temperature.toString();
-
-    // 🔐 Agrega la cookie (como en Postman)
-    request.headers.addAll({
-      'Cookie': cookie,
-    });
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (isLoadinDialog) {
-      Get.back();
-    }
-
-    print('--------------------------------------------');
-    print('Petición MULTIPART a $endpoint');
-    print('status code: ${response.statusCode}');
-    print('respuesta: ${response.body}');
-    print('--------------------------------------------');
-
-    return response;
-  } catch (e, s) {
-    if (isLoadinDialog) Get.back();
-    print("Error en postMultipart: $e\n$s");
-    return http.Response('Error en la solicitud: $e', 500);
-  }
-}
- 
- 
-
-
-Future<http.Response> postMultipartDynamic({
-  required String endpoint,
-  required File imageFile,
-  required Map<String, dynamic> fields, // Campos dinámicos
-  bool isLoadingDialog = false,
-}) async {
-  final urlBase = await PrefUtils.getEnterprise();
-  final fullUrl = Uri.parse('$urlBase/api/$endpoint');
-  final cookie = await PrefUtils.getCookie();
-
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.snackbar(
-        'Error de red',
-        'No se pudo conectar al servidor',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        duration: const Duration(seconds: 5),
-        leftBarIndicatorColor: yellow,
-        icon: Icon(Icons.error, color: primaryColorApp),
-      );
-      return http.Response('Error de red', 404);
-    }
-
-    final result = await InternetAddress.lookup('example.com');
-    if (result.isEmpty || result[0].rawAddress.isEmpty) {
-      return http.Response('No se pudo resolver DNS', 404);
-    }
-
-    if (isLoadingDialog) {
-      Get.dialog(
-        DialogLoadingNetwork(titel: endpoint),
-        barrierDismissible: false,
-      );
-    }
-
-    final extension = p.extension(imageFile.path).toLowerCase();
-    final subtype = extension == '.png' ? 'png' : 'jpeg';
-
-    final request = http.MultipartRequest('POST', fullUrl);
-
-    // ✅ Imagen
-    request.files.add(await http.MultipartFile.fromPath(
-      'image_data',
-      imageFile.path,
-      contentType: MediaType('image', subtype),
-    ));
-
-    // ✅ Campos dinámicos
-    fields.forEach((key, value) {
-      if (value != null) {
-        request.fields[key] = value.toString();
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        Get.snackbar(
+          'Error de red',
+          'No se pudo conectar al servidor',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: Icon(Icons.error, color: primaryColorApp),
+        );
+        return http.Response('Error de red', 404);
       }
-    });
 
-    request.headers['Cookie'] = cookie;
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isEmpty || result[0].rawAddress.isEmpty) {
+        return http.Response('No se pudo resolver DNS', 404);
+      }
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+      if (isLoadinDialog) {
+        Get.dialog(
+          DialogLoadingNetwork(titel: endpoint),
+          barrierDismissible: false,
+        );
+      }
 
-    if (isLoadingDialog) {
-      Get.back();
+      final extension = p.extension(imageFile.path).toLowerCase();
+      final subtype = extension == '.png' ? 'png' : 'jpeg';
+
+      final request = http.MultipartRequest('POST', fullUrl);
+
+      // 🔧 Cambia 'image' por 'image_data' como espera el backend
+      request.files.add(await http.MultipartFile.fromPath(
+        'image_data',
+        imageFile.path,
+        contentType: MediaType('image', subtype),
+      ));
+
+      // 🔧 Campos con nombres exactos que el backend espera
+      request.fields['move_line_id'] = idMoveLine.toString();
+      request.fields['temperatura'] = temperature.toString();
+
+      // 🔐 Agrega la cookie (como en Postman)
+      request.headers.addAll({
+        'Cookie': cookie,
+      });
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (isLoadinDialog) {
+        Get.back();
+      }
+
+      print('--------------------------------------------');
+      print('Petición MULTIPART a $endpoint');
+      print('status code: ${response.statusCode}');
+      print('respuesta: ${response.body}');
+      print('--------------------------------------------');
+
+      return response;
+    } catch (e, s) {
+      if (isLoadinDialog) Get.back();
+      print("Error en postMultipart: $e\n$s");
+      return http.Response('Error en la solicitud: $e', 500);
     }
-
-    print('--------------------------------------------');
-    print('Petición MULTIPART a $endpoint');
-    print('status code: ${response.statusCode}');
-    print('respuesta: ${response.body}');
-    print('--------------------------------------------');
-
-    return response;
-  } catch (e, s) {
-    if (isLoadingDialog) Get.back();
-    print("Error en postMultipartDynamic: $e\n$s");
-    return http.Response('Error en la solicitud: $e', 500);
   }
-}
 
+  Future<http.Response> postMultipartManual({
+    required String endpoint,
+    required int idMoveLine,
+    required dynamic temperature,
+    required bool isLoadinDialog,
+  }) async {
+    final urlBase = await PrefUtils.getEnterprise();
+    final fullUrl = Uri.parse('$urlBase/api/$endpoint');
+    final cookie = await PrefUtils.getCookie(); // 👈 Obtener cookie almacenada
 
- 
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        Get.snackbar(
+          'Error de red',
+          'No se pudo conectar al servidor',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: Icon(Icons.error, color: primaryColorApp),
+        );
+        return http.Response('Error de red', 404);
+      }
+
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isEmpty || result[0].rawAddress.isEmpty) {
+        return http.Response('No se pudo resolver DNS', 404);
+      }
+
+      if (isLoadinDialog) {
+        Get.dialog(
+          DialogLoadingNetwork(titel: endpoint),
+          barrierDismissible: false,
+        );
+      }
+
+      final request = http.MultipartRequest('POST', fullUrl);
+
+      // 🔧 Cambia 'image' por 'image_data' como espera el backend
+
+      // 🔧 Campos con nombres exactos que el backend espera
+      request.fields['move_line_id'] = idMoveLine.toString();
+      request.fields['temperatura'] = temperature.toString();
+
+      // 🔐 Agrega la cookie (como en Postman)
+      request.headers.addAll({
+        'Cookie': cookie,
+      });
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (isLoadinDialog) {
+        Get.back();
+      }
+
+      print('--------------------------------------------');
+      print('Petición MULTIPART a $endpoint');
+      print('status code: ${response.statusCode}');
+      print('respuesta: ${response.body}');
+      print('--------------------------------------------');
+
+      return response;
+    } catch (e, s) {
+      if (isLoadinDialog) Get.back();
+      print("Error en postMultipart: $e\n$s");
+      return http.Response('Error en la solicitud: $e', 500);
+    }
+  }
+
+  Future<http.Response> postMultipartDynamic({
+    required String endpoint,
+    required File imageFile,
+    required Map<String, dynamic> fields, // Campos dinámicos
+    bool isLoadingDialog = false,
+  }) async {
+    final urlBase = await PrefUtils.getEnterprise();
+    final fullUrl = Uri.parse('$urlBase/api/$endpoint');
+    final cookie = await PrefUtils.getCookie();
+
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        Get.snackbar(
+          'Error de red',
+          'No se pudo conectar al servidor',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: Icon(Icons.error, color: primaryColorApp),
+        );
+        return http.Response('Error de red', 404);
+      }
+
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isEmpty || result[0].rawAddress.isEmpty) {
+        return http.Response('No se pudo resolver DNS', 404);
+      }
+
+      if (isLoadingDialog) {
+        Get.dialog(
+          DialogLoadingNetwork(titel: endpoint),
+          barrierDismissible: false,
+        );
+      }
+
+      final extension = p.extension(imageFile.path).toLowerCase();
+      final subtype = extension == '.png' ? 'png' : 'jpeg';
+
+      final request = http.MultipartRequest('POST', fullUrl);
+
+      // ✅ Imagen
+      request.files.add(await http.MultipartFile.fromPath(
+        'image_data',
+        imageFile.path,
+        contentType: MediaType('image', subtype),
+      ));
+
+      // ✅ Campos dinámicos
+      fields.forEach((key, value) {
+        if (value != null) {
+          request.fields[key] = value.toString();
+        }
+      });
+
+      request.headers['Cookie'] = cookie;
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (isLoadingDialog) {
+        Get.back();
+      }
+
+      print('--------------------------------------------');
+      print('Petición MULTIPART a $endpoint');
+      print('status code: ${response.statusCode}');
+      print('respuesta: ${response.body}');
+      print('--------------------------------------------');
+
+      return response;
+    } catch (e, s) {
+      if (isLoadingDialog) Get.back();
+      print("Error en postMultipartDynamic: $e\n$s");
+      return http.Response('Error en la solicitud: $e', 500);
+    }
+  }
+
   Future<http.Response> postPicking({
     required String endpoint,
     required Map<String, dynamic>? body,
@@ -661,6 +656,8 @@ Future<http.Response> postMultipartDynamic({
       'Cookie': '$sessionId',
     };
 
+    print(headers);
+
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
@@ -692,6 +689,13 @@ Future<http.Response> postMultipartDynamic({
           var request = http.Request('POST', Uri.parse(url));
           request.body = json.encode(body);
           request.headers.addAll(headers);
+
+          print("==== BODY ====");
+          print(jsonEncode(body));
+          print("==== URL ====");
+          print(url);
+          print("==== HEADERS ====");
+          print(headers);
 
           final response = await request.send();
 
@@ -1001,62 +1005,26 @@ Future<http.Response> postMultipartDynamic({
     }
   }
 
+  Future<Uint8List?> fetchImageBytesFromProtectedUrl({
+    required String fullImageUrl,
+    bool isLoadinDialog = false,
+  }) async {
+    var sessionCookie = await PrefUtils.getCookie();
 
-
-
-Future<Uint8List?> fetchImageBytesFromProtectedUrl({
-  required String fullImageUrl,
-  bool isLoadinDialog = false,
-}) async {
-  var sessionCookie = await PrefUtils.getCookie();
-
-  // Extraer session_id de la cookie
-  String sessionId = '';
-  List<String> cookies = sessionCookie.split(',');
-  for (var c in cookies) {
-    if (c.contains('session_id=')) {
-      sessionId = c.split(';')[0].trim();
-      break;
-    }
-  }
-
-  if (sessionId.isEmpty) {
-    Get.snackbar(
-      'Error de sesión',
-      'No se pudo obtener la sesión de usuario',
-      backgroundColor: white,
-      colorText: primaryColorApp,
-      duration: const Duration(seconds: 5),
-      leftBarIndicatorColor: yellow,
-      icon: Icon(Icons.error, color: primaryColorApp),
-    );
-    return null;
-  }
-
-  final headers = {
-    'Cookie': sessionId,
-  };
-
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      Get.snackbar(
-        'Sin conexión',
-        'No se detectó conexión a internet',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        duration: const Duration(seconds: 5),
-        leftBarIndicatorColor: yellow,
-        icon: Icon(Icons.wifi_off, color: primaryColorApp),
-      );
-      return null;
+    // Extraer session_id de la cookie
+    String sessionId = '';
+    List<String> cookies = sessionCookie.split(',');
+    for (var c in cookies) {
+      if (c.contains('session_id=')) {
+        sessionId = c.split(';')[0].trim();
+        break;
+      }
     }
 
-    final result = await InternetAddress.lookup('example.com');
-    if (result.isEmpty || result[0].rawAddress.isEmpty) {
+    if (sessionId.isEmpty) {
       Get.snackbar(
-        'Error de red',
-        'No se pudo resolver la conexión a internet',
+        'Error de sesión',
+        'No se pudo obtener la sesión de usuario',
         backgroundColor: white,
         colorText: primaryColorApp,
         duration: const Duration(seconds: 5),
@@ -1066,53 +1034,83 @@ Future<Uint8List?> fetchImageBytesFromProtectedUrl({
       return null;
     }
 
-    if (isLoadinDialog) {
-      Get.dialog(
-              DialogLoadingNetwork(titel: 'view_image'),
-              barrierDismissible:
-                  false, // No permitir cerrar tocando fuera del diálogo
-            );
-    }
+    final headers = {
+      'Cookie': sessionId,
+    };
 
-    final request = http.Request('GET', Uri.parse(fullImageUrl));
-    request.headers.addAll(headers);
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        Get.snackbar(
+          'Sin conexión',
+          'No se detectó conexión a internet',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: Icon(Icons.wifi_off, color: primaryColorApp),
+        );
+        return null;
+      }
 
-    final response = await request.send();
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isEmpty || result[0].rawAddress.isEmpty) {
+        Get.snackbar(
+          'Error de red',
+          'No se pudo resolver la conexión a internet',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: Icon(Icons.error, color: primaryColorApp),
+        );
+        return null;
+      }
 
-    if (isLoadinDialog) {
-      Get.back();
-    }
+      if (isLoadinDialog) {
+        Get.dialog(
+          DialogLoadingNetwork(titel: 'view_image'),
+          barrierDismissible:
+              false, // No permitir cerrar tocando fuera del diálogo
+        );
+      }
 
-    if (response.statusCode == 200) {
-      return await response.stream.toBytes();
-    } else {
-      print('Error al obtener imagen: ${response.statusCode}');
+      final request = http.Request('GET', Uri.parse(fullImageUrl));
+      request.headers.addAll(headers);
+
+      final response = await request.send();
+
+      if (isLoadinDialog) {
+        Get.back();
+      }
+
+      if (response.statusCode == 200) {
+        return await response.stream.toBytes();
+      } else {
+        print('Error al obtener imagen: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'No se pudo cargar la imagen (${response.statusCode})',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          icon: Icon(Icons.error_outline, color: primaryColorApp),
+        );
+        return null;
+      }
+    } catch (e) {
+      if (isLoadinDialog) Get.back();
+      print('Excepción al obtener la imagen: $e');
       Get.snackbar(
-        'Error',
-        'No se pudo cargar la imagen (${response.statusCode})',
+        'Error inesperado',
+        'Ocurrió un error al cargar la imagen',
         backgroundColor: white,
         colorText: primaryColorApp,
-        duration: const Duration(seconds: 5),
-        icon: Icon(Icons.error_outline, color: primaryColorApp),
+        icon: Icon(Icons.error, color: primaryColorApp),
       );
       return null;
     }
-  } catch (e) {
-    if (isLoadinDialog) Get.back();
-    print('Excepción al obtener la imagen: $e');
-    Get.snackbar(
-      'Error inesperado',
-      'Ocurrió un error al cargar la imagen',
-      backgroundColor: white,
-      colorText: primaryColorApp,
-      icon: Icon(Icons.error, color: primaryColorApp),
-    );
-    return null;
   }
-}
-
-
-
 
   Future<http.Response> getInventario({
     required String endpoint,

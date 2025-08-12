@@ -1,4 +1,3 @@
-import 'package:wms_app/src/presentation/providers/db/conteo/tbl_ordenes/orden_table.dart';
 
 class ProductosOrdenConteoTable {
   static const String tableName = 'tblproductos_orden_conteo';
@@ -15,7 +14,8 @@ class ProductosOrdenConteoTable {
   static const String columnLocationName = 'location_name';
   static const String columnLocationBarcode = 'location_barcode';
   static const String columnQuantityInventory = 'quantity_inventory';
-  static const String columnQuantityCounted = 'quantity_counted';  // Cantidad contada
+  static const String columnQuantityCounted =
+      'quantity_counted'; // Cantidad contada
   static const String columnDifferenceQty = 'difference_qty';
   static const String columnUom = 'uom';
   static const String columnWeight = 'weight';
@@ -31,7 +31,15 @@ class ProductosOrdenConteoTable {
   static const String columnLotName = 'lot_name';
   static const String columnFechaVencimiento = 'fecha_vencimiento';
 
+  static const String columnDateStart = 'date_start';
+  static const String columnDateEnd = 'date_end';
+  static const String columnIsSelected = 'is_selected';
+  static const String columnIsSeparate = 'is_separate';
+  static const String columnIdMove = 'id_move';
 
+    static const String columnProductIsOk = 'product_is_ok';
+  static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
+  static const String columnIsLocationIsOk = 'is_location_is_ok';
 
   static String createTable() {
     return '''
@@ -61,7 +69,16 @@ class ProductosOrdenConteoTable {
       $columnCategoryName TEXT,
       $columnLotId INTEGER,
       $columnLotName TEXT,
-      $columnFechaVencimiento TEXT
+      $columnFechaVencimiento TEXT,
+      $columnDateStart TEXT,
+      $columnDateEnd TEXT,
+      $columnIsSelected INTEGER,
+      $columnIsSeparate INTEGER,
+      $columnIdMove INTEGER,
+      $columnProductIsOk INTEGER,
+      $columnIsQuantityIsOk INTEGER,
+      $columnIsLocationIsOk INTEGER
+
       )
     ''';
   }

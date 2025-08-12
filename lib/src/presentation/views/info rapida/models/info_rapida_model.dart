@@ -81,6 +81,7 @@ class InfoResult {
   // List<Barcodes>? codigosBarrasPaquetes;
   String? categoria;
   List<Ubicacion>? ubicaciones;
+  String? unidadMedida;
 
   //parametros de ubicacion
   String? ubicacionPadre;
@@ -103,6 +104,7 @@ class InfoResult {
     this.ubicacionPadre,
     this.tipoUbicacion,
     this.productos,
+    this.unidadMedida,
   });
 
   factory InfoResult.fromMap(Map<String, dynamic> json) => InfoResult(
@@ -128,6 +130,7 @@ class InfoResult {
         //parametros de ubicacion
         ubicacionPadre: json["ubicacion_padre"],
         tipoUbicacion: json["tipo_ubicacion"],
+        unidadMedida: json["unidad_medida"],
         productos: json["productos"] == null
             ? []
             : List<Producto>.from(
@@ -153,6 +156,7 @@ class InfoResult {
             : List<dynamic>.from(ubicaciones!.map((x) => x.toMap())),
         "ubicacion_padre": ubicacionPadre,
         "tipo_ubicacion": tipoUbicacion,
+        "unidad_medida": unidadMedida,
         "productos": productos == null
             ? []
             : List<dynamic>.from(productos!.map((x) => x.toMap())),
@@ -160,19 +164,19 @@ class InfoResult {
 }
 
 class Ubicacion {
-
   int? idMove;
   int? idAlmacen;
   int? idUbicacion;
   String? ubicacion;
   dynamic? cantidad;
   dynamic? reservado;
-  dynamic? catidadMano;
+  dynamic? cantidadMano;
   String? codigoBarras;
   String? lote;
   dynamic? loteId;
   String? fechaEliminacion;
   String? fechaEntrada;
+  String? unidadMedida;
 
   Ubicacion({
     this.idMove,
@@ -181,42 +185,45 @@ class Ubicacion {
     this.ubicacion,
     this.cantidad,
     this.reservado,
-    this.catidadMano,
+    this.cantidadMano,
     this.codigoBarras,
     this.lote,
     this.loteId,
     this.fechaEliminacion,
     this.fechaEntrada,
+    this.unidadMedida,
   });
 
   factory Ubicacion.fromMap(Map<String, dynamic> json) => Ubicacion(
-        idAlmacen:  json["id_almacen"],
+        idAlmacen: json["id_almacen"],
         idMove: json["id_move"],
         idUbicacion: json["id_ubicacion"],
         ubicacion: json["ubicacion"],
         cantidad: json["cantidad"],
         reservado: json["reservado"],
-        catidadMano: json["catidad_mano"],
+        cantidadMano: json["cantidad_mano"],
         codigoBarras: json["codigo_barras"],
         lote: json["lote"],
         loteId: json["lote_id"],
         fechaEliminacion: json["fecha_eliminacion"],
         fechaEntrada: json["fecha_entrada"],
+        unidadMedida: json["unidad_medida"],
       );
 
   Map<String, dynamic> toMap() => {
-        "id_move" : idMove,
+        "id_move": idMove,
         "id_almacen": idAlmacen,
         "id_ubicacion": idUbicacion,
         "ubicacion": ubicacion,
         "cantidad": cantidad,
         "reservado": reservado,
-        "catidad_mano": catidadMano,
+        "cantidad_mano": cantidadMano,
         "codigo_barras": codigoBarras,
         "lote": lote,
         "lote_id": loteId,
         "fecha_eliminacion": fechaEliminacion,
         "fecha_entrada": fechaEntrada,
+        "unidad_medida": unidadMedida,
       };
 }
 
@@ -227,6 +234,7 @@ class Producto {
   dynamic? codigoBarras;
   dynamic? lotId;
   String? lote;
+  String? unidadMedida;
 
   Producto({
     this.id,
@@ -235,6 +243,7 @@ class Producto {
     this.codigoBarras,
     this.lotId,
     this.lote,
+    this.unidadMedida,
   });
 
   factory Producto.fromMap(Map<String, dynamic> json) => Producto(
@@ -244,6 +253,7 @@ class Producto {
         codigoBarras: json["codigo_barras"],
         lotId: json["lot_id"],
         lote: json["lote"],
+        unidadMedida: json["unidad_medida"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -253,5 +263,6 @@ class Producto {
         "codigo_barras": codigoBarras,
         "lot_id": lotId,
         "lote": lote,
+        "unidad_medida": unidadMedida,
       };
 }

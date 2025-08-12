@@ -33,7 +33,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     final bloc = context.read<InfoRapidaBloc>();
     final scan = bloc.scannedValue1.trim().isEmpty ? value : bloc.scannedValue1.trim();
     _controllerSearch.text = '';
-    bloc.add(GetInfoRapida(scan.toUpperCase(), false, false));
+    bloc.add(GetInfoRapida(scan.toUpperCase(), false, false, false));
   }
 
   @override

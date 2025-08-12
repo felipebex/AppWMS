@@ -495,6 +495,7 @@ class DataBaseSqlite {
     final db = await getDatabaseInstance();
     if (type == "packing-batch") {
       await db.delete(BatchPackingTable.tableName);
+      
     }
     if (type == "packing-pack") {
       await db.delete(PedidoPackTable.tableName);

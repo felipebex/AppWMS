@@ -70,6 +70,7 @@ class BatchsModel {
   final String? muelle; 
   final String? barcodeMuelle;
   final dynamic? idMuelle;
+  final dynamic? idMuellePadre; // Nuevo campo para el ID del muelle padre
   final String? state;
   final dynamic userId;
   final String? userName;
@@ -107,6 +108,7 @@ class BatchsModel {
     this.muelle,
     this.barcodeMuelle,
     this.idMuelle,
+    this.idMuellePadre,
     this.state,
     this.userId,
     this.userName,
@@ -143,6 +145,7 @@ class BatchsModel {
         muelle: json['muelle'],
         barcodeMuelle: json['barcode_muelle'],
         idMuelle: json['id_muelle'],
+        idMuellePadre: json['id_muelle_padre'], // Nuevo campo
         state: json['state'],
         userId: json['user_id'],
         userName: json['user_name'],
@@ -180,6 +183,7 @@ class BatchsModel {
         'muelle': muelle,
         'barcode_muelle': barcodeMuelle,
         'id_muelle': idMuelle,
+        'id_muelle_padre': idMuellePadre, // Nuevo campo
         'state': state,
         'user_id': userId,
         'user_name': userName,

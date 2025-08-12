@@ -90,7 +90,7 @@ class ReceptionBatch {
   String? endTimeReception;
   String? priority;
   String? zonaEntrega;
-  String? origin;
+  // String? origin;
   int? responsableId;
   String? responsable;
   int? proveedorId;
@@ -130,7 +130,7 @@ class ReceptionBatch {
     this.endTimeReception,
     this.priority,
     this.zonaEntrega,
-    this.origin,
+    // this.origin,
     this.responsableId,
     this.responsable,
     this.proveedorId,
@@ -170,7 +170,7 @@ class ReceptionBatch {
         endTimeReception: json["end_time_reception"],
         priority: json["priority"],
         zonaEntrega: json["zona_entrega"],
-        origin: json["origin"],
+        // origin: json["origin"],
         responsableId: json["responsable_id"],
         responsable: json["responsable"],
         proveedorId: json["proveedor_id"],
@@ -216,7 +216,7 @@ class ReceptionBatch {
         "end_time_reception": endTimeReception,
         "priority": priority,
         "zona_entrega": zonaEntrega,
-        "origin": origin,
+        // "origin": origin,
         "responsable_id": responsableId,
         "responsable": responsable,
         "proveedor_id": proveedorId,

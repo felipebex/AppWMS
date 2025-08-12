@@ -104,6 +104,7 @@ class PedidoPackingResult {
   final int? numeroPaquetes;
   final dynamic isTerminate;
   final dynamic isSelected;
+  final dynamic? isStarted;
   final String? createBackorder;
 
   final List<ProductoPedido>? listaProductos;
@@ -150,6 +151,7 @@ class PedidoPackingResult {
     this.listaPaquetes,
     this.isTerminate,
     this.isSelected,
+    this.isStarted,
     this.createBackorder,
   });
 
@@ -200,6 +202,7 @@ class PedidoPackingResult {
         numeroPaquetes: json["numero_paquetes"],
         isTerminate: json["is_terminate"],
         isSelected: json["is_selected"],
+        isStarted: json["is_started"],
         listaProductos: json["lista_productos"] == null
             ? []
             : List<ProductoPedido>.from(
@@ -250,6 +253,7 @@ class PedidoPackingResult {
         "numero_paquetes": numeroPaquetes,
         "is_terminate": isTerminate,
         "is_selected": isSelected,
+        "is_started": isStarted,
         "lista_productos": listaProductos == null
             ? []
             : List<dynamic>.from(listaProductos!.map((x) => x.toMap())),

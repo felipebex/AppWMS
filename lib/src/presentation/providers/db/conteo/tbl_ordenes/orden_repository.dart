@@ -147,4 +147,24 @@ class OrdenConteoRepository {
       rethrow;
     }
   }
+
+
+ // Método: Actualizar un campo específico en la tabla OrdenTable
+
+  Future<void> updateField(int id, String fieldName, dynamic value) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      await db.update(
+        OrdenTable.tableName,
+        {fieldName: value},
+        where: '${OrdenTable.columnId} = ?',
+        whereArgs: [id],
+      );
+    } catch (e, s) {
+      print('Error en updateField: $e -> $s');
+      rethrow;
+    }
+  }
+
+
 }

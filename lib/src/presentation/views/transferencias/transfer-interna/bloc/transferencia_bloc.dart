@@ -1314,32 +1314,41 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   }
 
   //metodo para buscar una transferencia
-  void _onSearchOrderEvent(
-      SearchTransferEvent event, Emitter<TransferenciaState> emit) async {
-    try {
-      final query = event.query.toLowerCase();
-      if (query.isNotEmpty) {
-        if (event.type == 'transfer') {
-          transferenciasDbFilters = transferenciasDB
-              .where((element) => element.name!.contains(query))
-              .toList();
-        } else if (event.type == 'entrega') {
-          entregaProductosBDFilters = entregaProductosDB
-              .where((element) => element.name!.contains(query))
-              .toList();
-        }
-      } else {
-        if (event.type == 'transfer') {
-          transferenciasDbFilters = transferenciasDB;
-        } else if (event.type == 'entrega') {
-          entregaProductosBDFilters = entregaProductosDB;
-        }
+void _onSearchOrderEvent(
+    SearchTransferEvent event, Emitter<TransferenciaState> emit) async {
+  try {
+    final query = event.query.toLowerCase();
+    if (query.isNotEmpty) {
+      if (event.type == 'transfer') {
+        transferenciasDbFilters = transferenciasDB
+            .where((element) =>
+                element.name!.toLowerCase().contains(query) ||
+                element.origin!.toLowerCase().contains(query) ||
+                element.proveedor!.toLowerCase().contains(query) ||
+                element.backorderName!.toLowerCase().contains(query))
+            .toList();
+      } else if (event.type == 'entrega') {
+        entregaProductosBDFilters = entregaProductosDB
+            .where((element) =>
+                element.name!.toLowerCase().contains(query) ||
+                element.origin!.toLowerCase().contains(query) ||
+                element.proveedor!.toLowerCase().contains(query) ||
+                element.backorderName!.toLowerCase().contains(query))
+            .toList();
       }
-      emit(SearchTransferenciasSuccess(transferenciasDbFilters));
-    } catch (e, s) {
-      print('Error en el fetch de transferencias: $e=>$s');
+    } else {
+      if (event.type == 'transfer') {
+        transferenciasDbFilters = transferenciasDB;
+      } else if (event.type == 'entrega') {
+        entregaProductosBDFilters = entregaProductosDB;
+      }
     }
+    emit(SearchTransferenciasSuccess(transferenciasDbFilters));
+  } catch (e, s) {
+    print('Error en el fetch de transferencias: $e=>$s');
   }
+}
+
 
   //*metodo para ocultar y mostrar el teclado
   void _onShowKeyboardEvent(

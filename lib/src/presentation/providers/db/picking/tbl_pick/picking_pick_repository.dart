@@ -60,6 +60,7 @@ class PickingPickRepository {
             PickingPickTable.columnMuelle: pickItem.muelle ?? '',
             PickingPickTable.columnBarcodeMuelle: pickItem.barcodeMuelle ?? '',
             PickingPickTable.columnMuelleId: pickItem.muelleId,
+            PickingPickTable.columnIdMuellePadre: pickItem.idMuellePadre,
             PickingPickTable.columnIndexList: pickItem.indexList,
             PickingPickTable.columnIsSendOddo:
                 pickItem.isSendOdoo == true ? 1 : 0,
@@ -140,6 +141,7 @@ class PickingPickRepository {
           PickingPickTable.columnMuelle,
           PickingPickTable.columnBarcodeMuelle,
           PickingPickTable.columnMuelleId,
+          PickingPickTable.columnIdMuellePadre,
           PickingPickTable.columnIndexList,
           PickingPickTable.columnIsSendOddo,
           PickingPickTable.columnIsSendOddoDate,

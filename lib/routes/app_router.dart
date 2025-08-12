@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/conteo_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/list_conteo_screen.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/terceros_screen.dart';
@@ -145,6 +146,7 @@ class AppRoutes {
   //todo: conteo
   static const String conteo = 'conteo';
   static const String conteoDetail = 'conteo-detail';
+  static const String scanProductConteo = 'scan-product-conteo';
 
   static Map<String, Widget Function(BuildContext)> get routes {
     
@@ -162,6 +164,12 @@ class AppRoutes {
           ordenConteo: ordenConteo,
         );
       },
+      scanProductConteo : (_) => const ScanProductConteoScreen(),
+
+
+
+
+
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),

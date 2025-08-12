@@ -300,7 +300,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               (element.proveedor != null &&
                   element.proveedor!.toLowerCase().contains(query)) ||
               (element.purchaseOrderName != null &&
-                  element.purchaseOrderName!.toLowerCase().contains(query));
+                  element.purchaseOrderName!.toLowerCase().contains(query))
+                  || (element.backorderName != null &&
+                      element.backorderName!.toLowerCase().contains(query));
         }).toList();
       }
 
@@ -510,7 +512,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         );
         //limpiamos el dato de temperatura
         temperatureController.clear();
-           resultTemperature = TemperatureIa();
+        resultTemperature = TemperatureIa();
 
         emit(SendTemperatureSuccess(
             response.result ?? 'Temperatura enviada correctamente'));
@@ -805,7 +807,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         event.fechaCaducidad,
       );
 
-      if (response != null) {
+      if (response.result?.code ==200) {
         //agregamos el nuevo lote a la lista de lotes
         listLotesProductFilters.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
@@ -841,7 +843,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
         emit(CreateLoteProductSuccess());
       } else {
-        emit(CreateLoteProductFailure('Error al crear el lote'));
+        emit(CreateLoteProductFailure(response.result?.msg ?? 'Error al crear el lote concactarse con el administrador'));
       }
     } catch (e, s) {
       emit(CreateLoteProductFailure('Error al crear el lote'));
@@ -1034,7 +1036,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       currentProduct.idMove,
       currentProduct.idRecepcion,
     );
-
     print('productBD: ${productBD?.toMap()}');
   }
 
@@ -1588,7 +1589,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               (element.proveedor != null &&
                   element.proveedor!.toLowerCase().contains(query)) ||
               (element.purchaseOrderName != null &&
-                  element.purchaseOrderName!.toLowerCase().contains(query));
+                  element.purchaseOrderName!.toLowerCase().contains(query)) ||
+              (element.origin != null &&
+                  element.origin!.toLowerCase().contains(query)) ||
+              (element.backorderName != null &&
+                  element.backorderName!.toLowerCase().contains(query));
         }).toList();
       }
 

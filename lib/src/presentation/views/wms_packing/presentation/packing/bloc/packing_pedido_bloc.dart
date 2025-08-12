@@ -211,14 +211,17 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       CreateBackPackOrNot event, Emitter<PackingPedidoState> emit) async {
     try {
       emit(CreateBackOrderOrNotLoading());
-      add(StartOrStopTimePack(
-        event.idPick,
-        'end_time_transfer',
-      ));
+
       final response = await wmsPackingRepository.validateTransfer(
           event.idPick, event.isBackOrder, false);
 
       if (response.result?.code == 200) {
+        
+        add(StartOrStopTimePack(
+          event.idPick,
+          'end_time_transfer',
+        ));
+
         await db.pedidoPackRepository.updatePedidoPackField(
           event.idPick,
           "is_terminate",
@@ -231,7 +234,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
             event.isBackOrder, response.result?.msg ?? ""));
       } else {
         emit(CreateBackOrderOrNotFailure(
-          response.result?.msg ?? '',
+          response.result?.msg ??
+              'Error Desconocido contactar con Soporte Técnico',
           event.isBackOrder,
         ));
       }
@@ -1485,12 +1489,14 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
           final name = normalizeText(pedido.name ?? '');
           final referencia = normalizeText(pedido.referencia ?? '');
           final contactoName = normalizeText(pedido.contactoName ?? '');
+          final backorder = normalizeText(pedido.backorderName ?? '');
 
           // Realiza la búsqueda en los campos relevantes
           // Si alguno de los campos contiene la consulta normalizada, se incluye el pedido
           return name.contains(normalizedQuery) ||
               referencia.contains(normalizedQuery) ||
-              contactoName.contains(normalizedQuery);
+              contactoName.contains(normalizedQuery) ||
+              backorder.contains(normalizedQuery);
         }).toList();
       }
 

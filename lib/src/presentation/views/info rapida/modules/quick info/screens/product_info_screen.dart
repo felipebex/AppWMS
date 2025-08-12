@@ -28,6 +28,12 @@ class ProductInfoScreen extends StatelessWidget {
     TextEditingController referenceController = TextEditingController(
       text: product?.referencia ?? '',
     );
+
+    //unidade de medida
+    TextEditingController uomController = TextEditingController(
+      text: product?.unidadMedida ?? '',
+    );
+
     // priceController
     TextEditingController priceController = TextEditingController(
       text: product?.precio != null ? '${product?.precio}' : '',
@@ -55,6 +61,7 @@ class ProductInfoScreen extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
+        print("state product info 👹 $state");
         if (state is UpdateProductSuccess) {
           Get.snackbar(
             '360 Software Informa',
@@ -71,7 +78,7 @@ class ProductInfoScreen extends StatelessWidget {
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.red),
           );
-        }
+        } 
       },
       builder: (context, state) {
         return WillPopScope(
@@ -80,10 +87,6 @@ class ProductInfoScreen extends StatelessWidget {
           },
           child: Scaffold(
             backgroundColor: white,
-            // appBar: PreferredSize(
-            //   preferredSize: Size.fromHeight(45), // ajusta el alto
-            //   child: AppBar(size: size), // tuwidget AppBar personalizado
-            // ),
             bottomNavigationBar: bloc.isKeyboardVisible &&
                     context.read<UserBloc>().fabricante.contains("Zebra")
                 ? Padding(
@@ -99,433 +102,339 @@ class ProductInfoScreen extends StatelessWidget {
                             onchanged: () {},
                           ))
                 : null,
-            body: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight, // Fuerza altura mínima
-                    ),
-                    child: Column(
-                      mainAxisSize:
-                          MainAxisSize.min, // Ocupa solo el espacio necesario
-                      children: [
-                        AppBar(size: size),
-                        SizedBox(
-                          width: size.width * 1,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: size.height * 0.85, // Altura máxima
+            body: Column(
+              mainAxisSize: MainAxisSize.min, // Ocupa solo el espacio necesario
+              children: [
+                AppBar(size: size),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: SizedBox(
+                    width: size.width * 1,
+                    child: Card(
+                      elevation: 3,
+                      color: white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            EditableReferenceRow(
+                              title: 'Nombre: ',
+                              isEditMode: bloc.isEdit,
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ShowKeyboardInfoEvent(true, nameController,
+                                        isNumeric: false));
+                              },
+                              controller: nameController,
+                              isName: true,
                             ),
-                            child: SingleChildScrollView(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min, // Importante!
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: SizedBox(
-                                      width: size.width * 1,
-                                      child: Card(
-                                        elevation: 3,
-                                        color: white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            children: [
-                                              EditableReferenceRow(
-                                                title: 'Nombre: ',
-                                                isEditMode: bloc.isEdit,
-                                                onTap: () {
-                                                  context
-                                                      .read<InfoRapidaBloc>()
-                                                      .add(
-                                                          ShowKeyboardInfoEvent(
-                                                              true,
-                                                              nameController,
-                                                              isNumeric:
-                                                                  false));
-                                                },
-                                                controller: nameController,
-                                                isName: true,
-                                              ),
 
-                                              EditableReferenceRow(
-                                                title: 'Referencia: ',
-                                                isEditMode: bloc.isEdit,
-                                                isNumber: true,
-                                                onTap: () {
-                                                  context
-                                                      .read<InfoRapidaBloc>()
-                                                      .add(ShowKeyboardInfoEvent(
-                                                          true,
-                                                          referenceController,
-                                                          isNumeric: true));
-                                                },
-                                                controller: referenceController,
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Referencia: ',
+                              isEditMode: bloc.isEdit,
+                              isNumber: true,
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ShowKeyboardInfoEvent(
+                                        true, referenceController,
+                                        isNumeric: true));
+                              },
+                              controller: referenceController,
+                            ),
+                            EditableReferenceRow(
+                              title: 'Unidad: ',
+                              isEditMode: false,
+                              isNumber: false,
+                              onTap: () {
+                                // context
+                                //     .read<InfoRapidaBloc>()
+                                //     .add(ShowKeyboardInfoEvent(
+                                //         true,
+                                //         referenceController,
+                                //         isNumeric: true));
+                              },
+                              controller: uomController,
+                            ),
 
-                                              EditableReferenceRow(
-                                                title: 'Precio: ',
-                                                isEditMode: bloc.isEdit,
-                                                onTap: () {
-                                                  context
-                                                      .read<InfoRapidaBloc>()
-                                                      .add(
-                                                          ShowKeyboardInfoEvent(
-                                                              true,
-                                                              priceController,
-                                                              isNumeric: true));
-                                                },
-                                                controller: priceController,
-                                                isNumber: true,
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Precio: ',
+                              isEditMode: bloc.isEdit,
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ShowKeyboardInfoEvent(true, priceController,
+                                        isNumeric: true));
+                              },
+                              controller: priceController,
+                              isNumber: true,
+                            ),
 
-                                              EditableReferenceRow(
-                                                title: 'Peso Kg: ',
-                                                isEditMode: bloc.isEdit,
-                                                onTap: () {
-                                                  context
-                                                      .read<InfoRapidaBloc>()
-                                                      .add(
-                                                          ShowKeyboardInfoEvent(
-                                                              true,
-                                                              pesoController,
-                                                              isNumeric: true));
-                                                },
-                                                controller: pesoController,
-                                                isNumber: true,
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Peso Kg: ',
+                              isEditMode: bloc.isEdit,
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ShowKeyboardInfoEvent(true, pesoController,
+                                        isNumeric: true));
+                              },
+                              controller: pesoController,
+                              isNumber: true,
+                            ),
 
-                                              EditableReferenceRow(
-                                                title: 'Volumen m3: ',
-                                                isEditMode: bloc.isEdit,
-                                                onTap: () {
-                                                  context
-                                                      .read<InfoRapidaBloc>()
-                                                      .add(
-                                                          ShowKeyboardInfoEvent(
-                                                              true,
-                                                              volumenController,
-                                                              isNumeric: true));
-                                                },
-                                                controller: volumenController,
-                                                isNumber: true,
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Volumen m3: ',
+                              isEditMode: bloc.isEdit,
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ShowKeyboardInfoEvent(
+                                        true, volumenController,
+                                        isNumeric: true));
+                              },
+                              controller: volumenController,
+                              isNumber: true,
+                            ),
 
-                                              EditableReferenceRow(
-                                                title: 'Barcode: ',
-                                                isEditMode: bloc.isEdit,
-                                                isNumber: true,
-                                                onTap: () {
-                                                  context
-                                                      .read<InfoRapidaBloc>()
-                                                      .add(
-                                                          ShowKeyboardInfoEvent(
-                                                              true,
-                                                              barcodeController,
-                                                              isNumeric: true));
-                                                },
-                                                controller: barcodeController,
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Barcode: ',
+                              isEditMode: bloc.isEdit,
+                              isNumber: true,
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ShowKeyboardInfoEvent(
+                                        true, barcodeController,
+                                        isNumeric: true));
+                              },
+                              controller: barcodeController,
+                            ),
 
-                                              EditableReferenceRow(
-                                                title: 'Categoria: ',
-                                                isEditMode: false,
-                                                onTap: () {},
-                                                controller:
-                                                    TextEditingController(
-                                                  text: '${product?.categoria}',
-                                                ),
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Categoria: ',
+                              isEditMode: false,
+                              onTap: () {},
+                              controller: TextEditingController(
+                                text: '${product?.categoria}',
+                              ),
+                            ),
 
-                                              EditableReferenceRow(
-                                                title: 'Disponible: ',
-                                                isEditMode: false,
-                                                onTap: () {},
-                                                controller:
-                                                    TextEditingController(
-                                                  text:
-                                                      '${product?.cantidadDisponible} UND',
-                                                ),
-                                              ),
-                                              EditableReferenceRow(
-                                                title: 'Previsto: ',
-                                                isEditMode: false,
-                                                onTap: () {},
-                                                controller:
-                                                    TextEditingController(
-                                                  text:
-                                                      '${product?.previsto} UND',
-                                                ),
-                                              ),
+                            EditableReferenceRow(
+                              title: 'Disponible: ',
+                              isEditMode: false,
+                              onTap: () {},
+                              controller: TextEditingController(
+                                text: '${product?.cantidadDisponible} UND',
+                              ),
+                            ),
+                            EditableReferenceRow(
+                              title: 'Previsto: ',
+                              isEditMode: false,
+                              onTap: () {},
+                              controller: TextEditingController(
+                                text: '${product?.previsto} UND',
+                              ),
+                            ),
 
-                                              Visibility(
-                                                visible: bloc.isEdit,
-                                                child: Center(
-                                                  child: ElevatedButton(
-                                                      onPressed: () {
-                                                        //validamos que todos los campos esten llenos
-                                                        if (nameController.text.isEmpty ||
-                                                            barcodeController
-                                                                .text.isEmpty ||
-                                                            referenceController
-                                                                .text.isEmpty ||
-                                                            priceController
-                                                                .text.isEmpty ||
-                                                            pesoController
-                                                                .text.isEmpty ||
-                                                            volumenController
-                                                                .text.isEmpty) {
-                                                          Get.snackbar(
-                                                            '360 Software Informa',
-                                                            'Por favor, complete todos los campos',
-                                                            backgroundColor:
-                                                                white,
-                                                            colorText:
-                                                                primaryColorApp,
-                                                            icon: const Icon(
-                                                                Icons
-                                                                    .check_circle,
-                                                                color:
-                                                                    Colors.red),
-                                                          );
-                                                          return;
-                                                        }
+                            Visibility(
+                              visible: bloc.isEdit,
+                              child: Center(
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      //validamos que todos los campos esten llenos
+                                      if (nameController.text.isEmpty ||
+                                          barcodeController.text.isEmpty ||
+                                          referenceController.text.isEmpty ||
+                                          priceController.text.isEmpty ||
+                                          pesoController.text.isEmpty ||
+                                          volumenController.text.isEmpty) {
+                                        Get.snackbar(
+                                          '360 Software Informa',
+                                          'Por favor, complete todos los campos',
+                                          backgroundColor: white,
+                                          colorText: primaryColorApp,
+                                          icon: const Icon(Icons.check_circle,
+                                              color: Colors.red),
+                                        );
+                                        return;
+                                      }
 
-                                                        bloc.add(UpdateProductEvent(
-                                                            UpdateProductRequest(
-                                                          productId:
-                                                              product?.id ?? 0,
-                                                          name: nameController
-                                                              .text,
-                                                          barcode:
-                                                              barcodeController
-                                                                  .text,
-                                                          defaultCode:
-                                                              referenceController
-                                                                  .text,
-                                                          listPrice:
-                                                              priceController
-                                                                  .text,
-                                                          weight: pesoController
-                                                              .text,
-                                                          volume:
-                                                              volumenController
-                                                                  .text,
-                                                        )));
-                                                      },
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        minimumSize: Size(
-                                                            size.width * 0.9,
-                                                            30),
-                                                        backgroundColor:
-                                                            primaryColorApp,
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                      ),
-                                                      child: Text('Actualizar',
-                                                          style: TextStyle(
-                                                              color: white,
-                                                              fontSize: 12))),
-                                                ),
-                                              )
+                                      bloc.add(UpdateProductEvent(
+                                          UpdateProductRequest(
+                                        productId: product?.id ?? 0,
+                                        name: nameController.text,
+                                        barcode: barcodeController.text,
+                                        defaultCode: referenceController.text,
+                                        listPrice: priceController.text,
+                                        weight: pesoController.text,
+                                        volume: volumenController.text,
+                                      )));
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: Size(size.width * 0.9, 30),
+                                      backgroundColor: primaryColorApp,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: Text('Actualizar',
+                                        style: TextStyle(
+                                            color: white, fontSize: 12))),
+                              ),
+                            )
 
-                                              //listado de ubicaciones
-                                            ],
-                                          ),
+                            //listado de ubicaciones
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, left: 20),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Ubicaciones",
+                      style: TextStyle(
+                          color: black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
+                //listado de ubicaciones
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ListView.builder(
+                    itemExtent:
+                        175, // Altura fija por item para mejor rendimiento
+                    cacheExtent: 500, // Precarga 500px adicionales
+                    padding: const EdgeInsets.all(0),
+                    itemCount: product?.ubicaciones?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final ubicacion = product?.ubicaciones?[index];
+                      return Card(
+                        elevation: 2,
+                        color: white,
+                        child: ListTile(
+                          title: Text(
+                            ubicacion?.ubicacion ?? 'Sin nombre',
+                            style: TextStyle(
+                                color: primaryColorApp,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            children: [
+                              ProductInfoRow(
+                                title:
+                                    'Cantidad disponible: ', // Este parece repetido, si es correcto, déjalo así
+                                value:
+                                    '${ubicacion?.cantidadMano} ${ubicacion?.unidadMedida ?? 'UND'}',
+                                color: green,
+                              ),
+                              ProductInfoRow(
+                                title:
+                                    'En inventario: ', // Este parece repetido, si es correcto, déjalo así
+                                value:
+                                    '${ubicacion?.cantidad}  ${ubicacion?.unidadMedida ?? 'UND'}',
+                              ),
+                              ProductInfoRow(
+                                title:
+                                    'Cantidad reservada: ', // Este parece repetido, si es correcto, déjalo así
+                                value:
+                                    '${ubicacion?.reservado} ${ubicacion?.unidadMedida ?? 'UND'}',
+                                color: red,
+                              ),
+                              ProductInfoRow(
+                                title:
+                                    'Lote: ', // Este parece repetido, si es correcto, déjalo así
+                                value: ubicacion?.lote == null ||
+                                        ubicacion?.lote == ''
+                                    ? 'Sin lote'
+                                    : ubicacion?.lote ?? 'Sin lote',
+                              ),
+                              ProductInfoRow(
+                                title:
+                                    'Fecha de entrada: ', // Este parece repetido, si es correcto, déjalo así
+                                value: '${ubicacion?.fechaEntrada}',
+                              ),
+                              ProductInfoRow(
+                                title:
+                                    'Fecha de eliminacion: ', // Este parece repetido, si es correcto, déjalo así
+                                value: ubicacion?.fechaEliminacion == null ||
+                                        ubicacion?.fechaEliminacion == ''
+                                    ? 'Sin fecha de eliminacion'
+                                    : '${ubicacion?.fechaEliminacion}',
+                              ),
+                              const SizedBox(height: 5),
+                              GestureDetector(
+                                onTap: () async {
+                                  context
+                                      .read<TransferInfoBloc>()
+                                      .add(LoadLocationsTransfer());
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return const DialogLoading(
+                                        message: "Cargando informacion...",
+                                      );
+                                    },
+                                  );
+
+                                  //esperamos 1 segundo
+                                  await Future.delayed(
+                                    const Duration(seconds: 1),
+                                  );
+
+                                  Navigator.pop(context);
+                                  Navigator.pushReplacementNamed(
+                                      context, 'transfer-info',
+                                      arguments: [product, ubicacion]);
+                                },
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: SizedBox(
+                                    width: size.width * 0.4,
+                                    child: Card(
+                                      color: white,
+                                      elevation: 3,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.compare_arrows_sharp,
+                                              color: primaryColorApp,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text('TRANSFERIR',
+                                                style: TextStyle(
+                                                    color: primaryColorApp,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10, left: 20),
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "Ubicaciones",
-                                        style: TextStyle(
-                                            color: black,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-
-                                  //listado de ubicaciones
-                                  Flexible(
-                                      child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemExtent:
-                                          175, // Altura fija por item para mejor rendimiento
-                                      cacheExtent:
-                                          500, // Precarga 500px adicionales
-                                      padding: const EdgeInsets.all(0),
-                                      itemCount:
-                                          product?.ubicaciones?.length ?? 0,
-                                      itemBuilder: (context, index) {
-                                        final ubicacion =
-                                            product?.ubicaciones?[index];
-                                        return Card(
-                                          elevation: 2,
-                                          color: white,
-                                          child: ListTile(
-                                            title: Text(
-                                              ubicacion?.ubicacion ??
-                                                  'Sin nombre',
-                                              style: TextStyle(
-                                                  color: primaryColorApp,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            subtitle: Column(
-                                              children: [
-                                                ProductInfoRow(
-                                                  title:
-                                                      'Cantidad: ', // Este parece repetido, si es correcto, déjalo así
-                                                  value:
-                                                      '${ubicacion?.cantidad} UND',
-                                                ),
-                                                ProductInfoRow(
-                                                  title:
-                                                      'CANT Reservada: ', // Este parece repetido, si es correcto, déjalo así
-                                                  value:
-                                                      '${ubicacion?.reservado} UND',
-                                                ),
-                                                ProductInfoRow(
-                                                  title:
-                                                      'Lote: ', // Este parece repetido, si es correcto, déjalo así
-                                                  value: ubicacion?.lote ==
-                                                              null ||
-                                                          ubicacion?.lote == ''
-                                                      ? 'Sin lote'
-                                                      : ubicacion?.lote ??
-                                                          'Sin lote',
-                                                ),
-                                                ProductInfoRow(
-                                                  title:
-                                                      'Fecha de entrada: ', // Este parece repetido, si es correcto, déjalo así
-                                                  value:
-                                                      '${ubicacion?.fechaEntrada}',
-                                                ),
-                                                ProductInfoRow(
-                                                  title:
-                                                      'Fecha de eliminacion: ', // Este parece repetido, si es correcto, déjalo así
-                                                  value: ubicacion?.fechaEliminacion ==
-                                                              null ||
-                                                          ubicacion
-                                                                  ?.fechaEliminacion ==
-                                                              ''
-                                                      ? 'Sin fecha de eliminacion'
-                                                      : '${ubicacion?.fechaEliminacion}',
-                                                ),
-                                                const SizedBox(height: 5),
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    context
-                                                        .read<
-                                                            TransferInfoBloc>()
-                                                        .add(
-                                                            LoadLocationsTransfer());
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return const DialogLoading(
-                                                          message:
-                                                              "Cargando informacion...",
-                                                        );
-                                                      },
-                                                    );
-
-                                                    //esperamos 1 segundo
-                                                    await Future.delayed(
-                                                      const Duration(
-                                                          seconds: 1),
-                                                    );
-
-                                                    Navigator.pop(context);
-                                                    Navigator
-                                                        .pushReplacementNamed(
-                                                            context,
-                                                            'transfer-info',
-                                                            arguments: [
-                                                          product,
-                                                          ubicacion
-                                                        ]);
-                                                  },
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: SizedBox(
-                                                      width: size.width * 0.4,
-                                                      child: Card(
-                                                        color: white,
-                                                        elevation: 3,
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Icon(
-                                                                Icons
-                                                                    .compare_arrows_sharp,
-                                                                color:
-                                                                    primaryColorApp,
-                                                                size: 20,
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 5),
-                                                              Text('TRANSFERIR',
-                                                                  style: TextStyle(
-                                                                      color:
-                                                                          primaryColorApp,
-                                                                      fontSize:
-                                                                          12,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold)),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  )),
-                                  const SizedBox(
-                                    height: 20,
-                                  )
-                                ],
-                              ),
-                            ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
+                )),
+                const SizedBox(
+                  height: 20,
+                )
+              ],
             ),
           ),
         );

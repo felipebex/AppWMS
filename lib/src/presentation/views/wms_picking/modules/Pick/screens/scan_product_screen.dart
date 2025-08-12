@@ -1547,7 +1547,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                   return (e.isSeparate == 1) &&
                                       (e.locationDestId ==
                                           batchBloc
-                                              .pickWithProducts.pick?.muelle);
+                                              .pickWithProducts.pick?.idMuellePadre);
                                 }).toList()),
                                 const Spacer(),
                                 Padding(
@@ -1561,7 +1561,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                         batchBloc
                                                             .pickWithProducts
                                                             .pick
-                                                            ?.muelle);
+                                                            ?.idMuellePadre);
                                               })
                                               .toList()
                                               .isEmpty

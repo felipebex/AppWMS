@@ -450,31 +450,7 @@ class IndexListPickScreen extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                          Visibility(
-                                            visible: batch.backorderId != 0,
-                                            child: Row(
-                                              children: [
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Icon(
-                                                      Icons
-                                                          .shopping_cart_rounded,
-                                                      color: primaryColorApp,
-                                                      size: 15),
-                                                ),
-                                                const SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Text(batch.backorderName ?? '',
-                                                    style: TextStyle(
-                                                        color: black,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                              ],
-                                            ),
-                                          ),
+                                          
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(
@@ -510,7 +486,7 @@ class IndexListPickScreen extends StatelessWidget {
                                             child: Row(
                                               children: [
                                                 Icon(
-                                                  Icons.shopping_cart_rounded,
+                                                  Icons.receipt,
                                                   color: primaryColorApp,
                                                   size: 15,
                                                 ),
@@ -538,6 +514,29 @@ class IndexListPickScreen extends StatelessWidget {
                                               ],
                                             ),
                                           ),
+                                          Visibility(
+                                          visible: batch.backorderId != 0,
+                                          child: Row(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Icon(
+                                                    Icons.file_copy,
+                                                    color: primaryColorApp,
+                                                    size: 15),
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(batch.backorderName ?? '',
+                                                  style: TextStyle(
+                                                      color: black,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                            ],
+                                          ),
+                                        ),
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(

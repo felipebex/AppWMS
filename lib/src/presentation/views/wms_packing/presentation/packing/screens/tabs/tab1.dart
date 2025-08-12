@@ -89,6 +89,7 @@ class Tab1PedidoScreen extends StatelessWidget {
               context.read<PackingPedidoBloc>().currentPedidoPack;
           return BlocListener<PackingPedidoBloc, PackingPedidoState>(
             listener: (context, state) {
+              print('STATE : $state');
               if (state is UnPackignSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   duration: const Duration(milliseconds: 1000),
@@ -669,7 +670,7 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                         .showSnackBar(
                                                       SnackBar(
                                                         content: const Text(
-                                                          'No se puede confirmar un pedido con productos en estado preparado',
+                                                          'No se puede confirmar un pedido sin empaques',
                                                           style: TextStyle(
                                                               color: white),
                                                         ),

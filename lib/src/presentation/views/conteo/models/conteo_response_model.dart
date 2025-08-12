@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+
 class ResponseConteo {
   final String? jsonrpc;
   final dynamic id;
@@ -72,18 +74,18 @@ class DatumConteo {
   final String? warehouseName;
   final int? responsableId;
   final String? responsableName;
-  final dynamic? createDate;
-  final dynamic? dateCount;
-  final dynamic? mostrarCantidad;
+  final dynamic createDate;
+  final dynamic dateCount;
+  final dynamic mostrarCantidad;
   final String? countType;
   final String? numberCount;
   final int? numeroLineas;
   final int? numeroItemsContados;
   final String? filterType;
-  final dynamic? enableAllLocations;
-  final dynamic? enableAllProducts;
+  final dynamic enableAllLocations;
+  final dynamic enableAllProducts;
 
-  final dynamic? isDoneItem; 
+  final dynamic isDoneItem;
 
   final dynamic isSelected;
   final dynamic isStarted;
@@ -94,8 +96,6 @@ class DatumConteo {
   final List<Allowed>? allowedCategories;
   final List<Allowed>? allowedLocations;
   final List<dynamic>? allowedProducts;
-
-
 
   final List<CountedLine>? countedLines;
   final List<CountedLine>? countedLinesDone;
@@ -232,11 +232,13 @@ class Allowed {
   final int? id;
   final String? name;
   final int? ordenConteoId;
+  final String  ? barcode;
 
   Allowed({
     this.id,
     this.name,
     this.ordenConteoId,
+    this.barcode,
   });
 
   factory Allowed.fromJson(String str) => Allowed.fromMap(json.decode(str));
@@ -247,12 +249,14 @@ class Allowed {
         id: json["id"],
         name: json["name"],
         ordenConteoId: json["orden_conteo_id"] ?? 0,
+        barcode: json["barcode"] ?? '',
       );
 
   Map<String, dynamic> toMap() => {
         "id": id,
         "name": name,
         "orden_conteo_id": ordenConteoId,
+        "barcode": barcode,
       };
 }
 
@@ -264,20 +268,19 @@ class CountedLine {
   final String? productCode;
   final String? productBarcode;
   final String? productTracking;
-  final List<dynamic>? otherBarcodes;
-  final List<dynamic>? productPacking;
+  final List<Barcodes>? otherBarcodes;
+  final List<Barcodes>? productPacking;
   final int? locationId;
   final String? locationName;
   final String? locationBarcode;
-  final dynamic? quantityInventory;
-  final dynamic? quantityCounted;
-  final dynamic? differenceQty;
+  final dynamic quantityInventory;
+  final dynamic quantityCounted;
+  final dynamic differenceQty;
   final String? uom;
-  final dynamic? weight;
-  final dynamic? isDoneItem;
+  final dynamic weight;
   final String? dateTransaction;
   final String? observation;
-  final dynamic? time;
+  final dynamic time;
   final int? userOperatorId;
   final String? userOperatorName;
   final int? categoryId;
@@ -285,6 +288,19 @@ class CountedLine {
   final int? lotId;
   final String? lotName;
   final String? fechaVencimiento;
+
+  final dynamic isDoneItem;
+  final dynamic dateSeparate;
+  final dynamic dateStart;
+  final dynamic dateEnd;
+
+  final dynamic isSelected;
+  final dynamic isSeparate;
+  final dynamic? idMove;
+
+  final dynamic productIsOk;
+  final dynamic isQuantityIsOk;
+  final dynamic isLocationIsOk;
 
   CountedLine({
     this.id,
@@ -315,6 +331,15 @@ class CountedLine {
     this.lotId,
     this.lotName,
     this.fechaVencimiento,
+    this.dateSeparate,
+    this.dateStart,
+    this.dateEnd,
+    this.isSelected,
+    this.isSeparate,
+    this.idMove,
+    this.productIsOk,
+    this.isQuantityIsOk,
+    this.isLocationIsOk,
   });
 
   factory CountedLine.fromJson(String str) =>
@@ -332,10 +357,12 @@ class CountedLine {
         productTracking: json["product_tracking"],
         otherBarcodes: json["other_barcodes"] == null
             ? []
-            : List<dynamic>.from(json["other_barcodes"]!.map((x) => x)),
+            : List<Barcodes>.from(
+                json["other_barcodes"]!.map((x) => Barcodes.fromMap(x))),
         productPacking: json["product_packing"] == null
             ? []
-            : List<dynamic>.from(json["product_packing"]!.map((x) => x)),
+            : List<Barcodes>.from(
+                json["product_packing"]!.map((x) => Barcodes.fromMap(x))),
         locationId: json["location_id"],
         locationName: json["location_name"],
         locationBarcode: json["location_barcode"],
@@ -355,6 +382,15 @@ class CountedLine {
         lotId: json["lot_id"],
         lotName: json["lot_name"],
         fechaVencimiento: json["fecha_vencimiento"],
+        dateSeparate: json["date_separate"],
+        dateStart: json["date_start"],
+        dateEnd: json["date_end"],
+        isSelected: json["is_selected"],
+        isSeparate: json["is_separate"],
+        idMove: json["id_move"],
+        productIsOk: json["product_is_ok"],
+        isQuantityIsOk: json["is_quantity_is_ok"],
+        isLocationIsOk: json["is_location_is_ok"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -367,10 +403,10 @@ class CountedLine {
         "product_tracking": productTracking,
         "other_barcodes": otherBarcodes == null
             ? []
-            : List<dynamic>.from(otherBarcodes!.map((x) => x)),
+            : List<dynamic>.from(otherBarcodes!.map((x) => x.toMap())),
         "product_packing": productPacking == null
             ? []
-            : List<dynamic>.from(productPacking!.map((x) => x)),
+            : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
         "location_id": locationId,
         "location_name": locationName,
         "location_barcode": locationBarcode,
@@ -390,5 +426,14 @@ class CountedLine {
         "lot_id": lotId,
         "lot_name": lotName,
         "fecha_vencimiento": fechaVencimiento,
+        "date_separate": dateSeparate,
+        "date_start": dateStart,
+        "date_end": dateEnd,
+        "is_selected": isSelected,
+        "is_separate": isSeparate,
+        "id_move": idMove,
+        "product_is_ok": productIsOk,
+        "is_quantity_is_ok": isQuantityIsOk,
+        "is_location_is_ok": isLocationIsOk,
       };
 }

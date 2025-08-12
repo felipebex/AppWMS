@@ -11,6 +11,7 @@ class BatchPickingTable {
   static const String columnMuelle = 'muelle';
   static const String columnBarcodeMuelle = 'barcode_muelle';
   static const String columnIdMuelle = 'id_muelle';
+  static const String columnIdMuellePadre = 'id_muelle_padre';
   static const String columnState = 'state';
   static const String columnUserId = 'user_id';
   static const String columnUserName = 'user_name';
@@ -44,6 +45,7 @@ class BatchPickingTable {
         $columnMuelle VARCHAR(255),
         $columnBarcodeMuelle VARCHAR(255),
         $columnIdMuelle INTEGER,
+        $columnIdMuellePadre INTEGER,
         $columnState VARCHAR(255),
         $columnUserId VARCHAR(255),
         $columnUserName VARCHAR(255),

@@ -13,6 +13,12 @@ class InfoRapidaLoaded extends InfoRapidaState {
 
   InfoRapidaLoaded(this.infoRapidaResult, this.message);
 }
+class InfoRapidaLoadedTransfer extends InfoRapidaState {
+  final InfoRapidaResult infoRapidaResult;
+  final String message;
+
+  InfoRapidaLoadedTransfer(this.infoRapidaResult, this.message);
+}
 
 class InfoRapidaError extends InfoRapidaState {}
 

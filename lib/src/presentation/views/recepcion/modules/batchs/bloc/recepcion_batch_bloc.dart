@@ -262,7 +262,7 @@ class RecepcionBatchBloc
         event.fechaCaducidad,
       );
 
-      if (response != null) {
+        if (response.result?.code ==200) {
         //agregamos el nuevo lote a la lista de lotes
         listLotesProductFilters.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
@@ -303,7 +303,8 @@ class RecepcionBatchBloc
 
         emit(CreateLoteProductSuccess());
       } else {
-        emit(CreateLoteProductFailure('Error al crear el lote'));
+        emit(CreateLoteProductFailure(
+            response.result?.msg ?? 'Error al crear el lote concactarse con el administrador'));
       }
     } catch (e, s) {
       emit(CreateLoteProductFailure('Error al crear el lote'));
@@ -1166,6 +1167,10 @@ class RecepcionBatchBloc
 
           print(
               'cantidad de productos: ${productsToInsert.length} y ${productsSedToInsert.length}');
+          print(
+              'cantidad de codigos de barras: ${allBarcodes.length}');
+
+          
 
           add(FetchRecepcionBatchEventFromBD());
           emit(FetchRecepcionBatchSuccess(

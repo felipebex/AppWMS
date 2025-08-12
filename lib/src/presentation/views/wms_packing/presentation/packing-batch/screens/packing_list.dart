@@ -42,8 +42,6 @@ class _PakingListScreenState extends State<PakingListScreen>
   }
 
   @override
-
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -87,7 +85,8 @@ class _PakingListScreenState extends State<PakingListScreen>
           }
         },
         builder: (context, state) {
-          print('isKeyboardVisible: ${context.read<WmsPackingBloc>().isKeyboardVisible}');
+          print(
+              'isKeyboardVisible: ${context.read<WmsPackingBloc>().isKeyboardVisible}');
           return Scaffold(
             bottomNavigationBar: context
                         .read<WmsPackingBloc>()
@@ -125,8 +124,9 @@ class _PakingListScreenState extends State<PakingListScreen>
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocBuilder<ConnectionStatusCubit,
-                          ConnectionStatus>(builder: (context, status) {
+                      child:
+                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                              builder: (context, status) {
                         return Column(
                           children: [
                             const WarningWidgetCubit(),
@@ -150,7 +150,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                                       context
                                           .read<WmsPackingBloc>()
                                           .add(ShowKeyboardEvent(false));
-                      
+
                                       context
                                           .read<WmsPackingBloc>()
                                           .searchControllerPedido
@@ -453,8 +453,6 @@ class _PakingListScreenState extends State<PakingListScreen>
                                           color: Colors.white,
                                           elevation: 3,
                                           child: TextFormField(
-                                          
-
                                             readOnly: context
                                                     .read<UserBloc>()
                                                     .fabricante
@@ -554,11 +552,11 @@ class _PakingListScreenState extends State<PakingListScreen>
                                           .where(
                                               (batch) => batch.isTerminate == 0)
                                           .isEmpty)
-                                      ? Expanded(
+                                      ? Center(
+                                          // Reemplazamos Expanded por Center
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.max,
                                             children: [
                                               const Text('No hay pedidos',
                                                   style: TextStyle(
@@ -569,15 +567,11 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       color: grey)),
-                                              Visibility(
-                                                visible: context
-                                                    .read<UserBloc>()
-                                                    .fabricante
-                                                    .contains("Zebra"),
-                                                child: Container(
-                                                  height: 60,
-                                                ),
-                                              ),
+                                              if (context
+                                                  .read<UserBloc>()
+                                                  .fabricante
+                                                  .contains("Zebra"))
+                                                const SizedBox(height: 60),
                                             ],
                                           ),
                                         )

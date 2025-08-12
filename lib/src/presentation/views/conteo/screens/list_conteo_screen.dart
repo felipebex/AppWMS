@@ -136,7 +136,7 @@ class ListConteoScreen extends StatelessWidget {
                                                       conteo?.id ?? 0
                                               ),
                                             );
-                                        Navigator.pushNamed(
+                                        Navigator.pushReplacementNamed(
                                           context,
                                           'conteo-detail',
                                           arguments: [

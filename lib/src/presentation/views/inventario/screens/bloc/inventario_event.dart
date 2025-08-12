@@ -12,6 +12,7 @@ class SearchLocationEvent extends InventarioEvent {
     this.query,
   );
 }
+
 class SearchLotevent extends InventarioEvent {
   final String query;
 
@@ -60,9 +61,11 @@ class ChangeLocationIsOkEvent extends InventarioEvent {
 
 class ChangeProductIsOkEvent extends InventarioEvent {
   final Product productSelect;
+  final bool isManual;
   ChangeProductIsOkEvent(
-    this.productSelect,
-  );
+    this.productSelect, {
+    this.isManual = false,
+  });
 }
 
 class ChangeIsOkQuantity extends InventarioEvent {
@@ -86,7 +89,11 @@ class GetProductsForDB extends InventarioEvent {}
 
 class CleanFieldsEent extends InventarioEvent {}
 
-class GetLotesProduct extends InventarioEvent {}
+class GetLotesProduct extends InventarioEvent {
+  final bool isManual;
+  final int idLote;
+  GetLotesProduct({this.isManual = false, this.idLote = 0});
+}
 
 class SelectecLoteEvent extends InventarioEvent {
   final LotesProduct lote;
@@ -108,32 +115,33 @@ class AddQuantitySeparate extends InventarioEvent {
 
 class ChangeQuantitySeparate extends InventarioEvent {
   final int quantity;
-  ChangeQuantitySeparate(this.quantity,);
+  ChangeQuantitySeparate(
+    this.quantity,
+  );
 }
 
-
-
-class SendProductInventarioEnvet extends InventarioEvent{
-
+class SendProductInventarioEnvet extends InventarioEvent {
   final dynamic cantidad;
 
-SendProductInventarioEnvet(this.cantidad);
-  
+  SendProductInventarioEnvet(this.cantidad);
 }
-
 
 class CreateLoteProduct extends InventarioEvent {
- 
   final String nameLote;
   final String fechaCaducidad;
-  CreateLoteProduct( this.nameLote, this.fechaCaducidad);
+  CreateLoteProduct(this.nameLote, this.fechaCaducidad);
 }
-
-
 
 class LoadConfigurationsUserInventory extends InventarioEvent {}
 
 class FilterUbicacionesAlmacenEvent extends InventarioEvent {
   final String almacen;
   FilterUbicacionesAlmacenEvent(this.almacen);
+}
+
+class SetUbicacionFijaEvent extends InventarioEvent {
+  final bool ubicacionFija;
+  SetUbicacionFijaEvent(
+    this.ubicacionFija,
+  );
 }

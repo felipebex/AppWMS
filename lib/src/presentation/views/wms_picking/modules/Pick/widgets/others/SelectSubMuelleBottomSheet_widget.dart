@@ -166,9 +166,10 @@ class _SelectSubMuelleBottomSheetState
 
                                   batchBloc.add(AssignSubmuelleEvent(
                                     batchBloc.filteredProducts.where((e) {
-                                      return e.isMuelle == null &&
-                                          e.isSeparate == 1;
-                                    }).toList(),
+                                     return (e.isSeparate == 1) &&
+                                    (e.idLocationDest ==
+                                        batchBloc.pickWithProducts.pick?.idMuellePadre);
+                                      }).toList(),
                                     batchBloc.subMuelleSelected,
                                     isOccupied == null ? false : isOccupied!,
                                   ));

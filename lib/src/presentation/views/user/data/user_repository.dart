@@ -228,9 +228,11 @@ class UserRepository {
   }
 
   Future<ResponsePdaRegister> sendIdPda(
-      String deviceId, String deviceName, String deviceModel) async {
+      String deviceId, String deviceName, String deviceModel, String versionApp) async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
+
+      //obtenemos la versión de la app
 
       if (connectivityResult == ConnectivityResult.none) {
         print("Error: No hay conexión a Internet.");
@@ -244,6 +246,7 @@ class UserRepository {
             "device_id": deviceId,
             "device_name": deviceName,
             "device_model": deviceModel,
+            "version_app" : versionApp, // Cambia esto según tu versión de la app
           }
         },
         isunecodePath: true,

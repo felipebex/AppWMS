@@ -30,7 +30,9 @@ class QuantityScannerWidget extends StatelessWidget {
   final Function(String) onKeyScanned;
   final Widget? customKeyboard;
 
-  const QuantityScannerWidget({
+  bool isViewCant;
+
+  QuantityScannerWidget({
     super.key,
     required this.size,
     required this.isQuantityOk,
@@ -55,6 +57,7 @@ class QuantityScannerWidget extends StatelessWidget {
     required this.onKeyScanned,
     required this.onIconButtonPressed,
     this.customKeyboard,
+    this.isViewCant = true,
   });
 
   Color _getColorForDifference(dynamic difference) {
@@ -98,32 +101,35 @@ class QuantityScannerWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
                   children: [
-                    const Text('Cant:',
-                        style: TextStyle(color: black, fontSize: 13)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Text(
-                        totalQuantity?.toStringAsFixed(2) ?? "",
-                        style: TextStyle(color: primaryColorApp, fontSize: 13),
-                      ),
-                    ),
-                    if (difference != 0)
-                      const Text('Pdte:',
+                    if (isViewCant) ...[
+                      const Text('Cant:',
                           style: TextStyle(color: black, fontSize: 13)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: difference == 0
-                          ? const SizedBox()
-                          : Text(
-                              difference
-                                  .clamp(0, double.infinity)
-                                  .toStringAsFixed(2),
-                              style: TextStyle(
-                                color: _getColorForDifference(difference),
-                                fontSize: 13,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                          totalQuantity?.toStringAsFixed(2) ?? "",
+                          style:
+                              TextStyle(color: primaryColorApp, fontSize: 13),
+                        ),
+                      ),
+                      if (difference != 0)
+                        const Text('Pdte:',
+                            style: TextStyle(color: black, fontSize: 13)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: difference == 0
+                            ? const SizedBox()
+                            : Text(
+                                difference
+                                    .clamp(0, double.infinity)
+                                    .toStringAsFixed(2),
+                                style: TextStyle(
+                                  color: _getColorForDifference(difference),
+                                  fontSize: 13,
+                                ),
                               ),
-                            ),
-                    ),
+                      ),
+                    ],
                     Text(unidades,
                         style:
                             const TextStyle(color: Colors.black, fontSize: 13)),

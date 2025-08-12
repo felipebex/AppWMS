@@ -7,7 +7,8 @@ class GetInfoRapida extends InfoRapidaEvent {
   final String barcode;
   final bool isManual;
   final bool isProduct;
-  GetInfoRapida(this.barcode, this.isManual, this.isProduct);
+  final bool isTransfer;
+  GetInfoRapida(this.barcode, this.isManual, this.isProduct, this.isTransfer);
 }
 
 class UpdateScannedValueEvent extends InfoRapidaEvent {

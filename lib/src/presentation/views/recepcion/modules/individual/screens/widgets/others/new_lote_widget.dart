@@ -68,8 +68,8 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
             height: size.height * 1,
             child: Column(
               children: [
-               BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-      builder: (context, status) {
+                BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                  builder: (context, status) {
                     return Container(
                       padding: const EdgeInsets.only(top: 20),
                       decoration: BoxDecoration(
@@ -105,12 +105,31 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                         }
 
                         if (state is CreateLoteProductFailure) {
-                          Get.snackbar(
-                            'Error',
-                            'Ha ocurrido un error al crear el lote',
-                            backgroundColor: white,
-                            colorText: primaryColorApp,
-                            icon: Icon(Icons.check, color: Colors.red),
+                          Navigator.pop(context);
+                          Get.defaultDialog(
+                            title: '360 Software Informa',
+                            titleStyle:
+                                TextStyle(color: Colors.red, fontSize: 18),
+                            middleText: state.error,
+                            middleTextStyle:
+                                TextStyle(color: black, fontSize: 14),
+                            backgroundColor: Colors.white,
+                            radius: 10,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColorApp,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text('Aceptar',
+                                    style: TextStyle(color: white)),
+                              ),
+                            ],
                           );
                         }
                       }, builder: (context, status) {
@@ -300,6 +319,7 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                             );
                           })),
                 ),
+                //todo crear lote
                 Visibility(
                   visible: !viewList,
                   child: Expanded(
@@ -394,7 +414,7 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                       onPressed: () {
                         // Aquí puedes manejar la lógica de lo que suceda cuando se seleccione el lote
                         var selectedLote =
-                            bloc.listLotesProduct[selectedIndex!];
+                            bloc.listLotesProductFilters[selectedIndex!];
 
                         bloc.add(SelectecLoteEvent(selectedLote));
 

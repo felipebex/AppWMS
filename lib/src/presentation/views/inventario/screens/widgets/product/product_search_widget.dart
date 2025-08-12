@@ -97,77 +97,74 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
       ),
     );
   }
-Widget _buildProductList(BuildContext context, InventarioBloc bloc) {
-  final productos = bloc.productosFilters;
-  final ubicacionId = bloc.currentUbication?.id;
 
-  final enUbicacionActual = productos
-      .where((p) => p.locationId == ubicacionId)
-      .toList();
+  Widget _buildProductList(BuildContext context, InventarioBloc bloc) {
+    final productos = bloc.productosFilters;
+    final ubicacionId = bloc.currentUbication?.id;
 
-  final enUbicacionCero = productos
-      .where((p) => p.locationId == 0)
-      .toList();
+    final enUbicacionActual =
+        productos.where((p) => p.locationId == ubicacionId).toList();
 
-  final restantes = productos
-      .where((p) => p.locationId != ubicacionId && p.locationId != 0)
-      .toList();
+    final enUbicacionCero = productos.where((p) => p.locationId == 0).toList();
 
-  final List<Widget> items = [];
+    final restantes = productos
+        .where((p) => p.locationId != ubicacionId && p.locationId != 0)
+        .toList();
 
-  // 🟢 Primero: productos en ubicación actual
-  for (final product in enUbicacionActual) {
-    items.add(_buildProductCard(
-      context,
-      bloc,
-      product,
-      product.productId,
-      product.lotId,
-    ));
-  }
+    final List<Widget> items = [];
 
-  // 🔵 Luego: productos en locationId == 0
-  for (final product in enUbicacionCero) {
-    items.add(_buildProductCard(
-      context,
-      bloc,
-      product,
-      product.productId,
-      product.lotId,
-    ));
-  }
+    // 🟢 Primero: productos en ubicación actual
+    for (final product in enUbicacionActual) {
+      items.add(_buildProductCard(
+        context,
+        bloc,
+        product,
+        product.productId,
+        product.lotId,
+      ));
+    }
 
-  // ⚪ Por último: productos restantes
-  for (final product in restantes) {
-    items.add(_buildProductCard(
-      context,
-      bloc,
-      product,
-      product.productId,
-      product.lotId,
-    ));
-  }
+    // 🔵 Luego: productos en locationId == 0
+    for (final product in enUbicacionCero) {
+      items.add(_buildProductCard(
+        context,
+        bloc,
+        product,
+        product.productId,
+        product.lotId,
+      ));
+    }
 
-  if (items.isEmpty) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('No se encontraron productos',
-              style: TextStyle(fontSize: 14, color: grey)),
-          Text('Prueba con otro término de búsqueda',
-              style: TextStyle(fontSize: 12, color: grey)),
-        ],
-      ),
+    // ⚪ Por último: productos restantes
+    for (final product in restantes) {
+      items.add(_buildProductCard(
+        context,
+        bloc,
+        product,
+        product.productId,
+        product.lotId,
+      ));
+    }
+
+    if (items.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('No se encontraron productos',
+                style: TextStyle(fontSize: 14, color: grey)),
+            Text('Prueba con otro término de búsqueda',
+                style: TextStyle(fontSize: 12, color: grey)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) => items[index],
     );
   }
-
-  return ListView.builder(
-    itemCount: items.length,
-    itemBuilder: (context, index) => items[index],
-  );
-}
-
 
   Widget _buildProductCard(BuildContext context, InventarioBloc bloc,
       dynamic product, dynamic productId, dynamic lotId) {
@@ -249,7 +246,7 @@ Widget _buildProductList(BuildContext context, InventarioBloc bloc) {
           FocusScope.of(context).unfocus();
 
           bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-          bloc.add(ChangeProductIsOkEvent(selectedProduct));
+          bloc.add(ChangeProductIsOkEvent(selectedProduct, isManual: true));
 
           if (selectedProduct.tracking != "lot") {
             bloc.add(ChangeIsOkQuantity(true));

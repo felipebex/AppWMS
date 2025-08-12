@@ -155,6 +155,7 @@ class PedidoPackRepository {
         PedidoPackTable.columnNumeroPaquetes: pedido.numeroPaquetes,
         PedidoPackTable.columnIsTerminate: pedido.isTerminate == true ? 1 : 0,
         PedidoPackTable.columnIsSelected: pedido.isSelected == true ? 1 : 0,
+        PedidoPackTable.columnIsStarted: pedido.isStarted == true ? 1 : 0,
         PedidoPackTable.columnCreateBackorder: pedido.createBackorder ?? '',
       };
 

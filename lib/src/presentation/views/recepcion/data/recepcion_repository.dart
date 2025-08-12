@@ -531,6 +531,14 @@ class RecepcionRepository {
                   ? ResponseNewLoteResult.fromMap(jsonResponse['result'])
                   : null,
             );
+          } else {
+            return ResponseNewLote(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: jsonResponse['result'] != null
+                  ? ResponseNewLoteResult.fromMap(jsonResponse['result'])
+                  : null,
+            );
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
@@ -977,7 +985,6 @@ class RecepcionRepository {
             result: jsonResponse['result'],
             lineId: jsonResponse['line_id'],
             imageUrl: jsonResponse['image_url'],
-              
           );
         } else {
           return TemperatureSend(); // Retornamos un objeto vacío en caso de error
@@ -996,6 +1003,7 @@ class RecepcionRepository {
       return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     }
   }
+
   Future<TemperatureSend> sendTemperatureManual(
     dynamic temperature,
     int idMoveLine,
@@ -1033,7 +1041,6 @@ class RecepcionRepository {
             result: jsonResponse['result'],
             lineId: jsonResponse['line_id'],
             imageUrl: jsonResponse['image_url'],
-              
           );
         } else {
           return TemperatureSend(); // Retornamos un objeto vacío en caso de error
@@ -1052,6 +1059,7 @@ class RecepcionRepository {
       return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     }
   }
+
   Future<ImageSendNovedad> sendImageNoved(
     int idMove,
     File imageFile,
@@ -1067,11 +1075,11 @@ class RecepcionRepository {
 
     try {
       final response = await ApiRequestService().postMultipartDynamic(
-          endpoint: 'send_imagen_observation',
-          imageFile: imageFile,
-          fields: {
-            'id_move': idMove,
-          },
+        endpoint: 'send_imagen_observation',
+        imageFile: imageFile,
+        fields: {
+          'id_move': idMove,
+        },
       );
 
       if (response.statusCode < 400) {
@@ -1093,7 +1101,6 @@ class RecepcionRepository {
             stockMoveLineId: jsonResponse['stock_move_line_id'],
             stockMoveId: jsonResponse['stock_move_id'],
             filename: jsonResponse['filename'],
-              
           );
         } else {
           return ImageSendNovedad(); // Retornamos un objeto vacío en caso de error

@@ -158,7 +158,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
       );
       return;
     }
-    if (cantidad > widget.ubicacion!.cantidad) {
+    if (cantidad > widget.ubicacion!.cantidadMano) {
       Get.snackbar(
         '360 Software Informa',
         'Cantidad superior a la cantidad en ubicacion',
@@ -242,32 +242,33 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                   child: BlocConsumer<TransferInfoBloc, TransferInfoState>(
                       listener: (context, state) {
                     if (state is SendTransferInfoSuccess) {
-                      Get.snackbar(
-                        '360 Software Informa',
-                        state.msg,
-                        backgroundColor: white,
-                        colorText: primaryColorApp,
-                        icon: const Icon(Icons.check, color: Colors.green),
-                      );
-                  
                       //acutalizamos la informacion del producto volviendo a llamar su info
                       context.read<InfoRapidaBloc>().add((GetInfoRapida(
                           widget.infoRapidaResult?.codigoBarras ?? "",
                           false,
-                          false)));
-                  
-                      Navigator.pushReplacementNamed(
-                        context,
-                        'product-info',
+                          false,
+                          true)));
+                      //mostramos dialog de cargando
+                      showDialog(
+                        context: context,
+                        builder: (context) => const DialogLoading(
+                            message: "Cargando información..."),
                       );
+
+                      //esperamos un segundo cerramos el dialogo y navegamos a product info
+                      Future.delayed(const Duration(seconds: 1), () {
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'product-info',
+                        );
+                      });
                     } else if (state is SendTransferInfoFailureTransfer) {
                       Get.defaultDialog(
                         title: '360 Software Informa',
-                        titleStyle:
-                            TextStyle(color: Colors.red, fontSize: 18),
+                        titleStyle: TextStyle(color: Colors.red, fontSize: 18),
                         middleText: state.error,
-                        middleTextStyle:
-                            TextStyle(color: black, fontSize: 14),
+                        middleTextStyle: TextStyle(color: black, fontSize: 14),
                         backgroundColor: Colors.white,
                         radius: 10,
                         actions: [
@@ -281,8 +282,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: Text('Aceptar',
-                                style: TextStyle(color: white)),
+                            child:
+                                Text('Aceptar', style: TextStyle(color: white)),
                           ),
                         ],
                       );
@@ -294,19 +295,18 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                         Padding(
                           padding: EdgeInsets.only(
                               // bottom: 5,
-                              top:
-                                  status != ConnectionStatus.online ? 0 : 35),
+                              top: status != ConnectionStatus.online ? 0 : 35),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.arrow_back,
-                                    color: white),
+                                icon:
+                                    const Icon(Icons.arrow_back, color: white),
                                 onPressed: () {
                                   context
                                       .read<TransferInfoBloc>()
                                       .clearFields();
-                  
+
                                   Navigator.pushReplacementNamed(
                                     context,
                                     'product-info',
@@ -317,13 +317,13 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                 padding:
                                     EdgeInsets.only(left: size.width * 0.2),
                                 child: Text('TRANSFERENCIA',
-                                    style: TextStyle(
-                                        color: white, fontSize: 18)),
+                                    style:
+                                        TextStyle(color: white, fontSize: 18)),
                               ),
                               const Spacer(),
                             ],
                           ),
-                  
+
                           //
                         ),
                       ],
@@ -431,7 +431,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                               color: primaryColorApp,
                                             ),
                                           ),
-                                         const  Spacer(),
+                                          const Spacer(),
                                           Image.asset(
                                             "assets/icons/producto.png",
                                             color: primaryColorApp,
@@ -742,16 +742,14 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                             child: Center(
                               child: Row(
                                 children: [
-                                  const Text('Cant:',
+                                  const Text('Disponible:',
                                       style: TextStyle(
                                           color: Colors.black, fontSize: 13)),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5),
                                     child: Text(
-                                      widget.ubicacion?.cantidad
-                                              .toStringAsFixed(2) ??
-                                          "",
+                                      '(${widget.ubicacion?.cantidadMano.toStringAsFixed(2) ?? ""})',
                                       style: TextStyle(
                                           color: primaryColorApp, fontSize: 15),
                                     ),

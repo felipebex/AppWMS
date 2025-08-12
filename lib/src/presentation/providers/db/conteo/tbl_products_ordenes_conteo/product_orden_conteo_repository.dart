@@ -63,6 +63,13 @@ class ProductoOrdenConteoRepository {
             ProductosOrdenConteoTable.columnLotName: producto.lotName ?? '',
             ProductosOrdenConteoTable.columnFechaVencimiento:
                 producto.fechaVencimiento ?? '',
+            ProductosOrdenConteoTable.columnDateStart: producto.dateStart ?? '',
+            ProductosOrdenConteoTable.columnDateEnd: producto.dateEnd ?? '',
+            ProductosOrdenConteoTable.columnIsSelected:
+                producto.isSelected == true ? 1 : 0,
+            ProductosOrdenConteoTable.columnIsSeparate:
+                producto.isSeparate == true ? 1 : 0,
+            ProductosOrdenConteoTable.columnIdMove: producto.idMove ?? 0,
           };
 
           batch.insert(
@@ -94,12 +101,34 @@ class ProductoOrdenConteoRepository {
         where: '${ProductosOrdenConteoTable.columnOrderId} = ?',
         whereArgs: [orderId],
       );
-
       return List.generate(maps.length, (i) => CountedLine.fromMap(maps[i]));
     } catch (e, s) {
       print('Error en getProductosByOrderId: $e');
       print(s);
       return [];
+    }
+  }
+
+  //metodo para obtener un producto por su ID
+  Future<CountedLine?> getProductoById(int productId, int idMove, int orderId) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> maps = await db.query(
+        ProductosOrdenConteoTable.tableName,    
+        where:
+            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ?',
+        whereArgs: [productId, orderId],
+        limit: 1,
+      );
+      if (maps.isNotEmpty) {
+        return CountedLine.fromMap(maps.first);
+      } else {
+        return null; // No se encontró el producto
+      }
+    } catch (e, s) {
+      print('Error en getProductoById: $e');
+      print(s);
+      return null; // Manejo de error, puedes lanzar una excepción si lo prefieres
     }
   }
 
@@ -155,6 +184,22 @@ class ProductoOrdenConteoRepository {
         ? maps.first[ProductosOrdenConteoTable.columnQuantityInventory]
             as double
         : 0.0;
+  }
+
+    // Método: Actualizar un campo específico en la tabla productos_pedidos
+  Future<int?> setFieldTableProductOrdenConteo(int idOrdenConteo, int productId,
+      String field, dynamic setValue, int idMove) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    final resUpdate = await db.rawUpdate(
+        'UPDATE ${ProductosOrdenConteoTable.tableName} SET $field = ?'
+        'WHERE ${ProductosOrdenConteoTable.columnProductId} = ?'
+        'AND ${ProductosOrdenConteoTable.columnIdMove} = ?'
+        'AND ${ProductosOrdenConteoTable.columnOrderId} = ?'
+        'AND ${ProductosOrdenConteoTable.columnIsDoneItem} = 0',
+        [setValue, productId, idMove, idOrdenConteo]);
+    print(
+        "update TableProductOrdenConteo (idProduct ----($productId)) -------($field): $resUpdate");
+    return resUpdate;
   }
 
   // Eliminar productos de una orden

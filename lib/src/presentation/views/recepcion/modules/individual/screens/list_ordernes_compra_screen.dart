@@ -207,7 +207,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                           )),
                                       disabledBorder:
                                           const OutlineInputBorder(),
-                                      hintText: "Buscar orden de compra",
+                                      hintText: "Buscar",
                                       hintStyle: const TextStyle(
                                           color: Colors.grey, fontSize: 14),
                                       border: InputBorder.none,

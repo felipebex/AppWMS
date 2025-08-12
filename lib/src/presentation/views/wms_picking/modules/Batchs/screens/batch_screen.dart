@@ -670,9 +670,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                   productsOk:
                                       batchBloc.filteredProducts.where((e) {
                                 return (e.isSeparate == 1) &&
-                                    (e.locationDestId ==
-                                        batchBloc
-                                            .batchWithProducts.batch?.muelle);
+                                    (e.idLocationDest ==
+                                        batchBloc.batchWithProducts.batch?.idMuellePadre);
                               }).toList()),
                               const Spacer(),
                               Padding(
@@ -682,11 +681,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                     onPressed: batchBloc.filteredProducts
                                             .where((e) {
                                               return (e.isSeparate == 1) &&
-                                                  (e.locationDestId ==
-                                                      batchBloc
-                                                          .batchWithProducts
-                                                          .batch
-                                                          ?.muelle);
+                                    (e.idLocationDest ==
+                                        batchBloc.batchWithProducts.batch?.idMuellePadre);
                                             })
                                             .toList()
                                             .isEmpty

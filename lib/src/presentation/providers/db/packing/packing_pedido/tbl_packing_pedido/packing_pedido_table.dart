@@ -41,6 +41,9 @@ class PedidoPackTable {
   static const String columnIsSelected = 'is_selected';
   static const String columnIsTerminate = 'is_terminate';
 
+  //is_started
+  static const String columnIsStarted = 'is_started';
+
     // create_backorder
   static const String columnCreateBackorder = 'create_backorder';
 
@@ -87,6 +90,7 @@ class PedidoPackTable {
          $columnIsSelected INTEGER,
         $columnIsTerminate INTEGER,
         $columnCreateBackorder TEXT,
+        $columnIsStarted INTEGER,
         $columnNumeroPaquetes INTEGER
       )
     ''';

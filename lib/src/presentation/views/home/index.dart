@@ -6,9 +6,11 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/dialog_inventario_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
@@ -77,180 +79,275 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       onWillPop: () async {
         return false;
       },
-      child: BlocConsumer<HomeBloc, HomeState>(
-        listener: (context, state) {
-          print(" ❤️‍🔥 STATE: $state");
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<UserBloc, UserState>(
+            listener: (context, state) {
+              if (state is RegisterDeviceIdError) {
+                //mostramos un dialogo que no se pueda cerrar y que diga que esta pda esta deshabilitada
 
-          if (state is HomeLoadErrorState) {
-            Get.snackbar(
-              'Error',
-              'Error al cargar los datos del usuario',
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.red),
-            );
-          }
-
-          if (state is AppVersionUpdateState) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return UpdateAppDialog();
-                });
-          }
-        },
-        builder: (context, state) {
-          final homeBloc = context.read<HomeBloc>();
-          return RefreshIndicator(
-            onRefresh: () async {
-              //mostramos dialogo
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return const DialogLoading(
-                    message: "Espere un momento...",
-                  );
-                },
-              );
-
-              //* generales
-              context.read<WMSPickingBloc>().add(LoadAllNovedades(context)); //n
-              context.read<UserBloc>().add(GetConfigurations(context));
-              context.read<UserBloc>().add(GetUbicacionesEvent());
-              context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-
-              //esperamos 2 segundos para cerrar el dialogo
-              await Future.delayed(const Duration(seconds: 2), () {
+                //cerrar el dialogo de loading
                 Navigator.pop(context);
-              });
-              context.read<HomeBloc>().add(AppVersionEvent());
-            },
-            child: Scaffold(
-              backgroundColor: white,
-              body: Container(
-                color: white,
-                width: size.width,
-                height: size.height,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0, // Posicionar en la parte inferior
-                      child: ClipPath(
-                        clipper: HalfCircleClipper(),
-                        child: Container(
-                          height: size.height * 0.3, // Altura del medio círculo
-                          color: primaryColorApp, // Color azul
+
+                showDialog(
+                  context: context,
+                  barrierDismissible:
+                      false, // Evita que se cierre al tocar fuera
+                  builder: (context) {
+                    return WillPopScope(
+                      onWillPop: () async => false,
+                      child: AlertDialog(
+                        title: Text(
+                          'Dispositivo no autorizado',
+                          style: TextStyle(
+                              color: primaryColorApp,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        content: const Text(
+                          'Esta PDA no está autorizada para usar la aplicación. Por favor, contacte al administrador.',
+                          style: TextStyle(
+                            color: black,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: size.width,
-                      height: size.height,
-                      child: SingleChildScrollView(
-                        physics:
-                            const AlwaysScrollableScrollPhysics(), // Asegura que funcione el pull-to-refresh
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const WarningWidgetCubit(),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Card(
-                                color: white,
-                                elevation: 2,
-                                child: Container(
-                                    padding: const EdgeInsets.only(
-                                        left: 20, top: 40),
-                                    width: size.width,
-                                    height: 170,
-                                    child: Row(
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text("Bienvenido a, ",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        color:
-                                                            primaryColorApp)),
-                                                // Text('WMS',
-                                                Text('OnPoint',
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: primaryColorApp,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10),
-                                                  child: Text(
-                                                      context
-                                                          .read<UserBloc>()
-                                                          .versionApp,
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: black,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                ),
-                                              ],
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                context.read<UserBloc>().add(
-                                                    GetConfigurations(context));
+                    );
+                  },
+                );
+              }
 
-                                                context.read<UserBloc>().add(
-                                                    LoadInfoDeviceEventUser());
-                                                context
-                                                    .read<UserBloc>()
-                                                    .add(GetUbicacionesEvent());
+              if (state is RegisterDeviceIdSuccess) {
+                //cerrar el dialogo de loading
+                Navigator.pop(context);
+              }
 
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return const DialogLoading(
-                                                        message:
-                                                            'Cargando información del usuario...',
-                                                      );
-                                                    });
+              if (state is RegisterDeviceIdLoading) {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const DialogLoading(
+                      message: "Espere un momento...",
+                    );
+                  },
+                );
+              }
 
-                                                // Esperar 3 segundos antes de continuar
-                                                Future.delayed(
-                                                    const Duration(
-                                                        milliseconds: 300), () {
-                                                  Navigator.pop(context);
-                                                  Navigator
-                                                      .pushReplacementNamed(
-                                                          context, 'user');
-                                                });
-                                              },
-                                              child: Row(
+              if (state is RegisterDeviceIdError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+        child: BlocConsumer<HomeBloc, HomeState>(
+          listener: (context, state) {
+            print(" ❤️‍🔥 STATE: $state");
+
+            if (state is HomeLoadErrorState) {
+              Get.snackbar(
+                'Error',
+                'Error al cargar los datos del usuario',
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.red),
+              );
+            }
+
+            if (state is AppVersionUpdateState) {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UpdateAppDialog();
+                  });
+            }
+          },
+          builder: (context, state) {
+            final homeBloc = context.read<HomeBloc>();
+            return RefreshIndicator(
+              onRefresh: () async {
+                //mostramos dialogo
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const DialogLoading(
+                      message: "Espere un momento...",
+                    );
+                  },
+                );
+
+                //* generales
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllNovedades(context)); //n
+                context.read<UserBloc>().add(GetUbicacionesEvent());
+                // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+                //*peticion de si la pda esta habilitada
+                context.read<UserBloc>().add(RegisterDeviceIdEvent());
+
+                //esperamos 2 segundos para cerrar el dialogo
+                await Future.delayed(const Duration(seconds: 2), () {
+                  Navigator.pop(context);
+                });
+                context.read<HomeBloc>().add(AppVersionEvent());
+              },
+              child: Scaffold(
+                backgroundColor: white,
+                body: Container(
+                  color: white,
+                  width: size.width,
+                  height: size.height,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0, // Posicionar en la parte inferior
+                        child: ClipPath(
+                          clipper: HalfCircleClipper(),
+                          child: Container(
+                            height:
+                                size.height * 0.3, // Altura del medio círculo
+                            color: primaryColorApp, // Color azul
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: size.width,
+                        height: size.height,
+                        child: SingleChildScrollView(
+                          physics:
+                              const AlwaysScrollableScrollPhysics(), // Asegura que funcione el pull-to-refresh
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const WarningWidgetCubit(),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Card(
+                                  color: white,
+                                  elevation: 2,
+                                  child: Container(
+                                      padding: const EdgeInsets.only(
+                                          left: 20, top: 40),
+                                      width: size.width,
+                                      height: 170,
+                                      child: Row(
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
                                                 children: [
-                                                  Icon(Icons.person,
-                                                      color: primaryColorApp,
-                                                      size: 20),
-                                                  Text("Hola, ",
+                                                  Text("Bienvenido a, ",
                                                       style: TextStyle(
                                                           fontSize: 18,
-                                                          color: black)),
-                                                  SizedBox(
-                                                    width: size.width * 0.5,
-                                                    child: Text(
-                                                      homeBloc.userName,
+                                                          color:
+                                                              primaryColorApp)),
+                                                  // Text('WMS',
+                                                  Text('OnPoint',
                                                       style: TextStyle(
-                                                        // color: Colors.amber[200],
+                                                          fontSize: 18,
+                                                          color:
+                                                              primaryColorApp,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10),
+                                                    child: Text(
+                                                        context
+                                                            .read<UserBloc>()
+                                                            .versionApp,
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: black,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ),
+                                                ],
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  context.read<UserBloc>().add(
+                                                      GetConfigurations(
+                                                          context));
+
+                                                  context.read<UserBloc>().add(
+                                                      LoadInfoDeviceEventUser());
+                                                  context.read<UserBloc>().add(
+                                                      GetUbicacionesEvent());
+
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DialogLoading(
+                                                          message:
+                                                              'Cargando información del usuario...',
+                                                        );
+                                                      });
+
+                                                  // Esperar 3 segundos antes de continuar
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 300),
+                                                      () {
+                                                    Navigator.pop(context);
+                                                    Navigator
+                                                        .pushReplacementNamed(
+                                                            context, 'user');
+                                                  });
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.person,
                                                         color: primaryColorApp,
-                                                        fontSize: 18,
-                                                        // fontWeight:
-                                                        //     FontWeight.bold
+                                                        size: 20),
+                                                    Text("Hola, ",
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            color: black)),
+                                                    SizedBox(
+                                                      width: size.width * 0.5,
+                                                      child: Text(
+                                                        homeBloc.userName,
+                                                        style: TextStyle(
+                                                          // color: Colors.amber[200],
+                                                          color:
+                                                              primaryColorApp,
+                                                          fontSize: 18,
+                                                          // fontWeight:
+                                                          //     FontWeight.bold
+                                                        ),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.email,
+                                                      color: primaryColorApp,
+                                                      size: 18),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: size.width * 0.6,
+                                                    child: Text(
+                                                      homeBloc.userEmail,
+                                                      style: const TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
                                                       maxLines: 1,
                                                       overflow:
                                                           TextOverflow.ellipsis,
@@ -258,298 +355,465 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   )
                                                 ],
                                               ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Row(
-                                              children: [
-                                                Icon(Icons.email,
-                                                    color: primaryColorApp,
-                                                    size: 18),
-                                                const SizedBox(width: 5),
-                                                SizedBox(
-                                                  width: size.width * 0.6,
-                                                  child: Text(
-                                                    homeBloc.userEmail,
-                                                    style: const TextStyle(
-                                                        color: black,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.storage,
+                                                      color: primaryColorApp,
+                                                      size: 18),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: size.width * 0.6,
+                                                    child: Text(
+                                                      Preferences.nameDatabase
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.security,
+                                                      color: primaryColorApp,
+                                                      size: 18),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: size.width * 0.4,
+                                                    child: Text(
+                                                      homeBloc.userRol,
+                                                      style: const TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
                                                   ),
-                                                )
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Icon(Icons.storage,
-                                                    color: primaryColorApp,
-                                                    size: 18),
-                                                const SizedBox(width: 5),
-                                                SizedBox(
-                                                  width: size.width * 0.6,
-                                                  child: Text(
-                                                    Preferences.nameDatabase
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                        color: black,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Icon(Icons.security,
-                                                    color: primaryColorApp,
-                                                    size: 18),
-                                                const SizedBox(width: 5),
-                                                SizedBox(
-                                                  width: size.width * 0.4,
-                                                  child: Text(
-                                                    homeBloc.userRol,
-                                                    style: const TextStyle(
-                                                        color: black,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                //icono de verson
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        //ICONO DE CERRAR SESION
-                                        const Spacer(),
-                                        GestureDetector(
-                                          onTap: () {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const CloseSession();
-                                                });
-                                          },
-                                          child: Container(
-                                            margin: const EdgeInsets.only(
-                                                right: 20),
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                                color: white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Icon(Icons.logout,
-                                                color: primaryColorApp),
+                                                  //icono de verson
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                        )
-                                      ],
-                                    )),
-                              ),
-                            ),
-
-                            //todo informativo para los modulos
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 0),
-                                child: Text("Mis módulos",
-                                    style: TextStyle(
-                                        color: primaryColorApp,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
+                                          //ICONO DE CERRAR SESION
+                                          const Spacer(),
+                                          GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const CloseSession();
+                                                  });
+                                            },
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                  right: 20),
+                                              width: 40,
+                                              height: 40,
+                                              decoration: BoxDecoration(
+                                                  color: white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              child: Icon(Icons.logout,
+                                                  color: primaryColorApp),
+                                            ),
+                                          )
+                                        ],
+                                      )),
                                 ),
-                                width: size.width,
-                                // height: size.height * 0.5,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () async {
-                                            final String rol =
-                                                await PrefUtils.getUserRol();
+                              ),
 
-                                            if (rol == 'picking' ||
-                                                rol == 'admin') {
-                                              context.read<BatchBloc>().add(
-                                                  LoadAllNovedadesEvent()); //
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return DialogPicking(
-                                                    contextHome: context,
-                                                  );
-                                                },
-                                              );
-                                            } else if (rol == '' ||
-                                                rol == null) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Cargue la configuración de su usuario"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: BlocBuilder<WMSPickingBloc,
-                                              PickingState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                urlImg: "picking.png",
-                                                title: 'Picking',
-                                              );
+                              //todo informativo para los modulos
+                              Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 0),
+                                  child: Text("Mis módulos",
+                                      style: TextStyle(
+                                          color: primaryColorApp,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  width: size.width,
+                                  // height: size.height * 0.5,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final String rol =
+                                                  await PrefUtils.getUserRol();
+
+                                              if (rol == 'picking' ||
+                                                  rol == 'admin') {
+                                                context.read<BatchBloc>().add(
+                                                    LoadAllNovedadesEvent()); //
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return DialogPicking(
+                                                      contextHome: context,
+                                                    );
+                                                  },
+                                                );
+                                              } else if (rol == '' ||
+                                                  rol == null) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Cargue la configuración de su usuario"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
                                             },
+                                            child: BlocBuilder<WMSPickingBloc,
+                                                PickingState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  urlImg: "picking.png",
+                                                  title: 'Picking',
+                                                );
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            context
-                                                .read<UserBloc>()
-                                                .add(LoadInfoDeviceEventUser());
-                                            final String rol =
-                                                await PrefUtils.getUserRol();
-
-                                            if (rol == 'packing' ||
-                                                rol == 'admin') {
-                                              context.read<WmsPackingBloc>().add(
-                                                  LoadAllNovedadesPackingEvent());
-
-                                              context
-                                                  .read<PackingPedidoBloc>()
-                                                  .add(
-                                                      LoadAllNovedadesPackEvent());
-
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return DialogPacking(
-                                                    contextHome: context,
-                                                  );
-                                                },
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: BlocBuilder<WmsPackingBloc,
-                                              WmsPackingState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                urlImg: "packing.png",
-                                                title: 'Packing',
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            if (homeBloc.userRol ==
-                                                    'reception' ||
-                                                homeBloc.userRol == 'admin') {
+                                          GestureDetector(
+                                            onTap: () async {
                                               context.read<UserBloc>().add(
                                                   LoadInfoDeviceEventUser());
-                                              {
+                                              final String rol =
+                                                  await PrefUtils.getUserRol();
+
+                                              if (rol == 'packing' ||
+                                                  rol == 'admin') {
+                                                context.read<WmsPackingBloc>().add(
+                                                    LoadAllNovedadesPackingEvent());
+
+                                                context
+                                                    .read<PackingPedidoBloc>()
+                                                    .add(
+                                                        LoadAllNovedadesPackEvent());
+
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return DialogPacking(
+                                                      contextHome: context,
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: BlocBuilder<WmsPackingBloc,
+                                                WmsPackingState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  urlImg: "packing.png",
+                                                  title: 'Packing',
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              if (homeBloc.userRol ==
+                                                      'reception' ||
+                                                  homeBloc.userRol == 'admin') {
+                                                context.read<UserBloc>().add(
+                                                    LoadInfoDeviceEventUser());
+                                                {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return DialogDevoluciones(
+                                                          contextHome: context,
+                                                        );
+                                                      });
+                                                }
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 2),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: BlocBuilder<
+                                                RecepcionBatchBloc,
+                                                RecepcionBatchState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  urlImg: "devoluciones.png",
+                                                  title: 'Devoluciones',
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () async {
+                                              if (homeBloc.userRol ==
+                                                      'reception' ||
+                                                  homeBloc.userRol == 'admin') {
+                                                context.read<UserBloc>().add(
+                                                    LoadInfoDeviceEventUser());
+
+                                                //pedir ubicaciones
+                                                context
+                                                    .read<RecepcionBloc>()
+                                                    .add(
+                                                        GetLocationsDestEvent());
+
+                                                //pedir las novedades
+                                                context.read<RecepcionBloc>().add(
+                                                    LoadAllNovedadesOrderEvent());
+
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
-                                                      return DialogDevoluciones(
-                                                        contextHome: context,
-                                                      );
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando recepciones...');
                                                     });
+
+                                                await Future.delayed(const Duration(
+                                                    seconds:
+                                                        1)); // Ajusta el tiempo si es necesario
+
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'list-ordenes-compra',
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 2),
+                                                  ),
+                                                );
                                               }
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: BlocBuilder<RecepcionBatchBloc,
-                                              RecepcionBatchState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                urlImg: "devoluciones.png",
-                                                title: 'Devoluciones',
-                                              );
                                             },
+                                            child: BlocBuilder<RecepcionBloc,
+                                                RecepcionState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  count: context
+                                                      .read<RecepcionBloc>()
+                                                      .listFiltersOrdenesCompra
+                                                      .where((element) =>
+                                                          element.isFinish ==
+                                                              0 ||
+                                                          element.isFinish ==
+                                                              null)
+                                                      .length,
+                                                  urlImg: "recepcion.png",
+                                                  title: 'Recepción',
+                                                );
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () async {
-                                            if (homeBloc.userRol ==
-                                                    'reception' ||
-                                                homeBloc.userRol == 'admin') {
-                                              context.read<UserBloc>().add(
-                                                  LoadInfoDeviceEventUser());
+                                          GestureDetector(
+                                            onTap: () async {
+                                              if (homeBloc.userRol ==
+                                                      'transfer' ||
+                                                  homeBloc.userRol == 'admin') {
+                                                if (context
+                                                    .read<UserBloc>()
+                                                    .ubicaciones
+                                                    .isEmpty) {
+                                                  context.read<UserBloc>().add(
+                                                      GetUbicacionesEvent());
+                                                }
 
-                                              //pedir ubicaciones
-                                              context
-                                                  .read<RecepcionBloc>()
-                                                  .add(GetLocationsDestEvent());
+                                                context
+                                                    .read<TransferenciaBloc>()
+                                                    .add(
+                                                        LoadAllNovedadesTransferEvent());
+                                                context
+                                                    .read<TransferenciaBloc>()
+                                                    .add(LoadLocations());
 
-                                              //pedir las novedades
-                                              context.read<RecepcionBloc>().add(
-                                                  LoadAllNovedadesOrderEvent());
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando interfaz...');
+                                                    });
 
+                                                await Future.delayed(const Duration(
+                                                    seconds:
+                                                        1)); // Ajusta el tiempo si es necesario
+
+                                                Navigator.pop(context);
+
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'transferencias',
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: BlocBuilder<
+                                                TransferenciaBloc,
+                                                TransferenciaState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  count: context
+                                                      .read<TransferenciaBloc>()
+                                                      .transferenciasDbFilters
+                                                      .where((element) =>
+                                                          element.isFinish ==
+                                                              0 ||
+                                                          element.isFinish ==
+                                                              null)
+                                                      .toList()
+                                                      .length,
+                                                  urlImg: "transferencia.png",
+                                                  title: 'Transferencia',
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              if (homeBloc.userRol ==
+                                                      'inventory' ||
+                                                  homeBloc.userRol == 'admin') {
+                                                  // //obtenemos las ubicaciones
+                                                  // context
+                                                  //     .read<InventarioBloc>()
+                                                  //     .add(GetLocationsEvent());
+                                                  // //obtenemos los productos
+                                                  // context
+                                                  //     .read<InventarioBloc>()
+                                                  //     .add(GetProductsForDB());
+                                                  // //cargamos la configuracion
+                                                  // context.read<InventarioBloc>().add(
+                                                  //     LoadConfigurationsUserInventory());
+
+                                                  // showDialog(
+                                                  //     context: context,
+                                                  //     builder: (context) {
+                                                  //       return const DialogLoading(
+                                                  //           message:
+                                                  //               'Cargando inventario rapido...');
+                                                  //     });
+
+                                                  // await Future.delayed(const Duration(
+                                                  //     seconds:
+                                                  //         1)); // Ajusta el tiempo si es necesario
+
+                                                  // Navigator.pop(context);
+                                                  // Navigator.pushReplacementNamed(
+                                                  //   context,
+                                                  //   'inventario',
+                                                  // );
+
+                                                context.read<ConteoBloc>().add(
+                                                    GetConteosFromDBEvent());
+                                                context.read<ConteoBloc>().add(
+                                                    LoadConfigurationsUserConteo());
+
+                                                // Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'conteo',
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: ImteModule(
+                                              urlImg: "inventario.png",
+                                              title: 'Inventario',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () async {
                                               showDialog(
                                                   context: context,
                                                   builder: (context) {
                                                     return const DialogLoading(
                                                         message:
-                                                            'Cargando recepciones...');
+                                                            'Cargando componentes...');
                                                   });
-
                                               await Future.delayed(const Duration(
                                                   seconds:
                                                       1)); // Ajusta el tiempo si es necesario
@@ -557,57 +821,82 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               Navigator.pop(context);
                                               Navigator.pushReplacementNamed(
                                                 context,
-                                                'list-ordenes-compra',
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: BlocBuilder<RecepcionBloc,
-                                              RecepcionState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                count: context
-                                                    .read<RecepcionBloc>()
-                                                    .listFiltersOrdenesCompra
-                                                    .where((element) =>
-                                                        element.isFinish == 0 ||
-                                                        element.isFinish ==
-                                                            null)
-                                                    .length,
-                                                urlImg: "recepcion.png",
-                                                title: 'Recepción',
+                                                'picking-componentes',
                                               );
                                             },
+                                            child: BlocBuilder<PickingPickBloc,
+                                                PickingPickState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  count: context
+                                                      .read<PickingPickBloc>()
+                                                      .listOfPickCompoFiltered
+                                                      .where((element) =>
+                                                          element.isSeparate ==
+                                                              0 ||
+                                                          element.isSeparate ==
+                                                              null)
+                                                      .length,
+                                                  urlImg: "pc.png",
+                                                  title: 'Picking\nComponentes',
+                                                );
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            if (homeBloc.userRol ==
-                                                    'transfer' ||
-                                                homeBloc.userRol == 'admin') {
-                                              if (context
-                                                  .read<UserBloc>()
-                                                  .ubicaciones
-                                                  .isEmpty) {
-                                                context
-                                                    .read<UserBloc>()
-                                                    .add(GetUbicacionesEvent());
-                                              }
-
-                                              context.read<TransferenciaBloc>().add(
-                                                  LoadAllNovedadesTransferEvent());
+                                          GestureDetector(
+                                            onTap: () async {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading(
+                                                        message:
+                                                            'Cargando entrega de productos...');
+                                                  });
+                                              await Future.delayed(const Duration(
+                                                  seconds:
+                                                      1)); // Ajusta el tiempo si es necesario
+                                              Navigator.pop(context);
+                                              Navigator.pushReplacementNamed(
+                                                context,
+                                                'list-entrada-productos',
+                                              );
+                                            },
+                                            child: BlocBuilder<
+                                                TransferenciaBloc,
+                                                TransferenciaState>(
+                                              builder: (context, state) {
+                                                return ImteModule(
+                                                  count: context
+                                                      .read<TransferenciaBloc>()
+                                                      .entregaProductosBDFilters
+                                                      .where((element) =>
+                                                          element.isFinish ==
+                                                              0 ||
+                                                          element.isFinish ==
+                                                              null)
+                                                      .toList()
+                                                      .length,
+                                                  urlImg: "entrega.png",
+                                                  title: 'Entrega\nProductos',
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              //cargamos inforacion del dispositivo
+                                              context.read<UserBloc>().add(
+                                                  LoadInfoDeviceEventUser());
+                                              //cargamos las ubicaciones
                                               context
-                                                  .read<TransferenciaBloc>()
-                                                  .add(LoadLocations());
+                                                  .read<InfoRapidaBloc>()
+                                                  .add(GetListLocationsEvent());
+                                              //obtenemos los productos
+                                              context
+                                                  .read<InfoRapidaBloc>()
+                                                  .add(GetProductsList());
+                                              context.read<InfoRapidaBloc>().add(
+                                                  LoadConfigurationsUserInfo());
 
                                               showDialog(
                                                   context: context,
@@ -622,240 +911,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       1)); // Ajusta el tiempo si es necesario
 
                                               Navigator.pop(context);
-
                                               Navigator.pushReplacementNamed(
                                                 context,
-                                                'transferencias',
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: BlocBuilder<TransferenciaBloc,
-                                              TransferenciaState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                count: context
-                                                    .read<TransferenciaBloc>()
-                                                    .transferenciasDbFilters
-                                                    .where((element) =>
-                                                        element.isFinish == 0 ||
-                                                        element.isFinish ==
-                                                            null)
-                                                    .toList()
-                                                    .length,
-                                                urlImg: "transferencia.png",
-                                                title: 'Transferencia',
+                                                'info-rapida',
                                               );
                                             },
+                                            child: const ImteModule(
+                                              urlImg: "info.png",
+                                              title: 'Info Rapida',
+                                            ),
                                           ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            // if (homeBloc.userRol ==
-                                            //         'inventory' ||
-                                            //     homeBloc.userRol == 'admin') {
-                                            //   //obtenemos las ubicaciones
-                                            //   context
-                                            //       .read<InventarioBloc>()
-                                            //       .add(GetLocationsEvent());
-                                            //   //obtenemos los productos
-                                            //   context
-                                            //       .read<InventarioBloc>()
-                                            //       .add(GetProductsForDB());
-                                            //   //cargamos la configuracion
-                                            //   context.read<InventarioBloc>().add(
-                                            //       LoadConfigurationsUserInventory());
-
-                                            //   showDialog(
-                                            //       context: context,
-                                            //       builder: (context) {
-                                            //         return const DialogLoading(
-                                            //             message:
-                                            //                 'Cargando inventario rapido...');
-                                            //       });
-
-                                            //   await Future.delayed(const Duration(
-                                            //       seconds:
-                                            //           1)); // Ajusta el tiempo si es necesario
-
-                                            //   Navigator.pop(context);
-                                            //   Navigator.pushReplacementNamed(
-                                            //     context,
-                                            //     'inventario',
-                                            //   );
-                                            // } else {
-                                            //   ScaffoldMessenger.of(context)
-                                            //       .showSnackBar(
-                                            //     const SnackBar(
-                                            //       content: Text(
-                                            //           "Su usuario no tiene permisos para acceder a este módulo"),
-                                            //       duration:
-                                            //           Duration(seconds: 4),
-                                            //     ),
-                                            //   );
-                                            // }
-
-                                            // inventario rapido
-                                            // conteo programado
-
-                                            context
-                                                .read<ConteoBloc>()
-                                                .add(GetConteosFromDBEvent());
-
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'conteo',
-                                            );
-                                          },
-                                          child: ImteModule(
-                                            urlImg: "inventario.png",
-                                            title: 'Inventario',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando componentes...');
-                                                });
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
-
-                                            Navigator.pop(context);
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'picking-componentes',
-                                            );
-                                          },
-                                          child: BlocBuilder<PickingPickBloc,
-                                              PickingPickState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                count: context
-                                                    .read<PickingPickBloc>()
-                                                    .listOfPickCompoFiltered
-                                                    .where((element) =>
-                                                        element.isSeparate ==
-                                                            0 ||
-                                                        element.isSeparate ==
-                                                            null)
-                                                    .length,
-                                                urlImg: "pc.png",
-                                                title: 'Picking\nComponentes',
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando entrega de productos...');
-                                                });
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
-                                            Navigator.pop(context);
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'list-entrada-productos',
-                                            );
-                                          },
-                                          child: BlocBuilder<TransferenciaBloc,
-                                              TransferenciaState>(
-                                            builder: (context, state) {
-                                              return ImteModule(
-                                                count: context
-                                                    .read<TransferenciaBloc>()
-                                                    .entregaProductosBDFilters
-                                                    .where((element) =>
-                                                        element.isFinish == 0 ||
-                                                        element.isFinish ==
-                                                            null)
-                                                    .toList()
-                                                    .length,
-                                                urlImg: "entrega.png",
-                                                title: 'Entrega\nProductos',
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            //cargamos inforacion del dispositivo
-                                            context
-                                                .read<UserBloc>()
-                                                .add(LoadInfoDeviceEventUser());
-                                            //cargamos las ubicaciones
-                                            context
-                                                .read<InfoRapidaBloc>()
-                                                .add(GetListLocationsEvent());
-                                            //obtenemos los productos
-                                            context
-                                                .read<InfoRapidaBloc>()
-                                                .add(GetProductsList());
-                                            context.read<InfoRapidaBloc>().add(
-                                                LoadConfigurationsUserInfo());
-
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando interfaz...');
-                                                });
-
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
-
-                                            Navigator.pop(context);
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'info-rapida',
-                                            );
-                                          },
-                                          child: const ImteModule(
-                                            urlImg: "info.png",
-                                            title: 'Info Rapida',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                )),
-                          ],
+                                        ],
+                                      ),
+                                    ],
+                                  )),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
