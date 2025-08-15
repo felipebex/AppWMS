@@ -1,12 +1,13 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
-import 'package:wms_app/src/presentation/views/home/widgets/dialog_inventario_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
@@ -40,9 +41,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     _onDataUser();
 
+
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
+
+  
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -96,17 +100,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   builder: (context) {
                     return WillPopScope(
                       onWillPop: () async => false,
-                      child: AlertDialog(
-                        title: Text(
-                          'Dispositivo no autorizado',
-                          style: TextStyle(
-                              color: primaryColorApp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        content: const Text(
-                          'Esta PDA no está autorizada para usar la aplicación. Por favor, contacte al administrador.',
-                          style: TextStyle(
-                            color: black,
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: AlertDialog(
+                          title: Center(
+                            child: Text(
+                              'Dispositivo no autorizado',
+                              style: TextStyle(
+                                  color: primaryColorApp,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            ),
+                          ),
+                          content: const Text(
+                            'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+                            textAlign: TextAlign.justify,
+                            style: TextStyle(
+                              color: black,
+                            ),
                           ),
                         ),
                       ),
@@ -128,15 +139,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       message: "Espere un momento...",
                     );
                   },
-                );
-              }
-
-              if (state is RegisterDeviceIdError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.message),
-                    duration: const Duration(seconds: 3),
-                  ),
                 );
               }
             },
@@ -184,8 +186,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     .add(LoadAllNovedades(context)); //n
                 context.read<UserBloc>().add(GetUbicacionesEvent());
                 // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-                //*peticion de si la pda esta habilitada
-                context.read<UserBloc>().add(RegisterDeviceIdEvent());
 
                 //esperamos 2 segundos para cerrar el dialogo
                 await Future.delayed(const Duration(seconds: 2), () {
@@ -742,35 +742,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               if (homeBloc.userRol ==
                                                       'inventory' ||
                                                   homeBloc.userRol == 'admin') {
-                                                  // //obtenemos las ubicaciones
-                                                  // context
-                                                  //     .read<InventarioBloc>()
-                                                  //     .add(GetLocationsEvent());
-                                                  // //obtenemos los productos
-                                                  // context
-                                                  //     .read<InventarioBloc>()
-                                                  //     .add(GetProductsForDB());
-                                                  // //cargamos la configuracion
-                                                  // context.read<InventarioBloc>().add(
-                                                  //     LoadConfigurationsUserInventory());
+                                                // //obtenemos las ubicaciones
+                                                // context
+                                                //     .read<InventarioBloc>()
+                                                //     .add(GetLocationsEvent());
+                                                // //obtenemos los productos
+                                                // context
+                                                //     .read<InventarioBloc>()
+                                                //     .add(GetProductsForDB());
+                                                // //cargamos la configuracion
+                                                // context.read<InventarioBloc>().add(
+                                                //     LoadConfigurationsUserInventory());
 
-                                                  // showDialog(
-                                                  //     context: context,
-                                                  //     builder: (context) {
-                                                  //       return const DialogLoading(
-                                                  //           message:
-                                                  //               'Cargando inventario rapido...');
-                                                  //     });
+                                                // showDialog(
+                                                //     context: context,
+                                                //     builder: (context) {
+                                                //       return const DialogLoading(
+                                                //           message:
+                                                //               'Cargando inventario rapido...');
+                                                //     });
 
-                                                  // await Future.delayed(const Duration(
-                                                  //     seconds:
-                                                  //         1)); // Ajusta el tiempo si es necesario
+                                                // await Future.delayed(const Duration(
+                                                //     seconds:
+                                                //         1)); // Ajusta el tiempo si es necesario
 
-                                                  // Navigator.pop(context);
-                                                  // Navigator.pushReplacementNamed(
-                                                  //   context,
-                                                  //   'inventario',
-                                                  // );
+                                                // Navigator.pop(context);
+                                                // Navigator.pushReplacementNamed(
+                                                //   context,
+                                                //   'inventario',
+                                                // );
 
                                                 context.read<ConteoBloc>().add(
                                                     GetConteosFromDBEvent());

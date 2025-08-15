@@ -58,6 +58,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
                 bloc.ubicacionExpanded.toLowerCase()))
         .toList();
 
+    print("Lista de productos: ${listOfProducts.length}");
+
     // Buscar el producto que coincide con el código de barras escaneado
     final CountedLine product = listOfProducts.firstWhere(
       (product) => product.productBarcode == scan.trim(),
@@ -75,21 +77,15 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
         },
       );
       // Si el producto existe, ejecutar los estados necesarios
-
-      bloc.add(ChangeLocationIsOkEvent(
-        product.productId ?? 0,
-        product.orderId ?? 0,
-        product.idMove ?? 0,
-      ));
-
       bloc.add(ValidateFieldsEvent(field: "toProduct", isOk: true));
 
-      bloc.add(ChangeQuantitySeparate(
-        0,
-        product.productId ?? 0,
-        product.orderId ?? 0,
-        product.idMove ?? 0,
-      ));
+      // actualizamos las variables de ubicacion
+      bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
+      bloc.add(ChangeLocationIsOkEvent(
+          product.productId ?? 0, product.orderId ?? 0, product.idMove ?? 0));
+
+      // actualizamos las variables de producto
+      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(
         product.orderId ?? 0,
         true,
@@ -98,9 +94,18 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
         product.idMove ?? 0,
       ));
 
+      bloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
+      bloc.add(ChangeQuantitySeparate(
+        0,
+        product.productId ?? 0,
+        product.orderId ?? 0,
+        product.idMove ?? 0,
+      ));
+
       context.read<ConteoBloc>().add(
             LoadCurrentProductEvent(currentProduct: product),
           );
+
       Future.delayed(const Duration(milliseconds: 300), () {
         Navigator.pop(context);
         Navigator.pushReplacementNamed(
@@ -199,6 +204,14 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
 
           return Scaffold(
             backgroundColor: white,
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                //new-product-conteo
+                context.read<ConteoBloc>().add(LoadNewProductEvent());
+                Navigator.pushReplacementNamed(context, 'new-product-conteo');
+              },
+              child: const Icon(Icons.add),
+            ),
             body: Container(
               margin: const EdgeInsets.only(top: 5),
               width: double.infinity,
@@ -271,8 +284,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
                             return KeyEventResult.ignored;
                           },
                           child: Container()),
-                 
-                 
                   productosPorUbicacion.isEmpty
                       ? ProductEmpty()
                       : Expanded(
@@ -321,7 +332,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
     );
   }
 
-
   Widget _buildProductItem(CountedLine product, Size size) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
@@ -336,6 +346,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
               children: [
                 _buildInfoRow("Producto", product.productName ?? ''),
                 _buildInfoRow("Código", product.productCode ?? ''),
+                _buildInfoRow("Categoria", product.categoryName ?? ''),
                 if (product.productTracking == 'lot')
                   _buildInfoRow("Lote", product.lotName ?? ''),
               ],
@@ -388,6 +399,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
         'scan-product-conteo',
       );
     });
+    print('Producto seleccionado: ${product.toJson()}');
   }
 }
 

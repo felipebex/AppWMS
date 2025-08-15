@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/conteo_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/list_conteo_screen.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/new_product_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/lote/new_lote_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/terceros_screen.dart';
@@ -149,6 +151,8 @@ class AppRoutes {
   static const String conteoDetail = 'conteo-detail';
   static const String scanProductConteo = 'scan-product-conteo';
   static const String newLoteOrden = 'new-lote-orden';
+  static const String newProductConteo = 'new-product-conteo';
+  static const String searchLocationConteo = 'search-location-conteo';
 
   static Map<String, Widget Function(BuildContext)> get routes {
     
@@ -176,6 +180,9 @@ class AppRoutes {
         );
       },
 
+      newProductConteo: (_) => const NewProductConteoScreen(),
+
+      searchLocationConteo: (_) => const SearchLocationConteoScreen(),
 
 
 

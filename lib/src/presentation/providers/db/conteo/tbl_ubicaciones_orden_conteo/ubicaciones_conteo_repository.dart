@@ -59,6 +59,8 @@ class UbicacionesConteoRepository {
         return Allowed(
           id: maps[i][UbicacionesConteoTable.columnId],
           name: maps[i][UbicacionesConteoTable.columnName],
+          ordenConteoId: maps[i][UbicacionesConteoTable.columnOrdenConteoId],
+          barcode: maps[i][UbicacionesConteoTable.columnBarcode],
         );
       });
     } catch (e, s) {

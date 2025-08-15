@@ -4,7 +4,7 @@ class ConteoItem {
   final String lineId;
   final dynamic quantityCounted;
   final String observation;
-  final double timeLine;
+  final int timeLine;
   final String fechaTransaccion;
   final int idOperario;
   final int productId;
@@ -21,7 +21,7 @@ class ConteoItem {
     required this.idOperario,
     required this.productId,
     required this.locationId,
-    required this.loteId, required quantity,
+    required this.loteId, 
   });
 
   Map<String, dynamic> toJson() {

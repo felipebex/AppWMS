@@ -110,14 +110,15 @@ class ProductoOrdenConteoRepository {
   }
 
   //metodo para obtener un producto por su ID
-  Future<CountedLine?> getProductoById(int productId, int idMove, int orderId) async {
+  Future<CountedLine?> getProductoById(
+      int productId, int idMove, int orderId, int locationId) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> maps = await db.query(
-        ProductosOrdenConteoTable.tableName,    
+        ProductosOrdenConteoTable.tableName,
         where:
-            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ?',
-        whereArgs: [productId, orderId],
+            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ? AND ${ProductosOrdenConteoTable.columnIdMove} = ?',
+        whereArgs: [productId, orderId, idMove],
         limit: 1,
       );
       if (maps.isNotEmpty) {
@@ -137,9 +138,7 @@ class ProductoOrdenConteoRepository {
     required int productId,
     required int orderId,
     required dynamic cantidad,
-    required int userId,
-    required String userName,
-    String? observation,
+    required String idMove,
   }) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
@@ -150,16 +149,12 @@ class ProductoOrdenConteoRepository {
           ProductosOrdenConteoTable.columnQuantityCounted: cantidad,
           ProductosOrdenConteoTable.columnDifferenceQty:
               cantidad - (await _getCantidadInventario(db, productId, orderId)),
-          ProductosOrdenConteoTable.columnUserOperatorId: userId,
-          ProductosOrdenConteoTable.columnUserOperatorName: userName,
           ProductosOrdenConteoTable.columnDateTransaction:
               DateTime.now().toIso8601String(),
-          ProductosOrdenConteoTable.columnObservation: observation,
-          ProductosOrdenConteoTable.columnIsDoneItem: 1,
         },
         where:
-            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ?',
-        whereArgs: [productId, orderId],
+            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ? AND ${ProductosOrdenConteoTable.columnIdMove} = ?',
+        whereArgs: [productId, orderId, idMove],
       );
     } catch (e, s) {
       print('Error en updateCantidadContada: $e');
@@ -186,21 +181,71 @@ class ProductoOrdenConteoRepository {
         : 0.0;
   }
 
-    // Método: Actualizar un campo específico en la tabla productos_pedidos
+  // Método: Actualizar un campo específico en la tabla productos_pedidos
   Future<int?> setFieldTableProductOrdenConteo(int idOrdenConteo, int productId,
-      String field, dynamic setValue, int idMove) async {
+      String field, dynamic setValue, String idMove, String locationId) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
         'UPDATE ${ProductosOrdenConteoTable.tableName} SET $field = ?'
         'WHERE ${ProductosOrdenConteoTable.columnProductId} = ?'
         'AND ${ProductosOrdenConteoTable.columnIdMove} = ?'
         'AND ${ProductosOrdenConteoTable.columnOrderId} = ?'
-        'AND ${ProductosOrdenConteoTable.columnIsDoneItem} = 0',
-        [setValue, productId, idMove, idOrdenConteo]);
+        'AND ${ProductosOrdenConteoTable.columnLocationId} = ?',
+        [setValue, productId, idMove, idOrdenConteo, locationId]);
     print(
         "update TableProductOrdenConteo (idProduct ----($productId)) -------($field): $resUpdate");
     return resUpdate;
   }
 
-  // Eliminar productos de una orden
+  // Método: Actualizar un campo específico en la tabla productos_pedidos
+
+  // traer todos los productos de la tabla
+  Future<List<CountedLine>> getAllProductsAll() async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> products = await db.query(
+        ProductosOrdenConteoTable.tableName,
+      );
+      return products.map((product) => CountedLine.fromMap(product)).toList();
+    } catch (e, s) {
+      print('Error en getAllProductosOrdenConteo: $e, $s');
+      return [];
+    }
+  }
+
+  //metodo para pasar un prducto de listo enviado a por hacer y borrar sus datos de proceso
+  Future<int> deleteProductConteo(CountedLine product) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      //lo que vamos hacer es tomar el producto y actualizarle todos sus campos a pordefecto
+      final resUpdate = await db.update(
+        ProductosOrdenConteoTable.tableName,
+        {
+          ProductosOrdenConteoTable.columnQuantityCounted: 0.0,
+          ProductosOrdenConteoTable.columnDifferenceQty: 0.0,
+          ProductosOrdenConteoTable.columnIsDoneItem: 0,
+          ProductosOrdenConteoTable.columnDateTransaction: '',
+          ProductosOrdenConteoTable.columnObservation: '',
+          ProductosOrdenConteoTable.columnIsSelected: 0,
+          ProductosOrdenConteoTable.columnIsSeparate: 0,
+          ProductosOrdenConteoTable.columnProductIsOk: 0,
+          ProductosOrdenConteoTable.columnIsQuantityIsOk: 0,
+          ProductosOrdenConteoTable.columnIsLocationIsOk: 0,
+          ProductosOrdenConteoTable.columnDateEnd: '',
+          ProductosOrdenConteoTable.columnDateStart: '',
+          ProductosOrdenConteoTable.columnTime: '',
+          //islocationId no se actualiza porque no se cambia la ubicación
+        },
+        where:
+            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ? AND ${ProductosOrdenConteoTable.columnIdMove} = ?',
+        whereArgs: [product.productId, product.orderId, product.idMove],
+      );
+      print(
+          "update TableProductOrdenConteo (idProduct ----(${product.productId})) -------(${ProductosOrdenConteoTable.columnQuantityCounted}): $resUpdate");
+      return resUpdate;
+    } catch (e, s) {
+      print('Error en deleteProductConteo: $e, $s');
+      return 0;
+    }
+  }
 }

@@ -1,11 +1,14 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/products_empty_widget.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab3ScreenConteo extends StatefulWidget {
@@ -38,13 +41,49 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
         return false;
       },
       child: BlocConsumer<ConteoBloc, ConteoState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is DeleteProductConteoLoading) {
+            showDialog(
+              context: context,
+              builder: (context) =>
+                  const DialogLoading(message: "Eliminando registro..."),
+            );
+          }
+          if (state is DeleteProductConteoSuccess) {
+            Navigator.pop(context); // Cierra el diálogo de carga
+          }
+
+          if (state is DeleteProductConteoFailure) {
+            Navigator.pop(context); // Cierra el diálogo de carga
+            Get.defaultDialog(
+              title: '360 Software Informa',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: state.error,
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+          }
+        },
         builder: (context, state) {
           final conteoBloc = context.read<ConteoBloc>();
           final productosContados = conteoBloc.lineasContadas
               .where((element) => element.isDoneItem == 1)
               .toList();
-
           final productosPorUbicacion = _groupByLocation(productosContados);
 
           return Scaffold(
@@ -71,8 +110,8 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
                                 title: ubicacion,
                                 subtitle: '${productos.length} producto(s)',
                                 children: productos
-                                    .map((product) =>
-                                        _buildProductItem(product, size))
+                                    .map((product) => _buildProductItem(
+                                        product, size, context))
                                     .toList(),
                               );
                             },
@@ -87,43 +126,50 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
     );
   }
 
-  Widget _buildProductItem(CountedLine product, Size size) {
+  Widget _buildProductItem(
+      CountedLine product, Size size, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      child: Card(
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildInfoRow("Producto", product.productName ?? ''),
-              _buildInfoRow("Código", product.productCode ?? ''),
-              _buildInfoRow(
-                  "Cantidad contada", product.quantityCounted.toString()),
-              _buildInfoRow("Novedad", product.observation.toString()),
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    color: primaryColorApp,
-                    size: 15,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    "Tiempo: ",
-                    style: TextStyle(
-                      fontSize: 12,
+      child: GestureDetector(
+        onTap: () {
+          print("Producto seleccionado: ${product.toJson()}");
+        },
+        child: Card(
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow("Producto", product.productName ?? ''),
+                _buildInfoRowButton(
+                    "Código", product.productCode ?? '', context, product),
+                _buildInfoRow("Categoria", product.categoryName ?? ''),
+                _buildInfoRow(
+                    "Cantidad contada", product.quantityCounted.toString()),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
                       color: primaryColorApp,
+                      size: 15,
                     ),
-                  ),
-                  Text(convertirTiempo(product.time.toString()),
-                      style: const TextStyle(fontSize: 12, color: black)),
-                ],
-              ),
-              if (product.productTracking == 'lot')
-                _buildInfoRow("Lote", product.lotName ?? ''),
-            ],
+                    const SizedBox(width: 5),
+                    Text(
+                      "Tiempo: ",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: primaryColorApp,
+                      ),
+                    ),
+                    Text(convertirTiempo(product.time.toString()),
+                        style: const TextStyle(fontSize: 12, color: black)),
+                  ],
+                ),
+                if (product.productTracking == 'lot')
+                  _buildInfoRow("Lote", product.lotName ?? ''),
+              ],
+            ),
           ),
         ),
       ),
@@ -170,6 +216,93 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
       ),
     );
   }
+}
+
+Widget _buildInfoRowButton(
+    String label, String value, BuildContext context, CountedLine product) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$label:",
+          style: TextStyle(
+            fontSize: 12,
+            color: primaryColorApp,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value == "" ? "Sin $label" : value,
+            style: TextStyle(fontSize: 12, color: value == "" ? red : black),
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            //mostramos dialogo para confirmar eliminacion
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: AlertDialog(
+                      actionsAlignment: MainAxisAlignment.spaceBetween,
+                      title: Center(
+                          child: Text(
+                        'Confirmar eliminación',
+                        style: TextStyle(color: primaryColorApp, fontSize: 16),
+                      )),
+                      content: const Text(
+                        "¿Estás seguro de eliminar este producto del conteo? y dejarlo como pendiente.",
+                        style: TextStyle(fontSize: 14, color: black),
+                      ),
+                      actions: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancelar',
+                              style: TextStyle(color: white)),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColorApp,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            // Aquí puedes agregar la lógica para mostrar ayuda
+                            context.read<ConteoBloc>().add(
+                                  DeleteProductConteoEvent(product),
+                                );
+
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Eliminar',
+                              style: TextStyle(color: white)),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          },
+          child: Icon(
+            Icons.delete,
+            color: red,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 5),
+      ],
+    ),
+  );
 }
 
 class CustomExpansionTileSinBloc extends StatefulWidget {

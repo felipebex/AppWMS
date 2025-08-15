@@ -76,6 +76,7 @@ class DialogInventario extends StatelessWidget {
                 onPressed: () {
                   // inventario rapido
                   // conteo programado
+                      context.read<ConteoBloc>().add(GetLocationsConteoEvent());
                   context.read<ConteoBloc>().add(GetConteosFromDBEvent());
                   context.read<ConteoBloc>().add(LoadConfigurationsUserConteo());
 

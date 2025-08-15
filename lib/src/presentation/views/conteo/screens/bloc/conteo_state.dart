@@ -172,11 +172,10 @@ class CreateLoteProductFailure extends ConteoState {
   CreateLoteProductFailure(this.error);
 }
 
-
 class SendProductConteoLoading extends ConteoState {}
 
 class SendProductConteoSuccess extends ConteoState {
-  final ResponseSendProductConteo  response;
+  final ResponseSendProductConteo response;
   SendProductConteoSuccess(this.response);
 }
 
@@ -185,3 +184,33 @@ class SendProductConteoFailure extends ConteoState {
   SendProductConteoFailure(this.error);
 }
 
+class DeleteProductConteoLoading extends ConteoState {}
+
+class DeleteProductConteoSuccess extends ConteoState {}
+
+class DeleteProductConteoFailure extends ConteoState {
+  final String error;
+  DeleteProductConteoFailure(this.error);
+}
+
+class LoadLocationsLoading extends ConteoState {}
+
+class LoadLocationsSuccess extends ConteoState {
+  final List<ResultUbicaciones> locations;
+  LoadLocationsSuccess(this.locations);
+}
+
+class LoadLocationsFailure extends ConteoState {
+  final String error;
+  LoadLocationsFailure(this.error);
+}
+
+
+
+class LoadNewProductSuccess extends ConteoState {
+}
+
+class LoadNewProductFailure extends ConteoState {
+  final String error;
+  LoadNewProductFailure(this.error);
+}

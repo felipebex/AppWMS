@@ -139,9 +139,21 @@ class CreateLoteProduct extends ConteoEvent {
   CreateLoteProduct(this.nameLote, this.fechaCaducidad);
 }
 
-
 class SendProductConteoEvent extends ConteoEvent {
   final dynamic cantidad;
+  final CountedLine currentProduct;
 
-  SendProductConteoEvent(this.cantidad);
+  SendProductConteoEvent(this.cantidad, this.currentProduct);
+}
+
+class DeleteProductConteoEvent extends ConteoEvent {
+  final CountedLine currentProduct;
+  DeleteProductConteoEvent(this.currentProduct);
+}
+
+class GetLocationsConteoEvent extends ConteoEvent {}
+
+
+class LoadNewProductEvent extends ConteoEvent {
+  LoadNewProductEvent();
 }

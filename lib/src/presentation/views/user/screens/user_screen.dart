@@ -355,7 +355,7 @@ class UserScreen extends StatelessWidget {
                                           ),
                                           Row(
                                             children: [
-                                              Text("Id PDA: ",
+                                              Text("Mac: ",
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       color: primaryColorApp)),
@@ -363,7 +363,23 @@ class UserScreen extends StatelessWidget {
                                               Text(
                                                   context
                                                       .read<UserBloc>()
-                                                      .idDispositivo,
+                                                      .mac,
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black))
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text("IMEI: ",
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp)),
+                                              // Text('WMS',
+                                              Text(
+                                                  context
+                                                      .read<UserBloc>()
+                                                      .imei,
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black))

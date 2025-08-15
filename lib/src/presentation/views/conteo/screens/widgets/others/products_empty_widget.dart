@@ -8,10 +8,12 @@ class ProductEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          SizedBox(height: size.height * 0.3),
           const Text('No hay productos',
               style: TextStyle(fontSize: 14, color: grey)),
           const Text('Intente buscar otro producto',

@@ -1,14 +1,14 @@
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/conteo/data/conteo_repository.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/request_send_product_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/response_send_product_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -40,8 +40,9 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   TextEditingController newLoteController = TextEditingController();
   TextEditingController searchControllerLote = TextEditingController();
   TextEditingController dateLoteController = TextEditingController();
+  TextEditingController searchControllerLocation = TextEditingController();
 
-  //*valores de scanvalue
+  //*valores de scanvalueS
 
   String scannedValue1 = '';
   String scannedValue2 = '';
@@ -78,6 +79,13 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   List<String> listOfProductsName = [];
 
   LotesProduct? currentProductLote;
+  //*lista de ubicaciones maestra
+  List<ResultUbicaciones> ubicaciones = [];
+  List<ResultUbicaciones> ubicacionesFilters = [];
+
+  //producto actual
+  Product? currentNewProduct;
+  ResultUbicaciones? currentUbication;
 
   final InventarioRepository _inventarioRepository = InventarioRepository();
 
@@ -147,6 +155,92 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
     //metodo para enviar un producto contado al wms
     on<SendProductConteoEvent>(_onSendProductConteoEvent);
+    //metodo para borrar un producto ya enviado
+    on<DeleteProductConteoEvent>(_onDeleteProductConteoEvent);
+
+    //*metodo para cargar las ubicaciones
+    on<GetLocationsConteoEvent>(_onLoadLocations);
+
+    //Metodo para cargar informacion pa crear un nuevo producto
+    on<LoadNewProductEvent>(_onLoadNewProductEvent);
+  }
+
+  void _onLoadNewProductEvent(
+      LoadNewProductEvent event, Emitter<ConteoState> emit) async {
+    try {
+      //vamos a cargar la informacion pa crear un nuevo producto
+
+      //todo: para este filtro solo podemos crear un producto con las ubicaciones de la orden de conteo y los productos de la orden
+      if (ordenConteo.filterType == 'combined') {
+        //llenamos el listado de ubicacioones
+        ubicacionesFilters.clear();
+        ubicacionesFilters = ubicacionesConteo.map((allowed) {
+          return ResultUbicaciones(
+            id: allowed.id ?? 0,
+            name: allowed.name ?? '',
+            barcode: allowed.barcode ?? '',
+            locationId: allowed.id ?? 0,
+            locationName: allowed.name ?? '',
+            idWarehouse: 0,
+            warehouseName: '',
+          );
+        }).toList();
+      } else {}
+
+      print("ubicacionesFilters: ${ubicacionesFilters.length}");
+
+      emit(LoadNewProductSuccess());
+    } catch (e) {
+      emit(LoadNewProductFailure(
+          'Error al cargar los datos para el nuevo producto'));
+    }
+  }
+
+  void _onLoadLocations(
+      GetLocationsConteoEvent event, Emitter<ConteoState> emit) async {
+    try {
+      emit(LoadLocationsLoading());
+      final response = await db.ubicacionesRepository.getAllUbicaciones();
+      ubicaciones.clear();
+      ubicacionesFilters.clear();
+      print('ubicaciones: ${response.length}');
+      if (response.isNotEmpty) {
+        ubicaciones = response;
+        ubicacionesFilters = ubicaciones;
+        emit(LoadLocationsSuccess(ubicaciones));
+      } else {
+        emit(LoadLocationsFailure('No se encontraron ubicaciones'));
+      }
+    } catch (e, s) {
+      emit(LoadLocationsFailure('Error al cargar las ubicaciones'));
+      print('Error en el fetch de ubicaciones: $e=>$s');
+    }
+  }
+
+  void _onDeleteProductConteoEvent(
+      DeleteProductConteoEvent event, Emitter<ConteoState> emit) async {
+    try {
+      emit(DeleteProductConteoLoading());
+      final response = await _repository.deleteProductConteo(
+          false, event.currentProduct.idMove ?? 0);
+
+      if (response.result?.code == 200) {
+        await db.productoOrdenConteoRepository
+            .deleteProductConteo(event.currentProduct);
+        //actualizamos la lista de productos contados
+        add(LoadConteoAndProductsEvent(
+            ordenConteoId: event.currentProduct.orderId ?? 0));
+
+        emit(DeleteProductConteoSuccess());
+        //borramos el producto de la base de datos
+      } else {
+        emit(DeleteProductConteoFailure(
+            response.result?.msg ?? 'Error al eliminar el producto'));
+      }
+    } catch (e, s) {
+      print('Error al eliminar el producto: $e, $s');
+      emit(DeleteProductConteoFailure('Error al eliminar el producto'));
+    }
   }
 
   void _onSendProductConteoEvent(
@@ -156,7 +250,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       int userId = await PrefUtils.getUserId();
       //verificamos si el producto actual tiene lote
-      if (currentProduct.productTracking == "lot" &&
+      if (event.currentProduct.productTracking == "lot" &&
           currentProductLote == null) {
         emit(SendProductConteoFailure('Debe seleccionar un lote para enviar'));
         return;
@@ -165,32 +259,75 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
       String formattedDate = formatter.format(DateTime.now());
 
-      //construimos el producto a enviar
+      //calculamos la diferencia de tiempo
+      if (dateInicio == "" || dateInicio == null) {
+        dateInicio = DateTime.now().toString();
+      }
+      if (dateFin == "" || dateFin == null) {
+        dateFin = DateTime.now().toString();
+      }
+      DateTime dateStart = DateTime.parse(dateInicio);
+      DateTime dateEnd = DateTime.parse(dateFin);
+
+      var difference = dateEnd.difference(dateStart);
+      int time = difference.inSeconds;
+
+//construimos el producto a enviar
       final productSend = ConteoItem(
-        lineId: currentProduct.idMove.toString(),
-        orderId: currentProduct.orderId ?? 0,
-        productId: currentProduct.productId ?? 0,
-        quantity: event.cantidad,
+        lineId: event.currentProduct.idMove.toString(),
+        orderId: event.currentProduct.orderId ?? 0,
+        productId: event.currentProduct.productId ?? 0,
         quantityCounted: event.cantidad,
         observation: 'Sin novedad',
-        timeLine: 0.67,
+        timeLine: time,
         fechaTransaccion: formattedDate,
         idOperario: userId,
-        locationId: currentProduct.locationId ?? 0,
-        loteId: currentProduct.lotId.toString(),
+        locationId: event.currentProduct.locationId ?? 0,
+        loteId: event.currentProduct.lotId.toString(),
       );
+
+      //lo convertimos en entero
+      //actualizamos el tiempo del producto
+      await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+        productSend.orderId,
+        productSend.productId,
+        'time',
+        time,
+        productSend.lineId.toString(),
+        productSend.locationId.toString(),
+      );
+
+      //mostramos el productSend
+      print("---------");
+      print("Producto a enviar: ${productSend.toJson()}");
+      print("---------");
+      print('event currentProduct: ${event.currentProduct.toJson()}');
+      print("---------");
 
       //enviamos el producto al wms
       final response = await _repository.sendProductConteo(true, productSend);
 
       if (response.result?.code == 200) {
-        //actualizamos el estado del producto en la bd
+        //actualzamos la cantidad del producto en la bd
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-            currentProduct.orderId ?? 0,
-            currentProduct.productId ?? 0,
-            'is_done_item',
-            1,
-            currentProduct.idMove ?? 0);
+          productSend.orderId,
+          productSend.productId,
+          "quantity_counted",
+          productSend.quantityCounted ?? 0,
+          productSend.lineId.toString(),
+          currentProduct.locationId.toString(),
+        );
+
+        // actualizamos el estado del producto en la bd
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          productSend.orderId,
+          productSend.productId,
+          'is_done_item',
+          1,
+          productSend.lineId.toString(),
+          productSend.locationId.toString(),
+        );
+
         emit(SendProductConteoSuccess(response));
       } else {
         emit(SendProductConteoFailure(
@@ -328,9 +465,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           productId: event.productId,
           orderId: event.idOrder,
           cantidad: quantitySelected,
-          userId: await PrefUtils.getUserId(),
-          userName: await PrefUtils.getUserName(),
-          observation: '');
+          idMove: currentProduct.idMove.toString());
       emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
     } catch (e, s) {
       emit(ChangeQuantitySeparateStateError('Error al aumentar cantidad'));
@@ -411,16 +546,6 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<ConteoState> emit) async {
     if (event.productIsOk) {
-      dateInicio = DateTime.now().toString();
-      //actualizmso valor de fecha inicio
-      await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-        event.idOrder,
-        event.productId,
-        'date_start',
-        dateInicio,
-        event.idMove,
-      );
-
       //todo actualizamos la entrada a true
       await db.ordenRepository.updateField(
         event.idOrder,
@@ -429,11 +554,13 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       );
 
       await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-          event.idOrder,
-          event.productId,
-          "is_selected",
-          1,
-          currentProduct.idMove ?? 0);
+        event.idOrder,
+        event.productId,
+        "is_selected",
+        1,
+        currentProduct.idMove.toString(),
+        currentProduct.locationId.toString(),
+      );
 
       //actualizamos el producto a true
       await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
@@ -441,7 +568,8 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         event.productId,
         "product_is_ok",
         1,
-        event.idMove,
+        event.idMove.toString(),
+        currentProduct.locationId.toString(),
       );
       //actualizamos la cantidad separada
       await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
@@ -449,7 +577,8 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         event.productId,
         "quantity_counted",
         event.quantity,
-        event.idMove,
+        event.idMove.toString(),
+        currentProduct.locationId.toString(),
       );
     }
     productIsOk = event.productIsOk;
@@ -472,11 +601,13 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       if (event.quantity > 0.0) {
         quantitySelected = event.quantity;
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-            event.idOrder,
-            event.productId,
-            "quantity_counted",
-            event.quantity,
-            event.idMove);
+          event.idOrder,
+          event.productId,
+          "quantity_counted",
+          event.quantity,
+          event.idMove.toString(),
+          currentProduct.locationId.toString(),
+        );
       }
       emit(ChangeQuantitySeparateState(quantitySelected));
     } catch (e, s) {
@@ -488,12 +619,24 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       ChangeLocationIsOkEvent event, Emitter<ConteoState> emit) async {
     try {
       if (isLocationOk) {
+        dateInicio = DateTime.now().toString();
+        //actualizmso valor de fecha inicio
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          event.orden,
+          event.productId,
+          'date_start',
+          dateInicio,
+          event.idMove.toString(),
+          currentProduct.locationId.toString(),
+        );
+
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
           event.orden,
           event.productId,
           'is_location_is_ok',
           1,
-          event.idMove,
+          event.idMove.toString(),
+          currentProduct.locationId.toString(),
         );
         locationIsOk = true;
         // add(ChangeIsOkQuantity(currentProduct.orderId ?? 0, true,
@@ -511,7 +654,13 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       ChangeIsOkQuantity event, Emitter<ConteoState> emit) async {
     if (event.isOk) {
       await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-          event.idOrder, event.productId, "is_quantity_is_ok", 1, event.idMove);
+        event.idOrder,
+        event.productId,
+        "is_quantity_is_ok",
+        1,
+        event.idMove.toString(),
+        currentProduct.locationId.toString(),
+      );
     }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
@@ -603,22 +752,18 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         case 'location':
           // Acumulador de valores escaneados
           scannedValue1 += event.scannedValue.trim();
-          print('scannedValue1: $scannedValue1.');
           emit(UpdateScannedValueState(scannedValue1, event.scan));
           break;
         case 'product':
           scannedValue2 += event.scannedValue.trim();
-          print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValueState(scannedValue2, event.scan));
           break;
         case 'quantity':
           scannedValue3 += event.scannedValue.trim();
-          print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
 
         case 'toProduct':
-          print('scannedValue5: $scannedValue5');
           scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue5, event.scan));
           break;
@@ -650,9 +795,11 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       ///mandamos a traer el producto actual de la bd para cargarlo
       final productBD = await db.productoOrdenConteoRepository.getProductoById(
-          event.currentProduct.productId ?? 0,
-          event.currentProduct.idMove,
-          event.currentProduct.orderId ?? 0);
+        event.currentProduct.productId ?? 0,
+        event.currentProduct.idMove,
+        event.currentProduct.orderId ?? 0,
+        event.currentProduct.locationId ?? 0,
+      );
 
       //actualizamos las variables de estado segun el producto actual
 
@@ -664,6 +811,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       print('Variable quantityIsOk: $quantityIsOk');
 
       currentProduct = productBD ?? CountedLine();
+      print('Producto actual db: ${currentProduct.productName}');
       products();
       add(FetchBarcodesProductEvent());
       //validamos si el producto tiene lote
@@ -767,6 +915,9 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       GetConteosEvent event, Emitter<ConteoState> emit) async {
     emit(ConteoLoading());
     try {
+      //borramos todos los registros de losc conteos
+
+      await DataBaseSqlite().deleConteo();
       final response = await _repository.fetchAllConteos(true);
       if (response.data?.isNotEmpty ?? false) {
         //agregamos esas ordenes a la bd
@@ -781,6 +932,13 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         await db.productoOrdenConteoRepository
             .upsertProductosOrdenConteo(productsToInsert);
 
+        //obtenemos los ptoducto de ordenes de conteos que ya fueron contados
+        final productsToInsertDone =
+            _getAllProductsDone(response.data as List<DatumConteo>)
+                .toList(growable: false);
+
+        await db.productoOrdenConteoRepository
+            .upsertProductosOrdenConteo(productsToInsertDone);
         //obtenemos las ubicaciones de todas las ordenes de conteo
         final ubicacionesToInsert =
             _getAllUbicaciones(response.data as List<DatumConteo>)
@@ -841,6 +999,12 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     }
   }
 
+  Iterable<CountedLine> _getAllProductsDone(List<DatumConteo> ordenes) sync* {
+    for (final orden in ordenes) {
+      if (orden.countedLinesDone != null) yield* orden.countedLinesDone!;
+    }
+  }
+
   Iterable<Allowed> _getAllUbicaciones(List<DatumConteo> ordenes) sync* {
     for (final orden in ordenes) {
       if (orden.allowedLocations != null) yield* orden.allowedLocations!;
@@ -858,6 +1022,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       currentProduct.productId ?? 0,
       currentProduct.idMove,
       currentProduct.orderId ?? 0,
+      currentProduct.locationId ?? 0,
     );
 
     print('productBD: ${productBD?.toMap()}');

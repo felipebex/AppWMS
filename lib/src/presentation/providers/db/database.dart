@@ -144,7 +144,6 @@ class DataBaseSqlite {
     // tabla de ordenes de conteo
     await db.execute(OrdenTable.createTable());
 
-
     //tabla de productos de un conteo
     await db.execute(ProductosOrdenConteoTable.createTable());
 
@@ -153,7 +152,6 @@ class DataBaseSqlite {
 
     //* tabla de ubicaciones de un conteo
     await db.execute(UbicacionesConteoTable.createTable());
-
 
     //* tabla de productos de un batch picking
     await db.execute('''
@@ -275,7 +273,6 @@ class DataBaseSqlite {
 
   OrdenConteoRepository get ordenRepository => OrdenConteoRepository();
 
-
   ProductoOrdenConteoRepository get productoOrdenConteoRepository =>
       ProductoOrdenConteoRepository();
 
@@ -284,8 +281,6 @@ class DataBaseSqlite {
 
   CategoriasConteoRepository get categoriasConteoRepository =>
       CategoriasConteoRepository();
-
-  
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -457,6 +452,16 @@ class DataBaseSqlite {
 
   //Todo: Eliminar todos los registros
 
+  //metodo para eliminar lo de conteo
+  Future<void> deleConteo() async {
+    final db = await getDatabaseInstance();
+    await db.delete(OrdenTable.tableName);
+    await db.delete(ProductosOrdenConteoTable.tableName);
+    await db.delete(CategoriasConteoTable.tableName);
+    await db.delete(UbicacionesConteoTable.tableName);
+    await deleBarcodes("orden");
+  }
+
   Future<void> delePicking() async {
     final db = await getDatabaseInstance();
     await db.delete(BatchPickingTable.tableName);
@@ -495,7 +500,6 @@ class DataBaseSqlite {
     final db = await getDatabaseInstance();
     if (type == "packing-batch") {
       await db.delete(BatchPackingTable.tableName);
-      
     }
     if (type == "packing-pack") {
       await db.delete(PedidoPackTable.tableName);
@@ -612,6 +616,7 @@ class DataBaseSqlite {
     await deleOthers();
     await deleReceptionBatch();
     await deleAllBarcodes();
+    await deleConteo();
   }
 
   //*metodo para actualizar la tabla de productos de un batch

@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/user/models/response_pda_register_model.dart';
+import 'package:wms_app/src/utils/get_mac.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'user_event.dart';
@@ -29,6 +30,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   String versionApp = '';
   String fabricante = '';
   String idDispositivo = '';
+  String mac = '';
+  String imei = '';
 
   List<ResultUbicaciones> ubicaciones = [];
   List<AllowedWarehouse> almacenes = [];
@@ -80,12 +83,25 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       RegisterDeviceIdEvent event, Emitter<UserState> emit) async {
     try {
       emit(RegisterDeviceIdLoading());
+
+      //OBTENER LOS DATOS DEL DISPOSITIVO DESDE EL PREFS
+      mac = await PrefUtils.getMacPDA();
+      imei = await PrefUtils.getImeiPDA();
+      modelo = await PrefUtils.getModeloPDA();
+      fabricante = await PrefUtils.getFabricantePDA();
+
+     
+
       final response = await userRepository.sendIdPda(
-          idDispositivo, modelo, "$modelo $fabricante", versionApp);
+          mac == "02:00:00:00:00:00" ? imei : mac,
+          modelo,
+          "$modelo $fabricante",
+          versionApp);
+
       if (response.result?.code == 200) {
         if (response.result?.data?.isAuthorized == "no") {
-          PrefUtils.setIsLoggedIn(false);
-          PrefUtils.clearUserData();
+          // PrefUtils.setIsLoggedIn(false);
+          // PrefUtils.clearUserData();
           emit(RegisterDeviceIdError('Dispositivo no autorizado'));
         } else {
           PrefUtils.setIsLoggedIn(true);
@@ -141,12 +157,27 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
 
-      idDispositivo =
-          androidInfo.id; // Este es el ID único para dispositivos Android
+      mac =
+          (await DeviceInfoCustom.getMacAddress()) ?? ''; // mac del dispositivo
+
+      imei = (await DeviceInfoCustom.getImei()) ?? ''; // imei del dispositivo
+
+      idDispositivo = androidInfo
+          .id; // Este es el ID único para dispositivos Android // numero de compilacion
       print('idDispositivo: $idDispositivo');
       print('fabricante: $fabricante');
-
+      print('modelo: $modelo');
+      print('version: $version');
+      print('mac: $mac');
+      print('imei: $imei');
+      print('versionApp: ${packageInfo.version}');
       versionApp = packageInfo.version; // Versión de la app
+
+      //REGISTRAMOS LOS DATOS DEL DISPOSITIVO
+      await PrefUtils.setMacPDA(mac == 'unknown' ? '' : mac);
+      await PrefUtils.setImeiPDA(imei == 'unknown' ? '' : imei);
+      await PrefUtils.setModeloPDA(modelo);
+      await PrefUtils.setFabricantePDA(fabricante);
 
       almacenes = await db.warehouseRepository.getAllowedWarehouse();
 

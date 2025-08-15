@@ -41,6 +41,48 @@ class PrefUtils {
     return preferences.getString(PrefKeys.cookie) ?? "";
   }
 
+  //TODO GUARDAMOS LOS DATOS DE LA PDA
+
+  static Future<void> setMacPDA(String mac) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString(PrefKeys.macPDA, mac);
+  }
+
+  static Future<String> getMacPDA() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString(PrefKeys.macPDA) ?? "";
+  }
+
+  static Future<void> setImeiPDA(String imei) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString(PrefKeys.imeiPDA, imei);
+  }
+
+  static Future<String> getImeiPDA() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString(PrefKeys.imeiPDA) ?? "";
+  }
+
+  static Future<void> setModeloPDA(String modelo) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString(PrefKeys.modeloPDA, modelo);
+  }
+
+  static Future<String> getModeloPDA() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString(PrefKeys.modeloPDA) ?? "";
+  }
+
+  static Future<void> setFabricantePDA(String fabricante) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString(PrefKeys.fabricantePDA, fabricante);
+  }
+
+  static Future<String> getFabricantePDA() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString(PrefKeys.fabricantePDA) ?? "";
+  }
+
 //todo guardamos los datos del usuario
 //*nombre
   static Future<void> setUserName(String name) async {
@@ -94,11 +136,6 @@ class PrefUtils {
     return preferences.getString(PrefKeys.rol) ?? "";
   }
 
-  static clearPrefs() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.clear();
-  }
-
   //METODO PARA ELIMINAR LOS DATOS DEL USUARIO
   static Future<void> clearUserData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -108,5 +145,19 @@ class PrefUtils {
     await preferences.remove(PrefKeys.userId);
     await preferences.remove(PrefKeys.rol);
     await preferences.remove(PrefKeys.isLoggedIn);
+  }
+
+  //metodo apra borrar los prefs pero no los de la pda
+  static Future<void> clearPrefs() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.remove(PrefKeys.enterprise);
+    await preferences.remove(PrefKeys.cookie);
+    await preferences.remove(PrefKeys.isLoggedIn);
+    await preferences.remove(PrefKeys.urlWebsite);
+    await preferences.remove(PrefKeys.userId);
+    await preferences.remove(PrefKeys.user);
+    await preferences.remove(PrefKeys.email);
+    await preferences.remove(PrefKeys.pass);
+    await preferences.remove(PrefKeys.rol);
   }
 }

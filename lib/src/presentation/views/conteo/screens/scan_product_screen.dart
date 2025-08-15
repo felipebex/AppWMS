@@ -334,11 +334,6 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                           print("❤️‍🔥 state : $state");
 
                           // * validamos en todo cambio de estado de cantidad separada
-                          if (state is ChangeQuantitySeparateStateSuccess) {
-                            // if (state.quantity == currentProduct.quantity) {
-                            //   _nextProduct(currentProduct, batchBloc);
-                            // }
-                          }
 
                           if (state is SendProductConteoSuccess) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -944,36 +939,39 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                           !context.read<ConteoBloc>().viewQuantity));
                       cantidadController.clear();
                       Future.delayed(const Duration(milliseconds: 100), () {
-                        FocusScope.of(context).requestFocus(focusNode3);
+                        FocusScope.of(context).requestFocus(focusNode4);
                       });
+                      print('Toggle view quantity');
                     },
                     onValidateButton: () {
-                      // FocusScope.of(context).unfocus();
+                      FocusScope.of(context).unfocus();
                       _validatebuttonquantity();
                     },
                     onValidateScannerInput: (value) {
                       validateQuantity(value);
                     },
                     onManualQuantityChanged: (value) {
-                      // if (value.isNotEmpty) {
-                      //   try {
-                      //     context.read<ConteoBloc>().quantitySelected =
-                      //         double.parse(value);
-                      //   } catch (e) {
-                      //     print('❌ Error al convertir a número: $e');
-                      //   }
-                      // } else {
-                      //   context.read<ConteoBloc>().quantitySelected = 0;
-                      // }
-                      print("onManualQuantityChanged $value");
+                      print('onManualQuantityChanged: $value');
                     },
                     onManualQuantitySubmitted: (value) {
-                      print('onManualQuantitySubmitted: $value');
+                      final intValue = double.parse(value);
+
+                      context.read<ConteoBloc>().add(ChangeQuantitySeparate(
+                          intValue,
+                          context.read<ConteoBloc>().currentProduct.productId ??
+                              0,
+                          context.read<ConteoBloc>().currentProduct.orderId ??
+                              0,
+                          context.read<ConteoBloc>().currentProduct.idMove ??
+                              0));
+
+                      context.read<ConteoBloc>().add(ShowQuantityEvent(
+                          !context.read<ConteoBloc>().viewQuantity));
                     },
                     customKeyboard: CustomKeyboardNumber(
-                        controller: cantidadController, onchanged: () {}
-                        //  _validatebuttonquantity,
-                        ),
+                      controller: cantidadController,
+                      onchanged: _validatebuttonquantity,
+                    ),
                     isViewCant: false,
                   ),
                 ],
@@ -988,6 +986,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
 
     String input = cantidadController.text.trim();
     //validamos quantity
+
+    print("cantidad: $input");
 
     // Si está vacío, usar la cantidad seleccionada del bloc
     if (input.isEmpty) {
@@ -1055,13 +1055,14 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
         double cantidad = double.parse(cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : cantidadController.text);
-        bloc.add(SendProductConteoEvent(cantidad));
+        bloc.add(SendProductConteoEvent(cantidad, bloc.currentProduct));
       }
     } else {
       double cantidad = double.parse(cantidadController.text.isEmpty
           ? bloc.quantitySelected.toString()
           : cantidadController.text);
-      bloc.add(SendProductConteoEvent(cantidad));
+      print("cantidad: $cantidad");
+      bloc.add(SendProductConteoEvent(cantidad, bloc.currentProduct));
     }
   }
 }

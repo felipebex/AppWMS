@@ -21,7 +21,16 @@ class ListConteoScreen extends StatelessWidget {
       child: BlocBuilder<ConteoBloc, ConteoState>(
         builder: (context, state) {
           return Scaffold(
-              backgroundColor: white,
+            backgroundColor: white,
+              // floatingActionButton: FloatingActionButton(
+              //   onPressed: () async{
+              //     // Acción al presionar el botón flotante
+              //     context.read<ConteoBloc>().getProductsALLdB();
+
+              //   },
+              //   backgroundColor: white,
+              //   child: const Icon(Icons.add, color: red,),
+              // ),
               body: Column(
                 children: [
                   //appBar
@@ -133,8 +142,7 @@ class ListConteoScreen extends StatelessWidget {
                                         context.read<ConteoBloc>().add(
                                               LoadConteoAndProductsEvent(
                                                   ordenConteoId:
-                                                      conteo?.id ?? 0
-                                              ),
+                                                      conteo?.id ?? 0),
                                             );
                                         Navigator.pushReplacementNamed(
                                           context,

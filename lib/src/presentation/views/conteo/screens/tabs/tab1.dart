@@ -17,7 +17,6 @@ class Tab1ScreenConteo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -155,7 +154,14 @@ class Tab1ScreenConteo extends StatelessWidget {
                               Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    ordeConteoBd.numeroItemsContados.toString(),
+                                    context
+                                        .read<ConteoBloc>()
+                                        .lineasContadas
+                                        .where((element) =>
+                                            element.isDoneItem == 1)
+                                        .toList()
+                                        .length
+                                        .toString(),
                                     style:
                                         TextStyle(fontSize: 14, color: black),
                                   )),
