@@ -3,12 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/products_empty_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2ScreenConteo extends StatefulWidget {
   const Tab2ScreenConteo({
@@ -81,8 +82,10 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
 
       // actualizamos las variables de ubicacion
       bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
-      bloc.add(ChangeLocationIsOkEvent(
-          product.productId ?? 0, product.orderId ?? 0, product.idMove ?? 0));
+      bloc.add(ChangeLocationIsOkEvent(false, 
+      ResultUbicaciones(),
+      product.productId ?? 0,
+          product.orderId ?? 0, product.idMove ?? 0));
 
       // actualizamos las variables de producto
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));

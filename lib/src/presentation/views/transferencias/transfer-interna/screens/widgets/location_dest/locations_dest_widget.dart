@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -10,11 +11,9 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_tr
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationDestTransScreen extends StatefulWidget {
-  const LocationDestTransScreen({Key? key, this.currentProduct})
-      : super(key: key);
+  const LocationDestTransScreen({super.key, this.currentProduct});
 
   final LineasTransferenciaTrans? currentProduct;
 

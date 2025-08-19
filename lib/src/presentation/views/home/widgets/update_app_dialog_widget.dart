@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class UpdateAppDialog extends StatefulWidget {
   const UpdateAppDialog({

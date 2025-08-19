@@ -1,6 +1,6 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:flutter/material.dart';
 
 class AppBarGlobal extends StatelessWidget implements PreferredSizeWidget {

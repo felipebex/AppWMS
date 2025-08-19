@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/utils/formats_utils.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/data/info_rapida_repository.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/transfer_info_request.dart';
-import 'package:wms_app/src/utils/formats.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'transfer_info_event.dart';
 part 'transfer_info_state.dart';

@@ -5,12 +5,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/response_sen_transfer_info_model.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/models/response_update_product_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/transfer_info_request.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/update_product_request.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class InfoRapidaRepository {
   Future<InfoRapida> getInfoQuick(bool isLoadinDialog, String barcode) async {

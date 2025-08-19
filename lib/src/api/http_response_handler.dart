@@ -4,9 +4,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 
 class HttpResponseHandler {
   final BuildContext context;

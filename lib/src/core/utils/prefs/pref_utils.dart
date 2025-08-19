@@ -1,4 +1,4 @@
-import 'package:wms_app/src/utils/prefs/pref_keys.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefUtils {

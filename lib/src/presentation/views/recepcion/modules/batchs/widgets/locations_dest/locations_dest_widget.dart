@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -9,12 +10,10 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationDestRecepBatchScreen extends StatefulWidget {
   const LocationDestRecepBatchScreen(
-      {Key? key, this.ordenCompra, this.currentProduct})
-      : super(key: key);
+      {super.key, this.ordenCompra, this.currentProduct});
   final ReceptionBatch? ordenCompra;
   final LineasRecepcionBatch? currentProduct;
 
@@ -309,7 +308,6 @@ class _LocationDestScreenState extends State<LocationDestRecepBatchScreen> {
 
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
-    super.key,
     required this.size,
     required this.ordenCompra,
     required this.currentProduct,

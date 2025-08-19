@@ -7,7 +7,8 @@ import 'package:wms_app/src/presentation/views/conteo/screens/list_conteo_screen
 import 'package:wms_app/src/presentation/views/conteo/screens/new_product_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/lote/new_lote_widget.dart';
-import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location_search_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/location_search_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/terceros_screen.dart';
@@ -153,6 +154,8 @@ class AppRoutes {
   static const String newLoteOrden = 'new-lote-orden';
   static const String newProductConteo = 'new-product-conteo';
   static const String searchLocationConteo = 'search-location-conteo';
+  static const String searchProductConteo = 'search-product-conteo';
+
 
   static Map<String, Widget Function(BuildContext)> get routes {
     
@@ -181,8 +184,8 @@ class AppRoutes {
       },
 
       newProductConteo: (_) => const NewProductConteoScreen(),
-
       searchLocationConteo: (_) => const SearchLocationConteoScreen(),
+      searchProductConteo: (_) => const SearchProductConteoScreen(),
 
 
 

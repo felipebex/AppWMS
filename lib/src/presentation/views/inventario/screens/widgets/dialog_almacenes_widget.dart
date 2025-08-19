@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogAlmacenes extends StatelessWidget {
   const DialogAlmacenes({super.key});

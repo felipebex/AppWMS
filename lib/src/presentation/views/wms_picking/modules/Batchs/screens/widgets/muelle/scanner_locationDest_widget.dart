@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationDestScannerWidget extends StatelessWidget {
   final bool isLocationDestOk;
@@ -82,9 +82,8 @@ class LocationDestScannerWidget extends StatelessWidget {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            muelleHint ?? 'Muelle', 
-                            style:
-                                 TextStyle(fontSize: 14, color: black),
+                            muelleHint ?? 'Muelle',
+                            style: TextStyle(fontSize: 14, color: black),
                           ),
                         ),
                       ],
@@ -111,8 +110,8 @@ class LocationDestScannerWidget extends StatelessWidget {
                           decoration: InputDecoration(
                             hintText: muelleHint,
                             disabledBorder: InputBorder.none,
-                            hintStyle: const TextStyle(
-                                fontSize: 14, color: black),
+                            hintStyle:
+                                const TextStyle(fontSize: 14, color: black),
                             border: InputBorder.none,
                           ),
                         ),

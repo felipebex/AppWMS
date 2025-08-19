@@ -1,10 +1,10 @@
 // ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings
 
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/data/entreprice_repository.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 

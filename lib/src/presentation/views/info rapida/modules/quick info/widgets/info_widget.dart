@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 
 // Widget reutilizable para mostrar las filas con título y valor
 class ProductInfoRow extends StatelessWidget {
@@ -8,11 +8,11 @@ class ProductInfoRow extends StatelessWidget {
   final Color color;
 
   const ProductInfoRow({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     this.color = black,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

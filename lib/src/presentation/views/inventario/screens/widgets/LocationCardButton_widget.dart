@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationCardButton extends StatelessWidget {
   final dynamic bloc;

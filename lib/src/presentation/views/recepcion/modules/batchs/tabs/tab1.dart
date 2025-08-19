@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab1ScreenRecepBatch extends StatelessWidget {
   const Tab1ScreenRecepBatch({
@@ -167,33 +167,6 @@ class Tab1ScreenRecepBatch extends StatelessWidget {
                                   )),
                             ],
                           ),
-                          // Visibility(
-                          //   visible: context
-                          //           .read<RecepcionBatchBloc>()
-                          //           .configurations
-                          //           .result
-                          //           ?.result
-                          //           ?.hideExpectedQty ==
-                          //       false,
-                          //   child: Row(
-                          //     children: [
-                          //       Align(
-                          //           alignment: Alignment.centerLeft,
-                          //           child: Text(
-                          //             'Total de unidades: ',
-                          //             style: TextStyle(
-                          //                 fontSize: 14, color: primaryColorApp),
-                          //           )),
-                          //       Align(
-                          //           alignment: Alignment.centerLeft,
-                          //           child: Text(
-                          //             ordeCompraBd.numeroItems.toString(),
-                          //             style:
-                          //                 TextStyle(fontSize: 14, color: black),
-                          //           )),
-                          //     ],
-                          //   ),
-                          // ),
                           Row(
                             children: [
                               Align(

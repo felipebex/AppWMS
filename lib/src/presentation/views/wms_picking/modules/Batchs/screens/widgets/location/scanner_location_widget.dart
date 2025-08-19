@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationScannerWidget extends StatelessWidget {
   final bool isLocationOk;
@@ -57,7 +57,7 @@ class LocationScannerWidget extends StatelessWidget {
           child: Container(
             width: MediaQuery.of(context).size.width * 0.85,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child:  !context.read<UserBloc>().fabricante.contains("Zebra")
+            child: !context.read<UserBloc>().fabricante.contains("Zebra")
                 ? Focus(
                     focusNode: focusNode,
                     onKey: (node, event) {
@@ -97,8 +97,7 @@ class LocationScannerWidget extends StatelessWidget {
                           decoration: InputDecoration(
                             hintText: currentLocationId,
                             disabledBorder: InputBorder.none,
-                            hintStyle:  TextStyle(
-                                fontSize: 14, color: black),
+                            hintStyle: TextStyle(fontSize: 14, color: black),
                             border: InputBorder.none,
                           ),
                         ),

@@ -4,9 +4,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogInventario extends StatelessWidget {
   const DialogInventario({
@@ -47,7 +47,7 @@ class DialogInventario extends StatelessWidget {
             const SizedBox(height: 10),
             ElevatedButton(
                 onPressed: () async {
-                  //   //obtenemos las ubicaciones
+                  //obtenemos las ubicaciones
                   context.read<InventarioBloc>().add(GetLocationsEvent());
                   //obtenemos los productos
                   context.read<InventarioBloc>().add(GetProductsForDB());
@@ -55,6 +55,7 @@ class DialogInventario extends StatelessWidget {
                   context
                       .read<InventarioBloc>()
                       .add(LoadConfigurationsUserInventory());
+                  Navigator.pop(context);
                   Navigator.pushReplacementNamed(
                     context,
                     'inventario',
@@ -74,11 +75,11 @@ class DialogInventario extends StatelessWidget {
                     ))),
             ElevatedButton(
                 onPressed: () {
-                  // inventario rapido
-                  // conteo programado
-                      context.read<ConteoBloc>().add(GetLocationsConteoEvent());
+                  context.read<ConteoBloc>().add(GetLocationsConteoEvent());
                   context.read<ConteoBloc>().add(GetConteosFromDBEvent());
-                  context.read<ConteoBloc>().add(LoadConfigurationsUserConteo());
+                  context
+                      .read<ConteoBloc>()
+                      .add(LoadConfigurationsUserConteo());
 
                   Navigator.pop(context);
                   Navigator.pushReplacementNamed(

@@ -1,9 +1,9 @@
 // ignore_for_file: unrelated_type_equality_checks
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationDropdownTransferWidget extends StatelessWidget {
   final String? selectedLocation;

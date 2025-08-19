@@ -2,8 +2,8 @@
 
 
 
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 

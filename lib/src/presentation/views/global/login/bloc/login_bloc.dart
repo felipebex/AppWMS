@@ -4,8 +4,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/views/global/login/data/login_repository.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';

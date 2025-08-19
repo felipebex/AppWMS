@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/data/info_rapida_repository.dart';
@@ -7,7 +8,6 @@ import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_
 import 'package:wms_app/src/presentation/views/info%20rapida/models/update_product_request.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'info_rapida_event.dart';
 part 'info_rapida_state.dart';

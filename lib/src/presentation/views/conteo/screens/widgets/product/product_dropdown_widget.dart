@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownConteoWidget extends StatelessWidget {
   final String? selectedProduct;

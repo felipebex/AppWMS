@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:wms_app/src/utils/widgets/dialog_loading.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart' as p; // Para extraer la extensión del filename
+import 'package:path/path.dart' as p;
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/core/utils/widgets/dialog_loading_widget.dart'; // Para extraer la extensión del filename
 
 class ApiRequestService {
   static final ApiRequestService _instance = ApiRequestService._internal();

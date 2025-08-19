@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/views/home/data/home_repository.dart';
 import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 part 'home_event.dart';
 part 'home_state.dart';
 

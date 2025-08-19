@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/lote_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/buildBarcodeInputField_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
 class DialogEditProduct extends StatelessWidget {
   const DialogEditProduct({

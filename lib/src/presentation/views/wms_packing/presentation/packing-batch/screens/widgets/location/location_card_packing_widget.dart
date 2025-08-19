@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationPackingDropdownWidget extends StatelessWidget {
   final String? selectedLocation;
@@ -36,7 +36,7 @@ class LocationPackingDropdownWidget extends StatelessWidget {
             isExpanded: true,
             hint: Text(
               'Ubicación de origen',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: primaryColorApp,
               ),

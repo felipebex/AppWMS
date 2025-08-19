@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/comprimir_image_utils.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
-import 'package:wms_app/src/utils/comprimir_image.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogCapturaTemperatura extends StatefulWidget {
   final int moveLineId;
@@ -189,8 +189,7 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
                   TextSpan(
                     text: bloc.resultTemperature.temperature == null
                         ? '0.0'
-                        : bloc.resultTemperature.temperature.toString() ??
-                            '0.0',
+                        : bloc.resultTemperature.temperature.toString(),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,

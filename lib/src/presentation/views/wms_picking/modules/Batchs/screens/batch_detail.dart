@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -14,10 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_edit_product_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
-import '../../../../../../utils/constans/colors.dart';
 
 class BatchDetailScreen extends StatelessWidget {
   const BatchDetailScreen({super.key});

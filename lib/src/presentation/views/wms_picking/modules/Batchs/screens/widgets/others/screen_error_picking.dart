@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 
 class ErrorPicking extends StatelessWidget {
   const ErrorPicking({

@@ -2,16 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class SearchLocationConteoScreen extends StatefulWidget {
-  const SearchLocationConteoScreen({Key? key}) : super(key: key);
+  const SearchLocationConteoScreen({super.key});
 
   @override
   State<SearchLocationConteoScreen> createState() =>
@@ -76,9 +76,9 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                                           onPressed: () {
                                             bloc.searchControllerLocation
                                                 .clear();
-                                            // bloc.add(SearchLocationEvent(
-                                            //   '',
-                                            // ));
+                                            bloc.add(SearchLocationEvent(
+                                              '',
+                                            ));
                                             bloc.add(ShowKeyboardEvent(false));
                                             FocusScope.of(context).unfocus();
                                           },
@@ -95,9 +95,9 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                                       border: InputBorder.none,
                                     ),
                                     onChanged: (value) {
-                                      // bloc.add(SearchLocationEvent(
-                                      //   value,
-                                      // ));
+                                      bloc.add(SearchLocationEvent(
+                                        value,
+                                      ));
                                     },
                                     onTap: !context
                                             .read<UserBloc>()
@@ -115,7 +115,7 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                         )),
                     Expanded(
                         child: ListView.builder(
-                            itemCount: bloc.ubicacionesFilters.length,
+                            itemCount: bloc.ubicacionesFiltersSearch.length,
                             itemBuilder: (context, index) {
                               bool isSelected = selectedIndex == index;
 
@@ -150,7 +150,7 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                                                   ),
                                                   Text(
                                                     bloc
-                                                            .ubicacionesFilters[
+                                                            .ubicacionesFiltersSearch[
                                                                 index]
                                                             .name ??
                                                         '',
@@ -173,19 +173,19 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                                                   const SizedBox(width: 5),
                                                   Text(
                                                     bloc
-                                                                .ubicacionesFilters[
+                                                                .ubicacionesFiltersSearch[
                                                                     index]
                                                                 .barcode ==
                                                             false
                                                         ? 'Sin barcode'
                                                         : bloc
-                                                                .ubicacionesFilters[
+                                                                .ubicacionesFiltersSearch[
                                                                     index]
                                                                 .barcode ??
                                                             '',
                                                     style: TextStyle(
                                                       color: bloc
-                                                                  .ubicacionesFilters[
+                                                                  .ubicacionesFiltersSearch[
                                                                       index]
                                                                   .barcode ==
                                                               false
@@ -213,12 +213,13 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                           if (selectedIndex != null) {
                             // seleccionamos la ubicacion
                             final selectedLocation =
-                                bloc.ubicacionesFilters[selectedIndex!];
+                                bloc.ubicacionesFiltersSearch[selectedIndex!];
 
                             //seleccionamos la ubicacion
                             bloc.add(ValidateFieldsEvent(
                                 field: "location", isOk: true));
-                            // bloc.add(ChangeLocationIsOkEvent(selectedLocation));
+                            bloc.add(ChangeLocationIsOkEvent(
+                                true, selectedLocation, 0, 0, 0));
 
                             bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();
@@ -229,8 +230,7 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
 
                             Navigator.pushReplacementNamed(
                               context,
-                              'inventario',
-                              arguments: selectedLocation,
+                              'new-product-conteo',
                             );
                           }
                         },

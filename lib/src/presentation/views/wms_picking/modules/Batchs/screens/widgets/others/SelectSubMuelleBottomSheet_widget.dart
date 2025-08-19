@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class SelectSubMuelleBottomSheet extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
 
   const SelectSubMuelleBottomSheet({
-    Key? key,
+    super.key,
     required this.controller,
     required this.focusNode,
-  }) : super(key: key);
+  });
 
   @override
   State<SelectSubMuelleBottomSheet> createState() =>

@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/conteo/data/conteo_repository.dart';
@@ -12,7 +13,6 @@ import 'package:wms_app/src/presentation/views/inventario/models/response_produc
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'conteo_event.dart';
 part 'conteo_state.dart';
@@ -41,6 +41,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   TextEditingController searchControllerLote = TextEditingController();
   TextEditingController dateLoteController = TextEditingController();
   TextEditingController searchControllerLocation = TextEditingController();
+  TextEditingController searchControllerProducts = TextEditingController();
 
   //*valores de scanvalueS
 
@@ -82,6 +83,11 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   //*lista de ubicaciones maestra
   List<ResultUbicaciones> ubicaciones = [];
   List<ResultUbicaciones> ubicacionesFilters = [];
+  List<ResultUbicaciones> ubicacionesFiltersSearch = [];
+
+  //lista de productos maestra
+  List<Product> productos = [];
+  List<Product> productosFilters = [];
 
   //producto actual
   Product? currentNewProduct;
@@ -161,8 +167,32 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     //*metodo para cargar las ubicaciones
     on<GetLocationsConteoEvent>(_onLoadLocations);
 
+    //todo estados para un new product
     //Metodo para cargar informacion pa crear un nuevo producto
     on<LoadNewProductEvent>(_onLoadNewProductEvent);
+    //metodo para buscar una ubicacion
+    on<SearchLocationEvent>(_onSearchLocationEvent);
+  }
+
+  void _onSearchLocationEvent(
+      SearchLocationEvent event, Emitter<ConteoState> emit) async {
+    try {
+      emit(SearchLoading());
+      ubicacionesFiltersSearch = [];
+      ubicacionesFiltersSearch = ubicacionesFilters;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFiltersSearch = ubicacionesFilters;
+      } else {
+        ubicacionesFiltersSearch = ubicacionesFilters.where((location) {
+          return location.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLocationSuccess(ubicacionesFiltersSearch));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
   }
 
   void _onLoadNewProductEvent(
@@ -174,6 +204,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       if (ordenConteo.filterType == 'combined') {
         //llenamos el listado de ubicacioones
         ubicacionesFilters.clear();
+        ubicacionesFiltersSearch.clear();
         ubicacionesFilters = ubicacionesConteo.map((allowed) {
           return ResultUbicaciones(
             id: allowed.id ?? 0,
@@ -185,7 +216,63 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
             warehouseName: '',
           );
         }).toList();
-      } else {}
+        ubicacionesFiltersSearch = ubicacionesFilters;
+        //llenamos la lista de productos
+        productosFilters.clear();
+
+        final productsOrder = await db.productoOrdenConteoRepository
+            .getProductosByOrderId(ordenConteo.id ?? 0);
+
+        productosFilters = productsOrder.map((product) {
+          return Product(
+            productId: product.productId,
+            name: product.productName,
+            code: product.productCode,
+            category: product.categoryName,
+            lotId: product.lotId,
+            lotName: product.lotName,
+            barcode: product.productBarcode,
+            otherBarcodes: [],
+            productPacking: [],
+            tracking: product.productTracking,
+            useExpirationDate:
+                product.fechaVencimiento?.isNotEmpty ?? true ? true : false,
+            expirationTime: "",
+            weight: product.weight,
+            weightUomName: "",
+            volume: 0,
+            volumeUomName: '',
+            expirationDate: product.fechaVencimiento,
+            uom: product.uom,
+            locationId: product.locationId ?? 0,
+            locationName: product.locationName ?? '',
+            quantity: 0, // Inicializamos la cantidad en 0
+          );
+        }).toList();
+
+        print("productosFilters :${productosFilters.length}");
+      } else if (ordenConteo.filterType == "location") {
+        //las ubicaciones que llegan en la orden
+        ubicacionesFilters.clear();
+        ubicacionesFiltersSearch.clear();
+        ubicacionesFilters = ubicacionesConteo.map((allowed) {
+          return ResultUbicaciones(
+            id: allowed.id ?? 0,
+            name: allowed.name ?? '',
+            barcode: allowed.barcode ?? '',
+            locationId: allowed.id ?? 0,
+            locationName: allowed.name ?? '',
+            idWarehouse: 0,
+            warehouseName: '',
+          );
+        }).toList();
+        ubicacionesFiltersSearch = ubicacionesFilters;
+
+        //filtro por ubicacion
+      } else if (ordenConteo.filterType == "category" ||
+          ordenConteo.filterType == "product") {
+        //filtro por categoria o producto
+      }
 
       print("ubicacionesFilters: ${ubicacionesFilters.length}");
 
@@ -533,6 +620,14 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     viewQuantity = false;
     listOfBarcodes.clear();
 
+    //variables de new product
+    ubicacionesFiltersSearch = [];
+    ubicacionesFilters.clear();
+    searchControllerLocation.clear();
+    currentUbication = null;
+    currentNewProduct = null;
+    productosFilters.clear();
+
     emit(ConteoInitial());
   }
 
@@ -619,28 +714,36 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       ChangeLocationIsOkEvent event, Emitter<ConteoState> emit) async {
     try {
       if (isLocationOk) {
-        dateInicio = DateTime.now().toString();
-        //actualizmso valor de fecha inicio
-        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-          event.orden,
-          event.productId,
-          'date_start',
-          dateInicio,
-          event.idMove.toString(),
-          currentProduct.locationId.toString(),
-        );
+        //si el producto es nuevo entonces no guardamos registros
+        if (event.isNewProduct == false) {
+          dateInicio = DateTime.now().toString();
+          //actualizmso valor de fecha inicio
+          await db.productoOrdenConteoRepository
+              .setFieldTableProductOrdenConteo(
+            event.orden,
+            event.productId,
+            'date_start',
+            dateInicio,
+            event.idMove.toString(),
+            currentProduct.locationId.toString(),
+          );
 
-        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-          event.orden,
-          event.productId,
-          'is_location_is_ok',
-          1,
-          event.idMove.toString(),
-          currentProduct.locationId.toString(),
-        );
+          await db.productoOrdenConteoRepository
+              .setFieldTableProductOrdenConteo(
+            event.orden,
+            event.productId,
+            'is_location_is_ok',
+            1,
+            event.idMove.toString(),
+            currentProduct.locationId.toString(),
+          );
+        } else {
+          //asignamos el valor de la ubicacion actual cuando el producto es nuevo
+          currentUbication = ResultUbicaciones();
+          currentUbication = event.locationSelect;
+        }
+
         locationIsOk = true;
-        // add(ChangeIsOkQuantity(currentProduct.orderId ?? 0, true,
-        //     currentProduct.productId ?? 0, currentProduct.idMove ?? 0));
         emit(ChangeLocationIsOkState(
           locationIsOk,
         ));

@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab1ScreenConteo extends StatelessWidget {
   const Tab1ScreenConteo({
@@ -25,13 +25,6 @@ class Tab1ScreenConteo extends StatelessWidget {
         listener: (context, state) {},
         builder: (context, state) {
           final ordeConteoBd = context.read<ConteoBloc>().ordenConteo;
-
-          // final totalEnviadas = context
-          //     .read<RecepcionBatchBloc>()
-          //     .listProductsEntrada
-          //     .map((e) => e.quantityDone ?? 0)
-          //     .fold<double>(0, (a, b) => a + b);
-
           return Scaffold(
             backgroundColor: white,
             body: Column(

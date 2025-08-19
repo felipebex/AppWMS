@@ -1,8 +1,8 @@
 // lib/src/presentation/views/devoluciones/screens/widgets/product_devolucion_card.dart (Nuevo archivo)
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
-import 'package:wms_app/src/utils/constans/colors.dart'; // Tus colores
 
 class ProductDevolucionCard extends StatelessWidget {
   final ProductDevolucion product;

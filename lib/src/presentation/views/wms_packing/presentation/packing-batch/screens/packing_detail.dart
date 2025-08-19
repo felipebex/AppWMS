@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
@@ -12,7 +13,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab3.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab4.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PackingDetailScreen extends StatefulWidget {
   const PackingDetailScreen({

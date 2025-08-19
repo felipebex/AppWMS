@@ -41,10 +41,13 @@ class LoadConfigurationsUserConteo extends ConteoEvent {
 }
 
 class ChangeLocationIsOkEvent extends ConteoEvent {
+  final bool isNewProduct;
+  final ResultUbicaciones locationSelect;
   final int productId;
   final int orden;
   final int idMove;
-  ChangeLocationIsOkEvent(this.productId, this.orden, this.idMove);
+  ChangeLocationIsOkEvent(this.isNewProduct, this.locationSelect,
+      this.productId, this.orden, this.idMove);
 }
 
 class ChangeIsOkQuantity extends ConteoEvent {
@@ -153,7 +156,14 @@ class DeleteProductConteoEvent extends ConteoEvent {
 
 class GetLocationsConteoEvent extends ConteoEvent {}
 
-
 class LoadNewProductEvent extends ConteoEvent {
   LoadNewProductEvent();
+}
+
+class SearchLocationEvent extends ConteoEvent {
+  final String query;
+
+  SearchLocationEvent(
+    this.query,
+  );
 }

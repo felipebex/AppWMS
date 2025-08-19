@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/global/login/models/user_model_response.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LoginRepository {
   Future<UserModelResponse> login(

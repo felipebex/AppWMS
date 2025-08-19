@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, unnecessary_import, unrelated_type_equality_checks, use_build_context_synchronously
 
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
@@ -10,7 +11,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'wms_picking_event.dart';
 part 'wms_picking_state.dart';

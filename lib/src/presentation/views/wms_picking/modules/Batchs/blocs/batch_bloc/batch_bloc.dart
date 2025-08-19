@@ -2,6 +2,8 @@
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/utils/formats_utils.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -13,8 +15,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
-import 'package:wms_app/src/utils/formats.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'batch_event.dart';
 part 'batch_state.dart';

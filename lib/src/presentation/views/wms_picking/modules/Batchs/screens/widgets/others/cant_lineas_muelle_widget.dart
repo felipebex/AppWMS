@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class CantLineasMuelle extends StatelessWidget {
   const CantLineasMuelle({

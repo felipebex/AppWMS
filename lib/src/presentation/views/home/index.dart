@@ -4,14 +4,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/dialog_inventario_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
-import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
@@ -24,8 +25,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
@@ -41,12 +40,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     _onDataUser();
 
-
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
-
-  
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -742,6 +738,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               if (homeBloc.userRol ==
                                                       'inventory' ||
                                                   homeBloc.userRol == 'admin') {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return DialogInventario(
+                                                        contextHome: context,
+                                                      );
+                                                    });
+
                                                 // //obtenemos las ubicaciones
                                                 // context
                                                 //     .read<InventarioBloc>()
@@ -772,16 +776,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 //   'inventario',
                                                 // );
 
-                                                context.read<ConteoBloc>().add(
-                                                    GetConteosFromDBEvent());
-                                                context.read<ConteoBloc>().add(
-                                                    LoadConfigurationsUserConteo());
+                                                // context.read<ConteoBloc>().add(
+                                                //     GetConteosFromDBEvent());
+                                                // context.read<ConteoBloc>().add(
+                                                //     LoadConfigurationsUserConteo());
 
-                                                // Navigator.pop(context);
-                                                Navigator.pushReplacementNamed(
-                                                  context,
-                                                  'conteo',
-                                                );
+                                                // // Navigator.pop(context);
+                                                // Navigator.pushReplacementNamed(
+                                                //   context,
+                                                //   'conteo',
+                                                // );
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(

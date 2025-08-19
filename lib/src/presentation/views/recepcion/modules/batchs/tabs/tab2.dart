@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2ScreenRecepBatch extends StatefulWidget {
   const Tab2ScreenRecepBatch({
@@ -125,31 +125,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
       child: BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
         listener: (context, state) {
           
-
-          // if (state is SendProductToOrderFailure) {
-          //   Get.defaultDialog(
-          //     title: '360 Software Informa',
-          //     titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-          //     middleText: state.error,
-          //     middleTextStyle: TextStyle(color: black, fontSize: 14),
-          //     backgroundColor: Colors.white,
-          //     radius: 10,
-          //     actions: [
-          //       ElevatedButton(
-          //         onPressed: () {
-          //           Get.back();
-          //         },
-          //         style: ElevatedButton.styleFrom(
-          //           backgroundColor: primaryColorApp,
-          //           shape: RoundedRectangleBorder(
-          //             borderRadius: BorderRadius.circular(10),
-          //           ),
-          //         ),
-          //         child: Text('Aceptar', style: TextStyle(color: white)),
-          //       ),
-          //     ],
-          //   );
-          // }
         },
         builder: (context, state) {
           final recepcionBloc = context.read<RecepcionBatchBloc>();

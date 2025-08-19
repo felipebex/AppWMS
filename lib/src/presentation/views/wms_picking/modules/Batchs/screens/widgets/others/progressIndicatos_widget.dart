@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProgressIndicatorWidget extends StatelessWidget {
   final double progress; // Valor de progreso (0.0 a 1.0)

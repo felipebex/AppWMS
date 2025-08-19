@@ -205,12 +205,14 @@ class LoadLocationsFailure extends ConteoState {
   LoadLocationsFailure(this.error);
 }
 
-
-
-class LoadNewProductSuccess extends ConteoState {
-}
+class LoadNewProductSuccess extends ConteoState {}
 
 class LoadNewProductFailure extends ConteoState {
   final String error;
   LoadNewProductFailure(this.error);
+}
+
+class SearchLocationSuccess extends ConteoState {
+  final List<ResultUbicaciones> locations;
+  SearchLocationSuccess(this.locations);
 }

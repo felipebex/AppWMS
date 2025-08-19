@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownPackingWidget extends StatelessWidget {
   final String? selectedProduct;

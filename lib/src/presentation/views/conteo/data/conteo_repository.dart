@@ -7,12 +7,12 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/request_send_product_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/response_delete_product_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/response_send_product_model.dart';
-import 'package:wms_app/src/presentation/views/inventario/models/response_senProduct_mode.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
+
 
 class ConteoRepository {
 //metodo para traer todos los conteos

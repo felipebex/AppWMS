@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_event.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_state.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class CustomKeyboardNumber extends StatefulWidget {
   final TextEditingController controller;
@@ -122,32 +122,6 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
       ),
     );
   }
-
-  // Botón de "OK" para confirmar
-  // Widget _buildConfirmButton() {
-  //   return GestureDetector(
-  //     onTap: () {
-  //       widget.onchanged();
-  //     },
-  //     child: Container(
-  //       width: 
-  //       widget.isDialog ? 64 :
-  //       50, // Tamaño ajustado
-  //       height: 30, // Tamaño ajustado
-  //       margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-  //       decoration: BoxDecoration(
-  //         color: primaryColorApp,
-  //         borderRadius: BorderRadius.circular(5),
-  //       ),
-  //       child: const Center(
-  //         child: Text(
-  //           'OK',
-  //           style: TextStyle(color: Colors.white, fontSize: 16),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   // Botón de borrar
   Widget _buildBackspaceButton() {

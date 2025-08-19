@@ -2,6 +2,9 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/utils/formats_utils.dart';
+import 'package:wms_app/src/core/utils/interable_extension_utils.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/data/devoluciones_repository.dart';
@@ -12,9 +15,6 @@ import 'package:wms_app/src/presentation/views/devoluciones/models/response_terc
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
-import 'package:wms_app/src/utils/formats.dart';
-import 'package:wms_app/src/utils/interable_extension.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'devoluciones_event.dart';
 part 'devoluciones_state.dart';

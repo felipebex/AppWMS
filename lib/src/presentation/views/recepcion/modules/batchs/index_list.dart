@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -10,7 +11,6 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ListRecepctionBatchScreen extends StatelessWidget {
   const ListRecepctionBatchScreen({super.key});
@@ -326,38 +326,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                     fontSize: 12,
                                                   )),
                                             ),
-                                            // Align(
-                                            //   alignment: Alignment.centerLeft,
-                                            //   child: Row(
-                                            //     children: [
-                                            //       Icon(
-                                            //         Icons.shopping_cart_sharp,
-                                            //         color: primaryColorApp,
-                                            //         size: 15,
-                                            //       ),
-                                            //       const SizedBox(width: 5),
-                                            //       Text(
-                                            //         recepcionBatch[index]
-                                            //                     .purchaseOrderName ==
-                                            //                 ""
-                                            //             ? recepcionBatch[index]
-                                            //                         .origin ==
-                                            //                     ""
-                                            //                 ? 'Sin orden de compra'
-                                            //                 : recepcionBatch[
-                                            //                             index]
-                                            //                         .origin ??
-                                            //                     ''
-                                            //             : recepcionBatch[index]
-                                            //                     .purchaseOrderName ??
-                                            //                 '',
-                                            //         style: const TextStyle(
-                                            //             fontSize: 12,
-                                            //             color: black),
-                                            //       ),
-                                            //     ],
-                                            //   ),
-                                            // ),
+                                          
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(

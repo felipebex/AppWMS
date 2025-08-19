@@ -3,9 +3,13 @@
 import 'dart:io';
 import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
-import 'package:wms_app/routes/app_router.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/routes/app_router.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
+import 'package:wms_app/src/core/utils/formats_utils.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/core/utils/widgets/error_widget.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
@@ -29,13 +33,9 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_r
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:wms_app/src/utils/formats.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
-import 'package:wms_app/src/utils/widgets/error_widget.dart';
 import 'src/presentation/views/home/index.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -59,9 +59,6 @@ void main() async {
           exit(0);
         },
       );
-
-  // await LocalNotificationsService.reqyestPermissionsLocalNotifications();
-  // await LocalNotificationsService().initializeNotifications();
   await Preferences.init();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

@@ -1,6 +1,6 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, avoid_print
 
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:flutter/material.dart';
 
 class CheckAuthPage extends StatelessWidget {

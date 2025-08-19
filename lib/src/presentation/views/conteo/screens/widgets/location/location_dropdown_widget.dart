@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class LocationDropdownConteoWidget extends StatefulWidget {
   final String? selectedLocation;
@@ -94,7 +95,9 @@ class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
               );
             }).toList();
           },
-          onChanged: conteoBloc.configurations.result?.result?.locationPickingManual == false
+          onChanged: conteoBloc
+                      .configurations.result?.result?.locationPickingManual ==
+                  false
               ? null
               : conteoBloc.locationIsOk
                   ? null
@@ -102,15 +105,19 @@ class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
                       final expected =
                           widget.currentProduct.locationName.toString();
                       if (newValue == expected) {
-                        conteoBloc.add(ValidateFieldsEvent(field: "location", isOk: true));
+                        conteoBloc.add(
+                            ValidateFieldsEvent(field: "location", isOk: true));
                         conteoBloc.add(ChangeLocationIsOkEvent(
+                          false,
+                          ResultUbicaciones(),
                           widget.currentProduct.productId ?? 0,
                           widget.currentProduct.orderId ?? 0,
                           widget.currentProduct.idMove ?? 0,
                         ));
                         conteoBloc.oldLocation = expected;
                       } else {
-                        conteoBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
+                        conteoBloc.add(ValidateFieldsEvent(
+                            field: "location", isOk: false));
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),
                           content: const Text('Ubicación errónea'),

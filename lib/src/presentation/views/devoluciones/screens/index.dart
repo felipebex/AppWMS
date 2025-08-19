@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/response_terceros_model.dart';
@@ -18,7 +19,6 @@ import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/prod
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DevolucionesScreen extends StatefulWidget {
   const DevolucionesScreen({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownOrderWidget extends StatelessWidget {
   final String? selectedProduct;
@@ -129,31 +129,7 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                 ),
               ),
 
-            // Lote/Numero de serie
-            // if (isPDA)
-            //   if (currentProductId.isNotEmpty)
-            //     Padding(
-            //       padding: const EdgeInsets.only(bottom: 10),
-            //       child: Column(
-            //         children: [
-            //           Align(
-            //             alignment: Alignment.centerLeft,
-            //             child: Text(
-            //               'Lote/Numero de serie',
-            //               style:
-            //                   TextStyle(fontSize: 14, color: primaryColorApp),
-            //             ),
-            //           ),
-            //           Align(
-            //             alignment: Alignment.centerLeft,
-            //             child: Text(
-            //               currentProduct.lotId ?? '',
-            //               style: const TextStyle(fontSize: 14, color: black),
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     ),
+         
           ],
         ),
       ),

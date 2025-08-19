@@ -4,13 +4,13 @@ import 'package:bloc/bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:wms_app/src/core/utils/get_mac_utils.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/user/models/response_pda_register_model.dart';
-import 'package:wms_app/src/utils/get_mac.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'user_event.dart';
 part 'user_state.dart';

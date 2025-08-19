@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ListConteoScreen extends StatelessWidget {
   const ListConteoScreen({Key? key}) : super(key: key);
@@ -22,15 +22,6 @@ class ListConteoScreen extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             backgroundColor: white,
-              // floatingActionButton: FloatingActionButton(
-              //   onPressed: () async{
-              //     // Acción al presionar el botón flotante
-              //     context.read<ConteoBloc>().getProductsALLdB();
-
-              //   },
-              //   backgroundColor: white,
-              //   child: const Icon(Icons.add, color: red,),
-              // ),
               body: Column(
                 children: [
                   //appBar

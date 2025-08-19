@@ -3,12 +3,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
-
-import '../../../../utils/prefs/pref_utils.dart';
 
 class CloseSession extends StatelessWidget {
   const CloseSession({

@@ -6,8 +6,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
 
 class HomeRepository {
   Future<AppVersion> getAppVersion() async {
@@ -40,7 +40,7 @@ class HomeRepository {
             );
           } else if (jsonResponse['result']['code'] == 200) {
             return AppVersion.fromMap(jsonDecode(response.body));
-          } 
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 
 class InputDecorations {
   static InputDecoration authInputDecoration({
@@ -15,10 +15,10 @@ class InputDecorations {
       enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
           borderSide: BorderSide(color: grey)),
-      focusedBorder:  OutlineInputBorder(
+      focusedBorder: OutlineInputBorder(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           borderSide: BorderSide(color: primaryColorApp)),
-      border:  OutlineInputBorder(
+      border: OutlineInputBorder(
           borderRadius: const BorderRadius.all(Radius.circular(12)),
           borderSide: BorderSide(color: primaryColorApp)),
       hintText: hintText,
