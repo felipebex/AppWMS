@@ -61,6 +61,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   List<Paquete> packages = [];
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+  List<Barcodes> listAllOfBarcodes = [];
   //*producto actual
   ProductoPedido currentProduct = ProductoPedido();
 
@@ -649,7 +650,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         }
 
         //actualizamos la lista de productos
-        add(LoadAllProductsFromPedidoEvent(event.pedidoId));
+        add(LoadAllProductsFromPedidoEvent(
+          event.pedidoId,
+        ));
         emit(UnPackignSuccess("Desempaquetado del producto exitoso"));
       } else {
         emit(UnPackignError('Error al desempacar los productos'));
@@ -726,7 +729,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       quantitySelected = 0;
       viewQuantity = false;
       //actualizamos la lista de productos
-      add(LoadAllProductsFromPedidoEvent(event.pedidoId));
+      add(LoadAllProductsFromPedidoEvent(
+        event.pedidoId,
+      ));
       emit(SetPickingPackingOkState());
     } catch (e, s) {
       print('Error en el  _onSetPickingsSplitEvent: $e, $s');
@@ -828,6 +833,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       }).toList();
       emit(WmsPackingLoaded(listOfBatchs: listOfBatchsDB));
     }
+
+    // ordenarProducts() ;
   }
 
   void _onFilterBatchesBStatusEvent(FilterBatchPackingStatusEvent event,
@@ -1152,7 +1159,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           currentProduct.batchId ?? 0,
           currentProduct.idProduct,
           currentProduct.idMove ?? 0,
-          'packing');
+          'packing-batch');
+      print('listOfBarcodes: ${listOfBarcodes.length}');
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
       locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
@@ -1210,6 +1218,22 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
         print(listOfProductosProgress);
 
+        ordenarProducts();
+
+        //despues de obtener los productos vamos a obtener todos los codigos de barras de este pedido
+        listAllOfBarcodes.clear();
+        if (listOfProductosProgress.isNotEmpty) {
+          final responseBarcodes = await db.barcodesPackagesRepository
+              .getBarcodesByBatchIdAndType(
+                  listOfProductosProgress[0].batchId ?? 0, 'packing-batch');
+
+          if (responseBarcodes != null && responseBarcodes is List) {
+            listAllOfBarcodes = responseBarcodes;
+          }
+        }
+
+        print('listAllOfBarcodes: ${listAllOfBarcodes.length}');
+
         //traemos todos los paquetes de la base de datos del pedido en cuesiton
         final packagesDB =
             await db.packagesRepository.getPackagesPedido(event.pedidoId);
@@ -1230,6 +1254,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       print('Error en el  _onLoadAllProductsFromPedidoEvent: $e, $s');
       emit(WmsPackingError(e.toString()));
     }
+  }
+
+  void ordenarProducts() {
+    listOfProductosProgress.sort((a, b) {
+      return a.locationId!.compareTo(b.locationId!);
+    });
   }
 
   void getPedidosAll() async {

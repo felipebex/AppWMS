@@ -216,3 +216,8 @@ class SearchLocationSuccess extends ConteoState {
   final List<ResultUbicaciones> locations;
   SearchLocationSuccess(this.locations);
 }
+
+class SearchProductSuccess extends ConteoState {
+  final List<Product> products;
+  SearchProductSuccess(this.products);
+}

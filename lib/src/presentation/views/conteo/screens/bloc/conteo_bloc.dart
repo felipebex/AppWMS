@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -88,6 +90,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   //lista de productos maestra
   List<Product> productos = [];
   List<Product> productosFilters = [];
+  List<Product> productosFiltersSearch = [];
 
   //producto actual
   Product? currentNewProduct;
@@ -172,6 +175,37 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     on<LoadNewProductEvent>(_onLoadNewProductEvent);
     //metodo para buscar una ubicacion
     on<SearchLocationEvent>(_onSearchLocationEvent);
+    //*metodo para bucar un producto
+    on<SearchProductEvent>(_onSearchProductEvent);
+  }
+
+  void _onSearchProductEvent(
+    SearchProductEvent event,
+    Emitter<ConteoState> emit,
+  ) async {
+    try {
+      print('🔍 Buscando productos con query: "${event.query}"');
+      emit(SearchLoading());
+
+      final query = event.query.trim();
+
+      final List<Product> filtrados = productosFilters.where((product) {
+        final name = (product.name ?? '').toLowerCase();
+        final code = (product.code ?? '').toString().trim();
+        final barcode = (product.barcode ?? '').toString().trim();
+
+        return name.contains(query.toLowerCase()) ||
+            code.contains(query) ||
+            barcode.contains(query);
+      }).toList();
+
+      productosFiltersSearch = filtrados;
+
+      emit(SearchProductSuccess(filtrados));
+    } catch (e, s) {
+      print('❌ Error en SearchProductEvent: $e\n$s');
+      emit(SearchFailure(e.toString()));
+    }
   }
 
   void _onSearchLocationEvent(
@@ -219,6 +253,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         ubicacionesFiltersSearch = ubicacionesFilters;
         //llenamos la lista de productos
         productosFilters.clear();
+        productosFiltersSearch.clear();
 
         final productsOrder = await db.productoOrdenConteoRepository
             .getProductosByOrderId(ordenConteo.id ?? 0);
@@ -249,6 +284,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
             quantity: 0, // Inicializamos la cantidad en 0
           );
         }).toList();
+        productosFiltersSearch = productosFilters;
 
         print("productosFilters :${productosFilters.length}");
       } else if (ordenConteo.filterType == "location") {
@@ -641,40 +677,64 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<ConteoState> emit) async {
     if (event.productIsOk) {
-      //todo actualizamos la entrada a true
-      await db.ordenRepository.updateField(
-        event.idOrder,
-        "is_selected",
-        1,
-      );
+      //si el producto es nuevo entonces no guardamos registros
+      if (event.isNewProduct == false) {
+        //todo actualizamos la entrada a true
+        await db.ordenRepository.updateField(
+          event.idOrder,
+          "is_selected",
+          1,
+        );
 
-      await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-        event.idOrder,
-        event.productId,
-        "is_selected",
-        1,
-        currentProduct.idMove.toString(),
-        currentProduct.locationId.toString(),
-      );
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          event.idOrder,
+          event.productId,
+          "is_selected",
+          1,
+          currentProduct.idMove.toString(),
+          currentProduct.locationId.toString(),
+        );
 
-      //actualizamos el producto a true
-      await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-        event.idOrder,
-        event.productId,
-        "product_is_ok",
-        1,
-        event.idMove.toString(),
-        currentProduct.locationId.toString(),
-      );
-      //actualizamos la cantidad separada
-      await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-        event.idOrder,
-        event.productId,
-        "quantity_counted",
-        event.quantity,
-        event.idMove.toString(),
-        currentProduct.locationId.toString(),
-      );
+        //actualizamos el producto a true
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          event.idOrder,
+          event.productId,
+          "product_is_ok",
+          1,
+          event.idMove.toString(),
+          currentProduct.locationId.toString(),
+        );
+        //actualizamos la cantidad separada
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          event.idOrder,
+          event.productId,
+          "quantity_counted",
+          event.quantity,
+          event.idMove.toString(),
+          currentProduct.locationId.toString(),
+        );
+      } else {
+        currentProduct = CountedLine();
+        currentProduct ==
+            CountedLine(
+              productId: event.productSelect.productId,
+              orderId: ordenConteo.id,
+              idMove: event.idMove,
+              locationId: event.productSelect.locationId,
+              locationName: event.productSelect.locationName,
+              productTracking: event.productSelect.tracking,
+              productName: event.productSelect.name,
+              productCode: event.productSelect.code,
+              productBarcode: event.productSelect.barcode,
+              lotId: event.productSelect.lotId,
+              lotName: event.productSelect.lotName,
+              uom: event.productSelect.uom,
+              fechaVencimiento: event.productSelect.expirationDate,
+              weight: event.productSelect.weight,
+              categoryName: event.productSelect.category,
+            );
+            
+      }
     }
     productIsOk = event.productIsOk;
     if (currentProduct.productTracking != "lot") {

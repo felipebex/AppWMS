@@ -190,3 +190,13 @@ class FilterUbicacionesSuccess extends InventarioState {
   final List<ResultUbicaciones> locations;
   FilterUbicacionesSuccess(this.locations);
 }
+
+class FetchAllBarcodesSuccess extends InventarioState {
+  final List<BarcodeInventario> allBarcodes;
+  FetchAllBarcodesSuccess(this.allBarcodes);
+}
+
+class FetchAllBarcodesFailure extends InventarioState {
+  final String error;
+  FetchAllBarcodesFailure(this.error);
+}

@@ -183,35 +183,63 @@ class _InventarioScreenState extends State<InventarioScreen>
     }
   }
 
+
   void validateProduct(String value) {
     final bloc = context.read<InventarioBloc>();
 
-    String scan = bloc.scannedValue2.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue2.trim().toLowerCase();
-
-    print('scan product: $scan');
+    // Normalizamos el valor escaneado
+    final scan = (bloc.scannedValue2.isEmpty ? value : bloc.scannedValue2)
+        .trim()
+        .toLowerCase();
 
     bloc.controllerProduct.clear();
+    print('🔎 Scan product: $scan');
 
-    Product? matchedProducts = bloc.productos.firstWhere(
-        (productoUbi) =>
-            productoUbi.barcode?.toLowerCase() == scan.trim() ||
-            productoUbi.code?.toLowerCase() == scan.trim(),
-        orElse: () =>
-            Product() // Si no se encuentra ningún match, devuelve null
-        );
+    // Buscar coincidencia directa por barcode o code
+    final matchedProduct = bloc.productos.firstWhere(
+      (p) => p.barcode?.toLowerCase() == scan || p.code?.toLowerCase() == scan,
+      orElse: () => Product(),
+    );
 
-    if (matchedProducts.barcode != null) {
-      print('producto encontrado: ${matchedProducts.name}');
-      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-      bloc.add(ChangeProductIsOkEvent(matchedProducts));
+    if (matchedProduct.barcode != null) {
+      print('✅ Producto encontrado directo: ${matchedProduct.name}');
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: true))
+        ..add(ChangeProductIsOkEvent(matchedProduct))
+        ..add(ClearScannedValueEvent('product'));
+      return;
+    }
 
-      bloc.add(ClearScannedValueEvent('product'));
+    // Buscar en barcodes adicionales
+    final matchedBarcode = bloc.allBarcodeInventario.firstWhere(
+      (b) => b.barcode?.toLowerCase() == scan,
+      orElse: () => BarcodeInventario(),
+    );
+
+    if (matchedBarcode.barcode == null) {
+      print('❌ Producto no encontrado en barcodes');
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: false))
+        ..add(ClearScannedValueEvent('product'));
+      return;
+    }
+
+    // Buscar producto por id relacionado al barcode encontrado
+    final matchedById = bloc.productos.firstWhere(
+      (p) => p.productId == matchedBarcode.idProduct,
+      orElse: () => Product(),
+    );
+
+    if (matchedById.productId != null) {
+      print('✅ Producto encontrado por ID: ${matchedById.name}');
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: true))
+        ..add(ChangeProductIsOkEvent(matchedById));
     } else {
-      print('producto encontrado: ${matchedProducts.name}');
-      bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
-      bloc.add(ClearScannedValueEvent('product'));
+      print('❌ Producto no encontrado por ID');
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: false))
+        ..add(ClearScannedValueEvent('product'));
     }
   }
 
@@ -717,7 +745,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
                                                     routeName:
                                                         'search-location',
-                                                        ubicacionFija: true,
+                                                    ubicacionFija: true,
                                                   ),
                                                   Align(
                                                       alignment:
@@ -891,7 +919,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   ),
                                                 ),
                                               ),
-
                                               Container(
                                                 height: 20,
                                                 margin: const EdgeInsets.only(
@@ -932,7 +959,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   ),
                                                 ),
                                               ),
-
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
@@ -1039,7 +1065,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   ],
                                                 ),
                                               ),
-                                             
                                             ],
                                           ),
                                         )
@@ -1295,7 +1320,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                     ],
                                                   ),
                                                 ),
-                                              
                                               ],
                                             ),
                                           ),

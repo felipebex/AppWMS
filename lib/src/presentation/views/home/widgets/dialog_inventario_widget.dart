@@ -51,6 +51,10 @@ class DialogInventario extends StatelessWidget {
                   context.read<InventarioBloc>().add(GetLocationsEvent());
                   //obtenemos los productos
                   context.read<InventarioBloc>().add(GetProductsForDB());
+                  //obtenemos todos los demas codigos de barras
+                  context
+                      .read<InventarioBloc>()
+                      .add(FetchAllBarcodesInventarioEvent());
                   //cargamos la configuracion
                   context
                       .read<InventarioBloc>()
@@ -73,32 +77,32 @@ class DialogInventario extends StatelessWidget {
                       color: white,
                       fontSize: 14,
                     ))),
-            ElevatedButton(
-                onPressed: () {
-                  context.read<ConteoBloc>().add(GetLocationsConteoEvent());
-                  context.read<ConteoBloc>().add(GetConteosFromDBEvent());
-                  context
-                      .read<ConteoBloc>()
-                      .add(LoadConfigurationsUserConteo());
+            // ElevatedButton(
+            //     onPressed: () {
+            //       context.read<ConteoBloc>().add(GetLocationsConteoEvent());
+            //       context.read<ConteoBloc>().add(GetConteosFromDBEvent());
+            //       context
+            //           .read<ConteoBloc>()
+            //           .add(LoadConfigurationsUserConteo());
 
-                  Navigator.pop(context);
-                  Navigator.pushReplacementNamed(
-                    context,
-                    'conteo',
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(200, 40),
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('CONTEO FISICO',
-                    style: TextStyle(
-                      color: white,
-                      fontSize: 14,
-                    ))),
+            //       Navigator.pop(context);
+            //       Navigator.pushReplacementNamed(
+            //         context,
+            //         'conteo',
+            //       );
+            //     },
+            //     style: ElevatedButton.styleFrom(
+            //       minimumSize: const Size(200, 40),
+            //       backgroundColor: primaryColorApp,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(10),
+            //       ),
+            //     ),
+            //     child: Text('CONTEO FISICO',
+            //         style: TextStyle(
+            //           color: white,
+            //           fontSize: 14,
+            //         ))),
             ElevatedButton(
                 onPressed: () {
                   //cerramos el dialogo

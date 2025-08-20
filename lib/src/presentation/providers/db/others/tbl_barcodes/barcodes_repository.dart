@@ -138,8 +138,8 @@ class BarcodesRepository {
             BarcodesPackagesTable.columnBatchId: b.batchId,
             BarcodesPackagesTable.columnIdMove: b.idMove,
             BarcodesPackagesTable.columnBarcode: b.barcode,
-              BarcodesPackagesTable.columnCantidad:
-              (b.cantidad == null || b.cantidad == 0) ? 1 : b.cantidad,
+            BarcodesPackagesTable.columnCantidad:
+                (b.cantidad == null || b.cantidad == 0) ? 1 : b.cantidad,
             BarcodesPackagesTable.columnBarcodeType: barcodeType,
           };
 
@@ -200,6 +200,41 @@ class BarcodesRepository {
         );
       }).toList();
 
+      return barcodes;
+    } catch (e) {
+      print("Error al obtener los barcodes: $e");
+      return [];
+    }
+  }
+
+  //metodo para obtener todos los barcodes de un batchId y de un tipo de barcode
+  Future<List<Barcodes>> getBarcodesByBatchIdAndType(
+      int batchId, String barcodeType) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      // Realizamos la consulta para obtener los barcodes
+      final List<Map<String, dynamic>> maps = await db.query(
+        BarcodesPackagesTable.tableName,
+        where: '${BarcodesPackagesTable.columnBatchId} = ? AND '
+            '${BarcodesPackagesTable.columnBarcodeType} = ?',
+        whereArgs: [batchId, barcodeType],
+      );
+      // Verificamos si la consulta ha devuelto resultados
+      if (maps.isEmpty) {
+        print("No se encontraron barcodes para los parámetros proporcionados.");
+        return [];
+      }
+      // Convertimos los resultados de la consulta en objetos Barcodes
+      final List<Barcodes> barcodes = maps.map((map) {
+        return Barcodes(
+          batchId: map[BarcodesPackagesTable.columnBatchId],
+          idMove: map[BarcodesPackagesTable.columnIdMove],
+          idProduct: map[BarcodesPackagesTable.columnIdProduct],
+          barcode: map[BarcodesPackagesTable.columnBarcode],
+          cantidad: map[BarcodesPackagesTable.columnCantidad]?.toDouble(),
+          barcodeType: map[BarcodesPackagesTable.columnBarcodeType],
+        );
+      }).toList();
       return barcodes;
     } catch (e) {
       print("Error al obtener los barcodes: $e");

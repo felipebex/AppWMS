@@ -45,8 +45,8 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
                     isLogin: false,
                     controller: bloc.searchControllerProducts,
                     onchanged: () {
-                      // bloc.add(SearchProductEvent(
-                      //     bloc.searchControllerProducts.text));
+                      bloc.add(SearchProductEvent(
+                          bloc.searchControllerProducts.text));
                     },
                   )
               ],
@@ -76,7 +76,7 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
               suffixIcon: IconButton(
                 onPressed: () {
                   bloc.searchControllerProducts.clear();
-                  // bloc.add(SearchProductEvent(''));
+                  bloc.add(SearchProductEvent(''));
                   bloc.add(ShowKeyboardEvent(false));
                   FocusScope.of(context).unfocus();
                 },
@@ -87,7 +87,7 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
               border: InputBorder.none,
             ),
             onChanged: (value) {
-              // bloc.add(SearchProductEvent(value));
+              bloc.add(SearchProductEvent(value));
             },
             onTap: context.read<UserBloc>().fabricante.contains("Zebra")
                 ? () => bloc.add(ShowKeyboardEvent(true))
@@ -99,7 +99,7 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
   }
 
   Widget _buildProductList(BuildContext context, ConteoBloc bloc) {
-    final productos = bloc.productosFilters;
+    final productos = bloc.productosFiltersSearch;
     final ubicacionId = bloc.currentUbication?.id;
 
     final enUbicacionActual =
@@ -238,7 +238,7 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
           final selectedProductId = int.parse(parts[0]);
           final selectedLotId = int.parse(parts[1]);
 
-          final selectedProduct = bloc.productosFilters.firstWhere(
+          final selectedProduct = bloc.productosFiltersSearch.firstWhere(
             (p) => p.productId == selectedProductId && p.lotId == selectedLotId,
           );
 
@@ -246,7 +246,8 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
           FocusScope.of(context).unfocus();
 
           bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-          // bloc.add(ChangeProductIsOkEvent(selectedProduct, isManual: true));
+          bloc.add(
+              ChangeProductIsOkEvent(true, selectedProduct, 0, true, 0, 0, 0));
 
           if (selectedProduct.tracking != "lot") {
             // bloc.add(ChangeIsOkQuantity(true));
@@ -254,7 +255,10 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
 
           setState(() => selectedProductKey = null);
 
-          Navigator.pushReplacementNamed(context, 'inventario');
+          Navigator.pushReplacementNamed(
+            context,
+            'new-product-conteo',
+          );
 
           Get.snackbar(
             'Producto Seleccionado',
@@ -309,8 +313,14 @@ class _AppBarInfo extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
+                            context.read<ConteoBloc>().add(
+                                  ShowKeyboardEvent(false),
+                                );
+
                             Navigator.pushReplacementNamed(
-                                context, 'inventario');
+                              context,
+                              'new-product-conteo',
+                            );
                           },
                         ),
                         Padding(

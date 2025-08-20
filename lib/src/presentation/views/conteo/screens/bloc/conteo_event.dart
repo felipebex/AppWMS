@@ -68,14 +68,16 @@ class ChangeQuantitySeparate extends ConteoEvent {
 }
 
 class ChangeProductIsOkEvent extends ConteoEvent {
+  final bool isNewProduct;
+  final Product productSelect;
   final int idOrder;
   final bool productIsOk;
   final int productId;
   final dynamic quantity;
   final int idMove;
 
-  ChangeProductIsOkEvent(this.idOrder, this.productIsOk, this.productId,
-      this.quantity, this.idMove);
+  ChangeProductIsOkEvent(this.isNewProduct, this.productSelect, this.idOrder,
+      this.productIsOk, this.productId, this.quantity, this.idMove);
 }
 
 class ExpandLocationEvent extends ConteoEvent {
@@ -164,6 +166,14 @@ class SearchLocationEvent extends ConteoEvent {
   final String query;
 
   SearchLocationEvent(
+    this.query,
+  );
+}
+
+class SearchProductEvent extends ConteoEvent {
+  final String query;
+
+  SearchProductEvent(
     this.query,
   );
 }

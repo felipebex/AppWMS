@@ -8,6 +8,7 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class Tab2ScreenTrans extends StatefulWidget {
@@ -42,65 +43,68 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<TransferenciaBloc>();
 
-    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue5.trim().toLowerCase();
+    // Normalizamos el valor escaneado
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
 
-    _controllerToDo.text = "";
+    _controllerToDo.clear();
+    print('🔎 Scan barcode: $scan');
 
-    // Obtener la lista de productos desde el Bloc
-    final listOfProducts = bloc.listProductsTransfer.where((element) {
-      return element.isSeparate == 0 || element.isSeparate == null;
-    }).toList();
+    // Filtrar productos válidos
+    final listOfProducts = bloc.listProductsTransfer
+        .where(
+          (p) => p.isSeparate == 0 || p.isSeparate == null,
+        )
+        .toList();
 
-    // Buscar el producto que coincide con el código de barras escaneado
-    final LineasTransferenciaTrans product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan.trim(),
-      orElse: () =>
-          LineasTransferenciaTrans(), // Devuelve null si no se encuentra ningún producto
-    );
-
-    if (product.idMove != null) {
+    /// Función auxiliar para procesar un producto encontrado
+    void processProduct(LineasTransferenciaTrans product) {
       showDialog(
         context: context,
-        builder: (context) {
-          return const DialogLoading(
-            message: 'Cargando información del producto...',
-          );
-        },
+        builder: (_) => const DialogLoading(
+          message: 'Cargando información del producto...',
+        ),
       );
-      // Si el producto existe, ejecutar los estados necesarios
-      //validamos la ubicacion del producto
-      bloc.add(LoadLocations());
-      bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
-      bloc.add(ChangeLocationIsOkEvent(int.parse(product.productId),
-          product.idTransferencia ?? 0, product.idMove ?? 0));
+
+      // Eventos de ubicación
+      bloc
+        ..add(LoadLocations())
+        ..add(ValidateFieldsEvent(field: "location", isOk: true))
+        ..add(ChangeLocationIsOkEvent(
+          int.parse(product.productId),
+          product.idTransferencia ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(ClearScannedValueEvent('location'));
+
       bloc.oldLocation = product.locationId.toString();
-      bloc.oldLocation = product.locationId.toString();
-      bloc.add(ClearScannedValueEvent('location'));
-      //validamos el producto
-      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-      bloc.add(ChangeProductIsOkEvent(true, int.parse(product.productId),
-          product.idTransferencia ?? 0, 0, product.idMove ?? 0));
-      bloc.add(ClearScannedValueEvent('product'));
 
-      bloc.add(ChangeQuantitySeparate(
-        0,
-        int.parse(product.productId),
-        product.idTransferencia ?? 0,
-        product.idMove ?? 0,
-      ));
-
-      bloc.add(ChangeIsOkQuantity(
-        true,
-        int.parse(product.productId),
-        product.idTransferencia ?? 0,
-        product.idMove ?? 0,
-      ));
-
-      bloc.add(FetchPorductTransfer(
-        product,
-      ));
+      // Eventos de producto
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: true))
+        ..add(ChangeProductIsOkEvent(
+          true,
+          int.parse(product.productId),
+          product.idTransferencia ?? 0,
+          0,
+          product.idMove ?? 0,
+        ))
+        ..add(ClearScannedValueEvent('product'))
+        ..add(ChangeQuantitySeparate(
+          0,
+          int.parse(product.productId),
+          product.idTransferencia ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(ChangeIsOkQuantity(
+          true,
+          int.parse(product.productId),
+          product.idTransferencia ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(FetchPorductTransfer(product))
+        ..add(ClearScannedValueEvent('toDo'));
 
       Future.delayed(const Duration(milliseconds: 1000), () {
         Navigator.pop(context);
@@ -110,18 +114,46 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
           arguments: [product],
         );
       });
-      print(product.toMap());
-      // Limpiar el valor escaneado
-      bloc.add(ClearScannedValueEvent('toDo'));
-    } else {
-      // Mostrar alerta de error si el producto no se encuentra
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("Código erroneo"),
-        backgroundColor: Colors.red[200],
-        duration: const Duration(milliseconds: 500),
-      ));
-      bloc.add(ClearScannedValueEvent('toDo'));
+
+      print('✅ Producto procesado: ${product.toMap()}');
     }
+
+    // 1️⃣ Buscar producto por código de barras principal
+    final product = listOfProducts.firstWhere(
+      (p) => p.productBarcode?.toLowerCase() == scan,
+      orElse: () => LineasTransferenciaTrans(),
+    );
+
+    if (product.idMove != null) {
+      processProduct(product);
+      return;
+    }
+
+    // 2️⃣ Buscar en lista de barcodes asociados
+    final barcode = bloc.listAllOfBarcodes.firstWhere(
+      (b) => b.barcode?.toLowerCase() == scan,
+      orElse: () => Barcodes(),
+    );
+
+    if (barcode.barcode != null) {
+      final productByBarcode = listOfProducts.firstWhere(
+        (p) => p.idMove == barcode.idMove,
+        orElse: () => LineasTransferenciaTrans(),
+      );
+
+      if (productByBarcode.idMove != null) {
+        processProduct(productByBarcode);
+        return;
+      }
+    }
+
+    // 3️⃣ Si no se encuentra nada → mostrar error
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text("Código erróneo"),
+      backgroundColor: Colors.red[200],
+      duration: const Duration(milliseconds: 500),
+    ));
+    bloc.add(ClearScannedValueEvent('toDo'));
   }
 
   @override
@@ -135,7 +167,6 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
         listener: (context, state) {
           print('state: $state');
           if (state is SendProductToTransferSuccess) {
-            
             Get.snackbar(
               '360 Software Informa',
               "Se ha enviado el producto correctamente",
@@ -376,8 +407,6 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                               ],
                                             ),
                                           ),
-
-
                                           Text(
                                             "Ubicación de origen: ",
                                             style: TextStyle(
@@ -385,8 +414,6 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                               color: primaryColorApp,
                                             ),
                                           ),
-
-
                                           Text(
                                               product.locationName ??
                                                   'Sin ubicación',
@@ -404,8 +431,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                                     ),
                                                   ),
                                                   Text(
-                                                      (product.cantidadFaltante
-                                                                  )
+                                                      (product.cantidadFaltante)
                                                           .toStringAsFixed(2),
                                                       style: const TextStyle(
                                                           fontSize: 12,

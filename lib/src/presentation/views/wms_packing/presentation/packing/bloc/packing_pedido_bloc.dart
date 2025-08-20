@@ -82,6 +82,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   List<Paquete> packages = [];
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+  List<Barcodes> listAllOfBarcodes = [];
   List<ProductoPedido> listOfProductsName = [];
 
   PedidoPackingResult currentPedidoPack = PedidoPackingResult();
@@ -216,7 +217,6 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
           event.idPick, event.isBackOrder, false);
 
       if (response.result?.code == 200) {
-        
         add(StartOrStopTimePack(
           event.idPick,
           'end_time_transfer',
@@ -1057,8 +1057,10 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<PackingPedidoState> emit) async {
     quantitySelected = quantitySelected + event.quantity;
+
     await db.productosPedidosRepository.incremenQtytProductSeparatePacking(
         event.pedidoId, event.productId, event.idMove, event.quantity);
+        
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
@@ -1316,7 +1318,16 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
             return product.isSeparate == null || product.isSeparate == 0;
           }).toList();
 
-          print(listOfProductosProgress);
+          ordenarProducts();
+
+          //despues de obtener los productos vamos a obtener todos los codigos de barras de este pedido
+          listAllOfBarcodes.clear();
+          final responseBarcodes = await db.barcodesPackagesRepository
+              .getBarcodesByBatchIdAndType(event.idPedido, 'packing-pack');
+
+          if (responseBarcodes != null && responseBarcodes is List) {
+            listAllOfBarcodes = responseBarcodes;
+          }
 
           //traemos todos los paquetes de la base de datos del pedido en cuesiton
           final packagesDB =
@@ -1339,6 +1350,12 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       print('Error en el _onLoadPedidoAndProductsEvent: $e, $s');
       emit(LoadPedidoAndProductsError(e.toString()));
     }
+  }
+
+  void ordenarProducts() {
+    listOfProductosProgress.sort((a, b) {
+      return a.locationId!.compareTo(b.locationId!);
+    });
   }
 
   void getPosicions() {

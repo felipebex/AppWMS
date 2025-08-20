@@ -39,6 +39,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+  List<Barcodes> listAllOfBarcodes = [];
 
   //*lista de novedades
   List<Novedad> novedades = [];
@@ -300,9 +301,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               (element.proveedor != null &&
                   element.proveedor!.toLowerCase().contains(query)) ||
               (element.purchaseOrderName != null &&
-                  element.purchaseOrderName!.toLowerCase().contains(query))
-                  || (element.backorderName != null &&
-                      element.backorderName!.toLowerCase().contains(query));
+                  element.purchaseOrderName!.toLowerCase().contains(query)) ||
+              (element.backorderName != null &&
+                  element.backorderName!.toLowerCase().contains(query));
         }).toList();
       }
 
@@ -807,7 +808,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         event.fechaCaducidad,
       );
 
-      if (response.result?.code ==200) {
+      if (response.result?.code == 200) {
         //agregamos el nuevo lote a la lista de lotes
         listLotesProductFilters.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
@@ -843,7 +844,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
         emit(CreateLoteProductSuccess());
       } else {
-        emit(CreateLoteProductFailure(response.result?.msg ?? 'Error al crear el lote concactarse con el administrador'));
+        emit(CreateLoteProductFailure(response.result?.msg ??
+            'Error al crear el lote concactarse con el administrador'));
       }
     } catch (e, s) {
       emit(CreateLoteProductFailure('Error al crear el lote'));
@@ -1512,6 +1514,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       if (response != null && response is List) {
         listProductsEntrada = [];
         listProductsEntrada = response;
+
+        //despues de obtener los productos, obtenemos todos los barcodes de esta entrada
+        listAllOfBarcodes.clear();
+        final responseBarcodes = await db.barcodesPackagesRepository
+            .getBarcodesByBatchIdAndType(event.idEntrada, 'reception');
+
+        if (responseBarcodes != null && responseBarcodes is List) {
+          listAllOfBarcodes = responseBarcodes;
+        }
+
         emit(GetProductsToEntradaSuccess(response));
       } else {
         emit(GetProductsToEntradaFailure(

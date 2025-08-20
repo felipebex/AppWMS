@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_produc
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/ProductScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/product_dropdown_widget.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class NewProductConteoScreen extends StatefulWidget {
@@ -150,6 +151,43 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
     }
 
     bloc.add(ClearScannedValueEvent('location'));
+  }
+
+  void validateProduct(String value) {
+    final bloc = context.read<ConteoBloc>();
+    final scan = bloc.scannedValue2.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue2.trim().toLowerCase();
+
+    print('scan product: $scan');
+    _controllerProduct.clear();
+
+    Product? matchedProducts = bloc.productosFilters.firstWhere(
+        (productoUbi) =>
+            productoUbi.barcode?.toLowerCase() == scan.trim() ||
+            productoUbi.code?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            Product() // Si no se encuentra ningún match, devuelve null
+        );
+
+    if (matchedProducts.barcode != null) {
+      print('producto encontrado: ${matchedProducts.name}');
+      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+      bloc.add(ChangeProductIsOkEvent(
+        true,
+        matchedProducts,
+        0,
+        true,
+        0,
+        0,
+        0,
+      ));
+    } else {
+      print('producto encontrado: ${matchedProducts.name}');
+      bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
+    }
+
+    bloc.add(ClearScannedValueEvent('product'));
   }
 
   @override
@@ -353,12 +391,11 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         productIsOk: context.read<ConteoBloc>().productIsOk,
                         quantityIsOk: context.read<ConteoBloc>().quantityIsOk,
                         isProductOk: context.read<ConteoBloc>().isProductOk,
-                        currentProduct: context.read<ConteoBloc>().currentProduct,
-                        onValidateProduct: (value){
-                          
-                        },
-                        onKeyScanned: (value){},
-                        onGoToSearch: (){},
+                        currentProduct:
+                            context.read<ConteoBloc>().currentProduct,
+                        onValidateProduct: (value) {},
+                        onKeyScanned: (value) {},
+                        onGoToSearch: () {},
                         productDropdown: ProductDropdowmnWidget(),
                       ),
                     ]),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 
 class ProductDropdownConteoWidget extends StatelessWidget {
   final String? selectedProduct;
@@ -92,6 +93,8 @@ class ProductDropdownConteoWidget extends StatelessWidget {
                         conteoBloc.add(
                             ValidateFieldsEvent(field: "product", isOk: true));
                         conteoBloc.add(ChangeProductIsOkEvent(
+                          false,
+                          Product(),
                           currentProduct.orderId ?? 0,
                           true,
                           currentProduct.productId ?? 0,

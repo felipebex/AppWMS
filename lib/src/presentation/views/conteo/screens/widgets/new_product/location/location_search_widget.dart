@@ -325,45 +325,8 @@ class _AppBarInfo extends StatelessWidget {
                             style: TextStyle(color: white, fontSize: 18),
                           ),
                         ),
-                        const Spacer(),
-                        PopupMenuButton<String>(
-                          color: white,
-                          icon: const Icon(
-                            Icons.more_vert,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          onSelected: (value) {
-                            // context.read<InventarioBloc>().add(
-                            //       FilterUbicacionesAlmacenEvent(value),
-                            //     );
-                          },
-                          itemBuilder: (BuildContext context) {
-                            final tipos = context.read<UserBloc>().almacenes;
-                            return tipos.map((tipo) {
-                              return PopupMenuItem<String>(
-                                value: tipo.name,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.file_upload_outlined,
-                                      color: primaryColorApp,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      tipo.name ?? "",
-                                      style: const TextStyle(
-                                        color: black,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList();
-                          },
-                        ),
+                        const Spacer()
+                       
                       ],
                     ),
                   ),

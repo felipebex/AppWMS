@@ -831,61 +831,71 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                               ""
                                                           ? true
                                                           : false),
-                                                if (bloc.currentProduct
-                                                        .productTracking ==
-                                                    'lot')
-                                                  Row(
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Lote/serie:',
-                                                          style: TextStyle(
-                                                              fontSize: 13,
-                                                              color:
-                                                                  primaryColorApp),
+                                                Row(
+                                                  children: [
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Lote/serie:',
+                                                        style: TextStyle(
+                                                            fontSize: 13,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        bloc.currentProduct
+                                                                        .lotName ==
+                                                                    "" ||
+                                                                bloc.currentProduct
+                                                                        .lotName ==
+                                                                    null
+                                                            ? 'Sin lote'
+                                                            : bloc.currentProduct
+                                                                    .lotName ??
+                                                                '',
+                                                        style: TextStyle(
+                                                          fontSize: 13,
+                                                          color: bloc.currentProduct
+                                                                          .lotName ==
+                                                                      "" ||
+                                                                  bloc.currentProduct
+                                                                          .lotName ==
+                                                                      null
+                                                              ? red
+                                                              : black,
                                                         ),
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          bloc.currentProduct
-                                                                  .lotName ??
-                                                              '',
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 13,
-                                                                  color: black),
-                                                        ),
+                                                    ),
+                                                    const Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return DialogBarcodes(
+                                                                  listOfBarcodes:
+                                                                      bloc.listOfBarcodes);
+                                                            });
+                                                      },
+                                                      child: Visibility(
+                                                        visible: bloc
+                                                            .listOfBarcodes
+                                                            .isNotEmpty,
+                                                        child: Image.asset(
+                                                            "assets/icons/package_barcode.png",
+                                                            color:
+                                                                primaryColorApp,
+                                                            width: 20),
                                                       ),
-                                                      const Spacer(),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return DialogBarcodes(
-                                                                    listOfBarcodes:
-                                                                        bloc.listOfBarcodes);
-                                                              });
-                                                        },
-                                                        child: Visibility(
-                                                          visible: bloc
-                                                              .listOfBarcodes
-                                                              .isNotEmpty,
-                                                          child: Image.asset(
-                                                              "assets/icons/package_barcode.png",
-                                                              color:
-                                                                  primaryColorApp,
-                                                              width: 20),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ],
                                             ),
                                           ],
@@ -1017,69 +1027,79 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
                                                 const SizedBox(height: 10),
                                                 //informacion del lote:
-                                                if (bloc.currentProduct
-                                                        .productTracking ==
-                                                    'lot')
-                                                  Column(
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              'Lote/serie:',
-                                                              style: TextStyle(
-                                                                  fontSize: 13,
-                                                                  color:
-                                                                      primaryColorApp),
+
+                                                Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            'Lote/serie:',
+                                                            style: TextStyle(
+                                                                fontSize: 13,
+                                                                color:
+                                                                    primaryColorApp),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            bloc.currentProduct
+                                                                            .lotName ==
+                                                                        "" ||
+                                                                    bloc.currentProduct
+                                                                            .lotName ==
+                                                                        null
+                                                                ? 'Sin lote'
+                                                                : bloc.currentProduct
+                                                                        .lotName ??
+                                                                    '',
+                                                            style: TextStyle(
+                                                              fontSize: 13,
+                                                              color: bloc.currentProduct
+                                                                              .lotName ==
+                                                                          "" ||
+                                                                      bloc.currentProduct
+                                                                              .lotName ==
+                                                                          null
+                                                                  ? red
+                                                                  : black,
                                                             ),
                                                           ),
-                                                          const SizedBox(
-                                                              width: 5),
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              bloc.currentProduct
-                                                                      .lotName ??
-                                                                  '',
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          13,
-                                                                      color:
-                                                                          black),
-                                                            ),
+                                                        ),
+                                                        const Spacer(),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return DialogBarcodes(
+                                                                      listOfBarcodes:
+                                                                          bloc.listOfBarcodes);
+                                                                });
+                                                          },
+                                                          child: Visibility(
+                                                            visible: bloc
+                                                                .listOfBarcodes
+                                                                .isNotEmpty,
+                                                            child: Image.asset(
+                                                                "assets/icons/package_barcode.png",
+                                                                color:
+                                                                    primaryColorApp,
+                                                                width: 20),
                                                           ),
-                                                          const Spacer(),
-                                                          GestureDetector(
-                                                            onTap: () {
-                                                              showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return DialogBarcodes(
-                                                                        listOfBarcodes:
-                                                                            bloc.listOfBarcodes);
-                                                                  });
-                                                            },
-                                                            child: Visibility(
-                                                              visible: bloc
-                                                                  .listOfBarcodes
-                                                                  .isNotEmpty,
-                                                              child: Image.asset(
-                                                                  "assets/icons/package_barcode.png",
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  width: 20),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
                                                 if (bloc.currentProduct
                                                         .productTracking ==
                                                     'lot')
@@ -1254,7 +1274,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                   const  Spacer(),
+                                                    const Spacer(),
                                                     Image.asset(
                                                       "assets/icons/packing.png",
                                                       color: primaryColorApp,

@@ -500,7 +500,7 @@ class ProductosPedidosRepository {
 
   // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(
-      int pedidoId, int productId, int idMove, int quantity) async {
+      int pedidoId, int productId, int idMove, dynamic quantity) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     return await db.transaction((txn) async {
       final result = await txn.query(

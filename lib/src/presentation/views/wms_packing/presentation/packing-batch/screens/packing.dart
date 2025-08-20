@@ -25,7 +25,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
-
 class PackingScreen extends StatefulWidget {
   const PackingScreen({
     super.key,
@@ -411,10 +410,11 @@ class _PackingScreenState extends State<PackingScreen> {
                                           packinghBloc.oldLocation = "";
 
                                           context.read<WmsPackingBloc>().add(
-                                              LoadAllProductsFromPedidoEvent(
-                                                  packinghBloc.currentProduct
-                                                          .pedidoId ??
-                                                      0));
+                                                  LoadAllProductsFromPedidoEvent(
+                                                packinghBloc.currentProduct
+                                                        .pedidoId ??
+                                                    0,
+                                              ));
                                           Navigator.pushReplacementNamed(
                                             context,
                                             'packing-detail',
@@ -918,21 +918,57 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                       primaryColorApp),
                                                             ),
                                                           ),
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .lotId ??
-                                                                  '',
-                                                              style:
-                                                                  const TextStyle(
+                                                          Row(
+                                                            children: [
+                                                              Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child: Text(
+                                                                  packinghBloc.currentProduct.lotId ==
+                                                                              "" ||
+                                                                          packinghBloc.currentProduct.lotId ==
+                                                                              null
+                                                                      ? 'Sin lote/serie'
+                                                                      : packinghBloc
+                                                                              .currentProduct
+                                                                              .lotId ??
+                                                                          '',
+                                                                  style: TextStyle(
                                                                       fontSize:
                                                                           14,
+                                                                      color: packinghBloc.currentProduct.lotId == "" ||
+                                                                              packinghBloc.currentProduct.lotId == null
+                                                                          ? red
+                                                                          : black),
+                                                                ),
+                                                              ),
+                                                              const Spacer(),
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (context) {
+                                                                        return DialogBarcodes(
+                                                                            listOfBarcodes:
+                                                                                packinghBloc.listOfBarcodes);
+                                                                      });
+                                                                },
+                                                                child:
+                                                                    Visibility(
+                                                                  visible: packinghBloc
+                                                                      .listOfBarcodes
+                                                                      .isNotEmpty,
+                                                                  child: Image.asset(
+                                                                      "assets/icons/package_barcode.png",
                                                                       color:
-                                                                          black),
-                                                            ),
+                                                                          primaryColorApp,
+                                                                      width:
+                                                                          20),
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ],
                                                       ),

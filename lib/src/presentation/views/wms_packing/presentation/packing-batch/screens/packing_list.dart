@@ -612,7 +612,9 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                 // Pedimos todos los productos de un pedido
                                                 context.read<WmsPackingBloc>().add(
                                                     LoadAllProductsFromPedidoEvent(
-                                                        packing.id ?? 0));
+                                                        packing.id ?? 0,
+                                                        
+                                                        ));
                                                 //cerramos el teclado focus
                                                 FocusScope.of(context)
                                                     .unfocus();

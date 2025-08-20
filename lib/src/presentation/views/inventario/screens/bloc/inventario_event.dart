@@ -145,3 +145,8 @@ class SetUbicacionFijaEvent extends InventarioEvent {
     this.ubicacionFija,
   );
 }
+
+
+class FetchAllBarcodesInventarioEvent extends InventarioEvent {
+  FetchAllBarcodesInventarioEvent();
+}

@@ -8,6 +8,7 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class Tab2ScreenRecep extends StatefulWidget {
@@ -39,80 +40,99 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
     super.dispose();
   }
 
-  void validateBarcode(String value, BuildContext context) {
-    final bloc = context.read<RecepcionBloc>();
+void validateBarcode(String value, BuildContext context) {
+  final bloc = context.read<RecepcionBloc>();
 
-    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue5.trim().toLowerCase();
+  // Normalizar el valor escaneado
+  final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+      .trim()
+      .toLowerCase();
 
-    _controllerToDo.text = "";
+  _controllerToDo.clear();
+  print('🔎 Scan barcode: $scan');
 
-    // Obtener la lista de productos desde el Bloc
-    final listOfProducts = bloc.listProductsEntrada.where((element) {
-      return (element.isSeparate == 0 || element.isSeparate == null) &&
-          (element.isDoneItem == 0 || element.isDoneItem == null);
-    }).toList();
+  // Filtrar productos válidos
+  final listOfProducts = bloc.listProductsEntrada.where(
+    (p) => (p.isSeparate == 0 || p.isSeparate == null) &&
+           (p.isDoneItem == 0 || p.isDoneItem == null),
+  ).toList();
 
-    // Buscar el producto que coincide con el código de barras escaneado
-    final LineasTransferencia product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan.trim(),
-      orElse: () =>
-          LineasTransferencia(), // Devuelve null si no se encuentra ningún producto
+  /// Función auxiliar para procesar un producto encontrado
+  void processProduct(LineasTransferencia product) {
+    showDialog(
+      context: context,
+      builder: (_) => const DialogLoading(
+        message: 'Cargando información del producto...',
+      ),
     );
 
-    if (product.idMove != null) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const DialogLoading(
-            message: 'Cargando información del producto...',
-          );
-        },
-      );
-      // Si el producto existe, ejecutar los estados necesarios
-
-      bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
-
-      bloc.add(ChangeQuantitySeparate(
+    bloc
+      ..add(ValidateFieldsOrderEvent(field: "product", isOk: true))
+      ..add(ChangeQuantitySeparate(
         0,
         int.parse(product.productId),
         product.idRecepcion ?? 0,
         product.idMove ?? 0,
-      ));
-      bloc.add(ChangeProductIsOkEvent(
+      ))
+      ..add(ChangeProductIsOkEvent(
         product.idRecepcion ?? 0,
         true,
         int.parse(product.productId),
         0,
         product.idMove ?? 0,
-      ));
+      ))
+      ..add(FetchPorductOrder(product))
+      ..add(ClearScannedValueOrderEvent('toDo'));
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      Navigator.pop(context);
+      Navigator.pushReplacementNamed(
+        context,
+        'scan-product-order',
+        arguments: [widget.ordenCompra, product],
+      );
+    });
 
-      context.read<RecepcionBloc>().add(FetchPorductOrder(
-            product,
-          ));
+    print('✅ Producto procesado: ${product.toMap()}');
+  }
 
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(
-          context,
-          'scan-product-order',
-          arguments: [widget.ordenCompra, product],
-        );
-      });
-      print(product.toMap());
-      // Limpiar el valor escaneado
-      bloc.add(ClearScannedValueOrderEvent('toDo'));
-    } else {
-      // Mostrar alerta de error si el producto no se encuentra
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("Código erroneo"),
-        backgroundColor: Colors.red[200],
-        duration: const Duration(milliseconds: 500),
-      ));
-      bloc.add(ClearScannedValueOrderEvent('toDo'));
+  // 1️⃣ Buscar producto por código de barras principal
+  final product = listOfProducts.firstWhere(
+    (p) => p.productBarcode?.toLowerCase() == scan,
+    orElse: () => LineasTransferencia(),
+  );
+
+  if (product.idMove != null) {
+    processProduct(product);
+    return;
+  }
+
+  // 2️⃣ Buscar en lista de barcodes asociados
+  final barcode = bloc.listAllOfBarcodes.firstWhere(
+    (b) => b.barcode?.toLowerCase() == scan,
+    orElse: () => Barcodes(),
+  );
+
+  if (barcode.barcode != null) {
+    final productByBarcode = listOfProducts.firstWhere(
+      (p) => p.idMove == barcode.idMove,
+      orElse: () => LineasTransferencia(),
+    );
+
+    if (productByBarcode.idMove != null) {
+      processProduct(productByBarcode);
+      return;
     }
   }
+
+  // 3️⃣ Si no se encuentra nada → mostrar error
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: const Text("Código erróneo"),
+    backgroundColor: Colors.red[200],
+    duration: const Duration(milliseconds: 500),
+  ));
+  bloc.add(ClearScannedValueOrderEvent('toDo'));
+}
+
 
   @override
   Widget build(BuildContext context) {

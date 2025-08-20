@@ -10,6 +10,8 @@ class ProductDropdowmnWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "ProductDropdowmnWidget build  ${context.read<ConteoBloc>().currentProduct.productName ?? "Sin producto"}");
     return Column(
       children: [
         GestureDetector(

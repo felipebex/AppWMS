@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_mod
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/location/location_dropdown_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/product/product_dropdown_widget.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -225,6 +226,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
     if (scan == product.productBarcode?.toLowerCase()) {
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(
+        false,
+        Product(),
         product.orderId ?? 0,
         true,
         product.productId ?? 0,
@@ -261,6 +264,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
         ));
 
         bloc.add(ChangeProductIsOkEvent(
+          false,
+          Product(),
           currentProduct.orderId ?? 0,
           true,
           currentProduct.productId ?? 0,

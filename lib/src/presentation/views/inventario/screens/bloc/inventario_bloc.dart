@@ -37,6 +37,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   String scannedValue4 = ''; //lote
 
   List<BarcodeInventario> barcodeInventario = [];
+  List<BarcodeInventario> allBarcodeInventario = [];
 
   // //*validaciones de campos del estado de la vista
   //*variables para validar
@@ -142,6 +143,30 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
     //metodo para poner una ubicacion fija
     on<SetUbicacionFijaEvent>(_onSetUbicacionFijaEvent);
+
+    //meotod para obtener todos los other barcodes y product_packing de inventario
+    on<FetchAllBarcodesInventarioEvent>(_onFetchAllBarcodesInventarioEvent);
+  }
+
+
+
+
+  void _onFetchAllBarcodesInventarioEvent(FetchAllBarcodesInventarioEvent event,
+      Emitter<InventarioState> emit) async {
+    try {
+      final response = await db.barcodesInventarioRepository.getAllBarcodes();
+      allBarcodeInventario.clear();
+      if (response.isNotEmpty) {
+        allBarcodeInventario = response;
+        print('Total de códigos de barras: ${allBarcodeInventario.length}');
+        emit(FetchAllBarcodesSuccess(allBarcodeInventario));
+      } else {
+        emit(FetchAllBarcodesFailure('No se encontraron códigos de barras'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onFetchAllBarcodesInventarioEvent: $e, $s");
+      emit(FetchAllBarcodesFailure('Error al obtener los códigos de barras'));
+    }
   }
 
   void _onSetUbicacionFijaEvent(

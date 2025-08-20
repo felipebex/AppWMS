@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_confirmated_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class Tab2Screen extends StatefulWidget {
@@ -41,50 +42,49 @@ class _Tab2ScreenState extends State<Tab2Screen> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<WmsPackingBloc>();
 
-    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue5.trim().toLowerCase();
+    // Normalizamos el valor escaneado
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
 
-    _controllerToDo.text = "";
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (packing batch): $scan');
 
-    // Obtener la lista de productos desde el Bloc
     final listOfProducts = bloc.listOfProductosProgress;
 
-    // Buscar el producto que coincide con el código de barras escaneado
-    final product = listOfProducts.firstWhere(
-      (product) => product.barcode.toLowerCase() == scan,
-      orElse: () =>
-          ProductoPedido(), // Devuelve null si no se encuentra ningún producto
-    );
-
-    if (product.idMove != null) {
-      // Si el producto existe, ejecutar los estados necesarios
-      bloc.add(
-          FetchProductEvent(product)); // Pasar el producto encontrado al evento
+    /// Función auxiliar para procesar el producto encontrado
+    void processProduct(ProductoPedido product) {
+      bloc
+        ..add(FetchProductEvent(product))
+        ..add(ChangeLocationIsOkEvent(
+          product.idProduct ?? 0,
+          product.pedidoId ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(ChangeProductIsOkEvent(
+          true,
+          product.idProduct ?? 0,
+          product.pedidoId ?? 0,
+          0,
+          product.idMove ?? 0,
+        ))
+        ..add(ChangeIsOkQuantity(
+          true,
+          product.idProduct ?? 0,
+          product.pedidoId ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(ClearScannedValuePackEvent('toDo'));
 
       showDialog(
         context: context,
-        builder: (context) {
-          return const DialogLoading(
-            message: 'Cargando información del producto...',
-          );
-        },
+        builder: (_) => const DialogLoading(
+          message: 'Cargando información del producto...',
+        ),
       );
-//validamos la ubicacion de origen
-      bloc.add(ChangeLocationIsOkEvent(
-          product.idProduct ?? 0, product.pedidoId ?? 0, product.idMove ?? 0));
-
-      //validamos el producto
-      bloc.add(ChangeProductIsOkEvent(true, product.idProduct ?? 0,
-          product.pedidoId ?? 0, 0, product.idMove ?? 0));
-      //validamos la cantidad pa usarla
-      bloc.add(ChangeIsOkQuantity(true, product.idProduct ?? 0,
-          product.pedidoId ?? 0, product.idMove ?? 0));
 
       Future.delayed(const Duration(seconds: 1), () {
-        // Cerrar el diálogo de carga
         Navigator.of(context, rootNavigator: true).pop();
-        // Ahora navegar a la vista "batch"
         Navigator.pushReplacementNamed(
           context,
           'Packing',
@@ -92,17 +92,45 @@ class _Tab2ScreenState extends State<Tab2Screen> {
         );
       });
 
-      // Limpiar el valor escaneado
-      bloc.add(ClearScannedValuePackEvent('toDo'));
-    } else {
-      // Mostrar alerta de error si el producto no se encuentra
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("Código erroneo"),
-        backgroundColor: Colors.red[200],
-        duration: const Duration(milliseconds: 500),
-      ));
-      bloc.add(ClearScannedValuePackEvent('toDo'));
+      print('✅ Producto procesado: ${product.toMap()}');
     }
+
+    // 1️⃣ Buscar por código de barras principal
+    final product = listOfProducts.firstWhere(
+      (p) => p.barcode?.toLowerCase() == scan,
+      orElse: () => ProductoPedido(),
+    );
+
+    if (product.idMove != null) {
+      processProduct(product);
+      return;
+    }
+
+    // 2️⃣ Buscar por barcodes secundarios
+    final barcode = bloc.listAllOfBarcodes.firstWhere(
+      (b) => b.barcode?.toLowerCase() == scan,
+      orElse: () => Barcodes(),
+    );
+
+    if (barcode.barcode != null) {
+      final productByBarcode = listOfProducts.firstWhere(
+        (p) => p.idMove == barcode.idMove,
+        orElse: () => ProductoPedido(),
+      );
+
+      if (productByBarcode.idMove != null) {
+        processProduct(productByBarcode);
+        return;
+      }
+    }
+
+    // 3️⃣ Si no se encuentra nada → mostrar error
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text("Código erróneo"),
+      backgroundColor: Colors.red[200],
+      duration: const Duration(milliseconds: 500),
+    ));
+    bloc.add(ClearScannedValuePackEvent('toDo'));
   }
 
   @override
