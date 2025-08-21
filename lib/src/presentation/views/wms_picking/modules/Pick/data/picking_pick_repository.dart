@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,10 +9,6 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 
 class PickingPickRepository {
-
-
-
-
   Future<List<ResultPick>> resPicks(
     bool isLoadinDialog,
   ) async {
@@ -27,8 +21,8 @@ class PickingPickRepository {
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'transferencias/pick',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'transferencias/pick/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -56,6 +50,22 @@ class PickingPickRepository {
                   batches.map((data) => ResultPick.fromMap(data)).toList();
               return products;
             }
+          } else if (jsonResponse['result']['code'] == 403) {
+            Get.defaultDialog(
+              title: 'Dispositivo no autorizado',
+              titleStyle: TextStyle(
+                  color: primaryColorApp,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+              middleText:
+                  'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              barrierDismissible:
+                  false, // Evita que se cierre al tocar fuera del diálogo
+              onWillPop: () async => false,
+            );
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
@@ -104,6 +114,7 @@ class PickingPickRepository {
     }
     return [];
   }
+
   Future<List<ResultPick>> resPickingComponentes(
     bool isLoadinDialog,
   ) async {
@@ -193,8 +204,4 @@ class PickingPickRepository {
     }
     return [];
   }
-
-
-
-
 }

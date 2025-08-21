@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/views/conteo/screens/new_product_screen
 import 'package:wms_app/src/presentation/views/conteo/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/lote/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/location_search_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/lote/search_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
@@ -155,12 +156,10 @@ class AppRoutes {
   static const String newProductConteo = 'new-product-conteo';
   static const String searchLocationConteo = 'search-location-conteo';
   static const String searchProductConteo = 'search-product-conteo';
-
+  static const String searchLoteConteo = 'search-lote-conteo';
 
   static Map<String, Widget Function(BuildContext)> get routes {
-    
     return {
-
       //todo conteo
       conteo: (_) => const ListConteoScreen(),
       conteoDetail: (context) {
@@ -173,7 +172,7 @@ class AppRoutes {
           ordenConteo: ordenConteo,
         );
       },
-      scanProductConteo : (_) => const ScanProductConteoScreen(),
+      scanProductConteo: (_) => const ScanProductConteoScreen(),
       newLoteOrden: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
@@ -186,9 +185,14 @@ class AppRoutes {
       newProductConteo: (_) => const NewProductConteoScreen(),
       searchLocationConteo: (_) => const SearchLocationConteoScreen(),
       searchProductConteo: (_) => const SearchProductConteoScreen(),
-
-
-
+      searchLoteConteo: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final currentProduct = arguments[0] as CountedLine?;
+        return SearchLoteConteoScreen(
+          currentProduct: currentProduct,
+        );
+      },
 
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
@@ -449,7 +453,6 @@ class AppRoutes {
       devolucionesCreate: (_) => DevolucionesScreen(),
       terceros: (_) => const Terceroscreen(),
       ubicacionesDevoluciones: (_) => LocationDestDevolucionesScreen(),
-      
     };
   }
 }

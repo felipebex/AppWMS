@@ -14,7 +14,6 @@ class ProductScannerAll extends StatelessWidget {
   final dynamic currentProduct;
   final Function(String) onValidateProduct;
   final Function(String) onKeyScanned;
-  final Function() onGoToSearch;
   final Widget? productDropdown;
 
   const ProductScannerAll({
@@ -28,7 +27,6 @@ class ProductScannerAll extends StatelessWidget {
     this.currentProduct,
     required this.onValidateProduct,
     required this.onKeyScanned,
-    required this.onGoToSearch,
     required this.productDropdown,
   });
 

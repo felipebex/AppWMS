@@ -285,7 +285,6 @@ class _AppBarInfo extends StatelessWidget {
     return BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
       builder: (context, connectionStatus) {
         return Container(
-          padding: const EdgeInsets.only(top: 20),
           decoration: BoxDecoration(
             color: primaryColorApp,
             borderRadius: const BorderRadius.only(
@@ -301,7 +300,7 @@ class _AppBarInfo extends StatelessWidget {
                   const WarningWidgetCubit(),
                   Padding(
                     padding: EdgeInsets.only(
-                      top: connectionStatus != ConnectionStatus.online ? 0 : 35,
+                      top: connectionStatus != ConnectionStatus.online ? 0 : 25,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

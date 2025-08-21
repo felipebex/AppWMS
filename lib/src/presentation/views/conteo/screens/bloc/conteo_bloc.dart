@@ -634,6 +634,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     isProductOk = true;
     isLocationDestOk = true;
     isQuantityOk = true;
+    isLoteOk = true;
 
     locationIsOk = false;
     productIsOk = false;
@@ -715,25 +716,31 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         );
       } else {
         currentProduct = CountedLine();
-        currentProduct ==
-            CountedLine(
-              productId: event.productSelect.productId,
-              orderId: ordenConteo.id,
-              idMove: event.idMove,
-              locationId: event.productSelect.locationId,
-              locationName: event.productSelect.locationName,
-              productTracking: event.productSelect.tracking,
-              productName: event.productSelect.name,
-              productCode: event.productSelect.code,
-              productBarcode: event.productSelect.barcode,
-              lotId: event.productSelect.lotId,
-              lotName: event.productSelect.lotName,
-              uom: event.productSelect.uom,
-              fechaVencimiento: event.productSelect.expirationDate,
-              weight: event.productSelect.weight,
-              categoryName: event.productSelect.category,
-            );
-            
+        currentProduct = CountedLine(
+          productId: event.productSelect.productId,
+          orderId: ordenConteo.id,
+          idMove: event.idMove,
+          locationId: event.productSelect.locationId,
+          locationName: event.productSelect.locationName,
+          productTracking: event.productSelect.tracking,
+          productName: event.productSelect.name,
+          productCode: event.productSelect.code,
+          productBarcode: event.productSelect.barcode,
+          lotId: event.productSelect.lotId,
+          lotName: event.productSelect.lotName,
+          uom: event.productSelect.uom,
+          fechaVencimiento: event.productSelect.expirationDate,
+          weight: event.productSelect.weight,
+          categoryName: event.productSelect.category,
+        );
+
+        //valdiamos si tiene lote para traerlos
+        if (currentProduct.productTracking == "lot") {
+          add(GetLotesProduct(
+            isManual: true,
+            idLote: currentProduct?.lotId ?? 0,
+          ));
+        }
       }
     }
     productIsOk = event.productIsOk;

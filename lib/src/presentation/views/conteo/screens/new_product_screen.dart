@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationCardButton_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationScanner_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/lote/lote_scannear_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/ProductScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/product_dropdown_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
@@ -57,7 +58,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) Navigator.pop(context);
       });
-      // _handleFocusAccordingToState();
+      _handleDependencies();
     }
   }
 
@@ -173,15 +174,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
     if (matchedProducts.barcode != null) {
       print('producto encontrado: ${matchedProducts.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-      bloc.add(ChangeProductIsOkEvent(
-        true,
-        matchedProducts,
-        0,
-        true,
-        0,
-        0,
-        0,
-      ));
+      bloc.add(ChangeProductIsOkEvent(true, matchedProducts, 0, true, 0, 0, 0));
     } else {
       print('producto encontrado: ${matchedProducts.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
@@ -393,10 +386,40 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         isProductOk: context.read<ConteoBloc>().isProductOk,
                         currentProduct:
                             context.read<ConteoBloc>().currentProduct,
-                        onValidateProduct: (value) {},
-                        onKeyScanned: (value) {},
-                        onGoToSearch: () {},
+                        onValidateProduct: (value) {
+                          validateProduct(value);
+                        },
+                        onKeyScanned: (value) {
+                          context.read<ConteoBloc>().add(
+                              UpdateScannedValueEvent(value, 'product'));
+                        },
                         productDropdown: ProductDropdowmnWidget(),
+                      ),
+
+                      //todo lote
+                      Visibility(
+                        // El padre controla la visibilidad
+                        visible: context
+                                .read<ConteoBloc>()
+                                .currentProduct
+                                ?.productTracking ==
+                            "lot",
+                        child: LoteScannerWidget(
+                          focusNode: focusNode5,
+                          controller: _controllerLote,
+                          isLoteOk: context.read<ConteoBloc>().isLoteOk,
+                          loteIsOk: context.read<ConteoBloc>().loteIsOk,
+                          locationIsOk: context.read<ConteoBloc>().locationIsOk,
+                          productIsOk: context.read<ConteoBloc>().productIsOk,
+                          quantityIsOk: context.read<ConteoBloc>().quantityIsOk,
+                          viewQuantity: context.read<ConteoBloc>().viewQuantity,
+                          currentProduct:
+                              context.read<ConteoBloc>().currentProduct,
+                          currentProductLote:
+                              context.read<ConteoBloc>().currentProductLote,
+                          onValidateLote: (value) {},
+                          onKeyScanned: (value) {},
+                        ),
                       ),
                     ]),
                   ),

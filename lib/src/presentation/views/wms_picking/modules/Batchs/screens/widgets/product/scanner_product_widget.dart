@@ -138,7 +138,6 @@ class ProductScannerWidget extends StatelessWidget {
                                       fontSize: 13, color: black)),
                             ],
                           ),
-                        if (lotId != null)
                           Row(
                             children: [
                               if (isViewLote) ...[
@@ -146,9 +145,15 @@ class ProductScannerWidget extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 13, color: primaryColorApp)),
                                 const SizedBox(width: 5),
-                                Text(lotId!,
-                                    style: const TextStyle(
-                                        fontSize: 13, color: black)),
+                                Text(
+                                    lotId == "" || lotId == null
+                                        ? "Sin lote"
+                                        : lotId ?? "",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: lotId == "" || lotId == null
+                                            ? red
+                                            : black)),
                               ],
                               const Spacer(),
                               GestureDetector(
@@ -229,31 +234,36 @@ class ProductScannerWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (lotId != null)
-                        Row(
-                          children: [
-                            if (isViewLote) ...[
-                              Text('Lote/serie:',
-                                  style: TextStyle(
-                                      fontSize: 13, color: primaryColorApp)),
-                              const SizedBox(width: 5),
-                              Text(lotId!,
-                                  style: const TextStyle(
-                                      fontSize: 13, color: black)),
-                            ],
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: onBarcodesDialogTap,
-                              child: Visibility(
-                                visible: listOfBarcodes.isNotEmpty,
-                                child: Image.asset(
-                                    "assets/icons/package_barcode.png",
-                                    color: primaryColorApp,
-                                    width: 20),
-                              ),
-                            ),
+                      Row(
+                        children: [
+                          if (isViewLote) ...[
+                          Text('Lote/serie:',
+                              style: TextStyle(
+                                  fontSize: 13, color: primaryColorApp)),
+                          const SizedBox(width: 5),
+                          Text(
+                              lotId == "" || lotId == null
+                                  ? "Sin lote"
+                                  : lotId ?? "",
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: lotId == "" || lotId == null
+                                      ? red
+                                      : black)),
                           ],
-                        ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: onBarcodesDialogTap,
+                            child: Visibility(
+                              visible: listOfBarcodes.isNotEmpty,
+                              child: Image.asset(
+                                  "assets/icons/package_barcode.png",
+                                  color: primaryColorApp,
+                                  width: 20),
+                            ),
+                          ),
+                        ],
+                      ),
                       if (origin != null && origin!.isNotEmpty)
                         Row(
                           children: [

@@ -1517,7 +1517,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         pickWithProducts.pick?.id ?? 0,
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
-        pickWithProducts.pick?.typePick ?? "",
+        "pick",
       );
       print("listOfBarcodes: ${listOfBarcodes.length}");
     } catch (e, s) {

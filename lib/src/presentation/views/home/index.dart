@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/core/utils/widgets/dialog_dispositivo_no_autorizado_widget.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
@@ -94,30 +95,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   barrierDismissible:
                       false, // Evita que se cierre al tocar fuera
                   builder: (context) {
-                    return WillPopScope(
-                      onWillPop: () async => false,
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                        child: AlertDialog(
-                          title: Center(
-                            child: Text(
-                              'Dispositivo no autorizado',
-                              style: TextStyle(
-                                  color: primaryColorApp,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
-                            ),
-                          ),
-                          content: const Text(
-                            'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
-                            textAlign: TextAlign.justify,
-                            style: TextStyle(
-                              color: black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
+                    return DialogUnauthorizedDevice();
                   },
                 );
               }
@@ -881,7 +859,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       .toList()
                                                       .length,
                                                   urlImg: "entrega.png",
-                                                  title: 'Entrega\nProductos',
+                                                  title: 'Entrada\nProductos',
                                                 );
                                               },
                                             ),
