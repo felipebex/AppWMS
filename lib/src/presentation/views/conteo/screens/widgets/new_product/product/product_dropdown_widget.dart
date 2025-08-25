@@ -10,21 +10,25 @@ class ProductDropdowmnWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "ProductDropdowmnWidget build  ${context.read<ConteoBloc>().currentProduct.productName ?? "Sin producto"}");
+  
     return Column(
       children: [
         GestureDetector(
-          onTap: (context.read<ConteoBloc>().locationIsOk &&
+          onTap: 
+          
+          (context.read<ConteoBloc>().locationIsOk &&
                   !context.read<ConteoBloc>().productIsOk &&
                   !context.read<ConteoBloc>().quantityIsOk)
-              ? () {
+              ?
+              
+               () {
                   Navigator.pushReplacementNamed(
                     context,
                     'search-product-conteo',
                   );
                 }
-              : null,
+              : null
+              ,
           child: Card(
             color: white,
             child: Padding(

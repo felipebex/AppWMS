@@ -184,6 +184,13 @@ class SendProductConteoFailure extends ConteoState {
   SendProductConteoFailure(this.error);
 }
 
+//estado  si el produto ya fue enviado y ya existe en la lista
+class ProductAlreadySentState extends ConteoState {
+  final CountedLine product;
+  final CountedLine productExist;
+  ProductAlreadySentState(this.product, this.productExist);
+}
+
 class DeleteProductConteoLoading extends ConteoState {}
 
 class DeleteProductConteoSuccess extends ConteoState {}
@@ -221,3 +228,17 @@ class SearchProductSuccess extends ConteoState {
   final List<Product> products;
   SearchProductSuccess(this.products);
 }
+
+class GetProductsLoadingBD extends ConteoState {}
+
+class GetProductsSuccessBD extends ConteoState {
+  final List<Product> products;
+  GetProductsSuccessBD(this.products);
+}
+
+class GetProductsFailure extends ConteoState {
+  final String error;
+  GetProductsFailure(this.error);
+}
+
+class UpdateProductLoadingEvent extends ConteoState {}

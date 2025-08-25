@@ -59,12 +59,13 @@ class ChangeIsOkQuantity extends ConteoEvent {
 }
 
 class ChangeQuantitySeparate extends ConteoEvent {
+  final bool isNewProduct;
   final dynamic quantity;
   final int productId;
   final int idOrder;
   final int idMove;
-  ChangeQuantitySeparate(
-      this.quantity, this.productId, this.idOrder, this.idMove);
+  ChangeQuantitySeparate(this.isNewProduct, this.quantity, this.productId,
+      this.idOrder, this.idMove);
 }
 
 class ChangeProductIsOkEvent extends ConteoEvent {
@@ -94,7 +95,10 @@ class ClearExpandedLocationEvent extends ConteoEvent {
   ClearExpandedLocationEvent();
 }
 
-class ResetValuesEvent extends ConteoEvent {}
+class ResetValuesEvent extends ConteoEvent {
+  final bool resetAll;
+  ResetValuesEvent({required this.resetAll});
+}
 
 class ShowQuantityEvent extends ConteoEvent {
   final bool showQuantity;
@@ -145,10 +149,11 @@ class CreateLoteProduct extends ConteoEvent {
 }
 
 class SendProductConteoEvent extends ConteoEvent {
+  final bool isNewProduct;
   final dynamic cantidad;
   final CountedLine currentProduct;
 
-  SendProductConteoEvent(this.cantidad, this.currentProduct);
+  SendProductConteoEvent(this.isNewProduct, this.cantidad, this.currentProduct);
 }
 
 class DeleteProductConteoEvent extends ConteoEvent {
@@ -176,4 +181,16 @@ class SearchProductEvent extends ConteoEvent {
   SearchProductEvent(
     this.query,
   );
+}
+
+class GetProductsFromDBEvent extends ConteoEvent {}
+
+class UpdateProductConteoEvent extends ConteoEvent {
+  final CountedLine product; //producto que voy a enviar
+  final CountedLine productExist; //producto que ya existe
+  final dynamic quantity;
+  final bool isOverwrite;
+
+  UpdateProductConteoEvent(
+      this.product, this.productExist, this.quantity, this.isOverwrite);
 }

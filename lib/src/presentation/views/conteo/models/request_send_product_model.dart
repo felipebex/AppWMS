@@ -8,8 +8,8 @@ class ConteoItem {
   final String fechaTransaccion;
   final int idOperario;
   final int productId;
-  final int locationId;
-  final String loteId;
+  final dynamic locationId;
+  final dynamic loteId;
 
   ConteoItem({
     required this.orderId,

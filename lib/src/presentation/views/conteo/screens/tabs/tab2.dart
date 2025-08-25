@@ -100,6 +100,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
 
       bloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
       bloc.add(ChangeQuantitySeparate(
+        false,
         0,
         product.productId ?? 0,
         product.orderId ?? 0,
@@ -204,7 +205,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
               .toList();
 
           final productosPorUbicacion = _groupByLocation(productosPorContar);
-          // ✅ Extraer ubicación expandida del estado (si aplica)
 
           return Scaffold(
             backgroundColor: white,
@@ -292,10 +292,16 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
                       ? ProductEmpty()
                       : Expanded(
                           child: ListView.builder(
-                            itemCount: productosPorUbicacion.length,
+                            // Obtener las claves y ordenar con el comparador personalizado
+                            itemCount: productosPorUbicacion.keys.length,
                             itemBuilder: (context, index) {
-                              final ubicacion =
-                                  productosPorUbicacion.keys.elementAt(index);
+                              final sortedLocations =
+                                  productosPorUbicacion.keys.toList();
+
+                              // Aquí es donde aplicas el comparador personalizado
+                              sortedLocations.sort(sortLocations);
+
+                              final ubicacion = sortedLocations[index];
                               final productos =
                                   productosPorUbicacion[ubicacion]!;
 
@@ -310,11 +316,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
                                   if (conteoBloc.ubicacionExpanded
                                           .toLowerCase() ==
                                       ubicacion.toLowerCase()) {
-                                    // Si ya está expandida, la colapsamos
                                     conteoBloc
                                         .add(ClearExpandedLocationEvent());
                                   } else {
-                                    // Si no está expandida, la expandimos
                                     conteoBloc
                                         .add(ExpandLocationEvent(ubicacion));
                                   }
@@ -405,6 +409,37 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
     });
     print('Producto seleccionado: ${product.toJson()}');
   }
+
+  // Función para ordenar ubicaciones con formato específico
+  int sortLocations(String a, String b) {
+    // 1. Dividir las cadenas por el separador '/'
+    final partsA = a.split('/');
+    final partsB = b.split('/');
+
+    // 2. Iterar sobre las partes y comparar
+    for (int i = 0; i < partsA.length && i < partsB.length; i++) {
+      // Intentar convertir la parte a un número
+      final intValueA = int.tryParse(partsA[i]);
+      final intValueB = int.tryParse(partsB[i]);
+
+      if (intValueA != null && intValueB != null) {
+        // Si ambas partes son números, comparar numéricamente
+        final comparison = intValueA.compareTo(intValueB);
+        if (comparison != 0) {
+          return comparison; // Devuelve el resultado si son diferentes
+        }
+      } else {
+        // Si no son números, comparar como strings
+        final comparison = partsA[i].compareTo(partsB[i]);
+        if (comparison != 0) {
+          return comparison;
+        }
+      }
+    }
+
+    // Si llegan a este punto, una cadena es un prefijo de la otra
+    return partsA.length.compareTo(partsB.length);
+  }
 }
 
 class CustomExpansionTile extends StatelessWidget {
@@ -426,6 +461,7 @@ class CustomExpansionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: isExpanded ? primaryColorAppLigth : white,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       elevation: 3,
       child: Column(

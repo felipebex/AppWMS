@@ -10,7 +10,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class SearchProductConteoScreen extends StatefulWidget {
-  const SearchProductConteoScreen({Key? key}) : super(key: key);
+  const SearchProductConteoScreen({super.key});
 
   @override
   State<SearchProductConteoScreen> createState() => _SearchProductScreenState();
@@ -196,8 +196,8 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
                 _buildInfoRow("Code:", product.code,
                     emptyText: 'Sin código de producto'),
                 _buildInfoRow("UND:", product.uom, emptyText: 'Sin unidad'),
-                _buildInfoRow("Ubicación:", product.locationName,
-                    emptyText: 'Sin ubicación'),
+                // _buildInfoRow("Ubicación:", product.locationName,
+                //     emptyText: 'Sin ubicación'),
                 _buildInfoRow("Lote:", product.lotName, emptyText: 'Sin lote'),
               ],
             ),

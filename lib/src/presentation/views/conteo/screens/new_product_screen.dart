@@ -2,19 +2,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationCardButton_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/lote/lote_scannear_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/ProductScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/product_dropdown_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/dialog_validate_product_send_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 class NewProductConteoScreen extends StatefulWidget {
   const NewProductConteoScreen({Key? key}) : super(key: key);
@@ -183,6 +191,104 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
     bloc.add(ClearScannedValueEvent('product'));
   }
 
+  void validateQuantity(String value) {
+    final bloc = context.read<ConteoBloc>();
+
+    String scan = bloc.scannedValue3.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue3.trim().toLowerCase();
+    print('scan quantity: $scan');
+    _controllerQuantity.clear();
+    final currentProduct = bloc.currentProduct;
+
+    if (scan == currentProduct?.productBarcode?.toLowerCase()) {
+      bloc.add(AddQuantitySeparate(currentProduct.productId ?? 0,
+          currentProduct.orderId ?? 0, currentProduct.idMove ?? 0, 1, false));
+      bloc.add(ClearScannedValueEvent('quantity'));
+    } else {
+      validateScannedBarcode(
+          scan, currentProduct ?? CountedLine(), bloc, false);
+      bloc.add(ClearScannedValueEvent('quantity'));
+    }
+  }
+
+  void validateLote(String value) {
+    final bloc = context.read<ConteoBloc>();
+    String scan = bloc.scannedValue4.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue4.trim().toLowerCase();
+    print('scan lote: $scan');
+    _controllerLote.clear();
+    //tengo una lista de lotes el cual quiero validar si el scan es igual a alguno de los lotes
+    LotesProduct? matchedLote = bloc.listLotesProduct.firstWhere(
+        (lotes) => lotes.name?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            LotesProduct() // Si no se encuentra ningún match, devuelve null
+        );
+
+    if (matchedLote.name != null) {
+      print('lote encontrado: ${matchedLote.name}');
+      bloc.add(ValidateFieldsEvent(field: "lote", isOk: true));
+      bloc.add(SelectecLoteEvent(matchedLote));
+      bloc.add(ClearScannedValueEvent('lote'));
+    } else {
+      print('lote no encontrado');
+      bloc.add(ValidateFieldsEvent(field: "lote", isOk: false));
+      bloc.add(ClearScannedValueEvent('lote'));
+    }
+  }
+
+  bool validateScannedBarcode(String scannedBarcode, CountedLine currentProduct,
+      ConteoBloc bloc, bool isProduct) {
+    // Buscar el barcode que coincida con el valor escaneado
+    Barcodes? matchedBarcode = bloc.listOfBarcodes.firstWhere(
+        (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
+        orElse: () =>
+            Barcodes() // Si no se encuentra ningún match, devuelve null
+        );
+    if (matchedBarcode.barcode != null) {
+      if (isProduct) {
+        bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+
+        bloc.add(ChangeQuantitySeparate(
+          true,
+          0,
+          currentProduct.productId ?? 0,
+          currentProduct.orderId ?? 0,
+          currentProduct.idMove ?? 0,
+        ));
+
+        bloc.add(ChangeProductIsOkEvent(
+          false,
+          Product(),
+          currentProduct.orderId ?? 0,
+          true,
+          currentProduct.productId ?? 0,
+          0,
+          currentProduct.idMove ?? 0,
+        ));
+
+        bloc.add(ChangeIsOkQuantity(
+          currentProduct.orderId ?? 0,
+          true,
+          currentProduct.productId ?? 0,
+          currentProduct.idMove ?? 0,
+        ));
+
+        return true;
+      } else {
+        bloc.add(AddQuantitySeparate(
+            currentProduct.productId ?? 0,
+            currentProduct.orderId ?? 0,
+            matchedBarcode.idMove ?? 0,
+            matchedBarcode.cantidad,
+            false));
+      }
+      return false;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -201,6 +307,52 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         listener: (context, state) {
                       print("❤️‍🔥 state : $state");
 
+                      if (state is UpdateProductLoadingEvent) {
+                        //cerramos el dialogo
+                        Navigator.of(context).pop();
+                      }
+
+                      if (state is ProductAlreadySentState) {
+                        //mostramos un dialogo DialogValidateProductSendWidget
+
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return DialogValidateProductSendWidget(
+                                  productExist: state.productExist,
+                                  product: state.product,
+                                  cantidadController: cantidadController);
+                            });
+                      }
+
+                      if (state is SendProductConteoFailure) {
+                        Get.defaultDialog(
+                          title: '360 Software Informa',
+                          titleStyle:
+                              TextStyle(color: Colors.red, fontSize: 18),
+                          middleText: state.error,
+                          middleTextStyle:
+                              TextStyle(color: black, fontSize: 14),
+                          backgroundColor: Colors.white,
+                          radius: 10,
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('Aceptar',
+                                  style: TextStyle(color: white)),
+                            ),
+                          ],
+                        );
+                      }
+
                       // * validamos en todo cambio de estado de cantidad separada
 
                       if (state is SendProductConteoSuccess) {
@@ -211,7 +363,9 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         ));
                         //limpiamos los valores pa volver a iniciar con otro producto
                         cantidadController.clear();
-                        context.read<ConteoBloc>().add(ResetValuesEvent());
+                        context
+                            .read<ConteoBloc>()
+                            .add(ResetValuesEvent(resetAll: true));
 
                         context.read<ConteoBloc>().add(
                               LoadConteoAndProductsEvent(
@@ -287,7 +441,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         children: [
                           const WarningWidgetCubit(),
                           Padding(
-                            padding: const EdgeInsets.only(top: 15),
+                            padding: const EdgeInsets.only(top: 25),
                             child: Row(
                               children: [
                                 IconButton(
@@ -296,12 +450,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
 
                                     context
                                         .read<ConteoBloc>()
-                                        .add(ResetValuesEvent());
-                                    // context
-                                    //     .read<WMSPickingBloc>()
-                                    //     .add(FilterBatchesBStatusEvent(
-                                    //       '',
-                                    //     ));
+                                        .add(ResetValuesEvent(resetAll: false));
 
                                     Navigator.pushReplacementNamed(
                                       context,
@@ -315,6 +464,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                   icon: const Icon(Icons.arrow_back,
                                       color: Colors.white, size: 20),
                                 ),
+                                const Spacer(),
                                 Padding(
                                   padding: EdgeInsets.only(
                                       right: size.width * 0.015),
@@ -323,6 +473,18 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                     style: const TextStyle(
                                         color: Colors.white, fontSize: 16),
                                   ),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  onPressed: () {
+                                    context
+                                        .read<ConteoBloc>()
+                                        .add(ResetValuesEvent(resetAll: false));
+                                    _handleDependencies();
+                                    cantidadController.clear();
+                                  },
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.white, size: 20),
                                 ),
                               ],
                             ),
@@ -390,8 +552,9 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                           validateProduct(value);
                         },
                         onKeyScanned: (value) {
-                          context.read<ConteoBloc>().add(
-                              UpdateScannedValueEvent(value, 'product'));
+                          context
+                              .read<ConteoBloc>()
+                              .add(UpdateScannedValueEvent(value, 'product'));
                         },
                         productDropdown: ProductDropdowmnWidget(),
                       ),
@@ -402,7 +565,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         visible: context
                                 .read<ConteoBloc>()
                                 .currentProduct
-                                ?.productTracking ==
+                                .productTracking ==
                             "lot",
                         child: LoteScannerWidget(
                           focusNode: focusNode5,
@@ -417,18 +580,167 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                               context.read<ConteoBloc>().currentProduct,
                           currentProductLote:
                               context.read<ConteoBloc>().currentProductLote,
-                          onValidateLote: (value) {},
-                          onKeyScanned: (value) {},
+                          onValidateLote: (value) {
+                            validateLote(value);
+                          },
+                          onKeyScanned: (value) {
+                            context
+                                .read<ConteoBloc>()
+                                .add(UpdateScannedValueEvent(value, 'lote'));
+                          },
                         ),
                       ),
                     ]),
                   ),
                 ),
               ),
+              //todo: cantidad
+              QuantityScannerWidget(
+                size: size,
+                isQuantityOk: context.read<ConteoBloc>().isQuantityOk,
+                quantityIsOk: context.read<ConteoBloc>().quantityIsOk,
+                locationIsOk: context.read<ConteoBloc>().locationIsOk,
+                productIsOk: context.read<ConteoBloc>().productIsOk,
+                locationDestIsOk: false,
+                totalQuantity: 0,
+                quantitySelected: context.read<ConteoBloc>().quantitySelected,
+                unidades: context.read<ConteoBloc>().currentProduct.uom ?? "",
+                controller: _controllerQuantity,
+                manualController: cantidadController,
+                scannerFocusNode: focusNode3,
+                manualFocusNode: focusNode4,
+                viewQuantity: context.read<ConteoBloc>().viewQuantity,
+                onIconButtonPressed: () {
+                  print('borrando');
+                  context.read<ConteoBloc>().add(ShowQuantityEvent(
+                      !context.read<ConteoBloc>().viewQuantity));
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    FocusScope.of(context).requestFocus(focusNode3);
+                  });
+                },
+                onKeyScanned: (keyLabel) {
+                  context
+                      .read<ConteoBloc>()
+                      .add(UpdateScannedValueEvent(keyLabel, 'quantity'));
+                },
+                showKeyboard:
+                    context.read<UserBloc>().fabricante.contains("Zebra"),
+                onToggleViewQuantity: () {
+                  context.read<ConteoBloc>().add(ShowQuantityEvent(
+                      !context.read<ConteoBloc>().viewQuantity));
+                  cantidadController.clear();
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    FocusScope.of(context).requestFocus(focusNode4);
+                  });
+                  print('Toggle view quantity');
+                },
+                onValidateButton: () {
+                  FocusScope.of(context).unfocus();
+                  _validatebuttonquantity();
+                },
+                onValidateScannerInput: (value) {
+                  validateQuantity(value);
+                },
+                onManualQuantityChanged: (value) {
+                  print('onManualQuantityChanged: $value');
+                },
+                onManualQuantitySubmitted: (value) {
+                  final intValue = double.parse(value);
+
+                  context.read<ConteoBloc>().add(ChangeQuantitySeparate(
+                      true,
+                      intValue,
+                      context.read<ConteoBloc>().currentProduct.productId ?? 0,
+                      context.read<ConteoBloc>().currentProduct.orderId ?? 0,
+                      context.read<ConteoBloc>().currentProduct.idMove ?? 0));
+
+                  context.read<ConteoBloc>().add(ShowQuantityEvent(
+                      !context.read<ConteoBloc>().viewQuantity));
+                },
+                customKeyboard: CustomKeyboardNumber(
+                  controller: cantidadController,
+                  onchanged: _validatebuttonquantity,
+                ),
+                isViewCant: false,
+              ),
             ],
           ),
         );
       },
     );
+  }
+
+  void _validatebuttonquantity() {
+    final bloc = context.read<ConteoBloc>();
+
+    String input = cantidadController.text.trim();
+    //validamos quantity
+
+    print("cantidad: $input");
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = bloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    if (bloc.currentProduct.productTracking == 'lot') {
+      if (bloc.currentProductLote?.id == null) {
+        Get.snackbar(
+          '360 Software Informa',
+          "No se ha selecionado el lote",
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+        );
+        return;
+      } else {
+        double cantidad = double.parse(cantidadController.text.isEmpty
+            ? bloc.quantitySelected.toString()
+            : cantidadController.text);
+        bloc.add(SendProductConteoEvent(true, cantidad, bloc.currentProduct));
+      }
+    } else {
+      double cantidad = double.parse(cantidadController.text.isEmpty
+          ? bloc.quantitySelected.toString()
+          : cantidadController.text);
+      print("cantidad: $cantidad");
+      bloc.add(SendProductConteoEvent(true, cantidad, bloc.currentProduct));
+    }
   }
 }

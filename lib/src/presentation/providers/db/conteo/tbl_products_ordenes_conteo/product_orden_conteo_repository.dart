@@ -93,7 +93,7 @@ class ProductoOrdenConteoRepository {
   }
 
   // Obtener todos los productos de una orden específica
-  Future<List<CountedLine>> getProductosByOrderId(int orderId) async {
+  Future<List<CountedLine>> getProductosAllByOrderId(int orderId) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> maps = await db.query(
@@ -101,6 +101,62 @@ class ProductoOrdenConteoRepository {
         where: '${ProductosOrdenConteoTable.columnOrderId} = ?',
         whereArgs: [orderId],
       );
+      return List.generate(maps.length, (i) => CountedLine.fromMap(maps[i]));
+    } catch (e, s) {
+      print('Error en getProductosByOrderId: $e');
+      print(s);
+      return [];
+    }
+  }
+
+  Future<List<CountedLine>> getProductosByOrderId(int orderId) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> maps = await db.query(
+        ProductosOrdenConteoTable.tableName,
+        // columns: [
+        //   ProductosOrdenConteoTable.columnProductName,
+        //   ProductosOrdenConteoTable.columnProductId,
+        //   ProductosOrdenConteoTable.columnProductBarcode,
+        //   ProductosOrdenConteoTable.columnLocationId,
+        //   ProductosOrdenConteoTable.columnLocationName,
+        //   ProductosOrdenConteoTable.columnLocationBarcode,
+        //   ProductosOrdenConteoTable.columnQuantityInventory,
+        //   ProductosOrdenConteoTable.columnQuantityCounted,
+        //   ProductosOrdenConteoTable.columnDifferenceQty,
+        //   ProductosOrdenConteoTable.columnUom,
+        //   ProductosOrdenConteoTable.columnWeight,
+        //   ProductosOrdenConteoTable.columnIsDoneItem,
+        //   ProductosOrdenConteoTable.columnDateTransaction,
+        //   ProductosOrdenConteoTable.columnObservation,
+        //   ProductosOrdenConteoTable.columnTime,
+        //   ProductosOrdenConteoTable.columnUserOperatorId,
+        //   ProductosOrdenConteoTable.columnUserOperatorName,
+        //   ProductosOrdenConteoTable.columnCategoryId,
+        //   ProductosOrdenConteoTable.columnCategoryName,
+        //   ProductosOrdenConteoTable.columnLotId,
+        //   ProductosOrdenConteoTable.columnLotName,
+        //   ProductosOrdenConteoTable.columnFechaVencimiento,
+        //   ProductosOrdenConteoTable.columnDateStart,
+        //   ProductosOrdenConteoTable.columnDateEnd,
+        //   ProductosOrdenConteoTable.columnIsSelected,
+        //   ProductosOrdenConteoTable.columnIsSeparate,
+        //   ProductosOrdenConteoTable.columnIdMove,
+        //   ProductosOrdenConteoTable.columnProductIsOk,
+        //   ProductosOrdenConteoTable.columnIsQuantityIsOk,
+        //   ProductosOrdenConteoTable.columnIsLocationIsOk,
+        //   ProductosOrdenConteoTable.columnId, 
+        //   ProductosOrdenConteoTable.columnProductCode, 
+
+
+        // ],
+        where: '${ProductosOrdenConteoTable.columnOrderId} = ?',
+        whereArgs: [orderId],
+        groupBy: '${ProductosOrdenConteoTable.columnProductName}, '
+            '${ProductosOrdenConteoTable.columnProductId}', // <--- CAMBIO AQUÍ
+        orderBy: '${ProductosOrdenConteoTable.columnProductName} ASC',
+      );
+
       return List.generate(maps.length, (i) => CountedLine.fromMap(maps[i]));
     } catch (e, s) {
       print('Error en getProductosByOrderId: $e');
@@ -245,6 +301,71 @@ class ProductoOrdenConteoRepository {
       return resUpdate;
     } catch (e, s) {
       print('Error en deleteProductConteo: $e, $s');
+      return 0;
+    }
+  }
+
+  //metodo para agregar un nuevo producto a la orden de conteo
+  Future<int> addNewProductConteo(CountedLine producto) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      final productoMap = {
+        ProductosOrdenConteoTable.columnId: producto.id,
+        ProductosOrdenConteoTable.columnOrderId: producto.orderId,
+        ProductosOrdenConteoTable.columnProductId: producto.productId,
+        ProductosOrdenConteoTable.columnProductName: producto.productName ?? '',
+        ProductosOrdenConteoTable.columnProductCode: producto.productCode ?? '',
+        ProductosOrdenConteoTable.columnProductBarcode:
+            producto.productBarcode ?? '',
+        ProductosOrdenConteoTable.columnProductTracking:
+            producto.productTracking ?? 'none',
+        ProductosOrdenConteoTable.columnLocationId: producto.locationId ?? 0,
+        ProductosOrdenConteoTable.columnLocationName:
+            producto.locationName ?? '',
+        ProductosOrdenConteoTable.columnLocationBarcode:
+            producto.locationBarcode ?? '',
+        ProductosOrdenConteoTable.columnQuantityInventory:
+            producto.quantityInventory ?? 0.0,
+        ProductosOrdenConteoTable.columnQuantityCounted:
+            producto.quantityCounted ?? 0.0,
+        ProductosOrdenConteoTable.columnDifferenceQty:
+            producto.differenceQty ?? 0.0,
+        ProductosOrdenConteoTable.columnUom: producto.uom ?? '',
+        ProductosOrdenConteoTable.columnWeight: producto.weight ?? 0.0,
+        ProductosOrdenConteoTable.columnIsDoneItem: producto.isDoneItem,
+        ProductosOrdenConteoTable.columnDateTransaction:
+            producto.dateTransaction ?? '',
+        ProductosOrdenConteoTable.columnObservation: producto.observation ?? '',
+        ProductosOrdenConteoTable.columnTime: producto.time ?? '',
+        ProductosOrdenConteoTable.columnUserOperatorId:
+            producto.userOperatorId ?? 0,
+        ProductosOrdenConteoTable.columnUserOperatorName:
+            producto.userOperatorName ?? '',
+        ProductosOrdenConteoTable.columnCategoryId: producto.categoryId ?? 0,
+        ProductosOrdenConteoTable.columnCategoryName:
+            producto.categoryName ?? '',
+        ProductosOrdenConteoTable.columnLotId: producto.lotId ?? 0,
+        ProductosOrdenConteoTable.columnLotName: producto.lotName ?? '',
+        ProductosOrdenConteoTable.columnFechaVencimiento:
+            producto.fechaVencimiento ?? '',
+        ProductosOrdenConteoTable.columnDateStart: producto.dateStart ?? '',
+        ProductosOrdenConteoTable.columnDateEnd: producto.dateEnd ?? '',
+        ProductosOrdenConteoTable.columnIsSelected: producto.isSelected,
+        ProductosOrdenConteoTable.columnIsSeparate: producto.isSeparate,
+        ProductosOrdenConteoTable.columnIdMove: producto.idMove ?? 0,
+      };
+
+      final resInsert = await db.insert(
+        ProductosOrdenConteoTable.tableName,
+        productoMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print(
+          "insert TableProductOrdenConteo (idProduct ----(${producto.productId})) -------(${ProductosOrdenConteoTable.columnQuantityCounted}): $resInsert");
+      return resInsert;
+    } catch (e, s) {
+      print('Error en addNewProductConteo: $e, $s');
       return 0;
     }
   }

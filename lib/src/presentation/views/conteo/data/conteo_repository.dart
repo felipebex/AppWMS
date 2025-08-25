@@ -125,8 +125,8 @@ class ConteoRepository {
                   "fecha_transaccion": product.fechaTransaccion,
                   "id_operario": product.idOperario,
                   "product_id": product.productId,
-                  "location_id": product.locationId,
-                  "lote_id": product.loteId.isEmpty ? "0" : product.loteId,
+                  "location_id": product.locationId==0 ? "" : product.locationId,
+                  "lote_id": product.loteId ?? "",
                 }
               ]
             }

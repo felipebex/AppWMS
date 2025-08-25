@@ -4,19 +4,16 @@ class UbicacionesConteoTable {
   static const String columnId = 'id';
   static const String columnName = 'name';
   static const String columnOrdenConteoId = 'orden_conteo_id';
-  //barcode
   static const String columnBarcode = 'barcode';
-
-
 
   static String createTable() {
     return '''
     CREATE TABLE $tableName (
-      $columnId INTEGER PRIMARY KEY,
+      $columnId INTEGER NOT NULL,
       $columnName TEXT,
-      $columnOrdenConteoId INTEGER,
+      $columnOrdenConteoId INTEGER NOT NULL,
       $columnBarcode TEXT,
-      FOREIGN KEY ($columnOrdenConteoId) REFERENCES tbl_orden_conteo(id)
+      PRIMARY KEY ($columnId, $columnOrdenConteoId)
     )
     ''';
   }

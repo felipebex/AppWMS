@@ -11,10 +11,6 @@ class CategoriasConteoRepository {
 
       await db.transaction((txn) async {
         final Batch batch = txn.batch();
-
-      
-
-        // Insertar nuevas categorías
         for (final categoria in categorias) {
           final categoriaMap = {
             CategoriasConteoTable.columnId: categoria.id,

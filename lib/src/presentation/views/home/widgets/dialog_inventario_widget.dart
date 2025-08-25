@@ -80,6 +80,7 @@ class DialogInventario extends StatelessWidget {
             ElevatedButton(
                 onPressed: () {
                   context.read<ConteoBloc>().add(GetLocationsConteoEvent());
+                  context.read<ConteoBloc>().add(GetProductsFromDBEvent());
                   context.read<ConteoBloc>().add(GetConteosFromDBEvent());
                   context
                       .read<ConteoBloc>()

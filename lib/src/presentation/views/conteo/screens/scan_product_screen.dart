@@ -257,6 +257,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
         bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
 
         bloc.add(ChangeQuantitySeparate(
+          false,
           0,
           currentProduct.productId ?? 0,
           currentProduct.orderId ?? 0,
@@ -339,6 +340,35 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                             listener: (context, state) {
                           print("❤️‍🔥 state : $state");
 
+                          if (state is SendProductConteoFailure) {
+                            Navigator.pop(context);
+                            Get.defaultDialog(
+                              title: '360 Software Informa',
+                              titleStyle:
+                                  TextStyle(color: Colors.red, fontSize: 18),
+                              middleText: state.error,
+                              middleTextStyle:
+                                  TextStyle(color: black, fontSize: 14),
+                              backgroundColor: Colors.white,
+                              radius: 10,
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryColorApp,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text('Aceptar',
+                                      style: TextStyle(color: white)),
+                                ),
+                              ],
+                            );
+                          }
+
                           // * validamos en todo cambio de estado de cantidad separada
 
                           if (state is SendProductConteoSuccess) {
@@ -349,7 +379,9 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                             ));
                             //limpiamos los valores pa volver a iniciar con otro producto
                             cantidadController.clear();
-                            context.read<ConteoBloc>().add(ResetValuesEvent());
+                            context
+                                .read<ConteoBloc>()
+                                .add(ResetValuesEvent(resetAll: true));
 
                             context.read<ConteoBloc>().add(
                                   LoadConteoAndProductsEvent(
@@ -432,9 +464,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                       onPressed: () {
                                         cantidadController.clear();
 
-                                        context
-                                            .read<ConteoBloc>()
-                                            .add(ResetValuesEvent());
+                                        context.read<ConteoBloc>().add(
+                                            ResetValuesEvent(resetAll: true));
                                         // context
                                         //     .read<WMSPickingBloc>()
                                         //     .add(FilterBatchesBStatusEvent(
@@ -963,6 +994,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                       final intValue = double.parse(value);
 
                       context.read<ConteoBloc>().add(ChangeQuantitySeparate(
+                          false,
                           intValue,
                           context.read<ConteoBloc>().currentProduct.productId ??
                               0,
@@ -1061,14 +1093,14 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
         double cantidad = double.parse(cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : cantidadController.text);
-        bloc.add(SendProductConteoEvent(cantidad, bloc.currentProduct));
+        bloc.add(SendProductConteoEvent(false, cantidad, bloc.currentProduct));
       }
     } else {
       double cantidad = double.parse(cantidadController.text.isEmpty
           ? bloc.quantitySelected.toString()
           : cantidadController.text);
       print("cantidad: $cantidad");
-      bloc.add(SendProductConteoEvent(cantidad, bloc.currentProduct));
+      bloc.add(SendProductConteoEvent(false, cantidad, bloc.currentProduct));
     }
   }
 }
