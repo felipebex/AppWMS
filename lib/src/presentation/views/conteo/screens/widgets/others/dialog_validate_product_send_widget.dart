@@ -47,15 +47,16 @@ class DialogValidateProductSendWidget extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: RichText(
+                textAlign: TextAlign.justify,
                 text: TextSpan(
-                  text: 'Este producto ya fue enviado con una cantidad de: ',
+                  text: 'Este producto esta registrado con una cantidad de: ',
                   style: TextStyle(
                     color: black,
                     fontSize: 14,
                   ),
                   children: <TextSpan>[
                     TextSpan(
-                      text: '${productExist.quantityCounted} ',
+                      text: '(${productExist.quantityCounted}) ',
                       style: TextStyle(
                         color: primaryColorApp,
                         fontSize: 14,
@@ -69,9 +70,54 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: '${productExist.locationName}.',
+                      text: '${productExist.locationName}',
                       style: TextStyle(
                         color: primaryColorApp,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (product.productTracking == "lot") ...[
+                      TextSpan(
+                        text: ' con lote ',
+                        style: TextStyle(
+                          color: black,
+                          fontSize: 14,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '${productExist.lotName}.',
+                        style: TextStyle(
+                          color: primaryColorApp,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.center,
+              child: RichText(
+                text: TextSpan(
+                  text: '¿Desea reemplazar la cantidad registrada por: ',
+                  style: TextStyle(
+                    color: black,
+                    fontSize: 14,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: '($cantidad)',
+                      style: TextStyle(
+                        color: primaryColorApp,
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '?',
+                      style: TextStyle(
+                        color: black,
                         fontSize: 14,
                       ),
                     ),
@@ -84,31 +130,7 @@ class DialogValidateProductSendWidget extends StatelessWidget {
               alignment: Alignment.center,
               child: RichText(
                 text: TextSpan(
-                  text: 'Desea sobrescribir la cantidad enviada por: ',
-                  style: TextStyle(
-                    color: black,
-                    fontSize: 14,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '$cantidad ',
-                      style: TextStyle(
-                        color: primaryColorApp,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Align(
-                alignment: Alignment.bottomLeft,
-                child: Text('o', style: TextStyle(color: black, fontSize: 14))),
-            Align(
-              alignment: Alignment.center,
-              child: RichText(
-                text: TextSpan(
-                  text: 'Desea sumar la cantidad exitente:',
+                  text: '¿Desea actualizar la cantidad exitente ',
                   style: TextStyle(
                     color: black,
                     fontSize: 14,
@@ -117,21 +139,28 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                     TextSpan(
                       text: '(${productExist.quantityCounted}) +  ($cantidad) ',
                       style: TextStyle(
-                        color: black,
-                        fontSize: 14,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'para que la nueva cantidad sea: ',
-                      style: TextStyle(
-                        color: black,
-                        fontSize: 14,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' = ${(productExist.quantityCounted) + (cantidad)}',
-                      style: TextStyle(
                         color: primaryColorApp,
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'para un total de: ',
+                      style: TextStyle(
+                        color: black,
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '(${(productExist.quantityCounted) + (cantidad)})',
+                      style: TextStyle(
+                        color: green,
+                        fontSize: 14,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '?',
+                      style: TextStyle(
+                        color: black,
                         fontSize: 14,
                       ),
                     ),
@@ -155,7 +184,7 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                     backgroundColor: primaryColorApp,
                     minimumSize: const Size(250, 40),
                   ),
-                  child: Text('SOBRESCRIBIR', style: TextStyle(color: white))),
+                  child: Text('REEMPLAZAR', style: TextStyle(color: white))),
               ElevatedButton(
                   onPressed: () {
                     context.read<ConteoBloc>().add(UpdateProductConteoEvent(
@@ -165,7 +194,7 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                     backgroundColor: primaryColorApp,
                     minimumSize: const Size(250, 40),
                   ),
-                  child: Text('SUMAR', style: TextStyle(color: white))),
+                  child: Text('ACTUALIZAR', style: TextStyle(color: white))),
               ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();

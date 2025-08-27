@@ -389,6 +389,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           ));
         }
       } else {
+        if (response.result?.code == 403) {
+          emit(DeviceNotAuthorized());
+          return;
+        }
+
         emit(FetchDevolucionesFailure(response.result?.msg ?? ''));
       }
     } catch (e, s) {
@@ -1669,6 +1674,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           ));
         }
       } else {
+        if (response.result?.code == 403) {
+          emit(DeviceNotAuthorized());
+          return;
+        }
         emit(FetchOrdenesCompraFailure(response.result?.msg ?? ''));
       }
     } catch (e, s) {

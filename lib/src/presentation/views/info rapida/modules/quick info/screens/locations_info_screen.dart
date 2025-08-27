@@ -38,7 +38,7 @@ class LocationInfoScreen extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
-        if (state is InfoRapidaLoading) {
+   if (state is InfoRapidaLoading) {
           showDialog(
             context: context,
             builder: (context) {
@@ -47,9 +47,7 @@ class LocationInfoScreen extends StatelessWidget {
               );
             },
           );
-        }
-
-        if (state is InfoRapidaLoaded) {
+        } else if (state is InfoRapidaLoaded) {
           Navigator.pop(context);
           if (state.infoRapidaResult.type == 'product') {
             Navigator.pushReplacementNamed(
@@ -57,8 +55,7 @@ class LocationInfoScreen extends StatelessWidget {
               'product-info',
             );
           }
-        }
-        if (state is InfoRapidaError) {
+        } else if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',

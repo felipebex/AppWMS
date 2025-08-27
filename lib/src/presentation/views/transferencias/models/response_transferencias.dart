@@ -41,16 +41,19 @@ class ResponseTransferencias {
 
 class ResponseTransferenciasResult {
   int? code;
+  String ?msg;
   List<ResultTransFerencias>? result;
 
   ResponseTransferenciasResult({
     this.code,
+    this.msg,
     this.result,
   });
 
   factory ResponseTransferenciasResult.fromMap(Map<String, dynamic> json) =>
       ResponseTransferenciasResult(
         code: json["code"],
+        msg: json["msg"],
         result: json["result"] == null
             ? []
             : List<ResultTransFerencias>.from(
@@ -59,6 +62,7 @@ class ResponseTransferenciasResult {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),

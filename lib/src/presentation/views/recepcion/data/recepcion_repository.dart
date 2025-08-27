@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/response_sen_tem
 import 'package:wms_app/src/presentation/views/recepcion/models/response_send_recepcion_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_validate_model.dart';
+
 class RecepcionRepository {
 //metodo para obtener todas las ordenes de compra
 
@@ -32,15 +33,13 @@ class RecepcionRepository {
         return Recepcionresponse();
       }
 
-      final response = await ApiRequestService().get(
-        endpoint: 'recepciones',
+      final response = await ApiRequestService().getValidation(
+        endpoint: 'recepciones/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
 
       stopwatch.stop(); // ⏹ Finalizar conteo
-      print(
-          "⏱ fetchAllReceptions completado en ${stopwatch.elapsedMilliseconds} ms");
 
       if (response.statusCode >= 400) {
         print("❌ Error HTTP: ${response.statusCode}");
@@ -51,7 +50,18 @@ class RecepcionRepository {
 
       if (jsonResponse.containsKey('result')) {
         final result = jsonResponse['result'];
-        if (result['code'] == 200 && result['result'] is List) {
+
+        if (jsonResponse['result']['code'] == 400) {
+          return Recepcionresponse(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: RecepcionresponseResult(
+              code: jsonResponse['result']['code'],
+              msg: jsonResponse['result']['msg'],
+              result: [],
+            ),
+          );
+        } else if (result['code'] == 200 && result['result'] is List) {
           final List<ResultEntrada> ordenes = (result['result'] as List)
               .map((data) => ResultEntrada.fromMap(data))
               .toList();
@@ -64,9 +74,16 @@ class RecepcionRepository {
               result: ordenes,
             ),
           );
-        } else {
-          print("⚠️ Código no esperado o datos vacíos");
-          return Recepcionresponse();
+        } else if (jsonResponse['result']['code'] == 403) {
+          return Recepcionresponse(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: RecepcionresponseResult(
+              code: result['code'],
+              msg: result['msg'],
+              result: [],
+            ),
+          );
         }
       } else if (jsonResponse.containsKey('error')) {
         final error = jsonResponse['error'];
@@ -114,8 +131,8 @@ class RecepcionRepository {
         return Recepcionresponse();
       }
 
-      final response = await ApiRequestService().get(
-        endpoint: 'recepciones/devs',
+      final response = await ApiRequestService().getValidation(
+        endpoint: 'recepciones/devs/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -133,7 +150,18 @@ class RecepcionRepository {
 
       if (jsonResponse.containsKey('result')) {
         final result = jsonResponse['result'];
-        if (result['code'] == 200 && result['result'] is List) {
+
+        if (jsonResponse['result']['code'] == 400) {
+          return Recepcionresponse(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: RecepcionresponseResult(
+              code: jsonResponse['result']['code'],
+              msg: jsonResponse['result']['msg'],
+              result: [],
+            ),
+          );
+        } else if (result['code'] == 200 && result['result'] is List) {
           final List<ResultEntrada> ordenes = (result['result'] as List)
               .map((data) => ResultEntrada.fromMap(data))
               .toList();
@@ -146,9 +174,16 @@ class RecepcionRepository {
               result: ordenes,
             ),
           );
-        } else {
-          print("⚠️ Código no esperado o datos vacíos");
-          return Recepcionresponse();
+        } else if (jsonResponse['result']['code'] == 403) {
+          return Recepcionresponse(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: RecepcionresponseResult(
+              code: result['code'],
+              msg: result['msg'],
+              result: [],
+            ),
+          );
         }
       } else if (jsonResponse.containsKey('error')) {
         final error = jsonResponse['error'];
@@ -198,8 +233,8 @@ class RecepcionRepository {
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'recepciones/batchs',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'recepciones/batchs/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -211,7 +246,17 @@ class RecepcionRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          if (jsonResponse['result']['code'] == 200) {
+          if (jsonResponse['result']['code'] == 400) {
+            return ResponseReceptionBatchs(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: ResponseReceptionBatchsResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: [],
+              ),
+            );
+          } else if (jsonResponse['result']['code'] == 200) {
             List<dynamic> batches = jsonResponse['result']['result'];
             // Mapea los datos decodificados a una lista de BatchsModel
             List<ReceptionBatch> ordenes =
@@ -224,8 +269,16 @@ class RecepcionRepository {
                 result: ordenes,
               ),
             );
-          } else {
-            return ResponseReceptionBatchs();
+          } else if (jsonResponse['result']['code'] == 403) {
+            return ResponseReceptionBatchs(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: ResponseReceptionBatchsResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: [],
+              ),
+            );
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {

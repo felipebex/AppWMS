@@ -262,7 +262,7 @@ class RecepcionBatchBloc
         event.fechaCaducidad,
       );
 
-        if (response.result?.code ==200) {
+      if (response.result?.code == 200) {
         //agregamos el nuevo lote a la lista de lotes
         listLotesProductFilters.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
@@ -303,8 +303,8 @@ class RecepcionBatchBloc
 
         emit(CreateLoteProductSuccess());
       } else {
-        emit(CreateLoteProductFailure(
-            response.result?.msg ?? 'Error al crear el lote concactarse con el administrador'));
+        emit(CreateLoteProductFailure(response.result?.msg ??
+            'Error al crear el lote concactarse con el administrador'));
       }
     } catch (e, s) {
       emit(CreateLoteProductFailure('Error al crear el lote'));
@@ -1167,10 +1167,7 @@ class RecepcionBatchBloc
 
           print(
               'cantidad de productos: ${productsToInsert.length} y ${productsSedToInsert.length}');
-          print(
-              'cantidad de codigos de barras: ${allBarcodes.length}');
-
-          
+          print('cantidad de codigos de barras: ${allBarcodes.length}');
 
           add(FetchRecepcionBatchEventFromBD());
           emit(FetchRecepcionBatchSuccess(
@@ -1179,6 +1176,11 @@ class RecepcionBatchBloc
           emit(FetchRecepcionBatchSuccessFromBD(listReceptionBatch: []));
         }
       } else {
+        if (response.result?.code == 403) {
+          emit(DeviceNotAuthorized());
+          return;
+        }
+
         emit(FetchRecepcionBatchFailure(response.result?.msg ?? ""));
       }
     } catch (e) {
@@ -1233,7 +1235,7 @@ class RecepcionBatchBloc
       } else {
         emit(FetchRecepcionBatchFailureFromBD("No hay recepciones por batch"));
       }
-    } catch (e,s) {
+    } catch (e, s) {
       emit(FetchRecepcionBatchFailureFromBD(e.toString()));
     }
   }

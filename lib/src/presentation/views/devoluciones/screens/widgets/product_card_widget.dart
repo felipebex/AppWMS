@@ -18,6 +18,7 @@ class ProductDevolucionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       elevation: 3,
@@ -35,14 +36,17 @@ class ProductDevolucionCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        product.name ?? "",
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: black,
+                      SizedBox(
+                        width: size.width * 0.8,
+                        child: Text(
+                          product.name ?? "",
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: black,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       const Spacer(),
                       GestureDetector(

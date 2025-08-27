@@ -286,16 +286,17 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       final response = await _transferenciasRepository
           .fetAllEntradasProducts(event.isLoadingDialog);
 
-      if (response != null && response is List) {
-        await db.transferenciaRepository.insertEntrada(response, 'entrega');
+      if (response.code == 200) {
+        await db.transferenciaRepository
+            .insertEntrada(response.result ?? [], 'entrega');
 
 // U// Usar generadores para procesamiento eficiente
         final productsToInsert =
-            _extractProducts(response).toList(growable: false);
+            _extractProducts(response.result ?? []).toList(growable: false);
         final productsSentToInsert =
-            _extractSentProducts(response).toList(growable: false);
+            _extractSentProducts(response.result ?? []).toList(growable: false);
         final allBarcodes =
-            _extractAllBarcodes(response).toList(growable: false);
+            _extractAllBarcodes(response.result ?? []).toList(growable: false);
         // Enviar la lista agrupada a insertBatchProducts
         await db.productTransferenciaRepository
             .insertarProductoEntrada(productsToInsert, 'entrega');
@@ -306,13 +307,17 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         await db.barcodesPackagesRepository
             .insertOrUpdateBarcodes(allBarcodes, 'entrega');
 
-        entregas = response;
-        entregaProductosBDFilters = response;
+        entregas = response.result ?? [];
+        entregaProductosBDFilters = response.result ?? [];
         add(FetchAllEntregaDB(true));
         emit(EntregaLoaded(transferenciasDbFilters));
       } else {
-        emit(EntregaLoaded([]));
-        emit(EntregaError('No se encontraron transferencias'));
+        if (response.code == 403) {
+          emit(DeviceNotAuthorized());
+          return;
+        }
+        emit(
+            EntregaError(response.msg ?? 'Error al cargar las transferencias'));
       }
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');
@@ -1392,7 +1397,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
             transferenciasDbFilters, event.isLoadingDialog));
         //cargamos novedades y ubicaciones
       } else {
-        emit(TransferenciaErrorBD('No se encontraron transferencias'));
+        emit(TransferenciaBDLoaded([], event.isLoadingDialog));
       }
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');
@@ -1448,16 +1453,17 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       final response = await _transferenciasRepository
           .fetAllTransferencias(event.isLoadingDialog);
 
-      if (response != null && response is List) {
-        await db.transferenciaRepository.insertEntrada(response, 'transfer');
+      if (response.code == 200) {
+        await db.transferenciaRepository
+            .insertEntrada(response.result ?? [], 'transfer');
 
 // U// Usar generadores para procesamiento eficiente
         final productsToInsert =
-            _extractProducts(response).toList(growable: false);
+            _extractProducts(response.result ?? []).toList(growable: false);
         final productsSentToInsert =
-            _extractSentProducts(response).toList(growable: false);
+            _extractSentProducts(response.result ?? []).toList(growable: false);
         final allBarcodes =
-            _extractAllBarcodes(response).toList(growable: false);
+            _extractAllBarcodes(response.result ?? []).toList(growable: false);
         print('transfer productsToInsert: ${productsToInsert.length}');
         // Enviar la lista agrupada a insertBatchProducts
         await db.productTransferenciaRepository
@@ -1469,13 +1475,17 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         await db.barcodesPackagesRepository
             .insertOrUpdateBarcodes(allBarcodes, 'transfer');
 
-        transferencias = response;
-        transferenciasDbFilters = response;
+        transferencias = response.result ?? [];
+        transferenciasDbFilters = response.result ?? [];
         add(FetchAllTransferenciasDB(true));
         emit(TransferenciaLoaded(transferenciasDbFilters));
       } else {
-        emit(TransferenciaLoaded([]));
-        emit(TransferenciaError('No se encontraron transferencias'));
+        if (response.code == 403) {
+          emit(DeviceNotAuthorized());
+          return;
+        }
+        emit(TransferenciaError(
+            response.msg ?? 'Error al cargar las transferencias'));
       }
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');

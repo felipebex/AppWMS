@@ -24,6 +24,10 @@ final class TransferenciaBDLoaded extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
   TransferenciaBDLoaded(this.transferencias, this.isLoading);
 }
+
+//estado para decir que el dispositivo no esta autorizado
+final class  DeviceNotAuthorized extends TransferenciaState {}
+
 final class EntregaBDLoaded extends TransferenciaState {
   final bool isLoading ;
   final List<ResultTransFerencias> transferencias;

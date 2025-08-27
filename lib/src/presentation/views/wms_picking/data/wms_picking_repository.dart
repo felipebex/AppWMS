@@ -36,8 +36,8 @@ class WmsPickingRepository {
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'batchs',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'batchs/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -65,6 +65,22 @@ class WmsPickingRepository {
                   batches.map((data) => BatchsModel.fromMap(data)).toList();
               return products;
             }
+          } else if (jsonResponse['result']['code'] == 403) {
+            Get.defaultDialog(
+              title: 'Dispositivo no autorizado',
+              titleStyle: TextStyle(
+                  color: primaryColorApp,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+              middleText:
+                  'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              barrierDismissible:
+                  false, // Evita que se cierre al tocar fuera del diálogo
+              onWillPop: () async => false,
+            );
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {

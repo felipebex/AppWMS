@@ -301,7 +301,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
       if (event.isManual) {
         infoRapida = await _infoRapidaRepository.getInfoQuickManual(
-          true,
+          false,
           event.barcode.trim(),
           event.isProduct,
         );
@@ -315,10 +315,15 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       if (infoRapida.result?.code == 200) {
         infoRapidaResult = infoRapida.result!;
 
-       
         emit(InfoRapidaLoaded(infoRapidaResult, infoRapida.result!.type!));
       } else {
-        emit(InfoRapidaError());
+        if (infoRapida.result?.code == 403) {
+          emit(DeviceNotAuthorized());
+          return;
+        }
+
+        emit(InfoRapidaError(
+            error: infoRapida.result?.msg ?? 'Error desconocido'));
       }
 
       add(ClearScannedValueEvent());

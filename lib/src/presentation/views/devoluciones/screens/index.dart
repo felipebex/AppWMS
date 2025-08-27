@@ -260,21 +260,33 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
       listener: (context, state) {
         print('Estado actual ❤️‍🔥: $state');
 
-        if (state is SelectLocationState) {
+        if (state is DeviceNotAuthorized) {
+          Get.defaultDialog(
+            title: 'Dispositivo no autorizado',
+            titleStyle: TextStyle(
+                color: primaryColorApp,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            middleText:
+                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            barrierDismissible:
+                false, // Evita que se cierre al tocar fuera del diálogo
+            onWillPop: () async => false,
+          );
+        } else if (state is SelectLocationState) {
           Future.delayed(const Duration(seconds: 1), () {
             FocusScope.of(context).requestFocus(focusNode3);
           });
           _handleFocusAccordingToState();
-        }
-
-        if (state is SelectTerceroState) {
+        } else if (state is SelectTerceroState) {
           Future.delayed(const Duration(seconds: 1), () {
             FocusScope.of(context).requestFocus(focusNode1);
           });
           _handleFocusAccordingToState();
-        }
-
-        if (state is GetProductLoading) {
+        } else if (state is GetProductLoading) {
           showDialog(
             context: context, // Usa el context del listener
             barrierDismissible:
@@ -283,8 +295,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                 (dialogContext) => // Usa un nombre diferente para el contexto del diálogo
                     const DialogLoading(message: "Buscando información..."),
           );
-        }
-        if (state is GetProductFailure) {
+        } else if (state is GetProductFailure) {
           //esperamos 1 y cerramos el diálogo de carga
           Future.delayed(const Duration(seconds: 1), () {
             Navigator.pop(context); // Cierra el diálogo de carga
@@ -297,8 +308,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.red),
           );
-        }
-        if (state is GetProductSuccess) {
+        } else if (state is GetProductSuccess) {
           final bloc = context.read<DevolucionesBloc>();
           if (bloc.isDialogVisible) {
             return; // Evita duplicar el diálogo
@@ -324,9 +334,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             // Se ejecuta al cerrar el diálogo
             bloc.add(ChangeStateIsDialogVisibleEvent(false));
           });
-        }
-
-        if (state is SendDevolucionFailure) {
+        } else if (state is SendDevolucionFailure) {
           Get.defaultDialog(
             title: '360 Software Informa',
             titleStyle: TextStyle(color: Colors.red, fontSize: 18),
@@ -349,9 +357,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
               ),
             ],
           );
-        }
-
-        if (state is SendDevolucionSuccess) {
+        } else if (state is SendDevolucionSuccess) {
           Get.snackbar(
             '360 Software Informa',
             '${state.response.result?.msg}',
@@ -359,9 +365,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.green),
           );
-        }
-
-        if (state is GetProductExists) {
+        } else if (state is GetProductExists) {
           //mostramos un dialogo diciendo que el producto ya existe
 
           final bloc = context.read<DevolucionesBloc>();

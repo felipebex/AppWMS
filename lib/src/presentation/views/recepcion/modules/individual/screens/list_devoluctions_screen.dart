@@ -35,9 +35,7 @@ class ListDevolutionsScreen extends StatelessWidget {
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.red),
           );
-        }
-
-        if (state is AssignUserToOrderSuccess) {
+        } else if (state is AssignUserToOrderSuccess) {
           Get.snackbar(
             '360 Software Informa',
             "Se ha asignado el responsable correctamente",
@@ -56,9 +54,7 @@ class ListDevolutionsScreen extends StatelessWidget {
             'recepcion',
             arguments: [state.ordenCompra, 0],
           );
-        }
-
-        if (state is FetchDevolucionesLoading) {
+        } else if (state is FetchDevolucionesLoading) {
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -66,8 +62,8 @@ class ListDevolutionsScreen extends StatelessWidget {
               message: 'Cargando recepciones...',
             ),
           );
-        }
-        if (state is FetchDevolucionesFailure) {
+        } else if (state is FetchDevolucionesFailure) {
+          Navigator.pop(context);
           Get.defaultDialog(
             title: '360 Software Informa',
             titleStyle: TextStyle(color: Colors.red, fontSize: 18),
@@ -90,9 +86,7 @@ class ListDevolutionsScreen extends StatelessWidget {
               ),
             ],
           );
-        }
-
-        if (state is FetchDevolucionesSuccess) {
+        } else if (state is FetchDevolucionesSuccess) {
           if (state.ordenesCompra.isEmpty) {
             Get.snackbar(
               '360 Software Informa',
@@ -103,6 +97,23 @@ class ListDevolutionsScreen extends StatelessWidget {
             );
           }
           Navigator.pop(context);
+        } else if (state is DeviceNotAuthorized) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: 'Dispositivo no autorizado',
+            titleStyle: TextStyle(
+                color: primaryColorApp,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            middleText:
+                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            barrierDismissible:
+                false, // Evita que se cierre al tocar fuera del diálogo
+            onWillPop: () async => false,
+          );
         }
       },
       builder: (context, state) {
@@ -556,7 +567,7 @@ class ListDevolutionsScreen extends StatelessWidget {
                                                             ? Colors.red
                                                             : black),
                                                   ),
-                                                 const Spacer(),
+                                                  const Spacer(),
                                                   ordenCompra[index]
                                                               .startTimeReception !=
                                                           ""
@@ -747,27 +758,23 @@ class AppBar extends StatelessWidget {
             const WarningWidgetCubit(),
             Padding(
               padding: EdgeInsets.only(
-                  bottom: 0,
-                  top: status != ConnectionStatus.online ? 0 : 25),
+                  bottom: 0, top: status != ConnectionStatus.online ? 0 : 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: white),
                     onPressed: () {
-                      context
-                          .read<RecepcionBloc>()
-                          .searchControllerDev
-                          .clear();
-      
+                      context.read<RecepcionBloc>().searchControllerDev.clear();
+
                       context.read<RecepcionBloc>().add(SearchDevolucionEvent(
                             '',
                           ));
-      
+
                       context
                           .read<RecepcionBloc>()
                           .add(ShowKeyboardEvent(false));
-      
+
                       Navigator.pushReplacementNamed(
                         context,
                         '/home',
@@ -782,17 +789,15 @@ class AppBar extends StatelessWidget {
                             .read<RecepcionBloc>()
                             .searchControllerDev
                             .clear();
-      
-                        context
-                            .read<RecepcionBloc>()
-                            .add(SearchDevolucionEvent(
+
+                        context.read<RecepcionBloc>().add(SearchDevolucionEvent(
                               '',
                             ));
-      
+
                         context
                             .read<RecepcionBloc>()
                             .add(ShowKeyboardEvent(false));
-      
+
                         await DataBaseSqlite().deleRecepcion('dev');
                         context
                             .read<RecepcionBloc>()
@@ -802,7 +807,7 @@ class AppBar extends StatelessWidget {
                         children: [
                           const Text("DEVOLUCIONES",
                               style: TextStyle(color: white, fontSize: 18)),
-      
+
                           ///icono de refresh
                           const SizedBox(width: 5),
                           Icon(
@@ -817,8 +822,7 @@ class AppBar extends StatelessWidget {
                   const Spacer(),
                   Visibility(
                     visible:
-                        context.read<RecepcionBloc>().tiposRecepcion.length >
-                            1,
+                        context.read<RecepcionBloc>().tiposRecepcion.length > 1,
                     child: PopupMenuButton<String>(
                       color: white,
                       icon: const Icon(
@@ -837,10 +841,10 @@ class AppBar extends StatelessWidget {
                           ...context.read<RecepcionBloc>().tiposRecepcion,
                           'todas'
                         ];
-      
+
                         return tipos.map((tipo) {
                           final isTodas = tipo.toLowerCase() == 'todas';
-      
+
                           return PopupMenuItem<String>(
                             value: tipo,
                             child: Row(

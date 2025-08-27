@@ -168,6 +168,7 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
                 ),
                 if (product.productTracking == 'lot')
                   _buildInfoRow("Lote", product.lotName ?? ''),
+                  _buildInfoRow("Producto nuevo", product.isOriginal == 1 ? "No" : "Si"),
               ],
             ),
           ),
@@ -254,8 +255,10 @@ Widget _buildInfoRowButton(
                         'Confirmar eliminación',
                         style: TextStyle(color: primaryColorApp, fontSize: 16),
                       )),
-                      content: const Text(
-                        "¿Estás seguro de eliminar este producto del conteo? y dejarlo como pendiente.",
+                      content: Text(
+                        product.isOriginal == 1
+                            ? "¿Estás seguro de eliminar este producto del conteo? y dejarlo como pendiente."
+                            : "¿Estás seguro de eliminar este producto del conteo? ",
                         style: TextStyle(fontSize: 14, color: black),
                       ),
                       actions: [

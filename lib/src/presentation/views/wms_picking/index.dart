@@ -62,17 +62,17 @@ class _PickingPageState extends State<WMSPickingPage> {
         listeners: [
           BlocListener<WMSPickingBloc, PickingState>(
               listener: (context, state) {
-            if (state is LoadBatchsSuccesState) {
-              if (state.listOfBatchs.isEmpty) {
-                Get.snackbar(
-                  '360 Software Informa',
-                  "No hay batch disponibles",
-                  backgroundColor: white,
-                  colorText: primaryColorApp,
-                  icon: Icon(Icons.error, color: Colors.amber),
-                );
-              }
-            }
+            // if (state is LoadBatchsSuccesState) {
+            //   if (state.listOfBatchs.isEmpty) {
+            //     Get.snackbar(
+            //       '360 Software Informa',
+            //       "No hay batch disponibles",
+            //       backgroundColor: white,
+            //       colorText: primaryColorApp,
+            //       icon: Icon(Icons.error, color: Colors.amber),
+            //     );
+            //   }
+            // }
           }),
           BlocListener<BatchBloc, BatchState>(
             listener: (context, state) {

@@ -186,7 +186,7 @@ class ConteoRepository {
     return ResponseSendProductConteo();
   }
 
-  Future<ResponseDeleteProduct> deleteProductConteo(
+  Future<ResponseDeleteProduct> deleteInfoProductConteo(
       bool isLoadinDialog, int idMove) async {
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -198,6 +198,77 @@ class ConteoRepository {
     try {
       var response = await ApiRequestService().postPicking(
           endpoint: 'inventory/delete_line',
+          isunecodePath: true,
+          isLoadinDialog: isLoadinDialog,
+          body: {
+            "params": {"line_id": idMove}
+          });
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          return ResponseDeleteProduct(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: ResponseDeleteProductResult.fromMap(jsonResponse['result']),
+          );
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+            return ResponseDeleteProduct(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result:
+                  ResponseDeleteProductResult.fromMap(jsonResponse['result']),
+            );
+          }
+        }
+      } else {}
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ResponseDeleteProduct();
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error conteo fisico: $e, $s');
+    }
+    return ResponseDeleteProduct();
+  }
+  Future<ResponseDeleteProduct> deleteProductConteo(
+      bool isLoadinDialog, int idMove) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ResponseDeleteProduct(); // Si no hay conexión, retornar un ResultConteo vacío
+    }
+
+    try {
+      var response = await ApiRequestService().postPicking(
+          endpoint: 'inventory/remove_line',
           isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
           body: {

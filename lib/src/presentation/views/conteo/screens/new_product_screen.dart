@@ -307,6 +307,13 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         listener: (context, state) {
                       print("❤️‍🔥 state : $state");
 
+                      if (state is ResetValuesState) {
+                        Future.delayed(const Duration(seconds: 1), () {
+                          FocusScope.of(context).requestFocus(focusNode1);
+                        });
+                        _handleDependencies();
+                      }
+
                       if (state is UpdateProductLoadingEvent) {
                         //cerramos el dialogo
                         Navigator.of(context).pop();

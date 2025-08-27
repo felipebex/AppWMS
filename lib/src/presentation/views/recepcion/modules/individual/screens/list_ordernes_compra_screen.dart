@@ -27,7 +27,34 @@ class ListOrdenesCompraScreen extends StatelessWidget {
 
     return BlocConsumer<RecepcionBloc, RecepcionState>(
       listener: (context, state) {
-        if (state is AssignUserToOrderFailure) {
+        print('state recepcion: $state');
+
+        if (state is FetchOrdenesCompraLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const DialogLoading(
+              message: 'Cargando recepciones...',
+            ),
+          );
+        } else if (state is DeviceNotAuthorized) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: 'Dispositivo no autorizado',
+            titleStyle: TextStyle(
+                color: primaryColorApp,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            middleText:
+                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            barrierDismissible:
+                false, // Evita que se cierre al tocar fuera del diálogo
+            onWillPop: () async => false,
+          );
+        } else if (state is AssignUserToOrderFailure) {
           Get.snackbar(
             '360 Software Informa',
             state.error,
@@ -35,9 +62,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.red),
           );
-        }
-
-        if (state is AssignUserToOrderSuccess) {
+        } else if (state is AssignUserToOrderSuccess) {
           Get.snackbar(
             '360 Software Informa',
             "Se ha asignado el responsable correctamente",
@@ -56,18 +81,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             'recepcion',
             arguments: [state.ordenCompra, 0],
           );
-        }
-
-        if (state is FetchOrdenesCompraLoading) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const DialogLoading(
-              message: 'Cargando recepciones...',
-            ),
-          );
-        }
-        if (state is FetchOrdenesCompraFailure) {
+        } else if (state is FetchOrdenesCompraFailure) {
+          Navigator.pop(context);
           Get.defaultDialog(
             title: '360 Software Informa',
             titleStyle: TextStyle(color: Colors.red, fontSize: 18),
@@ -90,9 +105,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
               ),
             ],
           );
-        }
-
-        if (state is FetchOrdenesCompraSuccess) {
+        } else if (state is FetchOrdenesCompraSuccess) {
           if (state.ordenesCompra.isEmpty) {
             Get.snackbar(
               '360 Software Informa',
@@ -429,8 +442,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Text(
-                                                    ordenCompra[index]
-                                                                .origin ==
+                                                    ordenCompra[index].origin ==
                                                             ""
                                                         ? 'Sin orden de compra'
                                                         : ordenCompra[index]
@@ -512,7 +524,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   ),
                                                   Expanded(
                                                     child: Text(
-                                                      ordenCompra[index].numeroLineas
+                                                      ordenCompra[index]
+                                                          .numeroLineas
                                                           .toString(),
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -547,7 +560,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   ),
                                                   Expanded(
                                                     child: Text(
-                                                      ordenCompra[index].numeroItems
+                                                      ordenCompra[index]
+                                                          .numeroItems
                                                           .toString(),
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -779,8 +793,7 @@ class AppBar extends StatelessWidget {
             const WarningWidgetCubit(),
             Padding(
               padding: EdgeInsets.only(
-                  bottom: 0,
-                  top: status != ConnectionStatus.online ? 0 : 25),
+                  bottom: 0, top: status != ConnectionStatus.online ? 0 : 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -791,17 +804,15 @@ class AppBar extends StatelessWidget {
                           .read<RecepcionBloc>()
                           .searchControllerOrderC
                           .clear();
-      
-                      context
-                          .read<RecepcionBloc>()
-                          .add(SearchOrdenCompraEvent(
+
+                      context.read<RecepcionBloc>().add(SearchOrdenCompraEvent(
                             '',
                           ));
-      
+
                       context
                           .read<RecepcionBloc>()
                           .add(ShowKeyboardEvent(false));
-      
+
                       Navigator.pushReplacementNamed(
                         context,
                         '/home',
@@ -816,17 +827,17 @@ class AppBar extends StatelessWidget {
                             .read<RecepcionBloc>()
                             .searchControllerOrderC
                             .clear();
-      
+
                         context
                             .read<RecepcionBloc>()
                             .add(SearchOrdenCompraEvent(
                               '',
                             ));
-      
+
                         context
                             .read<RecepcionBloc>()
                             .add(ShowKeyboardEvent(false));
-      
+
                         await DataBaseSqlite().deleRecepcion('reception');
                         context
                             .read<RecepcionBloc>()
@@ -836,7 +847,7 @@ class AppBar extends StatelessWidget {
                         children: [
                           const Text("RECEPCION",
                               style: TextStyle(color: white, fontSize: 18)),
-      
+
                           ///icono de refresh
                           const SizedBox(width: 5),
                           Icon(
@@ -851,8 +862,7 @@ class AppBar extends StatelessWidget {
                   const Spacer(),
                   Visibility(
                     visible:
-                        context.read<RecepcionBloc>().tiposRecepcion.length >
-                            1,
+                        context.read<RecepcionBloc>().tiposRecepcion.length > 1,
                     child: PopupMenuButton<String>(
                       color: white,
                       icon: const Icon(
@@ -871,10 +881,10 @@ class AppBar extends StatelessWidget {
                           ...context.read<RecepcionBloc>().tiposRecepcion,
                           'todas'
                         ];
-      
+
                         return tipos.map((tipo) {
                           final isTodas = tipo.toLowerCase() == 'todas';
-      
+
                           return PopupMenuItem<String>(
                             value: tipo,
                             child: Row(

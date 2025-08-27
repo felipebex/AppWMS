@@ -26,7 +26,24 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
-        if (state is InfoRapidaError) {
+        if (state is DeviceNotAuthorized) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: 'Dispositivo no autorizado',
+            titleStyle: TextStyle(
+                color: primaryColorApp,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            middleText:
+                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            barrierDismissible:
+                false, // Evita que se cierre al tocar fuera del diálogo
+            onWillPop: () async => false,
+          );
+        } else if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',
@@ -35,9 +52,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.red),
           );
-        }
-
-        if (state is InfoRapidaLoading) {
+        } else if (state is InfoRapidaLoading) {
           showDialog(
             context: context,
             builder: (context) {
@@ -46,9 +61,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
               );
             },
           );
-        }
-
-        if (state is InfoRapidaLoaded) {
+        } else if (state is InfoRapidaLoaded) {
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',
@@ -137,7 +150,9 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                             bloc.add(SearchLocationEvent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                                            bloc.add(ShowKeyboardInfoEvent(
+                                                false,
+                                                TextEditingController()));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -163,7 +178,8 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardInfoEvent(true,TextEditingController()));
+                                            bloc.add(ShowKeyboardInfoEvent(
+                                                true, TextEditingController()));
                                           },
                                   ),
                                 ),
@@ -308,7 +324,8 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                             final selectedLocation =
                                 bloc.ubicacionesFilters[selectedIndex!];
 
-                            bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                            bloc.add(ShowKeyboardInfoEvent(
+                                false, TextEditingController()));
                             FocusScope.of(context).unfocus();
 
                             setState(() {
@@ -316,7 +333,10 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                             });
 
                             bloc.add(GetInfoRapida(
-                                selectedLocation.id.toString(), true, false, false));
+                                selectedLocation.id.toString(),
+                                true,
+                                false,
+                                false));
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -356,6 +376,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
     );
   }
 }
+
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
     super.key,
@@ -396,9 +417,9 @@ class _AppBarInfo extends StatelessWidget {
                             .read<InfoRapidaBloc>()
                             .searchControllerLocation
                             .clear();
-                        context
-                            .read<InfoRapidaBloc>()
-                            .add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                        context.read<InfoRapidaBloc>().add(
+                            ShowKeyboardInfoEvent(
+                                false, TextEditingController()));
 
                         Navigator.pushReplacementNamed(
                           context,

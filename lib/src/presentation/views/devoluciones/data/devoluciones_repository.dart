@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/request_send_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/response_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/response_terceros_model.dart';
@@ -247,12 +248,16 @@ class DevolucionesRepository {
 
     print("request ${request.toJson()}");
 
+    //obtenemos la mac o el device id del dispositivo
+    final mac = await PrefUtils.getMacPDA();
+    final imei = await PrefUtils.getImeiPDA();
     try {
       var response = await ApiRequestService().postPacking(
         endpoint:
-            'crear_devs', // Cambiado para que sea el endpoint correspondiente
+            'crear_devs/v2', // Cambiado para que sea el endpoint correspondiente
         body: {
           "params": {
+            "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
             "id_almacen": request.idAlmacen,
             "id_proveedor": request.idProveedor,
             "id_ubicacion_destino": request.idUbicacionDestino,
@@ -289,14 +294,12 @@ class DevolucionesRepository {
         var resultData = jsonResponse['result'];
 
         return ResponseDevolucion(
-          jsonrpc: jsonResponse['jsonrpc'],
-          id: jsonResponse['id'],
-          
-          result: ResultDevolucion(
-            code: jsonResponse['code'] ?? 500,       
-            msg: jsonResponse['msg'] ?? 'Error desconocido',            
-            )
-        );
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: ResultDevolucion(
+              code: jsonResponse['code'] ?? 500,
+              msg: jsonResponse['msg'] ?? 'Error desconocido',
+            ));
       }
     } on SocketException catch (e) {
       print('Error de red: $e');

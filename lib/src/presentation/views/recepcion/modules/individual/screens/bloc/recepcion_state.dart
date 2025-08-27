@@ -410,3 +410,7 @@ class SendImageNovedadFailure extends RecepcionState {
   final String error;
   SendImageNovedadFailure(this.error);
 }
+
+
+//estado para decir que el dispositivo no esta autorizado
+final class  DeviceNotAuthorized extends RecepcionState {}

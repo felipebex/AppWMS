@@ -197,7 +197,6 @@ class GetLotesProductFailure extends DevolucionesState {
 
 class ClearValueState extends DevolucionesState {}
 
-
 class SendDevolucionLoading extends DevolucionesState {}
 
 class SendDevolucionSuccess extends DevolucionesState {
@@ -215,8 +214,6 @@ class ChangeStateIsDialogVisibleState extends DevolucionesState {
   ChangeStateIsDialogVisibleState(this.isDialogVisible);
 }
 
-
-
 class ConfigurationDevLoaded extends DevolucionesState {
   final Configurations configurations;
 
@@ -228,3 +225,6 @@ class ConfigurationError extends DevolucionesState {
 
   ConfigurationError(this.error);
 }
+
+//estado para decir que el dispositivo no esta autorizado
+final class DeviceNotAuthorized extends DevolucionesState {}

@@ -215,6 +215,12 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
         add(ClearValueEvent());
         emit(SendDevolucionSuccess(response));
       } else {
+        if (response.result?.code == 403) {
+          //emitimos un error de autorizacion
+          emit(DeviceNotAuthorized());
+          return;
+        }
+
         emit(SendDevolucionFailure(response.result?.msg ??
             'Error desconocido al enviar la devolución'));
       }

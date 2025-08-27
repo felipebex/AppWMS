@@ -29,7 +29,26 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
 
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
-        if (state is InfoRapidaError) {
+        print("state es $state");
+
+        if (state is DeviceNotAuthorized) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: 'Dispositivo no autorizado',
+            titleStyle: TextStyle(
+                color: primaryColorApp,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            middleText:
+                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            barrierDismissible:
+                false, // Evita que se cierre al tocar fuera del diálogo
+            onWillPop: () async => false,
+          );
+        } else if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',
@@ -98,7 +117,8 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
                       onPressed: () {
                         final selectedProduct =
                             bloc.productosFilters[selectedIndex!];
-                        bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                        bloc.add(ShowKeyboardInfoEvent(
+                            false, TextEditingController()));
                         FocusScope.of(context).unfocus();
                         bloc.add(GetInfoRapida(
                           selectedProduct.productId.toString(),
@@ -235,9 +255,8 @@ class _AppBarInfo extends StatelessWidget {
                           .read<InfoRapidaBloc>()
                           .searchControllerProducts
                           .clear();
-                      context
-                          .read<InfoRapidaBloc>()
-                          .add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                      context.read<InfoRapidaBloc>().add(ShowKeyboardInfoEvent(
+                          false, TextEditingController()));
                       Navigator.pushReplacementNamed(context, 'info-rapida');
                     },
                   ),
@@ -284,7 +303,7 @@ class _SearchBar extends StatelessWidget {
               onPressed: () {
                 bloc.searchControllerProducts.clear();
                 bloc.add(SearchProductEvent(''));
-                bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                bloc.add(ShowKeyboardInfoEvent(false, TextEditingController()));
                 FocusScope.of(context).unfocus();
               },
             ),
@@ -293,7 +312,10 @@ class _SearchBar extends StatelessWidget {
             border: InputBorder.none,
           ),
           onChanged: (value) => bloc.add(SearchProductEvent(value)),
-          onTap: isZebra ? () => bloc.add(ShowKeyboardInfoEvent(true,TextEditingController())) : null,
+          onTap: isZebra
+              ? () =>
+                  bloc.add(ShowKeyboardInfoEvent(true, TextEditingController()))
+              : null,
         ),
       ),
     );

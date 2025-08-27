@@ -40,17 +40,17 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
         listener: (context, state) {
-      if (state is WmsPackingLoaded) {
-        if (state.listOfBatchs.isEmpty) {
-          Get.snackbar(
-            '360 Software Informa',
-            "No hay batch disponibles",
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.amber),
-          );
-        }
-      }
+      // if (state is WmsPackingLoaded) {
+      //   if (state.listOfBatchs.isEmpty) {
+      //     Get.snackbar(
+      //       '360 Software Informa',
+      //       "No hay batch disponibles",
+      //       backgroundColor: white,
+      //       colorText: primaryColorApp,
+      //       icon: Icon(Icons.error, color: Colors.amber),
+      //     );
+      //   }
+      // }
     }, builder: (context, state) {
       return Scaffold(
           backgroundColor: white,

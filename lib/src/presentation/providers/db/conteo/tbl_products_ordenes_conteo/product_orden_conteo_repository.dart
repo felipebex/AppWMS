@@ -70,6 +70,8 @@ class ProductoOrdenConteoRepository {
             ProductosOrdenConteoTable.columnIsSeparate:
                 producto.isSeparate == true ? 1 : 0,
             ProductosOrdenConteoTable.columnIdMove: producto.idMove ?? 0,
+            ProductosOrdenConteoTable.columnIsOriginal:
+                producto.isOriginal == true ? 1 : 0,
           };
 
           batch.insert(
@@ -114,42 +116,7 @@ class ProductoOrdenConteoRepository {
       final db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> maps = await db.query(
         ProductosOrdenConteoTable.tableName,
-        // columns: [
-        //   ProductosOrdenConteoTable.columnProductName,
-        //   ProductosOrdenConteoTable.columnProductId,
-        //   ProductosOrdenConteoTable.columnProductBarcode,
-        //   ProductosOrdenConteoTable.columnLocationId,
-        //   ProductosOrdenConteoTable.columnLocationName,
-        //   ProductosOrdenConteoTable.columnLocationBarcode,
-        //   ProductosOrdenConteoTable.columnQuantityInventory,
-        //   ProductosOrdenConteoTable.columnQuantityCounted,
-        //   ProductosOrdenConteoTable.columnDifferenceQty,
-        //   ProductosOrdenConteoTable.columnUom,
-        //   ProductosOrdenConteoTable.columnWeight,
-        //   ProductosOrdenConteoTable.columnIsDoneItem,
-        //   ProductosOrdenConteoTable.columnDateTransaction,
-        //   ProductosOrdenConteoTable.columnObservation,
-        //   ProductosOrdenConteoTable.columnTime,
-        //   ProductosOrdenConteoTable.columnUserOperatorId,
-        //   ProductosOrdenConteoTable.columnUserOperatorName,
-        //   ProductosOrdenConteoTable.columnCategoryId,
-        //   ProductosOrdenConteoTable.columnCategoryName,
-        //   ProductosOrdenConteoTable.columnLotId,
-        //   ProductosOrdenConteoTable.columnLotName,
-        //   ProductosOrdenConteoTable.columnFechaVencimiento,
-        //   ProductosOrdenConteoTable.columnDateStart,
-        //   ProductosOrdenConteoTable.columnDateEnd,
-        //   ProductosOrdenConteoTable.columnIsSelected,
-        //   ProductosOrdenConteoTable.columnIsSeparate,
-        //   ProductosOrdenConteoTable.columnIdMove,
-        //   ProductosOrdenConteoTable.columnProductIsOk,
-        //   ProductosOrdenConteoTable.columnIsQuantityIsOk,
-        //   ProductosOrdenConteoTable.columnIsLocationIsOk,
-        //   ProductosOrdenConteoTable.columnId, 
-        //   ProductosOrdenConteoTable.columnProductCode, 
 
-
-        // ],
         where: '${ProductosOrdenConteoTable.columnOrderId} = ?',
         whereArgs: [orderId],
         groupBy: '${ProductosOrdenConteoTable.columnProductName}, '
@@ -270,7 +237,7 @@ class ProductoOrdenConteoRepository {
   }
 
   //metodo para pasar un prducto de listo enviado a por hacer y borrar sus datos de proceso
-  Future<int> deleteProductConteo(CountedLine product) async {
+  Future<int> deleteInfoProductConteo(CountedLine product) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       //lo que vamos hacer es tomar el producto y actualizarle todos sus campos a pordefecto
@@ -298,6 +265,27 @@ class ProductoOrdenConteoRepository {
       );
       print(
           "update TableProductOrdenConteo (idProduct ----(${product.productId})) -------(${ProductosOrdenConteoTable.columnQuantityCounted}): $resUpdate");
+      return resUpdate;
+    } catch (e, s) {
+      print('Error en deleteProductConteo: $e, $s');
+      return 0;
+    }
+  }
+
+  //metodo para pasar un prducto de listo enviado a por hacer y borrar sus datos de proceso
+  Future<int> deleteProductConteo(CountedLine product) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      ///lo que hacemos es eliminar el registro de la tabla
+      final resUpdate = await db.delete(
+        ProductosOrdenConteoTable.tableName,
+        where:
+            '${ProductosOrdenConteoTable.columnProductId} = ? AND ${ProductosOrdenConteoTable.columnOrderId} = ? AND ${ProductosOrdenConteoTable.columnIdMove} = ?',
+        whereArgs: [product.productId, product.orderId, product.idMove],
+      );
+      print(
+          "delete TableProductOrdenConteo (idProduct ----(${product.productId})) -------: $resUpdate");
       return resUpdate;
     } catch (e, s) {
       print('Error en deleteProductConteo: $e, $s');
@@ -354,6 +342,7 @@ class ProductoOrdenConteoRepository {
         ProductosOrdenConteoTable.columnIsSelected: producto.isSelected,
         ProductosOrdenConteoTable.columnIsSeparate: producto.isSeparate,
         ProductosOrdenConteoTable.columnIdMove: producto.idMove ?? 0,
+        ProductosOrdenConteoTable.columnIsOriginal: 0,
       };
 
       final resInsert = await db.insert(

@@ -36,8 +36,8 @@ class WmsPackingRepository {
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'batch_packing',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'batch_packing/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -49,12 +49,38 @@ class WmsPackingRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          List<dynamic> batches = jsonResponse['result']['result'];
-          // Mapea los datos decodificados a una lista de BatchsModel
-          List<BatchPackingModel> batchs =
-              batches.map((data) => BatchPackingModel.fromMap(data)).toList();
+          if (jsonResponse['result']['code'] == 400) {
+            Get.snackbar(
+              'Error',
+              'Error : ${jsonResponse['result']['msg']}',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
+          } else if (jsonResponse['result']['code'] == 200) {
+            List<dynamic> batches = jsonResponse['result']['result'];
+            // Mapea los datos decodificados a una lista de BatchsModel
+            List<BatchPackingModel> batchs =
+                batches.map((data) => BatchPackingModel.fromMap(data)).toList();
 
-          return batchs;
+            return batchs;
+          } else if (jsonResponse['result']['code'] == 403) {
+            Get.defaultDialog(
+              title: 'Dispositivo no autorizado',
+              titleStyle: TextStyle(
+                  color: primaryColorApp,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+              middleText:
+                  'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              barrierDismissible:
+                  false, // Evita que se cierre al tocar fuera del diálogo
+              onWillPop: () async => false,
+            );
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -105,8 +131,8 @@ class WmsPackingRepository {
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'transferencias/pack',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'transferencias/pack/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -118,13 +144,39 @@ class WmsPackingRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          final List<dynamic> rawBatches = jsonResponse['result']['result'];
-          final List<PedidoPackingResult> pedidos = rawBatches
-              .map((data) =>
-                  PedidoPackingResult.fromMap(data as Map<String, dynamic>))
-              .toList();
+          if (jsonResponse['result']['code'] == 400) {
+            Get.snackbar(
+              'Error',
+              'Error : ${jsonResponse['result']['msg']}',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
+          } else if (jsonResponse['result']['code'] == 200) {
+            final List<dynamic> rawBatches = jsonResponse['result']['result'];
+            final List<PedidoPackingResult> pedidos = rawBatches
+                .map((data) =>
+                    PedidoPackingResult.fromMap(data as Map<String, dynamic>))
+                .toList();
 
-          return pedidos;
+            return pedidos;
+          } else if (jsonResponse['result']['code'] == 403) {
+            Get.defaultDialog(
+              title: 'Dispositivo no autorizado',
+              titleStyle: TextStyle(
+                  color: primaryColorApp,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+              middleText:
+                  'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              barrierDismissible:
+                  false, // Evita que se cierre al tocar fuera del diálogo
+              onWillPop: () async => false,
+            );
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -322,8 +374,6 @@ class WmsPackingRepository {
     return false; // Retornamos un objeto vacío en caso de error de red
   }
 
-
-
   Future<ResponseValidate> confirmationValidate(
     int idTransfer,
     bool isBackorder,
@@ -401,7 +451,6 @@ class WmsPackingRepository {
     return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
   }
 
-
   Future<ResponseValidate> validateTransfer(
     int idTransfer,
     bool isBackorder,
@@ -423,7 +472,6 @@ class WmsPackingRepository {
           "params": {
             "id_transferencia": idTransfer,
             "crear_backorder": isBackorder,
-            
           }
         },
         isLoadinDialog: isLoadingDialog,
@@ -479,8 +527,6 @@ class WmsPackingRepository {
     }
     return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
   }
-
-
 
   Future<bool> sendTimePack(
     int idPedido,
@@ -620,6 +666,7 @@ class WmsPackingRepository {
     }
     return UnPacking(); // Retornamos un objeto vacío en caso de error de red
   }
+
   Future<UnPacking> unPack(
     UnPackRequest request,
   ) async {
@@ -639,7 +686,8 @@ class WmsPackingRepository {
           "params": {
             "id_transferencia": request.idTransferencia,
             "id_paquete": request.idPaquete,
-            "list_items": request.listItems.map((item) => item.toMap()).toList(),
+            "list_items":
+                request.listItems.map((item) => item.toMap()).toList(),
           },
         },
         isLoadinDialog: true,
@@ -1116,6 +1164,7 @@ class WmsPackingRepository {
       return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     }
   }
+
   Future<TemperatureSend> sendTemperatureManual(
     dynamic temperature,
     int idMoveLine,

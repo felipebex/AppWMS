@@ -15,7 +15,7 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_tr
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 
 class TransferenciasRepository {
-  Future<List<ResultTransFerencias>> fetAllTransferencias(
+  Future<ResponseTransferenciasResult> fetAllTransferencias(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -23,12 +23,12 @@ class TransferenciasRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return ResponseTransferenciasResult(); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'transferencias',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'transferencias/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -39,13 +39,27 @@ class TransferenciasRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          List<dynamic> batches = jsonResponse['result']['result'];
-          // Mapea los datos decodificados a una lista de BatchsModel
-          List<ResultTransFerencias> transferencias = batches
-              .map((data) => ResultTransFerencias.fromMap(data))
-              .toList();
+          if (jsonResponse['result']['code'] == 400) {
+            return ResponseTransferenciasResult(
+              code: 400,
+              msg: jsonResponse['result']['msg'],
+              result: [],
+            );
+          } else if (jsonResponse['result']['code'] == 200) {
+            List<dynamic> batches = jsonResponse['result']['result'];
+            // Mapea los datos decodificados a una lista de BatchsModel
+            List<ResultTransFerencias> transferencias = batches
+                .map((data) => ResultTransFerencias.fromMap(data))
+                .toList();
 
-          return transferencias;
+            return ResponseTransferenciasResult(
+                code: 200, result: transferencias);
+          } else if (jsonResponse['result']['code'] == 403) {
+            return ResponseTransferenciasResult(
+              code: 403,
+              result: [],
+            );
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -70,20 +84,21 @@ class TransferenciasRepository {
                 ),
               ],
             );
-            return [];
+            return ResponseTransferenciasResult();
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return [];
+      return ResponseTransferenciasResult();
     } catch (e, s) {
       // Manejo de otros errores
       print('Error fetAllTransferencias: $e, $s');
     }
-    return [];
+    return ResponseTransferenciasResult();
   }
-  Future<List<ResultTransFerencias>> fetAllEntradasProducts(
+
+  Future<ResponseTransferenciasResult> fetAllEntradasProducts(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -91,12 +106,12 @@ class TransferenciasRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return ResponseTransferenciasResult(); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
-      var response = await ApiRequestService().get(
-        endpoint: 'transferencias/producto_terminado',
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'transferencias/producto_terminado/v2',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -107,13 +122,28 @@ class TransferenciasRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          List<dynamic> batches = jsonResponse['result']['result'];
-          // Mapea los datos decodificados a una lista de BatchsModel
-          List<ResultTransFerencias> transferencias = batches
-              .map((data) => ResultTransFerencias.fromMap(data))
-              .toList();
+          if (jsonResponse['result']['code'] == 400) {
+            
+            return ResponseTransferenciasResult(
+              code: 400,
+              msg: jsonResponse['result']['msg'],
+              result: [],
+            );
+          } else if (jsonResponse['result']['code'] == 200) {
+            List<dynamic> batches = jsonResponse['result']['result'];
+            // Mapea los datos decodificados a una lista de BatchsModel
+            List<ResultTransFerencias> transferencias = batches
+                .map((data) => ResultTransFerencias.fromMap(data))
+                .toList();
 
-          return transferencias;
+            return ResponseTransferenciasResult(
+                code: 200, result: transferencias);
+          } else if (jsonResponse['result']['code'] == 403) {
+            return ResponseTransferenciasResult(
+              code: 403,
+              result: [],
+            );
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -138,18 +168,18 @@ class TransferenciasRepository {
                 ),
               ],
             );
-            return [];
+            return ResponseTransferenciasResult();
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return [];
+      return ResponseTransferenciasResult();
     } catch (e, s) {
       // Manejo de otros errores
       print('Error fetAllTransferencias: $e, $s');
     }
-    return [];
+    return ResponseTransferenciasResult();
   }
 
   Future<bool> sendTime(
@@ -371,6 +401,7 @@ class TransferenciasRepository {
     }
     return ResponseSenTransfer(); // Retornamos un objeto vacío en caso de error de red
   }
+
   Future<ResponseSenTransfer> sendProductTransferPick(
     TransferRequest transferRequest,
     bool isLoadingDialog,
@@ -450,7 +481,6 @@ class TransferenciasRepository {
           "params": {
             "id_transferencia": idTransfer,
             "crear_backorder": isBackorder,
-            
           }
         },
         isLoadinDialog: isLoadingDialog,
@@ -506,6 +536,7 @@ class TransferenciasRepository {
     }
     return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
   }
+
   Future<ResponseValidate> confirmationValidate(
     int idTransfer,
     bool isBackorder,

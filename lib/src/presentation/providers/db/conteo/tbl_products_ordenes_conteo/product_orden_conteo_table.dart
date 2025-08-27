@@ -41,6 +41,9 @@ class ProductosOrdenConteoTable {
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
   static const String columnIsLocationIsOk = 'is_location_is_ok';
 
+  // is_original
+  static const String columnIsOriginal = 'is_original';
+
   static String createTable() {
     return '''
     CREATE TABLE $tableName (
@@ -75,6 +78,7 @@ class ProductosOrdenConteoTable {
       $columnIsSelected INTEGER,
       $columnIsSeparate INTEGER,
       $columnIdMove INTEGER,
+      $columnIsOriginal INTEGER,
       $columnProductIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
       $columnIsLocationIsOk INTEGER

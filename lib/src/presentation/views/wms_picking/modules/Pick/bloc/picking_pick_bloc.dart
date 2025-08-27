@@ -271,8 +271,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         add(FetchPickingComponentesFromDBEvent(true));
         emit(PickingPickCompoLoaded(result));
         return;
+      }else{
+        emit(PickingPickCompoLoaded([]));
+        return;
       }
-      emit(PickingPickCompoLoaded(result));
     } catch (e) {
       emit(PickingPickCompoError(e.toString()));
     }

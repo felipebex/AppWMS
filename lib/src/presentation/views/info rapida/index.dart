@@ -31,24 +31,45 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
 
   void validateBarcode(String value) {
     final bloc = context.read<InfoRapidaBloc>();
-    final scan = bloc.scannedValue1.trim().isEmpty ? value : bloc.scannedValue1.trim();
+    final scan =
+        bloc.scannedValue1.trim().isEmpty ? value : bloc.scannedValue1.trim();
     _controllerSearch.text = '';
     bloc.add(GetInfoRapida(scan.toUpperCase(), false, false, false));
   }
 
   @override
   Widget build(BuildContext context) {
-    final isZebra = context.select((UserBloc b) => b.fabricante).contains("Zebra");
+    final isZebra =
+        context.select((UserBloc b) => b.fabricante).contains("Zebra");
 
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listenWhen: (previous, current) => current is! InfoRapidaInitial,
-      buildWhen: (previous, current) => current is InfoRapidaInitial || current is InfoRapidaLoaded,
+      buildWhen: (previous, current) =>
+          current is InfoRapidaInitial || current is InfoRapidaLoaded,
       listener: (context, state) {
-        if (state is InfoRapidaError) {
+        if (state is DeviceNotAuthorized) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: 'Dispositivo no autorizado',
+            titleStyle: TextStyle(
+                color: primaryColorApp,
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            middleText:
+                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            barrierDismissible:
+                false, // Evita que se cierre al tocar fuera del diálogo
+            onWillPop: () async => false,
+          );
+        } else if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',
-            'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
+            state.error ??
+                'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.red),
@@ -56,7 +77,8 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
         } else if (state is InfoRapidaLoading) {
           showDialog(
             context: context,
-            builder: (context) => const DialogLoading(message: "Buscando información..."),
+            builder: (context) =>
+                const DialogLoading(message: "Buscando información..."),
           );
         } else if (state is InfoRapidaLoaded) {
           Navigator.pop(context);
@@ -98,7 +120,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
               Expanded(
                 child: Column(
                   children: [
-                     SizedBox(height: size.height * 0.13),
+                    SizedBox(height: size.height * 0.13),
                     Image.asset(
                       'assets/icons/barcode.png',
                       width: 150,
@@ -131,11 +153,16 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                             autofocus: true,
                             onKey: (node, event) {
                               if (event is RawKeyDownEvent) {
-                                if (event.logicalKey == LogicalKeyboardKey.enter) {
-                                  validateBarcode(context.read<InfoRapidaBloc>().scannedValue1);
+                                if (event.logicalKey ==
+                                    LogicalKeyboardKey.enter) {
+                                  validateBarcode(context
+                                      .read<InfoRapidaBloc>()
+                                      .scannedValue1);
                                   return KeyEventResult.handled;
                                 } else {
-                                  context.read<InfoRapidaBloc>().add(UpdateScannedValueEvent(event.data.keyLabel));
+                                  context.read<InfoRapidaBloc>().add(
+                                      UpdateScannedValueEvent(
+                                          event.data.keyLabel));
                                   return KeyEventResult.handled;
                                 }
                               }
@@ -153,7 +180,6 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     );
   }
 }
-
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({super.key});
@@ -182,7 +208,8 @@ class CustomAppBar extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: white),
-                      onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, '/home'),
                     ),
                     const Spacer(),
                     const Text(

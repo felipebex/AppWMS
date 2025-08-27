@@ -541,21 +541,44 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       DeleteProductConteoEvent event, Emitter<ConteoState> emit) async {
     try {
       emit(DeleteProductConteoLoading());
-      final response = await _repository.deleteProductConteo(
-          false, event.currentProduct.idMove ?? 0);
 
-      if (response.result?.code == 200) {
-        await db.productoOrdenConteoRepository
-            .deleteProductConteo(event.currentProduct);
-        //actualizamos la lista de productos contados
-        add(LoadConteoAndProductsEvent(
-            ordenConteoId: event.currentProduct.orderId ?? 0));
+      //validamos si el producto es nuevo o original
 
-        emit(DeleteProductConteoSuccess());
-        //borramos el producto de la base de datos
+      if (event.currentProduct.isOriginal == 1) {
+        final response = await _repository.deleteInfoProductConteo(
+            false, event.currentProduct.idMove ?? 0);
+
+        if (response.result?.code == 200) {
+          await db.productoOrdenConteoRepository
+              .deleteInfoProductConteo(event.currentProduct);
+          //actualizamos la lista de productos contados
+          add(LoadConteoAndProductsEvent(
+              ordenConteoId: event.currentProduct.orderId ?? 0));
+
+          emit(DeleteProductConteoSuccess());
+          //borramos el producto de la base de datos
+        } else {
+          emit(DeleteProductConteoFailure(
+              response.result?.msg ?? 'Error al eliminar el producto'));
+        }
       } else {
-        emit(DeleteProductConteoFailure(
-            response.result?.msg ?? 'Error al eliminar el producto'));
+        //el producto es nuevo solo lo borramos de la bd
+        final response = await _repository.deleteProductConteo(
+            false, event.currentProduct.idMove ?? 0);
+
+        if (response.result?.code == 200) {
+          await db.productoOrdenConteoRepository
+              .deleteProductConteo(event.currentProduct);
+          //actualizamos la lista de productos contados
+          add(LoadConteoAndProductsEvent(
+              ordenConteoId: event.currentProduct.orderId ?? 0));
+
+          emit(DeleteProductConteoSuccess());
+          //borramos el producto de la base de datos
+        } else {
+          emit(DeleteProductConteoFailure(
+              response.result?.msg ?? 'Error al eliminar el producto'));
+        }
       }
     } catch (e, s) {
       print('Error al eliminar el producto: $e, $s');
@@ -908,7 +931,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       productosFiltersSearch.clear();
     }
 
-    emit(ConteoInitial());
+    emit(ResetValuesState());
   }
 
   void _onExpandLocationEvent(

@@ -242,3 +242,6 @@ class GetProductsFailure extends ConteoState {
 }
 
 class UpdateProductLoadingEvent extends ConteoState {}
+
+
+class ResetValuesState extends ConteoState {}

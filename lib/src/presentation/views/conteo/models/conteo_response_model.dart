@@ -297,6 +297,7 @@ class CountedLine {
   final dynamic isSelected;
   final dynamic isSeparate;
   final dynamic? idMove;
+  final dynamic isOriginal;
 
   final dynamic productIsOk;
   final dynamic isQuantityIsOk;
@@ -340,6 +341,7 @@ class CountedLine {
     this.productIsOk,
     this.isQuantityIsOk,
     this.isLocationIsOk,
+    this.isOriginal,
   });
 
   factory CountedLine.fromJson(String str) =>
@@ -391,6 +393,7 @@ class CountedLine {
         productIsOk: json["product_is_ok"],
         isQuantityIsOk: json["is_quantity_is_ok"],
         isLocationIsOk: json["is_location_is_ok"],
+        isOriginal: json["is_original"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -435,5 +438,6 @@ class CountedLine {
         "product_is_ok": productIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
         "is_location_is_ok": isLocationIsOk,
+        "is_original": isOriginal,
       };
 }

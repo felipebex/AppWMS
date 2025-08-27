@@ -13,6 +13,7 @@ class InfoRapidaLoaded extends InfoRapidaState {
 
   InfoRapidaLoaded(this.infoRapidaResult, this.message);
 }
+
 class InfoRapidaLoadedTransfer extends InfoRapidaState {
   final InfoRapidaResult infoRapidaResult;
   final String message;
@@ -20,7 +21,13 @@ class InfoRapidaLoadedTransfer extends InfoRapidaState {
   InfoRapidaLoadedTransfer(this.infoRapidaResult, this.message);
 }
 
-class InfoRapidaError extends InfoRapidaState {}
+class InfoRapidaError extends InfoRapidaState {
+  final String? error;
+  InfoRapidaError({this.error});
+}
+
+//estado para decir que el dispositivo no esta autorizado
+final class DeviceNotAuthorized extends InfoRapidaState {}
 
 //*estado para actualizar el valor escaneado
 
@@ -115,11 +122,9 @@ class ConfigurationError extends InfoRapidaState {
   ConfigurationError(this.error);
 }
 
-
 class EditLocationLoading extends InfoRapidaState {}
 
-class EditLocationSuccess extends InfoRapidaState {
-}
+class EditLocationSuccess extends InfoRapidaState {}
 
 class EditLocationFailure extends InfoRapidaState {
   final String error;

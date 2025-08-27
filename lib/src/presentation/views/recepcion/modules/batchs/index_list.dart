@@ -33,9 +33,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
               colorText: primaryColorApp,
               icon: Icon(Icons.error, color: Colors.red),
             );
-          }
-
-          if (state is AssignUserToOrderSuccess) {
+          } else if (state is AssignUserToOrderSuccess) {
             Get.snackbar(
               '360 Software Informa',
               "Se ha asignado el responsable correctamente",
@@ -50,9 +48,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
               'recepcion-batch',
               arguments: [state.ordenCompra, 0],
             );
-          }
-
-          if (state is FetchRecepcionBatchLoading) {
+          } else if (state is FetchRecepcionBatchLoading) {
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -61,6 +57,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
               ),
             );
           } else if (state is FetchRecepcionBatchFailure) {
+            Navigator.pop(context);
             Get.defaultDialog(
               title: '360 Software Informa',
               titleStyle: TextStyle(color: Colors.red, fontSize: 18),
@@ -85,6 +82,23 @@ class ListRecepctionBatchScreen extends StatelessWidget {
             );
           } else if (state is FetchRecepcionBatchSuccessFromBD) {
             Navigator.pop(context);
+          } else if (state is DeviceNotAuthorized) {
+            Navigator.pop(context);
+            Get.defaultDialog(
+              title: 'Dispositivo no autorizado',
+              titleStyle: TextStyle(
+                  color: primaryColorApp,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+              middleText:
+                  'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              barrierDismissible:
+                  false, // Evita que se cierre al tocar fuera del diálogo
+              onWillPop: () async => false,
+            );
           }
         },
         builder: (context, state) {
@@ -326,7 +340,6 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                     fontSize: 12,
                                                   )),
                                             ),
-                                          
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(

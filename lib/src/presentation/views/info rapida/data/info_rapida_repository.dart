@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/response_sen_transfer_info_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/transfer_info_request.dart';
@@ -22,11 +23,16 @@ class InfoRapidaRepository {
     }
 
     try {
+      //obtenemos la mac o el device id del dispositivo
+      final mac = await PrefUtils.getMacPDA();
+      final imei = await PrefUtils.getImeiPDA();
+
       print("barcode $barcode");
       var response = await ApiRequestService().getInfo(
-        endpoint: 'transferencias/quickinfo',
+        endpoint: 'transferencias/quickinfo/v2',
         body: {
           "params": {
+            "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
             "barcode": barcode,
           }
         },
@@ -40,7 +46,29 @@ class InfoRapidaRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          return InfoRapida.fromMap(jsonResponse);
+          if (jsonResponse['result']['code'] == 200) {
+            return InfoRapida.fromMap(jsonResponse);
+          } else if (jsonResponse['result']['code'] == 400) {
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          } else if (jsonResponse['result']['code'] == 403) {
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -91,10 +119,21 @@ class InfoRapidaRepository {
 
     try {
       print("id $id");
+      //obtenemos la mac o el device id del dispositivo
+      final mac = await PrefUtils.getMacPDA();
+      final imei = await PrefUtils.getImeiPDA();
       var response = await ApiRequestService().getInfo(
-        endpoint: 'transferencias/quickinfo/id',
+        endpoint: 'transferencias/quickinfo/id/v2',
         body: {
-          "params": isProduct ? {"id_product": id} : {"id_location": id}
+          "params": isProduct
+              ? {
+                  "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
+                  "id_product": id
+                }
+              : {
+                  "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
+                  "id_location": id,
+                }
         },
         isLoadinDialog: isLoadinDialog,
       );
@@ -106,7 +145,29 @@ class InfoRapidaRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          return InfoRapida.fromMap(jsonResponse);
+          if (jsonResponse['result']['code'] == 200) {
+            return InfoRapida.fromMap(jsonResponse);
+          } else if (jsonResponse['result']['code'] == 400) {
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          } else if (jsonResponse['result']['code'] == 403) {
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
