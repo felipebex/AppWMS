@@ -228,3 +228,13 @@ class ConfigurationError extends DevolucionesState {
 
 //estado para decir que el dispositivo no esta autorizado
 final class DeviceNotAuthorized extends DevolucionesState {}
+
+class FetchAllBarcodesSuccess extends DevolucionesState {
+  final List<BarcodeInventario> allBarcodes;
+  FetchAllBarcodesSuccess(this.allBarcodes);
+}
+
+class FetchAllBarcodesFailure extends DevolucionesState {
+  final String error;
+  FetchAllBarcodesFailure(this.error);
+}

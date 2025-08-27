@@ -358,13 +358,110 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             ],
           );
         } else if (state is SendDevolucionSuccess) {
-          Get.snackbar(
-            '360 Software Informa',
-            '${state.response.result?.msg}',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: const Icon(Icons.error, color: Colors.green),
-          );
+          // Get.snackbar(
+          //   '360 Software Informa',
+          //   '${state.response.result?.msg}',
+          //   backgroundColor: white,
+          //   colorText: primaryColorApp,
+          //   icon: const Icon(Icons.error, color: Colors.green),
+          // );
+
+//dialogo para mostrar la devolucion creada
+          showDialog(
+              context: context,
+              builder: (context) {
+                return BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: AlertDialog(
+                      actionsAlignment: MainAxisAlignment.spaceBetween,
+                      contentPadding: const EdgeInsets.all(5),
+                      title: Center(
+                          child: Text('DEVOLUCION CREADA',
+                              style: TextStyle(
+                                color: green,
+                                fontSize: 16,
+                              ))),
+                      content: Column(
+                        mainAxisSize:
+                            MainAxisSize.min, // Ajusta el tamaño del diálogo
+                        children: [
+                          Text(
+                              state.response.result?.nombreDevolucion ??
+                                  'Sin nombre',
+                              style: TextStyle(
+                                  color: primaryColorApp,
+                                  fontWeight: FontWeight.bold)),
+                          const SizedBox(
+                            height: 14,
+                          ),
+                          Row(
+                            children: [
+                              Text('Fecha: ', style: TextStyle(color: black)),
+                              Text(
+                                  state.response.result?.fechaCreacion
+                                          ?.toString() ??
+                                      'Sin fecha',
+                                  style: TextStyle(color: primaryColorApp)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text('Proveedor: ',
+                                  style: TextStyle(color: black)),
+                              Text(
+                                  state.response.result?.proveedorNombre ??
+                                      'Sin proveedor',
+                                  style: TextStyle(color: primaryColorApp)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text('Ubicacion destino: ',
+                                  style: TextStyle(color: black)),
+                              Text(
+                                  state.response.result
+                                          ?.ubicacionDestinoNombre ??
+                                      'Sin ubicacion',
+                                  style: TextStyle(color: primaryColorApp)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text('Total items: ',
+                                  style: TextStyle(color: black)),
+                              Text(
+                                  state.response.result?.totalItems
+                                          .toString() ??
+                                      "0",
+                                  style: TextStyle(color: primaryColorApp)),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+
+                          //btn de cerrar
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: grey,
+                                minimumSize: const Size(200, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                'CERRAR',
+                                style: TextStyle(
+                                  color: white,
+                                ),
+                              ))
+                        ],
+                      )),
+                );
+              });
         } else if (state is GetProductExists) {
           //mostramos un dialogo diciendo que el producto ya existe
 

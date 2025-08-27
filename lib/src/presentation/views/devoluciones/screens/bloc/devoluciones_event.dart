@@ -119,15 +119,9 @@ class CreateLoteProduct extends DevolucionesEvent {
   CreateLoteProduct(this.nameLote, this.fechaCaducidad);
 }
 
-class GetLotesProduct extends DevolucionesEvent {
+class GetLotesProduct extends DevolucionesEvent {}
 
-
-}
-
-
-class ClearValueEvent extends DevolucionesEvent {
-}
-
+class ClearValueEvent extends DevolucionesEvent {}
 
 class SearchProductEvent extends DevolucionesEvent {
   final String query;
@@ -137,15 +131,12 @@ class SearchProductEvent extends DevolucionesEvent {
   );
 }
 
-class SendDevolucionEvent extends DevolucionesEvent {
- 
-}
+class SendDevolucionEvent extends DevolucionesEvent {}
 
 class ValidateFieldsEvent extends DevolucionesEvent {
-    final String field;
+  final String field;
   final bool isOk;
   ValidateFieldsEvent(this.field, this.isOk);
-  
 }
 
 class ChangeStateIsDialogVisibleEvent extends DevolucionesEvent {
@@ -153,8 +144,10 @@ class ChangeStateIsDialogVisibleEvent extends DevolucionesEvent {
   ChangeStateIsDialogVisibleEvent(this.isVisible);
 }
 
-
-
 class LoadConfigurationsUser extends DevolucionesEvent {
   LoadConfigurationsUser();
+}
+
+class FetchAllBarcodesInventarioEvent extends DevolucionesEvent {
+  FetchAllBarcodesInventarioEvent();
 }

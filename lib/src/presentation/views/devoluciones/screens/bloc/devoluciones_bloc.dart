@@ -75,6 +75,8 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
   List<LotesProduct> listLotesProduct = [];
   List<LotesProduct> listLotesProductFilters = [];
 
+  List<BarcodeInventario> allBarcodeInventario = [];
+
   DevolucionesRepository devolucionesRepository = DevolucionesRepository();
 
   DevolucionesBloc() : super(DevolucionesInitial()) {
@@ -143,6 +145,27 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
     on<ChangeStateIsDialogVisibleEvent>(_onChangeStateIsDialogVisibleEvent);
 
     on<LoadConfigurationsUser>(_onLoadConfigurationsUserEvent);
+
+    //meotod para obtener todos los other barcodes y product_packing de inventario
+    on<FetchAllBarcodesInventarioEvent>(_onFetchAllBarcodesInventarioEvent);
+  }
+
+  void _onFetchAllBarcodesInventarioEvent(FetchAllBarcodesInventarioEvent event,
+      Emitter<DevolucionesState> emit) async {
+    try {
+      final response = await db.barcodesInventarioRepository.getAllBarcodes();
+      allBarcodeInventario.clear();
+      if (response.isNotEmpty) {
+        allBarcodeInventario = response;
+        print('Total de códigos de barras: ${allBarcodeInventario.length}');
+        emit(FetchAllBarcodesSuccess(allBarcodeInventario));
+      } else {
+        emit(FetchAllBarcodesFailure('No se encontraron códigos de barras'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onFetchAllBarcodesInventarioEvent: $e, $s");
+      emit(FetchAllBarcodesFailure('Error al obtener los códigos de barras'));
+    }
   }
 
   //* evento para cargar la configuracion del usuario
@@ -694,18 +717,72 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       viewQuantity = false;
       quantitySelected = 0;
     } else {
-      // Buscar el producto por código de barras
-      final product =
-          productos.firstWhereOrNull((p) => p.barcode == event.barcode);
+      // Buscar coincidencia directa por barcode o code
+      final matchedProduct = productos.firstWhere(
+        (p) =>
+            p.barcode?.toLowerCase() == event.barcode ||
+            p.code?.toLowerCase() == event.barcode,
+        orElse: () => Product(),
+      );
 
-      if (product == null) {
-        emit(GetProductFailure('Producto no encontrado'));
-        return;
+      print('Producto encontrado:: ${matchedProduct.toMap()}');
+
+      if (matchedProduct.barcode == null) {
+        print('❌ Producto no encontrado por codigo principal');
+        // Buscar en barcodes adicionales
+        final matchedBarcode = allBarcodeInventario.firstWhere(
+          (b) => b.barcode?.toLowerCase() == event.barcode,
+          orElse: () => BarcodeInventario(),
+        );
+
+        if (matchedBarcode.barcode == null) {
+          print('❌ Producto no encontrado en barcodes');
+          emit(GetProductFailure('Producto no encontrado'));
+          return;
+        }
+        print('✅ Producto encontrado en barcodes: ${matchedBarcode.toMap()}');
+        //se encontro un producto con los demas barcodes
+        // Buscar producto por id relacionado al barcode encontrado
+        final matchedById = productos.firstWhere(
+          (p) => p.productId == matchedBarcode.idProduct,
+          orElse: () => Product(),
+        );
+
+        if (matchedById.productId != null) {
+          print('✅ Producto encontrado por ID: ${matchedById.name}');
+
+          final productosRelacionados = productosDevolucion
+              .where((p) => p.productId == matchedById.productId)
+              .toList();
+
+          if (productosRelacionados.isNotEmpty) {
+            emit(GetProductExists(
+              productosRelacionados.first,
+              productosRelacionados,
+            ));
+            return;
+          }
+          if (matchedById.tracking == 'lot') {
+            add(GetLotesProduct());
+          }
+          // Actualizar el producto actual
+          currentProduct = matchedById;
+          viewQuantity = false;
+          quantitySelected = 0;
+          emit(GetProductSuccess(currentProduct, true));
+          return;
+        } else {
+          print('❌ Producto no encontrado por ID');
+          print('❌ Producto no encontrado en barcodes');
+          emit(GetProductFailure('Producto no encontrado'));
+          return;
+        }
       }
-      print('Producto encontrado: ${product.toMap()}');
+
+      print('Producto encontrado: ${matchedProduct.toMap()}');
       // Obtener todos los productos en devolución con el mismo productId
       final productosRelacionados = productosDevolucion
-          .where((p) => p.productId == product.productId)
+          .where((p) => p.productId == matchedProduct.productId)
           .toList();
 
       if (productosRelacionados.isNotEmpty) {
@@ -715,11 +792,11 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
         ));
         return;
       }
-      if (product.tracking == 'lot') {
+      if (matchedProduct.tracking == 'lot') {
         add(GetLotesProduct());
       }
       // Actualizar el producto actual
-      currentProduct = product;
+      currentProduct = matchedProduct;
       viewQuantity = false;
       quantitySelected = 0;
     }
