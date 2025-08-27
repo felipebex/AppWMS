@@ -243,7 +243,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           response.stockMoveLineId ?? 0,
         );
         emit(SendImageNovedadSuccess(response));
-        add(GetPorductsToEntrada(event.idRecepcion));
+        add(GetPorductsToEntrada(event.idRecepcion,
+            resultEntrada.type == 'dev' ? 'dev' : 'reception'));
       } else {
         emit(SendImageNovedadFailure(
             response.msg ?? 'Error al enviar la imagen'));
@@ -272,7 +273,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         );
 
         ///pedimos nuevamente los productos de la entrada
-        add(GetPorductsToEntrada(event.idRecepcion));
+        add(GetPorductsToEntrada(event.idRecepcion,
+            resultEntrada.type == 'dev' ? 'dev' : 'reception'));
 
         emit(DelectedProductWmsSuccess('Línea eliminada correctamente'));
       } else {
@@ -475,9 +477,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
         emit(SendTemperatureSuccess(
             response.result ?? 'Temperatura enviada correctamente'));
-        add(GetPorductsToEntrada(
-          currentProduct.idRecepcion ?? 0,
-        ));
+        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0,
+            resultEntrada.type == 'dev' ? 'dev' : 'reception'));
       } else {
         emit(SendTemperatureFailure(
             response.msg ?? 'Error al enviar la temperatura'));
@@ -522,9 +523,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
         emit(SendTemperatureSuccess(
             response.result ?? 'Temperatura enviada correctamente'));
-        add(GetPorductsToEntrada(
-          currentProduct.idRecepcion ?? 0,
-        ));
+        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0,
+            resultEntrada.type == 'dev' ? 'dev' : 'reception'));
       } else {
         emit(SendTemperatureFailure(
             response.msg ?? 'Error al enviar la temperatura'));
@@ -970,7 +970,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           ));
           return;
         } else {
-          add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
+          add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0,
+              resultEntrada.type == 'dev' ? 'dev' : 'reception'));
           lotesProductCurrent = LotesProduct();
           dateInicio = '';
           dateFin = '';
@@ -1028,7 +1029,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             null,
             currentProduct.idMove);
 
-        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
+        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0,
+            resultEntrada.type == 'dev' ? 'dev' : 'reception'));
         emit(SendProductToOrderFailure(responseSend.result?.msg ?? ""));
       }
     } catch (e, s) {
@@ -1523,11 +1525,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         //despues de obtener los productos, obtenemos todos los barcodes de esta entrada
         listAllOfBarcodes.clear();
         final responseBarcodes = await db.barcodesPackagesRepository
-            .getBarcodesByBatchIdAndType(event.idEntrada, 'reception');
+            .getBarcodesByBatchIdAndType(event.idEntrada, event.type);
 
         if (responseBarcodes != null && responseBarcodes is List) {
           listAllOfBarcodes = responseBarcodes;
         }
+
+        print("listAllOfBarcodes : ${listAllOfBarcodes.length}");
 
         emit(GetProductsToEntradaSuccess(response));
       } else {

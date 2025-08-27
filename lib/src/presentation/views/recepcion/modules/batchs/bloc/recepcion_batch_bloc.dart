@@ -34,6 +34,7 @@ class RecepcionBatchBloc
   List<LineasRecepcionBatch> listOfProductsName = [];
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+  List<Barcodes> listAllOfBarcodes = [];
 
   ReceptionBatch resultEntrada = ReceptionBatch();
 
@@ -977,6 +978,17 @@ class RecepcionBatchBloc
       if (response != null && response is List) {
         listProductsEntrada = [];
         listProductsEntrada = response;
+        //despues de obtener los productos, obtenemos todos los barcodes de esta entrada
+        listAllOfBarcodes.clear();
+        final responseBarcodes = await db.barcodesPackagesRepository
+            .getBarcodesByBatchIdAndType(event.idEntrada, 'reception-batch');
+
+        if (responseBarcodes != null && responseBarcodes is List) {
+          listAllOfBarcodes = responseBarcodes;
+        }
+
+        print("List all barcodes: ${listAllOfBarcodes.length}");
+
         emit(GetProductsToEntradaSuccess(response));
       } else {
         emit(GetProductsToEntradaFailure(

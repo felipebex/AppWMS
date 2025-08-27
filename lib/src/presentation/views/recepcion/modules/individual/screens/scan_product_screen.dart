@@ -1176,7 +1176,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                   const Spacer(),
+                                                    const Spacer(),
                                                     Image.asset(
                                                       "assets/icons/packing.png",
                                                       color: primaryColorApp,
@@ -1978,8 +1978,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     FocusScope.of(context).unfocus();
 
     context.read<RecepcionBloc>().add(CleanFieldsEvent());
-    context
-        .read<RecepcionBloc>()
-        .add(GetPorductsToEntrada(widget.ordenCompra?.id ?? 0));
+    context.read<RecepcionBloc>().add(GetPorductsToEntrada(
+        widget.ordenCompra?.id ?? 0,
+        widget.ordenCompra?.type == 'dev' ? 'dev' : 'reception'));
   }
 }

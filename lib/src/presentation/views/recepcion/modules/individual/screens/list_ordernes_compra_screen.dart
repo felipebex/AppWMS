@@ -72,7 +72,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
           );
           context
               .read<RecepcionBloc>()
-              .add(GetPorductsToEntrada(state.ordenCompra.id ?? 0));
+              .add(GetPorductsToEntrada(state.ordenCompra.id ?? 0, 'reception'));
           context
               .read<RecepcionBloc>()
               .add(CurrentOrdenesCompra(state.ordenCompra));
@@ -730,7 +730,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                 ));
             context
                 .read<RecepcionBloc>()
-                .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
+                .add(GetPorductsToEntrada(ordenCompra.id ?? 0, 'reception'));
             //traemos la orden de entrada actual desde la bd actualizada
             context
                 .read<RecepcionBloc>()
@@ -755,7 +755,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
       context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
       context
           .read<RecepcionBloc>()
-          .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
+          .add(GetPorductsToEntrada(ordenCompra.id ?? 0, 'reception'));
       //traemos la orden de entrada actual desde la bd actualizada
       context.read<RecepcionBloc>().add(CurrentOrdenesCompra(ordenCompra));
       Navigator.pushReplacementNamed(

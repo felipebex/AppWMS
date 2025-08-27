@@ -7,6 +7,7 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class Tab2ScreenRecepBatch extends StatefulWidget {
@@ -41,57 +42,48 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<RecepcionBatchBloc>();
 
-    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue5.trim().toLowerCase();
+    // Normalizar el valor escaneado
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
 
-    _controllerToDo.text = "";
+    _controllerToDo.clear();
+    print('🔎 Scan barcode: $scan');
 
-    // Obtener la lista de productos desde el Bloc
-    final listOfProducts = bloc.listProductsEntrada.where((element) {
-      return (element.isSeparate == 0 || element.isSeparate == null) &&
-          (element.isDoneItem == 0 || element.isDoneItem == null);
-    }).toList();
+    // Filtrar productos válidos
+    final listOfProducts = bloc.listProductsEntrada
+        .where(
+          (p) =>
+              (p.isSeparate == 0 || p.isSeparate == null) &&
+              (p.isDoneItem == 0 || p.isDoneItem == null),
+        )
+        .toList();
 
-    // Buscar el producto que coincide con el código de barras escaneado
-    final LineasRecepcionBatch product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan.trim(),
-      orElse: () =>
-          LineasRecepcionBatch(), // Devuelve null si no se encuentra ningún producto
-    );
-
-    if (product.idMove != null) {
+    /// Función auxiliar para procesar un producto encontrado
+    void processProduct(LineasRecepcionBatch product) {
       showDialog(
         context: context,
-        builder: (context) {
-          return const DialogLoading(
-            message: 'Cargando información del producto...',
-          );
-        },
+        builder: (_) => const DialogLoading(
+          message: 'Cargando información del producto...',
+        ),
       );
-      // Si el producto existe, ejecutar los estados necesarios
 
-      bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
-
-      bloc.add(ChangeQuantitySeparate(
-        0,
-        int.parse(product.productId),
-        product.idRecepcion ?? 0,
-        product.idMove ?? 0,
-      ));
-      bloc.add(ChangeProductIsOkEvent(
-        product.idRecepcion ?? 0,
-        true,
-        int.parse(product.productId),
-        0,
-        product.idMove ?? 0,
-      ));
-
-     
-
-      context.read<RecepcionBatchBloc>().add(FetchPorductOrder(
-            product,
-          ));
+      bloc
+        ..add(ValidateFieldsOrderEvent(field: "product", isOk: true))
+        ..add(ChangeQuantitySeparate(
+          0,
+          int.parse(product.productId),
+          product.idRecepcion ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(ChangeProductIsOkEvent(
+          product.idRecepcion ?? 0,
+          true,
+          int.parse(product.productId),
+          0,
+          product.idMove ?? 0,
+        ))
+        ..add(FetchPorductOrder(product));
 
       Future.delayed(const Duration(milliseconds: 1000), () {
         Navigator.pop(context);
@@ -101,18 +93,48 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
           arguments: [widget.ordenCompra, product],
         );
       });
-      print(product.toMap());
-      // Limpiar el valor escaneado
-      bloc.add(ClearScannedValueOrderEvent('toDo'));
-    } else {
-      // Mostrar alerta de error si el producto no se encuentra
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("Código erroneo"),
-        backgroundColor: Colors.red[200],
-        duration: const Duration(milliseconds: 500),
-      ));
-      bloc.add(ClearScannedValueOrderEvent('toDo'));
+
+      print('✅ Producto procesado: ${product.toMap()}');
     }
+
+    // 1️⃣ Buscar producto por código de barras principal
+    final product = listOfProducts.firstWhere(
+      (p) => p.productBarcode?.toLowerCase() == scan,
+      orElse: () => LineasRecepcionBatch(),
+    );
+
+    if (product.idMove != null) {
+      processProduct(product);
+      bloc.add(ClearScannedValueOrderEvent('toDo'));
+      return;
+    }
+
+    // 2️⃣ Buscar en lista de barcodes asociados (Si tienes una lista similar a la del primer código)
+    final barcode = bloc.listAllOfBarcodes.firstWhere(
+      (b) => b.barcode?.toLowerCase() == scan,
+      orElse: () => Barcodes(),
+    );
+
+    if (barcode.barcode != null) {
+      final productByBarcode = listOfProducts.firstWhere(
+        (p) => p.idMove == barcode.idMove,
+        orElse: () => LineasRecepcionBatch(),
+      );
+
+      if (productByBarcode.idMove != null) {
+        processProduct(productByBarcode);
+        bloc.add(ClearScannedValueOrderEvent('toDo'));
+        return;
+      }
+    }
+
+    // 3️⃣ Si no se encuentra nada → mostrar error
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text("Código erróneo"),
+      backgroundColor: Colors.red[200],
+      duration: const Duration(milliseconds: 500),
+    ));
+    bloc.add(ClearScannedValueOrderEvent('toDo'));
   }
 
   @override
@@ -123,9 +145,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
         return false;
       },
       child: BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
-        listener: (context, state) {
-          
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           final recepcionBloc = context.read<RecepcionBatchBloc>();
           return Scaffold(
@@ -172,7 +192,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
                               if (event.logicalKey ==
                                   LogicalKeyboardKey.enter) {
                                 validateBarcode(
-                                    context.read<RecepcionBatchBloc>().scannedValue5,
+                                    context
+                                        .read<RecepcionBatchBloc>()
+                                        .scannedValue5,
                                     context);
                                 return KeyEventResult.handled;
                               } else {

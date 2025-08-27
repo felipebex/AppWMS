@@ -48,7 +48,8 @@ class LoadConfigurationsUserOrder extends RecepcionEvent {}
 
 class GetPorductsToEntrada extends RecepcionEvent {
   final int idEntrada;
-  GetPorductsToEntrada(this.idEntrada);
+  final String type;
+  GetPorductsToEntrada(this.idEntrada, this.type);
 }
 
 class FetchPorductOrder extends RecepcionEvent {
