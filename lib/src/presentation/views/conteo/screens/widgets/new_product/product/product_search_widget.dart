@@ -19,6 +19,12 @@ class SearchProductConteoScreen extends StatefulWidget {
 class _SearchProductScreenState extends State<SearchProductConteoScreen> {
   String? selectedProductKey;
 
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);

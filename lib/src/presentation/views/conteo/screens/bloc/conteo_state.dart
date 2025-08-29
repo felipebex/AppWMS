@@ -243,5 +243,12 @@ class GetProductsFailure extends ConteoState {
 
 class UpdateProductLoadingEvent extends ConteoState {}
 
+class ResetValuesState extends ConteoState {
+}
+class ResetValuesLoadingState extends ConteoState {
+}
 
-class ResetValuesState extends ConteoState {}
+class OrderConteosByStateSuccess extends ConteoState {
+  final List<DatumConteo> conteos;
+  OrderConteosByStateSuccess(this.conteos);
+}

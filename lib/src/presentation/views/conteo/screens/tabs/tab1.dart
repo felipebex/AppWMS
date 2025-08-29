@@ -204,6 +204,59 @@ class Tab1ScreenConteo extends StatelessWidget {
                                   )),
                             ],
                           ),
+                          Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Estado : ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    ordeConteoBd?.numeroLineas ==
+                                            context
+                                                .read<ConteoBloc>()
+                                                .lineasContadas
+                                                .where((element) =>
+                                                    element.isDoneItem == 1)
+                                                .toList()
+                                                .length
+                                        ? 'Completado'
+                                        : context
+                                                .read<ConteoBloc>()
+                                                .lineasContadas
+                                                .where((element) =>
+                                                    element.isDoneItem == 1)
+                                                .toList()
+                                                .isEmpty
+                                            ? 'Pendiente'
+                                            : 'En progreso',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: ordeConteoBd?.numeroLineas ==
+                                                context
+                                                    .read<ConteoBloc>()
+                                                    .lineasContadas
+                                                    .where((element) =>
+                                                        element.isDoneItem == 1)
+                                                    .toList()
+                                                    .length
+                                            ? green
+                                            : context
+                                                    .read<ConteoBloc>()
+                                                    .lineasContadas
+                                                    .where((element) =>
+                                                        element.isDoneItem == 1)
+                                                    .toList()
+                                                    .isEmpty
+                                                ? red
+                                                : yellow),
+                                  )),
+                            ],
+                          ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Row(

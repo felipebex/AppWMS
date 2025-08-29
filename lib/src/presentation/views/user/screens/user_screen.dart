@@ -360,10 +360,7 @@ class UserScreen extends StatelessWidget {
                                                       fontSize: 14,
                                                       color: primaryColorApp)),
                                               // Text('WMS',
-                                              Text(
-                                                  context
-                                                      .read<UserBloc>()
-                                                      .mac,
+                                              Text(context.read<UserBloc>().mac,
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black))
@@ -377,9 +374,7 @@ class UserScreen extends StatelessWidget {
                                                       color: primaryColorApp)),
                                               // Text('WMS',
                                               Text(
-                                                  context
-                                                      .read<UserBloc>()
-                                                      .imei,
+                                                  context.read<UserBloc>().imei,
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black))
@@ -1484,6 +1479,74 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar producto manual: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualProductSelectionInventory ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar producto manual",
+                                                                  body:
+                                                                      "Permite seleccionar el producto en el proceso de inventario de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicación manual: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.locationManualInventory ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ubicación manual",
+                                                                  body:
+                                                                      "Permite seleccionar la ubicacion en el proceso de inventario de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                )
                                               ],
                                             ),
                                           ),
@@ -1608,7 +1671,7 @@ class UserScreen extends StatelessWidget {
                                                             "predefined"
                                                         ? "Predefinida"
                                                         : "Dinamica",
-                                                    style:  TextStyle(
+                                                    style: TextStyle(
                                                         fontSize: 14,
                                                         color: primaryColorApp),
                                                   ),
@@ -1631,7 +1694,7 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp))
                                                 ],
                                               ),
-                                              ],
+                                            ],
                                           ),
                                         ),
                                       ),

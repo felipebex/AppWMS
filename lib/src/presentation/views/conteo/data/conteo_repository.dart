@@ -13,7 +13,6 @@ import 'package:wms_app/src/presentation/views/conteo/models/request_send_produc
 import 'package:wms_app/src/presentation/views/conteo/models/response_delete_product_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/response_send_product_model.dart';
 
-
 class ConteoRepository {
 //metodo para traer todos los conteos
   Future<ResultConteo> fetchAllConteos(
@@ -118,14 +117,16 @@ class ConteoRepository {
                   "line_id": product.lineId.toString(),
                   "quantity_counted": product.quantityCounted,
                   "observation":
-                      product.observation == null || product.observation.isEmpty
-                          ? "Sin novedad"
-                          : product.observation,
+                      // product.observation == null || product.observation.isEmpty
+                      //     ? "Sin novedad"
+                      //     : product.observation
+                      "",
                   "time_line": product.timeLine,
                   "fecha_transaccion": product.fechaTransaccion,
                   "id_operario": product.idOperario,
                   "product_id": product.productId,
-                  "location_id": product.locationId==0 ? "" : product.locationId,
+                  "location_id":
+                      product.locationId == 0 ? "" : product.locationId,
                   "lote_id": product.loteId ?? "",
                 }
               ]
@@ -257,6 +258,7 @@ class ConteoRepository {
     }
     return ResponseDeleteProduct();
   }
+
   Future<ResponseDeleteProduct> deleteProductConteo(
       bool isLoadinDialog, int idMove) async {
     var connectivityResult = await Connectivity().checkConnectivity();

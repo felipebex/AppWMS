@@ -4,7 +4,6 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 
 class OrdenConteoRepository {
-  
   // Método para insertar/actualizar múltiples órdenes de conteo
   Future<void> insertOrUpdateOrdenes(List<DatumConteo> ordenes) async {
     try {
@@ -19,11 +18,13 @@ class OrdenConteoRepository {
         final List<Map<String, dynamic>> existing = await txn.query(
           OrdenTable.tableName,
           columns: [OrdenTable.columnId],
-          where: '${OrdenTable.columnId} IN (${List.filled(ordenIds.length, '?').join(',')})',
+          where:
+              '${OrdenTable.columnId} IN (${List.filled(ordenIds.length, '?').join(',')})',
           whereArgs: ordenIds,
         );
 
-        final Set<int> existingIds = existing.map((e) => e[OrdenTable.columnId] as int).toSet();
+        final Set<int> existingIds =
+            existing.map((e) => e[OrdenTable.columnId] as int).toSet();
 
         for (final orden in ordenes) {
           final id = orden.id ?? 0;
@@ -37,14 +38,18 @@ class OrdenConteoRepository {
             OrdenTable.columnResponsableName: orden.responsableName ?? "",
             OrdenTable.columnCreateDate: orden.createDate.toString() ?? "",
             OrdenTable.columnDateCount: orden.dateCount.toString() ?? "",
-            OrdenTable.columnMostrarCantidad: orden.mostrarCantidad == true ? 1 : 0,
+            OrdenTable.columnMostrarCantidad:
+                orden.mostrarCantidad == true ? 1 : 0,
             OrdenTable.columnCountType: orden.countType ?? "",
             OrdenTable.columnNumberCount: orden.numberCount ?? "",
             OrdenTable.columnNumeroLineas: orden.numeroLineas ?? 0,
-            OrdenTable.columnNumeroItemsContados: orden.numeroItemsContados ?? 0,
+            OrdenTable.columnNumeroItemsContados:
+                orden.numeroItemsContados ?? 0,
             OrdenTable.columnFilterType: orden.filterType ?? "",
-            OrdenTable.columnEnableAllLocations: orden.enableAllLocations == true ? 1 : 0,
-            OrdenTable.columnEnableAllProducts: orden.enableAllProducts == true ? 1 : 0,
+            OrdenTable.columnEnableAllLocations:
+                orden.enableAllLocations == true ? 1 : 0,
+            OrdenTable.columnEnableAllProducts:
+                orden.enableAllProducts == true ? 1 : 0,
             OrdenTable.columnIsSelected: orden.isSelected == true ? 1 : 0,
             OrdenTable.columnIsStarted: orden.isStarted == true ? 1 : 0,
             OrdenTable.columnIsFinished: orden.isFinished == true ? 1 : 0,
@@ -83,7 +88,8 @@ class OrdenConteoRepository {
   Future<List<DatumConteo>> getAllOrdenes() async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
-      final List<Map<String, dynamic>> maps = await db.query(OrdenTable.tableName);
+      final List<Map<String, dynamic>> maps =
+          await db.query(OrdenTable.tableName);
 
       return List.generate(maps.length, (i) {
         return DatumConteo.fromMap(maps[i]);
@@ -114,8 +120,6 @@ class OrdenConteoRepository {
       rethrow;
     }
   }
-
-
 
   // Método para eliminar una orden
   Future<int> deleteOrden(int id) async {
@@ -148,8 +152,7 @@ class OrdenConteoRepository {
     }
   }
 
-
- // Método: Actualizar un campo específico en la tabla OrdenTable
+  // Método: Actualizar un campo específico en la tabla OrdenTable
 
   Future<void> updateField(int id, String fieldName, dynamic value) async {
     try {
@@ -160,11 +163,42 @@ class OrdenConteoRepository {
         where: '${OrdenTable.columnId} = ?',
         whereArgs: [id],
       );
+      print('Campo $fieldName actualizado a $value para la orden con ID $id');
     } catch (e, s) {
       print('Error en updateField: $e -> $s');
       rethrow;
     }
   }
 
+  //metodo para actualizar la cantidad de numero_items_contados de una orden en +1
+  Future<void> incrementNumeroItemsContados(int id) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      await db.rawUpdate('''
+        UPDATE ${OrdenTable.tableName}
+        SET ${OrdenTable.columnNumeroItemsContados} = ${OrdenTable.columnNumeroItemsContados} + 1
+        WHERE ${OrdenTable.columnId} = ?
+      ''', [id]);
+      print('Incrementado numero_items_contados para la orden con ID $id');
+    } catch (e, s) {
+      print('Error en incrementNumeroItemsContados: $e -> $s');
+      rethrow;
+    }
+  }
 
+  //numero_lineas de una orden en +1
+  Future<void> incrementNumeroLineas(int id) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      await db.rawUpdate('''
+        UPDATE ${OrdenTable.tableName}
+        SET ${OrdenTable.columnNumeroLineas} = ${OrdenTable.columnNumeroLineas} + 1
+        WHERE ${OrdenTable.columnId} = ?
+      ''', [id]);
+      print('Incrementado numero_lineas para la orden con ID $id');
+    } catch (e, s) {
+      print('Error en incrementNumeroLineas: $e -> $s');
+      rethrow;
+    }
+  }
 }

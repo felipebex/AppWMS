@@ -99,6 +99,13 @@ class ConfigurationsRepository {
         ConfigurationsTable.columnShowPhotoTemperature:
             _boolToInt(configuration.result?.result?.showPhotoTemperature),
 
+        // location_manual_inventory
+        ConfigurationsTable.columnLocationManualInventory: _boolToInt(
+            configuration.result?.result?.locationManualInventory),
+        // manual_product_selection_inventory
+        ConfigurationsTable.columnManualProductSelectionInventory: _boolToInt(
+            configuration.result?.result?.manualProductSelectionInventory),
+
         // returns_location_dest_option
         ConfigurationsTable.columnReturnsLocationDestOption:
             configuration.result?.result?.returnsLocationDestOption ??
@@ -213,7 +220,10 @@ class ConfigurationsRepository {
               showPhotoTemperature: _intToBool(
                   map[ConfigurationsTable.columnShowPhotoTemperature]),
               returnsLocationDestOption: map[ConfigurationsTable.columnReturnsLocationDestOption] ?? 'dynamic',
-              
+              locationManualInventory: _intToBool(
+                  map[ConfigurationsTable.columnLocationManualInventory]),
+              manualProductSelectionInventory: _intToBool(
+                  map[ConfigurationsTable.columnManualProductSelectionInventory]),
             ),
           ),
         );

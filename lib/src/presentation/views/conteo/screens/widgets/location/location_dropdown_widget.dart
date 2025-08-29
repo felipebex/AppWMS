@@ -96,7 +96,7 @@ class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
             }).toList();
           },
           onChanged: conteoBloc
-                      .configurations.result?.result?.locationPickingManual ==
+                      .configurations.result?.result?.locationManualInventory ==
                   false
               ? null
               : conteoBloc.locationIsOk

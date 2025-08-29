@@ -307,19 +307,21 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         listener: (context, state) {
                       print("❤️‍🔥 state : $state");
 
-                      if (state is ResetValuesState) {
+                      if (state is ResetValuesLoadingState) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const DialogLoading(
+                              message: "Limpiando valores..."),
+                        );
                         Future.delayed(const Duration(seconds: 1), () {
                           FocusScope.of(context).requestFocus(focusNode1);
+                          Navigator.of(context).pop();
                         });
                         _handleDependencies();
-                      }
-
-                      if (state is UpdateProductLoadingEvent) {
+                      } else if (state is UpdateProductLoadingEvent) {
                         //cerramos el dialogo
                         Navigator.of(context).pop();
-                      }
-
-                      if (state is ProductAlreadySentState) {
+                      } else if (state is ProductAlreadySentState) {
                         //mostramos un dialogo DialogValidateProductSendWidget
 
                         showDialog(
@@ -330,9 +332,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                   product: state.product,
                                   cantidadController: cantidadController);
                             });
-                      }
-
-                      if (state is SendProductConteoFailure) {
+                      } else if (state is SendProductConteoFailure) {
                         Get.defaultDialog(
                           title: '360 Software Informa',
                           titleStyle:
@@ -362,7 +362,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
 
                       // * validamos en todo cambio de estado de cantidad separada
 
-                      if (state is SendProductConteoSuccess) {
+                      else if (state is SendProductConteoSuccess) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),
                           content: Text(state.response.result?.msg ?? ""),
@@ -370,9 +370,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                         ));
                         //limpiamos los valores pa volver a iniciar con otro producto
                         cantidadController.clear();
-                        context
-                            .read<ConteoBloc>()
-                            .add(ResetValuesEvent(resetAll: true));
+                        context.read<ConteoBloc>().add(
+                            ResetValuesEvent(resetAll: true, isLoading: false));
 
                         context.read<ConteoBloc>().add(
                               LoadConteoAndProductsEvent(
@@ -389,25 +388,19 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                             context.read<ConteoBloc>().ordenConteo,
                           ],
                         );
-                      }
-
-                      if (state is ChangeLoteIsOkState) {
+                      } else if (state is ChangeLoteIsOkState) {
                         //cambiamos el foco a cantidad cuando hemos seleccionado un lote
                         Future.delayed(const Duration(seconds: 1), () {
                           FocusScope.of(context).requestFocus(focusNode3);
                         });
                         _handleDependencies();
-                      }
-
-                      if (state is ChangeQuantitySeparateStateError) {
+                      } else if (state is ChangeQuantitySeparateStateError) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),
                           content: Text(state.msg),
                           backgroundColor: Colors.red[200],
                         ));
-                      }
-
-                      if (state is ValidateFieldsStateError) {
+                      } else if (state is ValidateFieldsStateError) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),
                           content: Text(state.msg),
@@ -416,7 +409,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                       }
 
                       //*estado cando la ubicacion de origen es cambiada
-                      if (state is ChangeLocationIsOkState) {
+                      else if (state is ChangeLocationIsOkState) {
                         //cambiamos el foco
                         Future.delayed(const Duration(seconds: 1), () {
                           FocusScope.of(context).requestFocus(focusNode2);
@@ -425,7 +418,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                       }
 
                       //*estado cuando el producto es leido ok
-                      if (state is ChangeProductOrderIsOkState) {
+                      else if (state is ChangeProductOrderIsOkState) {
                         //validamos si el producto tiene lote, si es asi pasamos el foco al lote
                         if (context
                                 .read<ConteoBloc>()
@@ -455,9 +448,9 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                   onPressed: () {
                                     cantidadController.clear();
 
-                                    context
-                                        .read<ConteoBloc>()
-                                        .add(ResetValuesEvent(resetAll: false));
+                                    context.read<ConteoBloc>().add(
+                                        ResetValuesEvent(
+                                            resetAll: false, isLoading: false));
 
                                     Navigator.pushReplacementNamed(
                                       context,
@@ -484,9 +477,9 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                 const Spacer(),
                                 IconButton(
                                   onPressed: () {
-                                    context
-                                        .read<ConteoBloc>()
-                                        .add(ResetValuesEvent(resetAll: false));
+                                    context.read<ConteoBloc>().add(
+                                        ResetValuesEvent(
+                                            resetAll: false, isLoading: true));
                                     _handleDependencies();
                                     cantidadController.clear();
                                   },

@@ -84,7 +84,7 @@ class ProductDropdownConteoWidget extends StatelessWidget {
             }).toList();
           },
           onChanged: conteoBloc
-                      .configurations.result?.result?.manualProductSelection ==
+                      .configurations.result?.result?.manualProductSelectionInventory ==
                   false
               ? null
               : conteoBloc.locationIsOk && !conteoBloc.productIsOk

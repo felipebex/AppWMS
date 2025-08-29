@@ -21,7 +21,7 @@ class ListConteoScreen extends StatelessWidget {
       child: BlocBuilder<ConteoBloc, ConteoState>(
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: white,
+              backgroundColor: white,
               body: Column(
                 children: [
                   //appBar
@@ -80,7 +80,51 @@ class ListConteoScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                const Spacer()
+                                const Spacer(),
+                                //todo menu de opciones de filtros, all, donde, pending, in progress
+                                PopupMenuButton<String>(
+                                    icon: const Icon(Icons.more_vert,
+                                        size: 20, color: white),
+                                    onSelected: (String value) {
+                                      print('Filtro seleccionado: $value');
+                                      context.read<ConteoBloc>().add(
+                                            OrderConteosByStateEvent(value),
+                                          );
+                                    },
+                                    itemBuilder: (BuildContext context) => [
+                                          const PopupMenuItem<String>(
+                                            value: 'all',
+                                            child: Text(
+                                              'Todos',
+                                              style: TextStyle(
+                                                  color: black, fontSize: 12),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'pending',
+                                            child: Text(
+                                              'Pendiente',
+                                              style: TextStyle(
+                                                  color: black, fontSize: 12),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'in_progress',
+                                            child: Text(
+                                              'En progreso',
+                                              style: TextStyle(
+                                                  color: black, fontSize: 12),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: 'done',
+                                            child: Text(
+                                              'Completado',
+                                              style: TextStyle(
+                                                  color: black, fontSize: 12),
+                                            ),
+                                          ),
+                                        ]),
                               ],
                             ),
                           ),
@@ -143,6 +187,7 @@ class ListConteoScreen extends StatelessWidget {
                                             conteo,
                                           ],
                                         );
+                                        print('orden id: ${conteo?.toJson()}');
                                       },
                                       child: Card(
                                         elevation: 3,
@@ -158,29 +203,41 @@ class ListConteoScreen extends StatelessWidget {
                                           subtitle: Column(
                                             children: [
                                               Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.person,
-                                                        color: primaryColorApp,
-                                                        size: 15,
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      'Estado:',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      conteo?.numeroLineas ==
+                                                              conteo
+                                                                  ?.numeroItemsContados
+                                                          ? 'Completado'
+                                                          : conteo?.numeroItemsContados ==
+                                                                  0
+                                                              ? 'Pendiente'
+                                                              : 'En progreso',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: conteo
+                                                                    ?.numeroLineas ==
+                                                                conteo
+                                                                    ?.numeroItemsContados
+                                                            ? green
+                                                            : conteo?.numeroItemsContados ==
+                                                                    0
+                                                                ? red
+                                                                : yellow,
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        conteo?.responsableName ??
-                                                            'Sin usuario',
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                conteo?.responsableName !=
-                                                                        null
-                                                                    ? black
-                                                                    : red),
-                                                      ),
-                                                    ],
-                                                  )),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                               Align(
                                                   alignment:
                                                       Alignment.centerLeft,
@@ -229,6 +286,10 @@ class ListConteoScreen extends StatelessWidget {
                                                     ),
                                                   ],
                                                 ),
+                                              ),
+                                              Divider(
+                                                color: grey.withOpacity(0.5),
+                                                thickness: 1,
                                               ),
                                               Align(
                                                 alignment: Alignment.centerLeft,
@@ -292,6 +353,30 @@ class ListConteoScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
+                                              Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.person,
+                                                        color: primaryColorApp,
+                                                        size: 15,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        conteo?.responsableName ??
+                                                            'Sin usuario',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                conteo?.responsableName !=
+                                                                        null
+                                                                    ? black
+                                                                    : red),
+                                                      ),
+                                                    ],
+                                                  )),
                                             ],
                                           ),
                                         ),

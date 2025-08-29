@@ -27,6 +27,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
   DatumConteo ordenConteo = DatumConteo();
   List<DatumConteo> ordenesDeConteo = [];
+  List<DatumConteo> ordenesDeConteoOriginals = [];
   List<CountedLine> lineasContadas = [];
   List<Allowed> ubicacionesConteo = [];
   List<Allowed> categoriasConteo = [];
@@ -177,6 +178,9 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     //metodo para actualizar informacion de un producto enviado
     on<UpdateProductConteoEvent>(_onUpdateProductConteoEvent);
 
+    //metodo para ordenar la lista de ordenes de conteo por estado
+    on<OrderConteosByStateEvent>(_onOrderConteosByStateEvent);
+
     //todo estados para un new product
     //Metodo para cargar informacion pa crear un nuevo producto
     on<LoadNewProductEvent>(_onLoadNewProductEvent);
@@ -184,6 +188,40 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     on<SearchLocationEvent>(_onSearchLocationEvent);
     //*metodo para bucar un producto
     on<SearchProductEvent>(_onSearchProductEvent);
+  }
+
+  void _onOrderConteosByStateEvent(
+      OrderConteosByStateEvent event, Emitter<ConteoState> emit) {
+    try {
+      //segun el estado que llegue en el evento ordenamos la lista
+      ordenesDeConteo = ordenesDeConteoOriginals;
+      if (event.stateOrder == 'all') {
+        //todas las ordenes
+        ordenesDeConteo = ordenesDeConteoOriginals;
+      } else if (event.stateOrder == 'done') {
+        //finalizadas
+
+        ordenesDeConteo = ordenesDeConteo
+            .where((orden) => orden.numeroLineas == orden.numeroItemsContados)
+            .toList();
+      } else if (event.stateOrder == 'in_progress') {
+        //en progreso
+
+        ordenesDeConteo = ordenesDeConteo
+            .where((orden) =>
+                orden.numeroItemsContados != 0 &&
+                orden.numeroItemsContados! < orden.numeroLineas!)
+            .toList();
+      } else if (event.stateOrder == 'pending') {
+        //pendientes
+        ordenesDeConteo = ordenesDeConteo
+            .where((orden) => orden.numeroItemsContados == 0)
+            .toList();
+      }
+      emit(OrderConteosByStateSuccess(ordenesDeConteo));
+    } catch (e, s) {
+      print("❌ Error en _onOrderConteosByStateEvent: $e, $s");
+    }
   }
 
 //metodo para actualizar un producto enviado
@@ -457,7 +495,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         productosFiltersSearch.clear();
         //asignamos todos los productos de la maestra a la lista de filtros
         productosFilters = productos;
-        productosFiltersSearch == productos;
+        productosFiltersSearch = productos;
 
         //filtro por ubicacion
       } else if (ordenConteo.filterType == "category" ||
@@ -508,6 +546,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       }
 
       print("ubicacionesFilters: ${ubicacionesFilters.length}");
+      print("productosFilters: ${productosFilters.length}");
 
       //cargamos las ubicaciones de la maestra
 
@@ -690,6 +729,14 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
           await db.productoOrdenConteoRepository
               .addNewProductConteo(newPorductBD);
+
+          //como es un producto nuevo tenemos que aumentar +1 la cantidad de  numero_items_contados y numero_lineas
+          await db.ordenRepository.incrementNumeroItemsContados(
+            ordenConteo.id ?? 0,
+          );
+          await db.ordenRepository.incrementNumeroLineas(
+            ordenConteo.id ?? 0,
+          );
         } else {
           //actualzamos la cantidad del producto en la bd
           await db.productoOrdenConteoRepository
@@ -711,6 +758,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
             1,
             productSend.lineId.toString(),
             productSend.locationId.toString(),
+          );
+
+          await db.ordenRepository.incrementNumeroItemsContados(
+            ordenConteo.id ?? 0,
           );
         }
 
@@ -931,7 +982,11 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       productosFiltersSearch.clear();
     }
 
-    emit(ResetValuesState());
+    if (event.isLoading == true) {
+      emit(ResetValuesLoadingState());
+    } else {
+      emit(ResetValuesState());
+    }
   }
 
   void _onExpandLocationEvent(
@@ -1306,10 +1361,13 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     emit(ConteoFromDBLoading());
     try {
       ordenesDeConteo.clear();
+      ordenesDeConteoOriginals.clear();
       final response = await db.ordenRepository.getAllOrdenes();
 
       if (response.isNotEmpty) {
         ordenesDeConteo = response;
+        ordenesDeConteoOriginals = response;
+
         emit(ConteoFromDBLoaded(ordenesDeConteo));
       } else {
         emit(

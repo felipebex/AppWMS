@@ -381,7 +381,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                             cantidadController.clear();
                             context
                                 .read<ConteoBloc>()
-                                .add(ResetValuesEvent(resetAll: true));
+                                .add(ResetValuesEvent(resetAll: true, isLoading: false));
 
                             context.read<ConteoBloc>().add(
                                   LoadConteoAndProductsEvent(
@@ -465,13 +465,10 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                         cantidadController.clear();
 
                                         context.read<ConteoBloc>().add(
-                                            ResetValuesEvent(resetAll: true));
-                                        // context
-                                        //     .read<WMSPickingBloc>()
-                                        //     .add(FilterBatchesBStatusEvent(
-                                        //       '',
-                                        //     ));
-
+                                            ResetValuesEvent(
+                                                resetAll: true,
+                                                isLoading: false));
+                                        
                                         Navigator.pushReplacementNamed(
                                           context,
                                           'conteo-detail',

@@ -1,19 +1,19 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/tabs/tab3.dart';
 
 class ConteoScreen extends StatefulWidget {
-
   final int initialTabIndex; // Nueva propiedad para la posición inicial
   final DatumConteo ordenConteo;
 
-   
   const ConteoScreen({
     super.key,
     this.initialTabIndex = 0,
@@ -24,7 +24,8 @@ class ConteoScreen extends StatefulWidget {
   State<ConteoScreen> createState() => _ConteoScreenState();
 }
 
-class _ConteoScreenState extends State<ConteoScreen>  with SingleTickerProviderStateMixin {
+class _ConteoScreenState extends State<ConteoScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -58,9 +59,12 @@ class _ConteoScreenState extends State<ConteoScreen>  with SingleTickerProviderS
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               //volvemos a llamar las entradas que tenemos guardadas en la bd
+
+              context.read<ConteoBloc>().add(GetConteosFromDBEvent());
+
               Navigator.pushReplacementNamed(
                 context,
-                'conteo', 
+                'conteo',
               );
             },
           ),
@@ -131,8 +135,6 @@ class _ConteoScreenState extends State<ConteoScreen>  with SingleTickerProviderS
                   Tab3ScreenConteo(
                     ordenConteo: widget.ordenConteo,
                   ),
-                 
-                 
                 ],
               ),
             ),

@@ -69,6 +69,12 @@ class ConfigurationsTable {
   //returns_location_dest_option
 static const String columnReturnsLocationDestOption = 'returns_location_dest_option';  
 
+
+//manual_product_selection_inventory
+  static const String columnManualProductSelectionInventory = 'manual_product_selection_inventory';
+  //location_manual_inventory
+  static const String columnLocationManualInventory = 'location_manual_inventory';
+
   
 
   // Método para crear la tabla
@@ -113,6 +119,8 @@ static const String columnReturnsLocationDestOption = 'returns_location_dest_opt
         $columnHideValidatePicking INTEGER,
         $columnShowPhotoTemperature INTEGER,
         $columnReturnsLocationDestOption TEXT,
+        $columnManualProductSelectionInventory INTEGER,
+        $columnLocationManualInventory INTEGER,
         $columnCountQuantityInventory INTEGER
       )
     ''';
