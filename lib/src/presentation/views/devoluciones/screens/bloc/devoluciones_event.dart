@@ -56,7 +56,12 @@ class LoadCurrentProductEvent extends DevolucionesEvent {
   LoadCurrentProductEvent(this.product);
 }
 
-class UpdateProductInfoEvent extends DevolucionesEvent {}
+class UpdateProductInfoEvent extends DevolucionesEvent {
+  final bool isIncrement;
+  final dynamic quantityManual;
+  UpdateProductInfoEvent(
+      {required this.isIncrement, required this.quantityManual});
+}
 
 class LoadTercerosEvent extends DevolucionesEvent {}
 

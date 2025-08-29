@@ -986,6 +986,8 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                       actions: [
                         ElevatedButton(
                           onPressed: () {
+                            bloc.add(ChangeStateIsDialogVisibleEvent(false));
+                            bloc.add(ClearScannedValueEvent('product'));
                             Navigator.pop(context); // Cierra el diálogo
                           },
                           style: ElevatedButton.styleFrom(

@@ -553,7 +553,12 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
           productId: currentProduct.productId,
           barcode: currentProduct.barcode,
           name: currentProduct.name,
-          quantity: quantitySelected,
+          quantity:
+
+              //validamos si la cantidad es para incrementar o es para remplazar
+              event.isIncrement
+                  ? (currentProduct.quantity ?? 0) + (event.quantityManual ?? 0)
+                  : quantitySelected,
           code: currentProduct.code,
           category: currentProduct.category,
           lotId: lotesProductCurrent.id ?? 0,
@@ -580,7 +585,9 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
           productId: currentProduct.productId,
           barcode: currentProduct.barcode,
           name: currentProduct.name,
-          quantity: quantitySelected,
+          quantity: event.isIncrement
+              ? (currentProduct.quantity ?? 0) + (event.quantityManual ?? 0)
+              : quantitySelected,
           code: currentProduct.code,
           category: currentProduct.category,
           lotId: lotesProductCurrent.id ?? 0,
