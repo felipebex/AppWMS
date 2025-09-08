@@ -134,6 +134,7 @@ class LocationInfoScreen extends StatelessWidget {
                                   controller: nameController,
                                   isNumber: false,
                                   isName: false,
+                                  isExpanded: true,
                                 ),
                                 EditableReferenceRow(
                                   title: 'Barcode: ',
@@ -146,6 +147,7 @@ class LocationInfoScreen extends StatelessWidget {
                                             isNumeric: false));
                                   },
                                   controller: barcodeController,
+                                   isExpanded: true,
                                 ),
                                 ProductInfoRow(
                                   title: 'Ubicación padre:',

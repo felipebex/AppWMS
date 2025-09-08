@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/response_terceros_model.dart';
@@ -29,6 +31,9 @@ class DevolucionesScreen extends StatefulWidget {
 
 class _DevolucionesScreenState extends State<DevolucionesScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   final TextEditingController _controllerSearch = TextEditingController();
   final TextEditingController _controllerLocation = TextEditingController();
   final TextEditingController _controllerContacto = TextEditingController();
@@ -208,6 +213,8 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
       bloc.add(ClearScannedValueEvent('location'));
     } else {
       print('Ubicacion no encontrada');
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       bloc.add(ClearScannedValueEvent('location'));
     }
   }
@@ -231,6 +238,8 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
       bloc.add(ClearScannedValueEvent('contacto'));
     } else {
       print('contacto no encontrada');
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       bloc.add(ClearScannedValueEvent('contacto'));
     }
   }
@@ -244,6 +253,8 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
       bloc.add(SetQuantityEvent(1));
       bloc.add(ClearScannedValueEvent('quantity'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       bloc.add(ClearScannedValueEvent('quantity'));
     }
   }
@@ -260,7 +271,30 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
       listener: (context, state) {
         print('Estado actual ❤️‍🔥: $state');
 
-        if (state is DeviceNotAuthorized) {
+        if (state is AddProductFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        } else if (state is DeviceNotAuthorized) {
           Get.defaultDialog(
             title: 'Dispositivo no autorizado',
             titleStyle: TextStyle(
@@ -296,6 +330,9 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                     const DialogLoading(message: "Buscando información..."),
           );
         } else if (state is GetProductFailure) {
+          _audioService.playErrorSound();
+          _vibrationService.vibrate();
+
           //esperamos 1 y cerramos el diálogo de carga
           Future.delayed(const Duration(seconds: 1), () {
             Navigator.pop(context); // Cierra el diálogo de carga

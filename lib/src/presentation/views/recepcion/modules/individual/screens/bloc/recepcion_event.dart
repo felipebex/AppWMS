@@ -216,19 +216,21 @@ class FilterUbicacionesAlmacenEvent extends RecepcionEvent {
 }
 
 class SendTemperatureEvent extends RecepcionEvent {
- final File file;
- final int moveLineId;
+  final File file;
+  final int moveLineId;
   SendTemperatureEvent({
     required this.file,
     required this.moveLineId,
   });
 }
+
 class SendTemperatureManualEvent extends RecepcionEvent {
- final int moveLineId;
+  final int moveLineId;
   SendTemperatureManualEvent({
     required this.moveLineId,
   });
 }
+
 class GetTemperatureEvent extends RecepcionEvent {
   final File file;
 
@@ -237,13 +239,11 @@ class GetTemperatureEvent extends RecepcionEvent {
   });
 }
 
-
 class DelectedProductWmsEvent extends RecepcionEvent {
   final int idRecepcion;
   final List<int> listIdMove;
   DelectedProductWmsEvent(this.idRecepcion, this.listIdMove);
 }
-
 
 class SendImageNovedad extends RecepcionEvent {
   final File file;
@@ -255,4 +255,10 @@ class SendImageNovedad extends RecepcionEvent {
     required this.idRecepcion,
     required this.moveLineId,
   });
+}
+
+class ToggleProductExpansionEvent extends RecepcionEvent {
+  final bool isExpanded;
+
+  ToggleProductExpansionEvent(this.isExpanded);
 }

@@ -102,6 +102,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool isLoteOk = true;
   bool isLocationDestOk = true;
   dynamic quantitySelected = 0;
+  bool isExpanded = false;
 
   String selectedAlmacen = '';
   //*lista de ubicaciones
@@ -215,10 +216,20 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     on<SendImageNovedad>(_onSendImageNovedad);
 
+    // ToggleProductExpansionEvent
+    on<ToggleProductExpansionEvent>(_onToggleProductExpansionEvent);
+
     //todo devoluciones
     on<FetchDevoluciones>(_onFetchDevoluciones);
     on<FetchDevolucionesOfDB>(_onFetchDevolucionesOfDB);
     on<SearchDevolucionEvent>(_onSearchDevolucionEvent);
+  }
+
+  void _onToggleProductExpansionEvent(
+      ToggleProductExpansionEvent event, Emitter<RecepcionState> emit) {
+    print('isExpanded: $isExpanded');
+    isExpanded = event.isExpanded;
+    emit(ProductExpansionToggled(isExpanded));
   }
 
 //metodo para enviar una imagen de novedad

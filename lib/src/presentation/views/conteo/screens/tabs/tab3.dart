@@ -168,7 +168,7 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
                 ),
                 if (product.productTracking == 'lot')
                   _buildInfoRow("Lote", product.lotName ?? ''),
-                  _buildInfoRow("Producto nuevo", product.isOriginal == 1 ? "No" : "Si"),
+                  _buildInfoRow("Tipo registro", product.isOriginal == 1 ? "Segun orden" : 'Registro nuevo'),
               ],
             ),
           ),

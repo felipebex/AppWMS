@@ -11,6 +11,7 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_validate_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_check_availability_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/response_delete_line_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transfer_send_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 
@@ -28,7 +29,7 @@ class TransferenciasRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'transferencias/v2',
+        endpoint: 'transferencias',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -111,7 +112,7 @@ class TransferenciasRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'transferencias/producto_terminado/v2',
+        endpoint: 'transferencias/producto_terminado',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -123,7 +124,6 @@ class TransferenciasRepository {
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 400) {
-            
             return ResponseTransferenciasResult(
               code: 400,
               msg: jsonResponse['result']['msg'],
@@ -688,5 +688,93 @@ class TransferenciasRepository {
       return CheckAvailabilityResponseResult(); // Retornamos un objeto vacío en caso de error de red
     }
     return CheckAvailabilityResponseResult(); // Retornamos un objeto vacío en caso de error de red
+  }
+
+//metodo para eliminar una linea de transferencia
+  Future<ResponseDeleteLine> deleteLineTransfer(
+    int idMove,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ResponseDeleteLine(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'transferencias/delete_line', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_linea": idMove,
+          }
+        },
+        isLoadinDialog: isLoadingDialog,
+      );
+      if (response.statusCode <= 500) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 200) {
+            return ResponseDeleteLine(
+              result: ResponseDeleteLineResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: ResultResult.fromMap(
+                        jsonResponse['result']['result'])
+              ),
+            );
+          } else {
+            return ResponseDeleteLine(
+              result: ResponseDeleteLineResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return ResponseDeleteLine();
+          }
+        }
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ResponseDeleteLine(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en deleteLineTransfer: $e, $s');
+      return ResponseDeleteLine(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return ResponseDeleteLine(); // Retornamos un objeto vacío en caso de error de red
   }
 }

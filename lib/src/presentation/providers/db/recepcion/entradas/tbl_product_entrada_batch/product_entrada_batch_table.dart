@@ -34,7 +34,7 @@ class ProductRecepcionBatchTable {
   static const String columnLoteId = 'lot_id';
   static const String columnLotName = 'lot_name';
   static const String columnLoteDate = 'lote_date';
-  
+
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
   static const String columnLocationDestIsOk = 'locationdest_is_ok';
@@ -44,15 +44,16 @@ class ProductRecepcionBatchTable {
   static const String columnTime = 'time';
 
   static const String columnIsDoneItem = 'is_done_item';
-  static const String columnDateTransaction  = 'date_transaction'; 
-  static const String columnCantidadFaltante  = 'cantidad_faltante'; 
+  static const String columnDateTransaction = 'date_transaction';
+  static const String columnCantidadFaltante = 'cantidad_faltante';
 
   //temperature
   static const String columnManejoTemperature = 'maneja_temperatura';
   static const String columnTemperature = 'temperatura';
   static const String columnImage = 'image';
 
-
+  //use_expiration_date
+  static const String columnUseExpirationDate = 'use_expiration_date';
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -98,6 +99,7 @@ class ProductRecepcionBatchTable {
       $columnCantidadFaltante INTEGER,
       $columnManejoTemperature INTEGER,
       $columnTemperature INTEGER,
+      $columnUseExpirationDate INTEGER,
       $columnImage TEXT,
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion_batch ($columnId)
 

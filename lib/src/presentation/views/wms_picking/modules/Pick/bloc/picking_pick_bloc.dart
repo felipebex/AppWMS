@@ -271,7 +271,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         add(FetchPickingComponentesFromDBEvent(true));
         emit(PickingPickCompoLoaded(result));
         return;
-      }else{
+      } else {
         emit(PickingPickCompoLoaded([]));
         return;
       }
@@ -394,8 +394,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           final origin = batch.origin?.toLowerCase() ?? '';
           final proveedor = batch.proveedor?.toLowerCase() ?? '';
           final backorder = batch.backorderName?.toLowerCase() ?? '';
-          return name.contains(query) || origin.contains(query) || proveedor.contains(query) || backorder.contains(query);
-
+          return name.contains(query) ||
+              origin.contains(query) ||
+              proveedor.contains(query) ||
+              backorder.contains(query);
         }).toList();
       } else {
         //parte de picking
@@ -404,7 +406,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           final origin = batch.origin?.toLowerCase() ?? '';
           final proveedor = batch.proveedor?.toLowerCase() ?? '';
           final backorder = batch.backorderName?.toLowerCase() ?? '';
-          return name.contains(query) || origin.contains(query) || proveedor.contains(query) || backorder.contains(query);
+          return name.contains(query) ||
+              origin.contains(query) ||
+              proveedor.contains(query) ||
+              backorder.contains(query);
         }).toList();
       }
     }
@@ -869,6 +874,29 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             0,
             event.product.idMove ?? 0);
       }
+
+      //marcamos el producto con la ubicacion no leida
+      await db.pickProductsRepository.setFieldTablePickProducts(
+          pickWithProducts.pick?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'is_location_is_ok',
+          0,
+          event.product.idMove ?? 0);
+
+      //marcamos el producto como no leido
+      await db.pickProductsRepository.setFieldTablePickProducts(
+          pickWithProducts.pick?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'is_quantity_is_ok',
+          0,
+          event.product.idMove ?? 0);
+      //product_is_ok
+      await db.pickProductsRepository.setFieldTablePickProducts(
+          pickWithProducts.pick?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'product_is_ok',
+          0,
+          event.product.idMove ?? 0);
 
       //ordenamos los productos por ubicacion
       await sortProductsByLocationId();

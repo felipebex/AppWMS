@@ -91,73 +91,70 @@ class IndexListPickScreen extends StatelessWidget {
                     ),
                     child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
                         builder: (context, status) {
-                                            return Column(
-                    children: [
-                      const WarningWidgetCubit(),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                            top: status != ConnectionStatus.online
-                                ? 20
-                                : 20,
-                            bottom: 0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                      return Column(
+                        children: [
+                          const WarningWidgetCubit(),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 10,
+                                right: 10,
+                                top:
+                                    status != ConnectionStatus.online ? 20 : 20,
+                                bottom: 0),
+                            child: Column(
                               children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: white),
-                                  onPressed: () {
-                                    Navigator.pushReplacementNamed(
-                                        context, '/home');
-                                  },
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    await DataBaseSqlite()
-                                        .delePick('pick');
-                                    bloc.add(FetchPickingPickEvent(true));
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width * 0.15),
-                                    child: Row(
-                                      children: [
-                                        const Text(
-                                          'PICKING - PICK',
-                                          style: TextStyle(
-                                              color: white,
-                                              fontSize: 18,
-                                              fontWeight:
-                                                  FontWeight.bold),
-                                        ),
-                    
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        //icono de refres
-                                        Icon(
-                                          Icons.refresh,
-                                          color: white,
-                                          size: 20,
-                                        ),
-                                      ],
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_back,
+                                          color: white),
+                                      onPressed: () {
+                                        Navigator.pushReplacementNamed(
+                                            context, '/home');
+                                      },
                                     ),
-                                  ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await DataBaseSqlite().delePick('pick');
+                                        bloc.add(FetchPickingPickEvent(true));
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            left: size.width * 0.15),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'PICKING - PICK',
+                                              style: TextStyle(
+                                                  color: white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            //icono de refres
+                                            Icon(
+                                              Icons.refresh,
+                                              color: white,
+                                              size: 20,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                  ],
                                 ),
-                                const Spacer(),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                                            );
-                                          }),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
 
                   SizedBox(
@@ -450,7 +447,6 @@ class IndexListPickScreen extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                          
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(
@@ -515,28 +511,28 @@ class IndexListPickScreen extends StatelessWidget {
                                             ),
                                           ),
                                           Visibility(
-                                          visible: batch.backorderId != 0,
-                                          child: Row(
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Icon(
-                                                    Icons.file_copy,
-                                                    color: primaryColorApp,
-                                                    size: 15),
-                                              ),
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(batch.backorderName ?? '',
-                                                  style: TextStyle(
-                                                      color: black,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ],
+                                            visible: batch.backorderId != 0,
+                                            child: Row(
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Icon(Icons.file_copy,
+                                                      color: primaryColorApp,
+                                                      size: 15),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(batch.backorderName ?? '',
+                                                    style: TextStyle(
+                                                        color: black,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                              ],
+                                            ),
                                           ),
-                                        ),
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(

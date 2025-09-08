@@ -187,6 +187,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
 
     //*metodo para validar la confirmacion
     on<ValidateConfirmEvent>(_onValidateConfirmEvent);
+
+    
   }
 
   void _onValidateConfirmEvent(

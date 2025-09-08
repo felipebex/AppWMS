@@ -99,7 +99,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
 
     // 1️⃣ Buscar producto por código de barras principal
     final product = listOfProducts.firstWhere(
-      (p) => p.productBarcode?.toLowerCase() == scan,
+      (p) => p.productBarcode?.toLowerCase() == scan
+      || p.productCode?.toLowerCase() == scan,
       orElse: () => LineasRecepcionBatch(),
     );
 
@@ -117,11 +118,11 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
 
     if (barcode.barcode != null) {
       final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.idMove == barcode.idMove,
+        (p) => p.productId == barcode.idProduct,
         orElse: () => LineasRecepcionBatch(),
       );
 
-      if (productByBarcode.idMove != null) {
+      if (productByBarcode.productId != null) {
         processProduct(productByBarcode);
         bloc.add(ClearScannedValueOrderEvent('toDo'));
         return;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 
@@ -23,6 +25,9 @@ class ProductPickDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     final batchBloc = context.read<PickingPickBloc>();
     return SizedBox(
       height: 48,
@@ -86,6 +91,8 @@ class ProductPickDropdownWidget extends StatelessWidget {
                                 0,
                                 currentProduct.idMove ?? 0));
                           } else {
+                            _vibrationService.vibrate();
+                            _audioService.playErrorSound();
                             batchBloc.add(ValidateFieldsEvent(
                                 field: "product", isOk: false));
                           }

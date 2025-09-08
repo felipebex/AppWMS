@@ -38,6 +38,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   bool isKeyboardVisible = false;
   bool isEdit = false;
   bool isNumericKeyboardType = false;
+  bool isExpanded = false;
   TextEditingController? controllerActivo;
 
   //*configuracion del usuario //permisos
@@ -77,6 +78,16 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
     //evento para editar una ubicacion
     on<EditLocationEvent>(_onEditLocationEvent);
+
+    // ToggleProductExpansionEvent
+    on<ToggleProductExpansionEvent>(_onToggleProductExpansionEvent);
+  }
+
+  void _onToggleProductExpansionEvent(
+      ToggleProductExpansionEvent event, Emitter<InfoRapidaState> emit) {
+    print('isExpanded: $isExpanded');
+    isExpanded = event.isExpanded;
+    emit(ProductExpansionToggled(isExpanded));
   }
 
   //*metodo para editar una ubicacion

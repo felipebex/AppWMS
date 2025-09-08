@@ -302,6 +302,7 @@ class CountedLine {
   final dynamic productIsOk;
   final dynamic isQuantityIsOk;
   final dynamic isLocationIsOk;
+  final dynamic useExpirationDate;
 
   CountedLine({
     this.id,
@@ -342,6 +343,7 @@ class CountedLine {
     this.isQuantityIsOk,
     this.isLocationIsOk,
     this.isOriginal,
+    this.useExpirationDate,
   });
 
   factory CountedLine.fromJson(String str) =>
@@ -394,6 +396,7 @@ class CountedLine {
         isQuantityIsOk: json["is_quantity_is_ok"],
         isLocationIsOk: json["is_location_is_ok"],
         isOriginal: json["is_original"],
+        useExpirationDate: json["use_expiration_date"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -439,5 +442,6 @@ class CountedLine {
         "is_quantity_is_ok": isQuantityIsOk,
         "is_location_is_ok": isLocationIsOk,
         "is_original": isOriginal,
+        "use_expiration_date": useExpirationDate,
       };
 }

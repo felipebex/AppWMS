@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';

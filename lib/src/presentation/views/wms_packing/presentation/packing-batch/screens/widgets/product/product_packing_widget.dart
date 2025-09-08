@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 
@@ -24,6 +26,8 @@ class ProductDropdownPackingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
     return SizedBox(
       height: 48,
       child: Center(
@@ -80,41 +84,44 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                           if (newValue == currentProduct.productId.toString()) {
                             batchBloc.add(ValidateFieldsPackingEvent(
                                 field: "product", isOk: true));
-      
+
                             batchBloc.add(ChangeQuantitySeparate(
                                 0,
                                 currentProduct.idProduct ?? 0,
                                 currentProduct.pedidoId ?? 0,
                                 currentProduct.idMove ?? 0));
-      
+
                             batchBloc.add(ChangeProductIsOkEvent(
                                 true,
                                 currentProduct.idProduct ?? 0,
                                 currentProduct.pedidoId ?? 0,
                                 0,
                                 currentProduct.idMove ?? 0));
-      
+
                             batchBloc.add(ChangeIsOkQuantity(
                                 true,
                                 currentProduct.idProduct ?? 0,
                                 currentProduct.pedidoId ?? 0,
                                 currentProduct.idMove ?? 0));
                           } else {
+                            _audioService.playErrorSound();
+                            _vibrationService.vibrate();
+
                             batchBloc.add(ValidateFieldsPackingEvent(
                                 field: "product", isOk: false));
-      
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 1000),
-                              content: const Text('Producto erroneo'),
-                              backgroundColor: Colors.red[200],
-                            ));
+
+                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            //   duration: const Duration(milliseconds: 1000),
+                            //   content: const Text('Producto erroneo'),
+                            //   backgroundColor: Colors.red[200],
+                            // ));
                           }
                         }
                       : null,
             ),
-      
+
             // Información del producto
-      
+
             if (isPDA)
               Align(
                 alignment: Alignment.centerLeft,
@@ -130,7 +137,7 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                   ),
                 ),
               ),
-      
+
             // Lote/Numero de serie
             if (isPDA)
               if (currentProductId.isNotEmpty)
@@ -142,7 +149,8 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Lote/Numero de serie',
-                          style: TextStyle(fontSize: 14, color: primaryColorApp),
+                          style:
+                              TextStyle(fontSize: 14, color: primaryColorApp),
                         ),
                       ),
                       Align(

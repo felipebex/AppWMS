@@ -597,7 +597,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             event.muelle.completeName ?? '',
             product.idMove ?? 0);
 
-          //actualizamos el id del muelle del producto
+        //actualizamos el id del muelle del producto
         await db.setFieldTableBatchProducts(
             product.batchId ?? 0,
             product.idProduct ?? 0,
@@ -745,6 +745,30 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             0,
             event.product.idMove ?? 0);
       }
+
+      //marcamos el producto con la ubicacion no leida
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'is_location_is_ok',
+          0,
+          event.product.idMove ?? 0);
+
+      //marcamos el producto como no leido
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'is_quantity_is_ok',
+          0,
+          event.product.idMove ?? 0);
+
+      //product_is_ok
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'product_is_ok',
+          0,
+          event.product.idMove ?? 0);
 
       //ordenamos los productos por ubicacion
       await sortProductsByLocationId();

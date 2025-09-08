@@ -28,6 +28,9 @@ class ProductInventarioTable {
   // dynamic quantity;
   static const String columnQuantity = 'quantity';
 
+  //use_expiration_date
+  static const String columnUseExpirationDate = 'use_expiration_date';
+
   static String createTable() {
     return '''
       CREATE TABLE $tableName (
@@ -47,6 +50,7 @@ class ProductInventarioTable {
         $columnLocationId INTEGER,
         $columnLocationName TEXT,
         $columnQuantity REAL,
+        $columnUseExpirationDate INTEGER,
         $columnVolumeUomName TEXT
         )
 

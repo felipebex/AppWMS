@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -36,6 +38,8 @@ class ScanProductTrasnferScreen extends StatefulWidget {
 
 class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   @override
   void initState() {
     super.initState();
@@ -183,6 +187,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       bloc.oldLocation = currentProduct.locationId.toString();
       bloc.add(ClearScannedValueEvent('location'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       bloc.add(ValidateFieldsEvent(field: "location", isOk: false));
       bloc.add(ClearScannedValueEvent('location'));
     }
@@ -208,6 +214,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
           validateScannedBarcode(scan, bloc.currentProduct, bloc, true);
 
       if (!isok) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
         bloc.add(ClearScannedValueEvent('product'));
       }
@@ -262,6 +270,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -278,6 +288,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     // Intentar convertir a double
     double? cantidad = double.tryParse(input);
     if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -377,6 +389,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
         bloc.add(ClearScannedValueEvent('muelle'));
       } else {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         print('Ubicacion no encontrada');
         bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
         bloc.add(ClearScannedValueEvent('muelle'));
@@ -1710,6 +1724,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad + bloc.quantitySelected >
             (currentProduct.cantidadFaltante)) {
+          _audioService.playErrorSound();
+          _vibrationService.vibrate();
           return false;
         }
 
@@ -1721,8 +1737,12 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
           currentProduct.idTransferencia ?? 0,
         ));
       }
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       return false;
     }
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
     return false;
   }
 }

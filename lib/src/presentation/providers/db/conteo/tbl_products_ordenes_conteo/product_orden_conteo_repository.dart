@@ -72,6 +72,9 @@ class ProductoOrdenConteoRepository {
             ProductosOrdenConteoTable.columnIdMove: producto.idMove ?? 0,
             ProductosOrdenConteoTable.columnIsOriginal:
                 producto.isOriginal == true ? 1 : 0,
+            //use_expiration_date
+            ProductosOrdenConteoTable.columnUseExpirationDate:
+                producto.useExpirationDate == true ? 1 : 0,
           };
 
           batch.insert(
@@ -343,6 +346,9 @@ class ProductoOrdenConteoRepository {
         ProductosOrdenConteoTable.columnIsSeparate: producto.isSeparate,
         ProductosOrdenConteoTable.columnIdMove: producto.idMove ?? 0,
         ProductosOrdenConteoTable.columnIsOriginal: 0,
+        //use_expiration_date
+        ProductosOrdenConteoTable.columnUseExpirationDate:
+            producto.useExpirationDate,
       };
 
       final resInsert = await db.insert(

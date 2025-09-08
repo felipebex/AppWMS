@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_picking_incompleted_widget.dart';
@@ -25,6 +27,9 @@ class MuellePickDropdownWidget extends StatefulWidget {
 }
 
 class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   @override
   Widget build(BuildContext context) {
     final batchBloc = context.read<PickingPickBloc>();
@@ -92,14 +97,16 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                             widget.currentProduct,
                           );
                         } else {
+                          _audioService.playErrorSound();
+                          _vibrationService.vibrate();
                           // Si la validación falla
                           batchBloc.add(ValidateFieldsEvent(
                               field: "locationDest", isOk: false));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: const Duration(milliseconds: 1000),
-                            content: const Text('Muelle erróneo'),
-                            backgroundColor: Colors.red[200],
-                          ));
+                          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          //   duration: const Duration(milliseconds: 1000),
+                          //   content: const Text('Muelle erróneo'),
+                          //   backgroundColor: Colors.red[200],
+                          // ));
                         }
                       }
                     : null,

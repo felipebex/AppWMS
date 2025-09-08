@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -30,6 +32,11 @@ class TransferInfoScreen extends StatefulWidget {
 
 class _TransferInfoScreenState extends State<TransferInfoScreen>
     with WidgetsBindingObserver {
+
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
+
   @override
   void initState() {
     super.initState();
@@ -100,6 +107,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
       bloc.add(ClearScannedValueEventTransfer('muelle'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('Ubicacion no encontrada');
       bloc.add(ValidateFieldsEventTransfer(field: "muelle", isOk: false));
       bloc.add(ClearScannedValueEventTransfer('muelle'));
@@ -130,6 +139,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -146,6 +157,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
     // Intentar convertir a double
     double? cantidad = double.tryParse(input);
     if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -158,6 +171,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
       return;
     }
     if (cantidad > widget.ubicacion!.cantidadMano) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         '360 Software Informa',
         'Cantidad superior a la cantidad en ubicacion',
@@ -170,6 +185,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
     if (bloc.selectedLocationDest.id == 0 ||
         bloc.selectedLocationDest.id == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         '360 Software Informa',
         'Ubicacion de destino no valida',
@@ -181,6 +198,8 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
     }
 
     if (cantidad == 0.0) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         '360 Software Informa',
         'Cantidad no valida',
@@ -675,22 +694,33 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                         },
                                         child: Column(
                                           children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'Ubicación de destino',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: primaryColorApp,
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.pushReplacementNamed(
+                                                    context,
+                                                    'search-locations-dest-trans-info',
+                                                    arguments: [
+                                                      widget.infoRapidaResult,
+                                                      widget.ubicacion
+                                                    ]);
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    'Ubicación de destino',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp,
+                                                    ),
                                                   ),
-                                                ),
-                                                const Spacer(),
-                                                Image.asset(
-                                                  "assets/icons/packing.png",
-                                                  color: primaryColorApp,
-                                                  width: 20,
-                                                ),
-                                              ],
+                                                  const Spacer(),
+                                                  Image.asset(
+                                                    "assets/icons/packing.png",
+                                                    color: primaryColorApp,
+                                                    width: 20,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                             const SizedBox(height: 10),
                                             Align(

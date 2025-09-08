@@ -101,6 +101,8 @@ class ProductsEntradaRepository {
             ProductRecepcionTable.columnTemperature: product.temperatura ?? 0,
             ProductRecepcionTable.columnImage: product.image ?? '',
             ProductRecepcionTable.columnImageNovedad: product.imageNovedad ?? '',
+            ProductRecepcionTable.columnUseExpirationDate:
+                product.useExpirationDate ?? 0,
 
           };
 
@@ -193,6 +195,8 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnTemperature: 0.0,
         ProductRecepcionTable.columnImage: '',
         ProductRecepcionTable.columnImageNovedad: '',
+        ProductRecepcionTable.columnUseExpirationDate:
+            producto.useExpirationDate ?? 0,
 
       };
 

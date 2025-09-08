@@ -6,30 +6,34 @@ sealed class TransferenciaState {}
 final class TransferenciaInitial extends TransferenciaState {}
 
 final class TransferenciaLoading extends TransferenciaState {}
+
 final class TransferenciaLoadingBD extends TransferenciaState {}
+
 final class EntregaLoading extends TransferenciaState {}
+
 final class EntregaLoadingBD extends TransferenciaState {}
 
 final class EntregaLoaded extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
   EntregaLoaded(this.transferencias);
 }
+
 final class TransferenciaLoaded extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
   TransferenciaLoaded(this.transferencias);
 }
 
 final class TransferenciaBDLoaded extends TransferenciaState {
-  final bool isLoading ;
+  final bool isLoading;
   final List<ResultTransFerencias> transferencias;
   TransferenciaBDLoaded(this.transferencias, this.isLoading);
 }
 
 //estado para decir que el dispositivo no esta autorizado
-final class  DeviceNotAuthorized extends TransferenciaState {}
+final class DeviceNotAuthorized extends TransferenciaState {}
 
 final class EntregaBDLoaded extends TransferenciaState {
-  final bool isLoading ;
+  final bool isLoading;
   final List<ResultTransFerencias> transferencias;
   EntregaBDLoaded(this.transferencias, this.isLoading);
 }
@@ -38,6 +42,7 @@ final class TransferenciaError extends TransferenciaState {
   final String message;
   TransferenciaError(this.message);
 }
+
 final class EntregaError extends TransferenciaState {
   final String message;
   EntregaError(this.message);
@@ -47,6 +52,7 @@ final class TransferenciaErrorBD extends TransferenciaState {
   final String message;
   TransferenciaErrorBD(this.message);
 }
+
 final class EntregaErrorBD extends TransferenciaState {
   final String message;
   EntregaErrorBD(this.message);
@@ -70,6 +76,7 @@ class ShowKeyboardState extends TransferenciaState {
   final bool showKeyboard;
   ShowKeyboardState({required this.showKeyboard});
 }
+
 class IsHomeState extends TransferenciaState {
   final bool isHome;
   IsHomeState({required this.isHome});
@@ -192,8 +199,6 @@ class AssignUserToTransferFailure extends TransferenciaState {
   AssignUserToTransferFailure(this.error);
 }
 
-
-
 class FinalizarTransferProductoLoading extends TransferenciaState {}
 
 class FinalizarTransferProductoSuccess extends TransferenciaState {}
@@ -203,8 +208,6 @@ class FinalizarTransferProductoFailure extends TransferenciaState {
   FinalizarTransferProductoFailure(this.error);
 }
 
-
-
 class FinalizarTransferProductoSplitLoading extends TransferenciaState {}
 
 class FinalizarTransferProductoSplitSuccess extends TransferenciaState {}
@@ -213,8 +216,6 @@ class FinalizarTransferProductoSplitFailure extends TransferenciaState {
   final String error;
   FinalizarTransferProductoSplitFailure(this.error);
 }
-
-
 
 class SendProductToTransferLoading extends TransferenciaState {}
 
@@ -237,10 +238,7 @@ class LoadLocationsFailure extends TransferenciaState {
   LoadLocationsFailure(this.error);
 }
 
-
-
 class CreateBackOrderOrNotLoading extends TransferenciaState {}
-
 
 class CreateBackOrderOrNotSuccess extends TransferenciaState {
   final bool isBackorder;
@@ -253,8 +251,6 @@ class CreateBackOrderOrNotFailure extends TransferenciaState {
   final bool isBackorder;
   CreateBackOrderOrNotFailure(this.error, this.isBackorder);
 }
-
-
 
 //*estados para cargar las novedades
 class NovedadesTransferLoadedState extends TransferenciaState {
@@ -269,8 +265,6 @@ class NovedadesTransferErrorState extends TransferenciaState {
   NovedadesTransferErrorState(this.message);
 }
 
-
-
 class FilterTransferByWarehouseLoading extends TransferenciaState {}
 
 class FilterTransferByWarehouseSuccess extends TransferenciaState {
@@ -283,9 +277,7 @@ class FilterTransferByWarehouseFailure extends TransferenciaState {
   FilterTransferByWarehouseFailure(this.error);
 }
 
-
 class CheckAvailabilityLoading extends TransferenciaState {}
-
 
 class CheckAvailabilitySuccess extends TransferenciaState {
   final ResultTransFerencias transferencia;
@@ -298,29 +290,21 @@ class CheckAvailabilityFailure extends TransferenciaState {
   CheckAvailabilityFailure(this.error);
 }
 
-
-
-
 class SearchLoading extends TransferenciaState {}
-
 
 class SearchFailure extends TransferenciaState {
   final String error;
   SearchFailure(this.error);
 }
 
-
-
 class SearchLocationSuccess extends TransferenciaState {
   final List<ResultUbicaciones> locations;
   SearchLocationSuccess(this.locations);
 }
 
-
 //estados para filtrar transferencias por type
 
 class FilterTransferByTypeLoading extends TransferenciaState {}
-
 
 class FilterTransferByTypeSuccess extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
@@ -331,7 +315,6 @@ class FilterTransferByTypeFailure extends TransferenciaState {
   final String error;
   FilterTransferByTypeFailure(this.error);
 }
-
 
 class FilterUbicacionesLoading extends TransferenciaState {}
 
@@ -345,7 +328,6 @@ class FilterUbicacionesSuccess extends TransferenciaState {
   FilterUbicacionesSuccess(this.locations);
 }
 
-
 class ValidateConfirmLoading extends TransferenciaState {}
 
 class ValidateConfirmSuccess extends TransferenciaState {
@@ -358,4 +340,19 @@ class ValidateConfirmSuccess extends TransferenciaState {
 class ValidateConfirmFailure extends TransferenciaState {
   final String error;
   ValidateConfirmFailure(this.error);
+}
+
+class DeleteLineTransferLoading extends TransferenciaState {}
+
+class DeleteLineTransferSuccess extends TransferenciaState {}
+
+class DeleteLineTransferFailure extends TransferenciaState {
+  final String error;
+  DeleteLineTransferFailure(this.error);
+}
+
+class ProductExpansionToggled extends TransferenciaState {
+  final bool isExpanded;
+
+  ProductExpansionToggled(this.isExpanded);
 }

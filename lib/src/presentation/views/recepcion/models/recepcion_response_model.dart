@@ -303,6 +303,7 @@ class LineasTransferencia {
   final dynamic temperatura;
   final dynamic image;  
   final dynamic imageNovedad;  
+  final dynamic useExpirationDate;
 
   LineasTransferencia({
     this.id,
@@ -351,6 +352,7 @@ class LineasTransferencia {
     this.temperatura,
     this.image,
     this.imageNovedad,
+    this.useExpirationDate,
   });
 
   factory LineasTransferencia.fromMap(Map<String, dynamic> json) =>
@@ -407,6 +409,7 @@ class LineasTransferencia {
         temperatura: json["temperatura"],
         image: json["image"],
         imageNovedad: json["image_novedad"],
+        useExpirationDate: json["use_expiration_date"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -460,5 +463,6 @@ class LineasTransferencia {
         "temperatura": temperatura,
         "image": image,
         "image_novedad": imageNovedad,
+        "use_expiration_date": useExpirationDate,
       };
 }

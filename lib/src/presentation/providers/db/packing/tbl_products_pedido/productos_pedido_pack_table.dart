@@ -49,6 +49,9 @@ class ProductosPedidosTable {
   static const String columnTimeSeparateStart = 'time_separate_start';
   static const String columnTimeSeparateEnd = 'time_separate_end';
 
+  //product_code
+  static const String columnProductCode = 'product_code';
+
   // Método para crear la tabla
   static String createTable() {
     return '''
@@ -92,11 +95,13 @@ class ProductosPedidosTable {
         $columnIdPackage INTEGER,
         $columnPackageName TEXT,
         $columnType TEXT,
+        
 
         $columnManejoTemperature INTEGER,
         $columnTemperature INTEGER,
         $columnImage TEXT,
         $columnImageNovedad TEXT,
+        $columnProductCode TEXT,
         $columnTimeSeparate REAL,
         $columnTimeSeparateStart VARCHAR(255),
         $columnTimeSeparateEnd VARCHAR(255),

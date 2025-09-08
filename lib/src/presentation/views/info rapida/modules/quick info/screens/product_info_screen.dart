@@ -78,7 +78,7 @@ class ProductInfoScreen extends StatelessWidget {
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.red),
           );
-        } 
+        }
       },
       builder: (context, state) {
         return WillPopScope(
@@ -127,8 +127,8 @@ class ProductInfoScreen extends StatelessWidget {
                               },
                               controller: nameController,
                               isName: true,
+                              isExpanded: true,
                             ),
-
                             EditableReferenceRow(
                               title: 'Referencia: ',
                               isEditMode: bloc.isEdit,
@@ -140,6 +140,8 @@ class ProductInfoScreen extends StatelessWidget {
                                         isNumeric: true));
                               },
                               controller: referenceController,
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
                             EditableReferenceRow(
                               title: 'Unidad: ',
@@ -154,8 +156,9 @@ class ProductInfoScreen extends StatelessWidget {
                                 //         isNumeric: true));
                               },
                               controller: uomController,
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             EditableReferenceRow(
                               title: 'Precio: ',
                               isEditMode: bloc.isEdit,
@@ -166,8 +169,9 @@ class ProductInfoScreen extends StatelessWidget {
                               },
                               controller: priceController,
                               isNumber: true,
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             EditableReferenceRow(
                               title: 'Peso Kg: ',
                               isEditMode: bloc.isEdit,
@@ -178,8 +182,9 @@ class ProductInfoScreen extends StatelessWidget {
                               },
                               controller: pesoController,
                               isNumber: true,
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             EditableReferenceRow(
                               title: 'Volumen m3: ',
                               isEditMode: bloc.isEdit,
@@ -191,8 +196,9 @@ class ProductInfoScreen extends StatelessWidget {
                               },
                               controller: volumenController,
                               isNumber: true,
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             EditableReferenceRow(
                               title: 'Barcode: ',
                               isEditMode: bloc.isEdit,
@@ -204,8 +210,9 @@ class ProductInfoScreen extends StatelessWidget {
                                         isNumeric: true));
                               },
                               controller: barcodeController,
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             EditableReferenceRow(
                               title: 'Categoria: ',
                               isEditMode: false,
@@ -213,8 +220,9 @@ class ProductInfoScreen extends StatelessWidget {
                               controller: TextEditingController(
                                 text: '${product?.categoria}',
                               ),
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             EditableReferenceRow(
                               title: 'Disponible: ',
                               isEditMode: false,
@@ -222,6 +230,8 @@ class ProductInfoScreen extends StatelessWidget {
                               controller: TextEditingController(
                                 text: '${product?.cantidadDisponible} UND',
                               ),
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
                             EditableReferenceRow(
                               title: 'Previsto: ',
@@ -230,8 +240,9 @@ class ProductInfoScreen extends StatelessWidget {
                               controller: TextEditingController(
                                 text: '${product?.previsto} UND',
                               ),
+                              isExpanded:
+                                  context.read<InfoRapidaBloc>().isExpanded,
                             ),
-
                             Visibility(
                               visible: bloc.isEdit,
                               child: Center(
@@ -279,7 +290,23 @@ class ProductInfoScreen extends StatelessWidget {
                               ),
                             )
 
-                            //listado de ubicaciones
+                            ///icono de desplegable
+                            ,
+                            GestureDetector(
+                              onTap: () {
+                                context.read<InfoRapidaBloc>().add(
+                                    ToggleProductExpansionEvent(
+                                        !context
+                                            .read<InfoRapidaBloc>()
+                                            .isExpanded));
+                              },
+                              child: Icon(
+                                context.read<InfoRapidaBloc>().isExpanded
+                                    ? Icons.expand_less
+                                    : Icons.expand_more,
+                                color: primaryColorApp,
+                              ),
+                            ),
                           ],
                         ),
                       ),

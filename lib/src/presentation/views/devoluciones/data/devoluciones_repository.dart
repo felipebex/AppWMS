@@ -173,8 +173,8 @@ class DevolucionesRepository {
           body: {
             "params": {
               "id_producto": idProduct,
-              "nombre_lote": nameLote,
-              "fecha_vencimiento": dateLote,
+              "nombre_lote": nameLote ?? "",
+              "fecha_vencimiento": dateLote ?? "",
             }
           });
 
@@ -192,6 +192,15 @@ class DevolucionesRepository {
               result: jsonResponse['result'] != null
                   ? ResponseNewLoteResult.fromMap(jsonResponse['result'])
                   : null,
+            );
+          }else{
+            return ResponseNewLote(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: ResponseNewLoteResult(
+                code: jsonResponse['result']['code'] ?? 500,
+                msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
+              ),
             );
           }
         } else if (jsonResponse.containsKey('error')) {
@@ -254,7 +263,7 @@ class DevolucionesRepository {
     try {
       var response = await ApiRequestService().postPacking(
         endpoint:
-            'crear_devs/v2', // Cambiado para que sea el endpoint correspondiente
+            'crear_devs', // Cambiado para que sea el endpoint correspondiente
         body: {
           "params": {
             "device_id": mac == "02:00:00:00:00:00" ? imei : mac,

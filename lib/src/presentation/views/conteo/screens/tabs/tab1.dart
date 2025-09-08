@@ -122,7 +122,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                               Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Total productos : ',
+                                    'Total lineas : ',
                                     style: TextStyle(
                                         fontSize: 14, color: primaryColorApp),
                                   )),
@@ -140,7 +140,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                               Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Total productos contados : ',
+                                    'Total lineas contadas : ',
                                     style: TextStyle(
                                         fontSize: 14, color: primaryColorApp),
                                   )),

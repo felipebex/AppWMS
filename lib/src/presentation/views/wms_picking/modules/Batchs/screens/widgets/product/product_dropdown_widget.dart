@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 
@@ -21,6 +23,9 @@ class ProductDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SizedBox(
@@ -82,12 +87,15 @@ class ProductDropdownWidget extends StatelessWidget {
               );
             }).toList();
           },
-          onChanged: batchBloc.configurations.result?.result?.manualProductSelection == false
+          onChanged: batchBloc
+                      .configurations.result?.result?.manualProductSelection ==
+                  false
               ? null
               : batchBloc.locationIsOk && !batchBloc.productIsOk
-                  ? (String? newValue) {
+                  ? (String? newValue) async {
                       if (newValue == currentProduct.productId.toString()) {
-                        batchBloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+                        batchBloc.add(
+                            ValidateFieldsEvent(field: "product", isOk: true));
                         batchBloc.add(ChangeProductIsOkEvent(
                           true,
                           currentProduct.idProduct ?? 0,
@@ -96,7 +104,10 @@ class ProductDropdownWidget extends StatelessWidget {
                           currentProduct.idMove ?? 0,
                         ));
                       } else {
-                        batchBloc.add(ValidateFieldsEvent(field: "product", isOk: false));
+                        _vibrationService.vibrate();
+                        audioService.playErrorSound();
+                        batchBloc.add(
+                            ValidateFieldsEvent(field: "product", isOk: false));
                       }
                     }
                   : null,

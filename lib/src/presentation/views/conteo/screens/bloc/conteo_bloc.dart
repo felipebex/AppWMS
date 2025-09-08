@@ -32,6 +32,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
   List<Allowed> ubicacionesConteo = [];
   List<Allowed> categoriasConteo = [];
   List<Barcodes> listOfBarcodes = [];
+  List<Barcodes> listAllOfBarcodes = [];
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
   List<LotesProduct> listLotesProductFilters = [];
@@ -1297,8 +1298,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       //actualizamos las variables de estado segun el producto actual
 
-      locationIsOk = productBD?.isLocationIsOk == 1 ? true : false;
-      productIsOk = productBD?.productIsOk == 1 ? true : false;
+      locationIsOk = false;
+      productIsOk = false;
+      // locationIsOk = productBD?.isLocationIsOk == 1 ? true : false;
+      // productIsOk = productBD?.productIsOk == 1 ? true : false;
 
       print('Variable locationIsOk: $locationIsOk');
       print('Variable productIsOk: $productIsOk');
@@ -1390,6 +1393,16 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       //obtenemos las lineas contadas de esa orden de conteo
       lineasContadas = await db.productoOrdenConteoRepository
           .getProductosAllByOrderId(event.ordenConteoId ?? 0);
+
+      listAllOfBarcodes.clear();
+      final responseBarcodes = await db.barcodesPackagesRepository
+          .getBarcodesByBatchIdAndType(event.ordenConteoId, 'orden');
+
+      if (responseBarcodes != null && responseBarcodes is List) {
+        listAllOfBarcodes = responseBarcodes;
+      }
+
+      print("listAllOfBarcodes : ${listAllOfBarcodes.length}");
 
       //obtenemos las ubicaciones de esa orden de conteo
       ubicacionesConteo = await db.ubicacionesConteoRepository

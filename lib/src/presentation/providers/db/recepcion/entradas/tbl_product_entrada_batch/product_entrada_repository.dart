@@ -109,6 +109,8 @@ class ProductsEntradaBatchRepository {
             ProductRecepcionBatchTable.columnTemperature:
                 product.temperatura ?? 0.0,
             ProductRecepcionBatchTable.columnImage: product.image ?? '',
+            ProductRecepcionBatchTable.columnUseExpirationDate:
+                product.useExpirationDate ?? 0,
           };
 
           // Si la clave ya existe, se hace UPDATE; si no, se hace INSERT.
@@ -205,6 +207,8 @@ class ProductsEntradaBatchRepository {
         ProductRecepcionBatchTable.columnTemperature:
             producto.temperatura ?? 0.0,
         ProductRecepcionBatchTable.columnImage: producto.image ?? '',
+        ProductRecepcionBatchTable.columnUseExpirationDate:
+            producto.useExpirationDate ?? 0,
       };
 
       await db.insert(

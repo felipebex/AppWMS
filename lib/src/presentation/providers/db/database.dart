@@ -83,7 +83,7 @@ class DataBaseSqlite {
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 1,
+      version: 8,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -200,7 +200,12 @@ class DataBaseSqlite {
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 7) {}
+    if (oldVersion < 8) {
+      await db.execute('''
+      ALTER TABLE ${ProductosPedidosTable.tableName}
+      ADD COLUMN ${ProductosPedidosTable.columnProductCode} TEXT NOT NULL DEFAULT '';
+    ''');
+    }
   }
 
   //todo repositorios de las tablas

@@ -37,7 +37,7 @@ class WmsPackingRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'batch_packing/v2',
+        endpoint: 'batch_packing',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -132,7 +132,7 @@ class WmsPackingRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'transferencias/pack/v2',
+        endpoint: 'transferencias/pack',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );

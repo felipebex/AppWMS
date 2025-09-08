@@ -289,6 +289,7 @@ class LineasRecepcionBatch {
 
   final dynamic dateStart;
   final dynamic dateEnd;
+  final dynamic useExpirationDate;
 
   LineasRecepcionBatch({
     this.id,
@@ -336,6 +337,7 @@ class LineasRecepcionBatch {
     this.manejaTemperatura,
     this.temperatura,
     this.image,
+    this.useExpirationDate,
   });
 
   factory LineasRecepcionBatch.fromMap(Map<String, dynamic> json) =>
@@ -391,6 +393,7 @@ class LineasRecepcionBatch {
         manejaTemperatura: json["maneja_temperatura"],
         temperatura: json["temperatura"],
         image: json["image"],
+        useExpirationDate: json["use_expiration_date"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -443,6 +446,7 @@ class LineasRecepcionBatch {
         "maneja_temperatura": manejaTemperatura,
         "temperatura": temperatura,
         "image": image,
+        "use_expiration_date": useExpirationDate,
       };
 }
 

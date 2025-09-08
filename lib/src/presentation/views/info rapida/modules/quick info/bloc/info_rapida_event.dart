@@ -81,3 +81,9 @@ class EditLocationEvent extends InfoRapidaEvent {
     this.barcode,
   );
 }
+
+class ToggleProductExpansionEvent extends InfoRapidaEvent {
+  final bool isExpanded;
+
+  ToggleProductExpansionEvent(this.isExpanded);
+}

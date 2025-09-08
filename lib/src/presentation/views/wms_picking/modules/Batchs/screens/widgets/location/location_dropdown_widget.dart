@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 
@@ -22,13 +24,15 @@ class LocationDropdownWidget extends StatefulWidget {
   });
 
   @override
-  State<LocationDropdownWidget> createState() =>
-      _LocationDropdownWidgetState();
+  State<LocationDropdownWidget> createState() => _LocationDropdownWidgetState();
 }
 
 class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     final screenWidth = MediaQuery.of(context).size.width;
     final batchBloc = widget.batchBloc;
 
@@ -94,15 +98,18 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
               );
             }).toList();
           },
-          onChanged: batchBloc.configurations.result?.result?.locationPickingManual == false
+          onChanged: batchBloc
+                      .configurations.result?.result?.locationPickingManual ==
+                  false
               ? null
               : batchBloc.locationIsOk
                   ? null
-                  : (String? newValue) {
+                  : (String? newValue) async {
                       final expected =
                           widget.currentProduct.locationId.toString();
                       if (newValue == expected) {
-                        batchBloc.add(ValidateFieldsEvent(field: "location", isOk: true));
+                        batchBloc.add(
+                            ValidateFieldsEvent(field: "location", isOk: true));
                         batchBloc.add(ChangeLocationIsOkEvent(
                           widget.currentProduct.idProduct ?? 0,
                           batchBloc.batchWithProducts.batch?.id ?? 0,
@@ -110,7 +117,10 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
                         ));
                         batchBloc.oldLocation = expected;
                       } else {
-                        batchBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
+                         _vibrationService.vibrate();
+                         _audioService.playErrorSound();
+                        batchBloc.add(ValidateFieldsEvent(
+                            field: "location", isOk: false));
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),
                           content: const Text('Ubicación errónea'),

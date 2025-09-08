@@ -52,6 +52,7 @@ class ProductosPedidosRepository {
         ProductosPedidosTable.columnTimeSeparate: 0,
         ProductosPedidosTable.columnTimeSeparateStart: null,
         ProductosPedidosTable.columnTimeSeparateEnd: null,
+        ProductosPedidosTable.columnProductCode: producto.productCode ?? '',
       };
 
       await db.insert(
@@ -149,6 +150,9 @@ class ProductosPedidosRepository {
                 producto.imageNovedad ?? '',
             ProductosPedidosTable.columnTimeSeparate:
                 producto.timeSeparate ?? 0,
+            ProductosPedidosTable.columnProductCode:
+                producto.productCode ?? '',
+                
           };
 
           if (existingProducto.isNotEmpty) {
@@ -259,6 +263,8 @@ class ProductosPedidosRepository {
                         : null,
                 ProductosPedidosTable.columnTimeSeparate:
                     producto.timeSeparate ?? 0,
+                ProductosPedidosTable.columnProductCode:
+                    producto.productCode ?? '',
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -331,6 +337,8 @@ class ProductosPedidosRepository {
                         : null,
                 ProductosPedidosTable.columnTimeSeparate:
                     producto.timeSeparate ?? 0,
+                ProductosPedidosTable.columnProductCode:
+                    producto.productCode ?? '',
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );

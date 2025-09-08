@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/widgets/dialog_dispositivo_no_autorizado_widget.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
@@ -36,6 +37,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
   @override
   void initState() {
     super.initState();
@@ -70,6 +72,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void _onDataUser() async {
     context.read<HomeBloc>().add(HomeLoadData());
+    context.read<UserBloc>().add(LoadInfoDeviceEventUser());
   }
 
   @override
@@ -168,6 +171,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 context.read<HomeBloc>().add(AppVersionEvent());
               },
               child: Scaffold(
+               
                 backgroundColor: white,
                 body: Container(
                   color: white,

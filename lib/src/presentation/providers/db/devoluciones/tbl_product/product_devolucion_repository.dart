@@ -71,6 +71,8 @@ class ProductDevolucionRepository {
                     : producto.locationName ?? '',
             ProductDevolucionTable.columnQuantity:
                 producto.quantity == false ? 0.0 : producto.quantity ?? 0.0,
+            ProductDevolucionTable.columnUseExpirationDate:
+                producto.useExpirationDate == false ? 0 : 1
           };
 
           batch.insert(
@@ -137,6 +139,8 @@ class ProductDevolucionRepository {
             producto.locationName == false ? "" : producto.locationName ?? '',
         ProductDevolucionTable.columnQuantity:
             producto.quantity == false ? 0.0 : producto.quantity ?? 0.0,
+        ProductDevolucionTable.columnUseExpirationDate:
+            producto.useExpirationDate == false ? 0 : 1
       };
 
       // Insertar el producto directamente
@@ -158,7 +162,8 @@ class ProductDevolucionRepository {
       Database db = await _databaseProvider.getDatabaseInstance();
       await db.delete(
         ProductDevolucionTable.tableName,
-        where: '${ProductDevolucionTable.columnProductId} = ? AND ${ProductDevolucionTable.columnLotId} = ?',
+        where:
+            '${ProductDevolucionTable.columnProductId} = ? AND ${ProductDevolucionTable.columnLotId} = ?',
         whereArgs: [productId, lotId],
       );
     } catch (e, s) {
@@ -255,12 +260,15 @@ class ProductDevolucionRepository {
             producto.locationName == false ? "" : producto.locationName ?? '',
         ProductDevolucionTable.columnQuantity:
             producto.quantity == false ? 0.0 : producto.quantity ?? 0.0,
+        ProductDevolucionTable.columnUseExpirationDate:
+            producto.useExpirationDate == false ? 0 : 1
       };
 
       await db.update(
         ProductDevolucionTable.tableName,
         productoMap,
-        where: '${ProductDevolucionTable.columnProductId} = ? AND ${ProductDevolucionTable.columnLotId} = ?',
+        where:
+            '${ProductDevolucionTable.columnProductId} = ? AND ${ProductDevolucionTable.columnLotId} = ?',
         whereArgs: [producto.productId, producto.lotId],
       );
 

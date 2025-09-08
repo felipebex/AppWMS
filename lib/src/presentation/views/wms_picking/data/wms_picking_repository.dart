@@ -37,7 +37,7 @@ class WmsPickingRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'batchs/v2',
+        endpoint: 'batchs',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );

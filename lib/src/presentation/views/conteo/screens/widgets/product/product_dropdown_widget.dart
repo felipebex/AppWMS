@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
@@ -22,6 +24,8 @@ class ProductDropdownConteoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
     final screenWidth = MediaQuery.of(context).size.width;
 
     return SizedBox(
@@ -83,8 +87,8 @@ class ProductDropdownConteoWidget extends StatelessWidget {
               );
             }).toList();
           },
-          onChanged: conteoBloc
-                      .configurations.result?.result?.manualProductSelectionInventory ==
+          onChanged: conteoBloc.configurations.result?.result
+                      ?.manualProductSelectionInventory ==
                   false
               ? null
               : conteoBloc.locationIsOk && !conteoBloc.productIsOk
@@ -102,6 +106,8 @@ class ProductDropdownConteoWidget extends StatelessWidget {
                           currentProduct.idMove ?? 0,
                         ));
                       } else {
+                        _vibrationService.vibrate();
+                        _audioService.playErrorSound();
                         conteoBloc.add(
                             ValidateFieldsEvent(field: "product", isOk: false));
                       }

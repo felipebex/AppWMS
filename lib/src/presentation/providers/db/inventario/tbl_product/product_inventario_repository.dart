@@ -69,6 +69,8 @@ class ProductInventarioRepository {
                     : producto.locationName ?? '',
             ProductInventarioTable.columnQuantity:
                 producto.quantity == false ? 0.0 : producto.quantity ?? 0.0,
+            ProductInventarioTable.columnUseExpirationDate:
+                producto.useExpirationDate == true ? 1 : 0,
           };
 
           batch.insert(

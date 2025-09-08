@@ -95,6 +95,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   List<ResultUbicaciones> ubicacionesFilters = [];
 
   List<String> tiposTransferencia = [];
+  bool isExpanded = false;
 
   //*metodo para empezar o terminar timepo
 
@@ -190,11 +191,135 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     //*metodo para validar la confirmacion
     on<ValidateConfirmEvent>(_onValidateConfirmEvent);
 
+    //metodo para eliminar una linea enviada
+    on<DeleteLineTransferEvent>(_onDeleteLineTransferEvent);
+
+    // ToggleProductExpansionEvent
+    on<ToggleProductExpansionEvent>(_onToggleProductExpansionEvent);
+
     //TODO PARA ENTRADA DE PRODUCTOS
     //metodo para obtener todas las transferencias
     on<FetchAllEntrega>(_onfetchEntrega);
     //metodo para obtener todas las transferencias de la base de datos
     on<FetchAllEntregaDB>(_onfetchEntradaDB);
+  }
+
+  void _onToggleProductExpansionEvent(
+      ToggleProductExpansionEvent event, Emitter<TransferenciaState> emit) {
+    print('isExpanded: $isExpanded');
+    isExpanded = event.isExpanded;
+    emit(ProductExpansionToggled(isExpanded));
+  }
+
+//metodo para eliminar una linea enviada
+  void _onDeleteLineTransferEvent(
+      DeleteLineTransferEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(DeleteLineTransferLoading());
+      final response = await _transferenciasRepository.deleteLineTransfer(
+          event.idMove, false);
+
+      if (response.result?.code == 200) {
+        //actualizamos de. estado el producto que fue eliminado
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'is_selected',
+          0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'time',
+          0,
+          event.idMove,
+        );
+
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'location_dest_is_ok',
+          0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'is_quantity_is_ok',
+          0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'is_separate',
+          0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'is_location_is_ok',
+          0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'product_is_ok',
+          0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'date_start',
+          "",
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'date_end',
+          "",
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'quantity_done',
+          response.result?.result?.cantidadFaltante ?? 0,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository
+            .setFieldTableProductTransferDone(
+          event.idTransfer,
+          event.idProduct,
+          'is_done_item',
+          0,
+          event.idMove,
+        );
+        add(GetPorductsToTransfer(event.idTransfer));
+        emit(DeleteLineTransferSuccess());
+      } else {
+        emit(DeleteLineTransferFailure(
+            response.result?.msg ?? 'Error desconocido'));
+      }
+    } catch (e, s) {
+      emit(DeleteLineTransferFailure('Error al eliminar la linea'));
+      print('Error en el _onDeleteLineTransferEvent: $e, $s');
+    }
   }
 
   void _onValidateConfirmEvent(

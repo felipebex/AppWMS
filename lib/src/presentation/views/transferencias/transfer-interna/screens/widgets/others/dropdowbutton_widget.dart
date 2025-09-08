@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
@@ -34,6 +36,9 @@ class DialogTransferAdvetenciaCantidadScreen extends StatefulWidget {
 
 class _DialogAdvetenciaCantidadScreenState
     extends State<DialogTransferAdvetenciaCantidadScreen> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   String? selectedNovedad; // Variable para almacenar la opción seleccionada
 
   @override
@@ -78,7 +83,8 @@ class _DialogAdvetenciaCantidadScreenState
                     ), // Color del texto normal
                   ),
                   TextSpan(
-                    text: '${widget.currentProduct.cantidadFaltante.toStringAsFixed(2)}',
+                    text:
+                        '${widget.currentProduct.cantidadFaltante.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: green,
                       fontSize: 14,
@@ -200,6 +206,8 @@ class _DialogAdvetenciaCantidadScreenState
                   Navigator.pop(context); // Cierra el diálogo
                   widget.onAccepted(); // Llama al callback
                 } else {
+                  _audioService.playErrorSound();
+                  _vibrationService.vibrate();
                   Get.snackbar("360 Software Informa",
                       'Seleccione una novedad, para continuar',
                       backgroundColor: white,

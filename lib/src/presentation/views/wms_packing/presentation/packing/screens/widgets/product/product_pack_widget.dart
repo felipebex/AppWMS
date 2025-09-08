@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 
@@ -21,6 +23,9 @@ class ProductDropdownPackWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     return SizedBox(
       height: 48,
       child: Center(
@@ -97,14 +102,17 @@ class ProductDropdownPackWidget extends StatelessWidget {
                                 currentProduct.pedidoId ?? 0,
                                 currentProduct.idMove ?? 0));
                           } else {
+                            _audioService.playErrorSound();
+                            _vibrationService.vibrate();
+
                             batchBloc.add(ValidateFieldsPackingEvent(
                                 field: "product", isOk: false));
 
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 1000),
-                              content: const Text('Producto erroneo'),
-                              backgroundColor: Colors.red[200],
-                            ));
+                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            //   duration: const Duration(milliseconds: 1000),
+                            //   content: const Text('Producto erroneo'),
+                            //   backgroundColor: Colors.red[200],
+                            // ));
                           }
                         }
                       : null,

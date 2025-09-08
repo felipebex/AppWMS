@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -41,6 +43,9 @@ class BatchScreen extends StatefulWidget {
 
 class _BatchDetailScreenState extends State<BatchScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   String scannedValue6 = '';
   String? selectedLocation;
   String? selectedMuelle;
@@ -154,7 +159,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
     return scan.isEmpty ? manual.trim().toLowerCase() : scan;
   }
 
-  void validateLocation(String value) {
+  void validateLocation(String value) async {
     final bloc = context.read<BatchBloc>();
     final scan = _getScannedOrManual(bloc.scannedValue1, value);
     final product = bloc.currentProduct;
@@ -167,13 +172,16 @@ class _BatchDetailScreenState extends State<BatchScreen>
           bloc.batchWithProducts.batch?.id ?? 0, product.idMove ?? 0));
       bloc.oldLocation = product.locationId.toString();
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
+
       bloc.add(ValidateFieldsEvent(field: "location", isOk: false));
     }
 
     bloc.add(ClearScannedValueEvent('location'));
   }
 
-  void validateProduct(String value) {
+  void validateProduct(String value) async {
     final bloc = context.read<BatchBloc>();
     final scan = _getScannedOrManual(bloc.scannedValue2, value);
     final product = bloc.currentProduct;
@@ -186,8 +194,10 @@ class _BatchDetailScreenState extends State<BatchScreen>
       bloc.add(ChangeProductIsOkEvent(true, product.idProduct ?? 0,
           bloc.batchWithProducts.batch?.id ?? 0, 0, product.idMove ?? 0));
     } else {
-      final isOk = validateScannedBarcode(scan, product, bloc, true);
+      final isOk = await validateScannedBarcode(scan, product, bloc, true);
       if (!isOk) {
+        _vibrationService.vibrate();
+        _audioService.playErrorSound();
         bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
       }
     }
@@ -195,7 +205,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
     bloc.add(ClearScannedValueEvent('product'));
   }
 
-  void validateQuantity(String value) {
+  void validateQuantity(String value) async {
     print("Validando cantidad: $value");
     final bloc = context.read<BatchBloc>();
     final scan = _getScannedOrManual(bloc.scannedValue3, value);
@@ -209,13 +219,13 @@ class _BatchDetailScreenState extends State<BatchScreen>
       bloc.add(AddQuantitySeparate(
           product.idProduct ?? 0, product.idMove ?? 0, 1, false));
     } else {
-      validateScannedBarcode(scan, product, bloc, false);
+      await validateScannedBarcode(scan, product, bloc, false);
     }
 
     bloc.add(ClearScannedValueEvent('quantity'));
   }
 
-  void validateMuelle(String value) {
+  void validateMuelle(String value) async {
     final bloc = context.read<BatchBloc>();
     final scan = _getScannedOrManual(bloc.scannedValue4, value);
     final product = bloc.currentProduct;
@@ -230,6 +240,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
     if (scan == expected) {
       validatePicking(bloc, context, product);
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
+
       bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
     }
 
@@ -621,11 +634,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                             productIsOk: batchBloc.productIsOk,
                             quantityIsOk: batchBloc.quantityIsOk,
                             size: size,
-                            muelleHint: 
-                            
-                           
-                                batchBloc.batchWithProducts.batch?.muelle ??
-                                    "",
+                            muelleHint:
+                                batchBloc.batchWithProducts.batch?.muelle ?? "",
                             onValidateMuelle: (value) {
                               validateMuelle(
                                   value); // tu función actual de validación
@@ -671,7 +681,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                       batchBloc.filteredProducts.where((e) {
                                 return (e.isSeparate == 1) &&
                                     (e.idLocationDest ==
-                                        batchBloc.batchWithProducts.batch?.idMuellePadre);
+                                        batchBloc.batchWithProducts.batch
+                                            ?.idMuellePadre);
                               }).toList()),
                               const Spacer(),
                               Padding(
@@ -681,8 +692,11 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                     onPressed: batchBloc.filteredProducts
                                             .where((e) {
                                               return (e.isSeparate == 1) &&
-                                    (e.idLocationDest ==
-                                        batchBloc.batchWithProducts.batch?.idMuellePadre);
+                                                  (e.idLocationDest ==
+                                                      batchBloc
+                                                          .batchWithProducts
+                                                          .batch
+                                                          ?.idMuellePadre);
                                             })
                                             .toList()
                                             .isEmpty
@@ -839,6 +853,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -855,6 +871,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
     // Intentar convertir a double
     double? cantidad = double.tryParse(input);
     if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -896,6 +914,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
           },
         );
       } else {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 1000),
           content: const Text('Cantidad errónea'),
@@ -1005,8 +1025,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
     }
   }
 
-  bool validateScannedBarcode(String scannedBarcode,
-      ProductsBatch currentProduct, BatchBloc batchBloc, bool isProduct) {
+  Future<bool> validateScannedBarcode(String scannedBarcode,
+      ProductsBatch currentProduct, BatchBloc batchBloc, bool isProduct) async {
     // Buscar el barcode que coincida con el valor escaneado
     Barcodes? matchedBarcode = context
         .read<BatchBloc>()
@@ -1041,14 +1061,20 @@ class _BatchDetailScreenState extends State<BatchScreen>
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad + batchBloc.quantitySelected >
             currentProduct.quantity!) {
+          _vibrationService.vibrate();
+          _audioService.playErrorSound();
           return false;
         }
 
         batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
             currentProduct.idMove ?? 0, matchedBarcode.cantidad, false));
       }
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       return false;
     }
+    _vibrationService.vibrate();
+    _audioService.playErrorSound();
     return false;
   }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 
@@ -23,6 +25,8 @@ class ProductDropdownOrderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
     final recepcionBloc = context.read<RecepcionBloc>();
     return SizedBox(
       height: 48,
@@ -95,17 +99,18 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                                 int.parse(currentProduct.productId),
                                 0,
                                 currentProduct.idMove ?? 0));
-
-                          
                           } else {
+                            _audioService.playErrorSound();
+                            _vibrationService.vibrate();
+
                             recepcionBloc.add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: false));
 
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 1000),
-                              content: const Text('Producto erroneo'),
-                              backgroundColor: Colors.red[200],
-                            ));
+                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            //   duration: const Duration(milliseconds: 1000),
+                            //   content: const Text('Producto erroneo'),
+                            //   backgroundColor: Colors.red[200],
+                            // ));
                           }
                         }
                       : null,
@@ -128,8 +133,6 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                   ),
                 ),
               ),
-
-         
           ],
         ),
       ),

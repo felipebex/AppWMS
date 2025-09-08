@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -33,6 +35,8 @@ class NewProductConteoScreen extends StatefulWidget {
 
 class _NewProductConteoScreenState extends State<NewProductConteoScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   //*focus
   FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
   FocusNode focusNode2 = FocusNode(); // producto
@@ -155,6 +159,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
       bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
       bloc.add(ChangeLocationIsOkEvent(true, matchedUbicacion, 0, 0, 0));
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       print('Ubicacion no encontrada');
       bloc.add(ValidateFieldsEvent(field: "location", isOk: false));
     }
@@ -184,6 +190,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(true, matchedProducts, 0, true, 0, 0, 0));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('producto encontrado: ${matchedProducts.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
     }
@@ -284,8 +292,12 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
             matchedBarcode.cantidad,
             false));
       }
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       return false;
     }
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
     return false;
   }
 
@@ -691,6 +703,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -707,6 +721,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
     // Intentar convertir a double
     double? cantidad = double.tryParse(input);
     if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -721,6 +737,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
 
     if (bloc.currentProduct.productTracking == 'lot') {
       if (bloc.currentProductLote?.id == null) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         Get.snackbar(
           '360 Software Informa',
           "No se ha selecionado el lote",

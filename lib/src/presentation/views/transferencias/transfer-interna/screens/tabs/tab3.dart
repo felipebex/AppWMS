@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class Tab3ScreenTrans extends StatelessWidget {
   const Tab3ScreenTrans({
@@ -24,7 +26,51 @@ class Tab3ScreenTrans extends StatelessWidget {
         return false;
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          print('state: $state');
+          if (state is DeleteLineTransferLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Eliminando producto",
+                );
+              },
+            );
+          } else if (state is DeleteLineTransferFailure) {
+            Navigator.pop(context);
+            Get.defaultDialog(
+              title: '360 Software Informa',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: state.error,
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+          } else if (state is DeleteLineTransferSuccess) {
+            Navigator.pop(context);
+            //mostramos una alerta
+            Get.snackbar(
+                "360 Software Informa", "Producto eliminado correctamente",
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.green));
+          }
+        },
         builder: (context, state) => Scaffold(
           backgroundColor: white,
           body: Container(
@@ -87,15 +133,120 @@ class Tab3ScreenTrans extends StatelessWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "Producto:",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp,
+                                        Row(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "Producto:",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            const Spacer(),
+                                            GestureDetector(
+                                              onTap: () {
+                                                //dialogo de confirmcion de eliminar
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      title: Center(
+                                                        child: const Text(
+                                                          'Eliminar producto',
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          const Text(
+                                                            '¿Está seguro de que desea eliminar este producto?',
+                                                            style: TextStyle(
+                                                                color: black),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 10,
+                                                          ),
+                                                          const Text(
+                                                            'Después de eliminarlo la cantidad pasara a la lista de productos por hacer.',
+                                                            style: TextStyle(
+                                                                color: black),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      actions: <Widget>[
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                grey,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            'Cancelar',
+                                                            style: TextStyle(
+                                                                color: white),
+                                                          ),
+                                                        ),
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            bloc.add(DeleteLineTransferEvent(
+                                                                product.idMove!,
+                                                                int.parse(product
+                                                                    .productId!),
+                                                                product
+                                                                    .idTransferencia!));
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                primaryColorApp,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            'Eliminar',
+                                                            style: TextStyle(
+                                                                color: white),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              child: const Icon(
+                                                Icons.delete,
+                                                size: 20,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         Align(
                                           alignment: Alignment.centerLeft,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 
@@ -10,7 +12,6 @@ class LocationDropdownWidget extends StatelessWidget {
   final String currentLocationId;
   final ProductsBatch currentProduct;
   final bool isPDA;
-
 
   const LocationDropdownWidget({
     super.key,
@@ -23,6 +24,9 @@ class LocationDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     final batchBloc = context.read<PickingPickBloc>();
     return Center(
       child: Column(
@@ -92,13 +96,11 @@ class LocationDropdownWidget extends StatelessWidget {
                           batchBloc.oldLocation =
                               currentProduct.locationId.toString();
                         } else {
+                          _vibrationService.vibrate();
+                          _audioService.playErrorSound();
                           batchBloc.add(ValidateFieldsEvent(
                               field: "location", isOk: false));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: const Duration(milliseconds: 1000),
-                            content: const Text('Ubicacion erronea'),
-                            backgroundColor: Colors.red[200],
-                          ));
+                          
                         }
                       },
           ),

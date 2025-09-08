@@ -14,7 +14,7 @@ class ProductDevolucion {
   dynamic lotId;
   dynamic? lotName;
   String? tracking;
-  bool? useExpirationDate;
+  dynamic? useExpirationDate;
   dynamic? expirationTime;
   dynamic? weight;
   dynamic? weightUomName;

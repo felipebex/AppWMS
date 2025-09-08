@@ -272,6 +272,28 @@ class ProductTransferenciaRepository {
 
     return resUpdate;
   }
+  Future<int?> setFieldTableProductTransferDone(int idEntrada, int productId,
+      String field, dynamic setValue, int idMove) async {
+    print(
+        "datos de transfer: idTransfer: $idEntrada, productId: $productId, field: $field, setValue: $setValue, idMove: $idMove");
+
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    // Realizar la actualización solo si is_done_item = 0
+    final resUpdate = await db.rawUpdate(
+      'UPDATE ${ProductTransferenciaTable.tableName} SET $field = ? '
+      'WHERE ${ProductTransferenciaTable.columnProductId} = ? '
+      'AND ${ProductTransferenciaTable.columnIdMove} = ? '
+      'AND ${ProductTransferenciaTable.columnIdTransferencia} = ? '
+      'AND ${ProductTransferenciaTable.columnIsDoneItem} = 1',
+      [setValue, productId, idMove, idEntrada],
+    );
+
+    print(
+        "update TableProductTransfer (idProduct ----($productId)) -------($field): $resUpdate");
+
+    return resUpdate;
+  }
 
   // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparate(
@@ -333,4 +355,11 @@ class ProductTransferenciaRepository {
       return [];
     }
   }
+
+
+
+
+ //metodo para ejecutar todo esto en una sola
+ 
+
 }

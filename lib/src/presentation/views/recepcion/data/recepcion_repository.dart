@@ -34,7 +34,7 @@ class RecepcionRepository {
       }
 
       final response = await ApiRequestService().getValidation(
-        endpoint: 'recepciones/v2',
+        endpoint: 'recepciones',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -132,7 +132,7 @@ class RecepcionRepository {
       }
 
       final response = await ApiRequestService().getValidation(
-        endpoint: 'recepciones/devs/v2',
+        endpoint: 'recepciones/devs',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -234,7 +234,7 @@ class RecepcionRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'recepciones/batchs/v2',
+        endpoint: 'recepciones/batchs',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );

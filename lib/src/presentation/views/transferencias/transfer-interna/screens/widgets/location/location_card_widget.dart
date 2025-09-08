@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 
@@ -25,6 +27,8 @@ class LocationDropdownTransferWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -75,14 +79,15 @@ class LocationDropdownTransferWidget extends StatelessWidget {
                 ),
               );
             }).toList(),
-            onChanged: batchBloc
-                        .configurations.result?.result?.manualSourceLocationTransfer ==
+            onChanged: batchBloc.configurations.result?.result
+                        ?.manualSourceLocationTransfer ==
                     false
                 ? null
                 : batchBloc.locationIsOk
                     ? null
                     : (String? newValue) {
-                        if (newValue == currentProduct.locationName.toString()) {
+                        if (newValue ==
+                            currentProduct.locationName.toString()) {
                           batchBloc.add(ValidateFieldsEvent(
                               field: "location", isOk: true));
                           batchBloc.add(ChangeLocationIsOkEvent(
@@ -93,13 +98,15 @@ class LocationDropdownTransferWidget extends StatelessWidget {
                           batchBloc.oldLocation =
                               currentProduct.locationId.toString();
                         } else {
+                          _audioService.playErrorSound();
+                          _vibrationService.vibrate();
                           batchBloc.add(ValidateFieldsEvent(
                               field: "location", isOk: false));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: const Duration(milliseconds: 1000),
-                            content: const Text('Ubicacion erronea'),
-                            backgroundColor: Colors.red[200],
-                          ));
+                          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          //   duration: const Duration(milliseconds: 1000),
+                          //   content: const Text('Ubicacion erronea'),
+                          //   backgroundColor: Colors.red[200],
+                          // ));
                         }
                       },
           ),

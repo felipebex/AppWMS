@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 
@@ -24,6 +26,8 @@ class ProductDropdownTransferWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
     return SizedBox(
       height: 48,
       child: Center(
@@ -75,17 +79,20 @@ class ProductDropdownTransferWidget extends StatelessWidget {
                   ? null
                   : batchBloc.locationIsOk && !batchBloc.productIsOk
                       ? (String? newValue) {
-                          if (newValue == currentProduct.productName.toString()) {
+                          if (newValue ==
+                              currentProduct.productName.toString()) {
                             batchBloc.add(ValidateFieldsEvent(
                                 field: "product", isOk: true));
 
                             batchBloc.add(ChangeProductIsOkEvent(
                                 true,
-                                int.parse(currentProduct.productId ),
+                                int.parse(currentProduct.productId),
                                 currentProduct.idTransferencia ?? 0,
                                 0,
                                 currentProduct.idMove ?? 0));
                           } else {
+                            _audioService.playErrorSound();
+                            _vibrationService.vibrate();
                             batchBloc.add(ValidateFieldsEvent(
                                 field: "product", isOk: false));
                           }

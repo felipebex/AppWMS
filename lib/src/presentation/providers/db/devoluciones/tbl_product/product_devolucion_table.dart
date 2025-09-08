@@ -20,6 +20,8 @@ class ProductDevolucionTable {
   static const String columnLocationId = 'location_id';
   static const String columnLocationName = 'location_name';
   static const String columnQuantity = 'quantity';
+  static const String columnUseExpirationDate = 'use_expiration_date';
+
 
   static String createTable() {
     return '''
@@ -40,6 +42,7 @@ class ProductDevolucionTable {
         $columnLocationId INTEGER,
         $columnLocationName TEXT,
         $columnQuantity REAL,
+        $columnUseExpirationDate INTEGER,
         $columnVolumeUomName TEXT
         )
         ''';

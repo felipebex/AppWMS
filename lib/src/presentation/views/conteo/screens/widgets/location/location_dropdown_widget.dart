@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
@@ -28,6 +30,8 @@ class LocationDropdownConteoWidget extends StatefulWidget {
 }
 
 class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -118,11 +122,14 @@ class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
                       } else {
                         conteoBloc.add(ValidateFieldsEvent(
                             field: "location", isOk: false));
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: const Text('Ubicación errónea'),
-                          backgroundColor: Colors.red[200],
-                        ));
+
+                        _vibrationService.vibrate();
+                        _audioService.playErrorSound();
+                        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        //   duration: const Duration(milliseconds: 1000),
+                        //   content: const Text('Ubicación errónea'),
+                        //   backgroundColor: Colors.red[200],
+                        // ));
                       }
                     },
         ),

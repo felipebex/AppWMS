@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -40,6 +42,8 @@ class ScanProductOrderScreen extends StatefulWidget {
 
 class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   @override
   void initState() {
     super.initState();
@@ -153,7 +157,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           return;
         }
       } else {
-        if (bloc.productIsOk && bloc.quantityIsOk && !bloc.viewQuantity) {
+        if (bloc.productIsOk && !bloc.quantityIsOk && !bloc.viewQuantity) {
           _requestOnly(focusNode3, 'quantity');
           return;
         }
@@ -225,6 +229,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       final isok =
           validateScannedBarcode(scan.trim(), bloc.currentProduct, bloc, true);
       if (!isok) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: false));
         bloc.add(ClearScannedValueOrderEvent('product'));
       }
@@ -251,6 +257,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       bloc.add(SelectecLoteEvent(matchedLote));
       bloc.add(ClearScannedValueOrderEvent('lote'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('lote no encontrado');
       bloc.add(ValidateFieldsOrderEvent(field: "lote", isOk: false));
       bloc.add(ClearScannedValueOrderEvent('lote'));
@@ -308,6 +316,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           matchedUbicacion));
       bloc.add(ClearScannedValueOrderEvent('locationDest'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('Ubicacion no encontrada');
       bloc.add(ValidateFieldsOrderEvent(field: "locationDest", isOk: false));
       bloc.add(ClearScannedValueOrderEvent('locationDest'));
@@ -1131,7 +1141,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                           (recepcionBloc.configurations.result?.result
                                       ?.scanDestinationLocationReception ==
                                   false)
-                              ? Row(
+                              ? 
+                              
+                              Row(
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -1448,6 +1460,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     ),
                                   ],
                                 ),
+                      
+                      
                         ],
                       ),
                     ),
@@ -1775,6 +1789,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad + batchBloc.quantitySelected >
             currentProduct.cantidadFaltante!) {
+          _audioService.playErrorSound();
+          _vibrationService.vibrate();
           return false;
         }
 
@@ -1785,8 +1801,12 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           matchedBarcode.cantidad,
         ));
       }
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       return false;
     }
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
     return false;
   }
 
@@ -1798,6 +1818,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
     if (currentProduct.productTracking == 'lot') {
       if (context.read<RecepcionBloc>().lotesProductCurrent.id == null) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1813,6 +1835,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
             .configurations.result?.result?.scanDestinationLocationReception ==
         true) {
       if (context.read<RecepcionBloc>().currentUbicationDest?.id == null) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         Get.snackbar(
           'Error',
           "Seleccione o escanee una ubicacion",
@@ -1843,6 +1867,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -1859,6 +1885,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     // Intentar convertir a double
     double? cantidad = double.tryParse(input);
     if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -1919,6 +1947,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
           _finishSeprateProductOrder(context, cantidad);
         } else {
+          _audioService.playErrorSound();
+          _vibrationService.vibrate();
           Get.snackbar(
             'Error',
             "No tiene el permiso de mover mas de lo planteado",
@@ -1935,6 +1965,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
       print(context.read<RecepcionBloc>().lotesProductCurrent.toMap());
       if (context.read<RecepcionBloc>().selectLote == "") {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1957,6 +1989,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   ) {
     if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
       if (context.read<RecepcionBloc>().currentProduct.loteId == "") {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         Get.snackbar(
           'Error',
           "Seleccione un lote",

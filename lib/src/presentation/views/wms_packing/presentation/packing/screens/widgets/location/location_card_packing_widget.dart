@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 
@@ -23,6 +25,9 @@ class LocationPackDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -76,8 +81,7 @@ class LocationPackDropdownWidget extends StatelessWidget {
             onChanged:
 
                 //permiso para valdiar la ubicacion actual manual
-                batchBloc.configurations.result?.result
-                            ?.locationPackManual ==
+                batchBloc.configurations.result?.result?.locationPackManual ==
                         false
                     ? null
                     : batchBloc.locationIsOk
@@ -96,14 +100,17 @@ class LocationPackDropdownWidget extends StatelessWidget {
                               batchBloc.oldLocation =
                                   currentProduct.locationId.toString();
                             } else {
+                              _audioService.playErrorSound();
+                              _vibrationService.vibrate();
+
                               batchBloc.add(ValidateFieldsPackingEvent(
                                   field: "location", isOk: false));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                duration: const Duration(milliseconds: 1000),
-                                content: const Text('Ubicacion erronea'),
-                                backgroundColor: Colors.red[200],
-                              ));
+                              // ScaffoldMessenger.of(context)
+                              //     .showSnackBar(SnackBar(
+                              //   duration: const Duration(milliseconds: 1000),
+                              //   content: const Text('Ubicacion erronea'),
+                              //   backgroundColor: Colors.red[200],
+                              // ));
                             }
                           },
           ),

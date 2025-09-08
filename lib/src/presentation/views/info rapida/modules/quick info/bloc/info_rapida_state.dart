@@ -131,3 +131,10 @@ class EditLocationFailure extends InfoRapidaState {
 
   EditLocationFailure(this.error);
 }
+
+
+class ProductExpansionToggled extends InfoRapidaState {
+  final bool isExpanded;
+
+  ProductExpansionToggled(this.isExpanded);
+}

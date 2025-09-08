@@ -378,56 +378,63 @@ class _NewLoteScreenState extends State<NewLoteOrdenScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          SizedBox(
-                            height: 40,
-                            child: TextFormField(
-                              style: TextStyle(color: black, fontSize: 14),
-                              controller: bloc.dateLoteController,
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                    onPressed: () {
-                                      bloc.dateLoteController.clear();
-                                      FocusScope.of(context).unfocus();
-                                    },
-                                    icon: const Icon(Icons.close, color: grey)),
-                                labelText: 'Fecha de caducidad',
-                                labelStyle: TextStyle(color: primaryColorApp),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                          Visibility(
+                            visible:
+                                bloc.currentProduct.useExpirationDate == true ||
+                                    bloc.currentProduct.useExpirationDate == 1,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextFormField(
+                                style: TextStyle(color: black, fontSize: 14),
+                                controller: bloc.dateLoteController,
+                                decoration: InputDecoration(
+                                  suffixIcon: IconButton(
+                                      onPressed: () {
+                                        bloc.dateLoteController.clear();
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                      icon:
+                                          const Icon(Icons.close, color: grey)),
+                                  labelText: 'Fecha de caducidad',
+                                  labelStyle: TextStyle(color: primaryColorApp),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
+                                onTap: () async {
+                                  FocusScope.of(context).unfocus();
+                                  var pickedDate =
+                                      await DatePicker.showSimpleDatePicker(
+                                    titleText: 'Seleccione una fecha',
+                                    context,
+                                    confirmText: 'Seleccionar',
+                                    cancelText: 'Cancelar',
+                                    // initialDate: DateTime(2020),
+                                    firstDate:
+                                        //un mes atras
+                                        DateTime.now().subtract(
+                                            const Duration(days: 2000)),
+                                    lastDate: DateTime.now()
+                                        .add(const Duration(days: 2000)),
+                                    dateFormat: "dd-MMMM-yyyy",
+                                    locale: DateTimePickerLocale.es,
+                                    looping: false,
+                                  );
+
+                                  // Verificar si el usuario seleccionó una fecha
+                                  if (pickedDate != null) {
+                                    // Formatear la fecha al formato "yyyy-MM-dd"
+                                    final formattedDate =
+                                        DateFormat('yyyy-MM-dd hh:mm')
+                                            .format(pickedDate);
+
+                                    // Actualizar el estado de la fecha seleccionada
+                                    selectedDate = pickedDate;
+                                    bloc.dateLoteController.text =
+                                        formattedDate;
+                                  }
+                                }, // Llamar al selector de fecha y hora
                               ),
-                              onTap: () async {
-                                FocusScope.of(context).unfocus();
-                                var pickedDate =
-                                    await DatePicker.showSimpleDatePicker(
-                                  titleText: 'Seleccione una fecha',
-                                  context,
-                                  confirmText: 'Seleccionar',
-                                  cancelText: 'Cancelar',
-                                  // initialDate: DateTime(2020),
-                                  firstDate:
-                                      //un mes atras
-                                      DateTime.now()
-                                          .subtract(const Duration(days: 2000)),
-                                  lastDate: DateTime.now()
-                                      .add(const Duration(days: 2000)),
-                                  dateFormat: "dd-MMMM-yyyy",
-                                  locale: DateTimePickerLocale.es,
-                                  looping: false,
-                                );
-
-                                // Verificar si el usuario seleccionó una fecha
-                                if (pickedDate != null) {
-                                  // Formatear la fecha al formato "yyyy-MM-dd"
-                                  final formattedDate =
-                                      DateFormat('yyyy-MM-dd hh:mm')
-                                          .format(pickedDate);
-
-                                  // Actualizar el estado de la fecha seleccionada
-                                  selectedDate = pickedDate;
-                                  bloc.dateLoteController.text = formattedDate;
-                                }
-                              }, // Llamar al selector de fecha y hora
                             ),
                           ),
                         ],
@@ -538,12 +545,10 @@ class _NewLoteScreenState extends State<NewLoteOrdenScreen> {
                                 }
 
                                 if (bloc.newLoteController.text.isEmpty ||
-                                    bloc.newLoteController.text == '' &&
-                                        bloc.dateLoteController.text.isEmpty ||
-                                    bloc.dateLoteController.text == "") {
+                                    bloc.newLoteController.text == '') {
                                   Get.snackbar(
                                     'Error al crear lote',
-                                    'Los campos del lote no puede estar vacíos',
+                                    'El nombre del lote no puede estar vacío',
                                     backgroundColor: white,
                                     colorText: primaryColorApp,
                                     icon:
@@ -552,6 +557,23 @@ class _NewLoteScreenState extends State<NewLoteOrdenScreen> {
                                   return;
                                 }
 
+                                if (bloc.currentProduct.useExpirationDate ==
+                                        true ||
+                                    bloc.currentProduct.useExpirationDate ==
+                                        1) {
+                                  if (bloc.dateLoteController.text.isEmpty ||
+                                      bloc.dateLoteController.text == "") {
+                                    Get.snackbar(
+                                      'Error al crear lote',
+                                      'La fecha de caducidad no puede estar vacía',
+                                      backgroundColor: white,
+                                      colorText: primaryColorApp,
+                                      icon: Icon(Icons.error,
+                                          color: Colors.amber),
+                                    );
+                                    return;
+                                  }
+                                }
                                 bloc.add(CreateLoteProduct(
                                   bloc.newLoteController.text,
                                   bloc.dateLoteController.text,

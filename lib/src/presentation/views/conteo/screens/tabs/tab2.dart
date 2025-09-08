@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/products_empty_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class Tab2ScreenConteo extends StatefulWidget {
@@ -30,6 +33,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
   final TextEditingController _controllerToProduct = TextEditingController();
   final TextEditingController _controllerToLocation = TextEditingController();
 
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -45,71 +51,71 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<ConteoBloc>();
 
-    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue5.trim().toLowerCase();
+    // Normalizar el valor escaneado
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
 
-    _controllerToProduct.text = "";
+    _controllerToProduct.clear();
+    print('🔎 Scan barcode: $scan');
 
-    //traer los productos de la ubicacion expandida
-    final listOfProducts = bloc.lineasContadas
-        .where((element) =>
-            (element.isSeparate == 0 || element.isSeparate == null) &&
-            (element.isDoneItem == 0 || element.isDoneItem == null) &&
-            (element.locationName?.toLowerCase() ==
-                bloc.ubicacionExpanded.toLowerCase()))
-        .toList();
+    // Filtrar productos válidos dentro de la ubicación expandida
+    // Normalizar ubicación una sola vez
+    final ubicacionActual = (bloc.ubicacionExpanded ?? '').toLowerCase();
 
-    print("Lista de productos: ${listOfProducts.length}");
+// Filtrar productos válidos dentro de la ubicación expandida
+    final listOfProducts = bloc.lineasContadas.where((element) {
+      final isSeparateOk = (element.isSeparate ?? 0) == 0;
+      final isDoneItemOk = (element.isDoneItem ?? 0) == 0;
+      final sameLocation =
+          (element.locationName ?? '').toLowerCase() == ubicacionActual;
 
-    // Buscar el producto que coincide con el código de barras escaneado
-    final CountedLine product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan.trim(),
-      orElse: () =>
-          CountedLine(), // Devuelve null si no se encuentra ningún producto
-    );
+      return isSeparateOk && isDoneItemOk && sameLocation;
+    }).toList();
 
-    if (product.idMove != null) {
+    print(
+        'Productos en ubicación "$ubicacionActual": ${listOfProducts.length}');
+
+    /// Función auxiliar para procesar un producto encontrado
+    void processProduct(CountedLine product) {
       showDialog(
         context: context,
-        builder: (context) {
-          return const DialogLoading(
-            message: 'Cargando información del producto...',
-          );
-        },
+        builder: (_) => const DialogLoading(
+          message: 'Cargando información del producto...',
+        ),
       );
-      // Si el producto existe, ejecutar los estados necesarios
-      bloc.add(ValidateFieldsEvent(field: "toProduct", isOk: true));
 
-      // actualizamos las variables de ubicacion
-      bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
-      bloc.add(ChangeLocationIsOkEvent(false, ResultUbicaciones(),
-          product.productId ?? 0, product.orderId ?? 0, product.idMove ?? 0));
-
-      // actualizamos las variables de producto
-      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-      bloc.add(ChangeProductIsOkEvent(
-        false,
-        Product(),
-        product.orderId ?? 0,
-        true,
-        product.productId ?? 0,
-        0,
-        product.idMove ?? 0,
-      ));
-
-      bloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
-      bloc.add(ChangeQuantitySeparate(
-        false,
-        0,
-        product.productId ?? 0,
-        product.orderId ?? 0,
-        product.idMove ?? 0,
-      ));
-
-      context.read<ConteoBloc>().add(
-            LoadCurrentProductEvent(currentProduct: product),
-          );
+      bloc
+        ..add(ValidateFieldsEvent(field: "toProduct", isOk: true))
+        ..add(ValidateFieldsEvent(field: "location", isOk: true))
+        ..add(ChangeLocationIsOkEvent(false, ResultUbicaciones(),
+            product.productId ?? 0, product.orderId ?? 0, product.idMove ?? 0))
+        ..add(ValidateFieldsEvent(field: "product", isOk: true))
+        ..add(ChangeLocationIsOkEvent(
+          false,
+          ResultUbicaciones(),
+          product.productId ?? 0,
+          product.orderId ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(ChangeProductIsOkEvent(
+          false,
+          Product(),
+          product.orderId ?? 0,
+          true,
+          product.productId ?? 0,
+          0,
+          product.idMove ?? 0,
+        ))
+        ..add(ValidateFieldsEvent(field: "quantity", isOk: true))
+        ..add(ChangeQuantitySeparate(
+          false,
+          0,
+          product.productId ?? 0,
+          product.orderId ?? 0,
+          product.idMove ?? 0,
+        ))
+        ..add(LoadCurrentProductEvent(currentProduct: product));
 
       Future.delayed(const Duration(milliseconds: 300), () {
         Navigator.pop(context);
@@ -118,18 +124,52 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
           'scan-product-conteo',
         );
       });
-      print(product.toMap());
-      // Limpiar el valor escaneado
-      bloc.add(ClearScannedValueEvent('toProduct'));
-    } else {
-      // Mostrar alerta de error si el producto no se encuentra
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("El producto no se encuentra en esta ubicación"),
-        backgroundColor: Colors.red[200],
-        duration: const Duration(milliseconds: 1000),
-      ));
-      bloc.add(ClearScannedValueEvent('toProduct'));
+
+      print('✅ Producto procesado: ${product.toMap()}');
     }
+
+    // 1️⃣ Buscar producto por código de barras principal
+    final product = listOfProducts.firstWhere(
+      (p) => p.productBarcode?.toLowerCase() == scan ||
+          p.productCode?.toLowerCase() == scan,
+      orElse: () => CountedLine(),
+    );
+
+    if (product.idMove != null) {
+      processProduct(product);
+      bloc.add(ClearScannedValueEvent('toProduct'));
+      return;
+    }
+
+    // 2️⃣ Buscar en lista de barcodes asociados
+    final barcode = bloc.listAllOfBarcodes.firstWhere(
+      (b) => b.barcode?.toLowerCase() == scan,
+      orElse: () => Barcodes(),
+    );
+
+    if (barcode.barcode != null) {
+      final productByBarcode = listOfProducts.firstWhere(
+        (p) => p.productId == barcode.idProduct,
+        orElse: () => CountedLine(),
+      );
+
+      if (productByBarcode.productId != null) {
+        processProduct(productByBarcode);
+        bloc.add(ClearScannedValueEvent('toProduct'));
+        return;
+      }
+    }
+
+    // 3️⃣ Si no se encuentra nada → mostrar error
+    _vibrationService.vibrate();
+    _audioService.playErrorSound();
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text("El producto no se encuentra en esta ubicación"),
+      backgroundColor: Colors.red[200],
+      duration: const Duration(milliseconds: 1000),
+    ));
+    bloc.add(ClearScannedValueEvent('toProduct'));
   }
 
   void validateLocation(String value, BuildContext context) {
@@ -176,6 +216,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
 
       bloc.add(ClearScannedValueEvent('toLocation'));
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       bloc.add(ClearScannedValueEvent('toLocation'));
       print("Ubicación no válida (barcode): $scan");
     }
@@ -241,11 +283,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
                                 validateBarcode(value, context);
                               }
                             },
-                            decoration: InputDecoration(
-                              disabledBorder: InputBorder.none,
-                              hintStyle:
-                                  const TextStyle(fontSize: 14, color: black),
+                            decoration: const InputDecoration(
                               border: InputBorder.none,
+                              hintStyle: TextStyle(fontSize: 14, color: black),
                             ),
                           ),
                         )

@@ -22,7 +22,7 @@ class PickingPickRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'transferencias/pick/v2',
+        endpoint: 'transferencias/pick',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -128,7 +128,7 @@ class PickingPickRepository {
 
     try {
       var response = await ApiRequestService().getValidation(
-        endpoint: 'picking/componentes/v2',
+        endpoint: 'picking/componentes',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );

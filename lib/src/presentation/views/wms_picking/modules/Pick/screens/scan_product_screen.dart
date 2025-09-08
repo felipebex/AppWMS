@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -38,6 +40,8 @@ class ScanProductPickScreen extends StatefulWidget {
 
 class _ScanProductPickScreenState extends State<ScanProductPickScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   String scannedValue6 = '';
   String? selectedLocation;
   String? selectedMuelle;
@@ -187,6 +191,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
       batchBloc.oldLocation = currentProduct.locationId.toString();
       batchBloc.add(ClearScannedValueEvent('location'));
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       batchBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
       batchBloc.add(ClearScannedValueEvent('location'));
     }
@@ -216,6 +222,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
           scan, batchBloc.currentProduct, batchBloc, true);
 
       if (!isok) {
+        _vibrationService.vibrate();
+        _audioService.playErrorSound();
         batchBloc.add(ValidateFieldsEvent(field: "product", isOk: false));
         batchBloc.add(ClearScannedValueEvent('product'));
       }
@@ -258,14 +266,20 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad + batchBloc.quantitySelected >
             currentProduct.quantity!) {
+          _vibrationService.vibrate();
+          _audioService.playErrorSound();
           return false;
         }
 
         batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
             currentProduct.idMove ?? 0, matchedBarcode.cantidad, false));
       }
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       return false;
     }
+    _vibrationService.vibrate();
+    _audioService.playErrorSound();
     return false;
   }
 
@@ -327,6 +341,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                   });
             });
       } else {
+        _vibrationService.vibrate();
+        _audioService.playErrorSound();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 1000),
           content: const Text('Cantidad erronea'),
@@ -351,6 +367,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
       validatePicking(batchBloc, context, currentProduct);
       batchBloc.add(ClearScannedValueEvent('muelle'));
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
       batchBloc.add(ClearScannedValueEvent('muelle'));
     }
@@ -1882,6 +1900,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                 if (value.isNotEmpty) {
                                   if (int.parse(value) >
                                       (currentProduct.quantity ?? 0)) {
+                                    _audioService.playErrorSound();
+                                    _vibrationService.vibrate();
                                     //todo: cantidad fuera del rango
                                     batchBloc.add(ValidateFieldsEvent(
                                         field: "quantity", isOk: false));

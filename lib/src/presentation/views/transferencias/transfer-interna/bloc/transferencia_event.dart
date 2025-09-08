@@ -212,9 +212,21 @@ class FilterUbicacionesAlmacenEvent extends TransferenciaEvent {
   FilterUbicacionesAlmacenEvent(this.almacen);
 }
 
-
 class ValidateConfirmEvent extends TransferenciaEvent {
   final int idRecepcion;
   final bool isBackOrder;
   ValidateConfirmEvent(this.idRecepcion, this.isBackOrder);
+}
+
+class DeleteLineTransferEvent extends TransferenciaEvent {
+  final int idMove;
+  final int idProduct;
+  final int idTransfer;
+  DeleteLineTransferEvent(this.idMove, this.idProduct, this.idTransfer);
+}
+
+class ToggleProductExpansionEvent extends TransferenciaEvent {
+  final bool isExpanded;
+
+  ToggleProductExpansionEvent(this.isExpanded);
 }

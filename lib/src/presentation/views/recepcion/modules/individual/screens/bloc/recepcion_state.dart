@@ -12,11 +12,14 @@ class FetchOrdenesCompraSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   FetchOrdenesCompraSuccess(this.ordenesCompra);
 }
+
 class FetchOrdenesCompraFailure extends RecepcionState {
   final String error;
   FetchOrdenesCompraFailure(this.error);
 }
+
 class FetchDevolucionesLoading extends RecepcionState {}
+
 class FetchDevolucionesSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   FetchDevolucionesSuccess(this.ordenesCompra);
@@ -38,6 +41,7 @@ class SearchOrdenCompraSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   SearchOrdenCompraSuccess(this.ordenesCompra);
 }
+
 class SearchDevolucionSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   SearchDevolucionSuccess(this.ordenesCompra);
@@ -47,6 +51,7 @@ class SearchOrdenCompraFailure extends RecepcionState {
   final String error;
   SearchOrdenCompraFailure(this.error);
 }
+
 class SearchDevolucionFailure extends RecepcionState {
   final String error;
   SearchDevolucionFailure(this.error);
@@ -56,7 +61,7 @@ class SearchDevolucionFailure extends RecepcionState {
 class AssignUserToOrderLoading extends RecepcionState {}
 
 class AssignUserToOrderSuccess extends RecepcionState {
-  final  ResultEntrada ordenCompra ;
+  final ResultEntrada ordenCompra;
   AssignUserToOrderSuccess(this.ordenCompra);
 }
 
@@ -117,7 +122,6 @@ class UpdateScannedValueOrderState extends RecepcionState {
   UpdateScannedValueOrderState(this.scannedValue, this.scan);
 }
 
-
 class ChangeIsOkState extends RecepcionState {
   final bool isOk;
   ChangeIsOkState(this.isOk);
@@ -127,6 +131,7 @@ class ChangeProductOrderIsOkState extends RecepcionState {
   final bool isOk;
   ChangeProductOrderIsOkState(this.isOk);
 }
+
 class ChangeLoteOrderIsOkState extends RecepcionState {
   final bool isOk;
   ChangeLoteOrderIsOkState(this.isOk);
@@ -177,8 +182,6 @@ class NovedadesOrderErrorState extends RecepcionState {
   NovedadesOrderErrorState(this.message);
 }
 
-
-
 class FinalizarRecepcionProductoLoading extends RecepcionState {}
 
 class FinalizarRecepcionProductoSuccess extends RecepcionState {}
@@ -188,8 +191,6 @@ class FinalizarRecepcionProductoFailure extends RecepcionState {
   FinalizarRecepcionProductoFailure(this.error);
 }
 
-
-
 class FinalizarRecepcionProductoSplitLoading extends RecepcionState {}
 
 class FinalizarRecepcionProductoSplitSuccess extends RecepcionState {}
@@ -198,8 +199,6 @@ class FinalizarRecepcionProductoSplitFailure extends RecepcionState {
   final String error;
   FinalizarRecepcionProductoSplitFailure(this.error);
 }
-
-
 
 class GetLotesProductLoading extends RecepcionState {}
 
@@ -212,7 +211,6 @@ class GetLotesProductFailure extends RecepcionState {
   final String error;
   GetLotesProductFailure(this.error);
 }
-
 
 class SendProductToOrderLoading extends RecepcionState {}
 
@@ -228,8 +226,6 @@ class SendProductToOrderFailure extends RecepcionState {
   SendProductToOrderFailure(this.error);
 }
 
-
-
 class CreateLoteProductLoading extends RecepcionState {}
 
 class CreateLoteProductSuccess extends RecepcionState {}
@@ -239,13 +235,10 @@ class CreateLoteProductFailure extends RecepcionState {
   CreateLoteProductFailure(this.error);
 }
 
-
 class CurrentOrdenesCompraState extends RecepcionState {
   final ResultEntrada ordenCompra;
   CurrentOrdenesCompraState(this.ordenCompra);
 }
-
-
 
 class StartOrStopTimeOrderSuccess extends RecepcionState {
   final String isStarted;
@@ -257,9 +250,7 @@ class StartOrStopTimeOrderFailure extends RecepcionState {
   StartOrStopTimeOrderFailure(this.error);
 }
 
-
 class CreateBackOrderOrNotLoading extends RecepcionState {}
-
 
 class CreateBackOrderOrNotSuccess extends RecepcionState {
   final bool isBackorder;
@@ -272,25 +263,17 @@ class CreateBackOrderOrNotFailure extends RecepcionState {
   CreateBackOrderOrNotFailure(this.error);
 }
 
-
-
 class SearchLoading extends RecepcionState {}
-
 
 class SearchFailure extends RecepcionState {
   final String error;
   SearchFailure(this.error);
 }
 
-
 class SearchLoteSuccess extends RecepcionState {
   final List<LotesProduct> locations;
   SearchLoteSuccess(this.locations);
 }
-
-
-
-
 
 class LoadLocationsLoading extends RecepcionState {}
 
@@ -304,24 +287,17 @@ class LoadLocationsFailure extends RecepcionState {
   LoadLocationsFailure(this.error);
 }
 
-
-
-
 class SearchLocationSuccess extends RecepcionState {
   final List<ResultUbicaciones> locations;
   SearchLocationSuccess(this.locations);
 }
-
 
 class ChangeLocationDestIsOkState extends RecepcionState {
   final bool isOk;
   ChangeLocationDestIsOkState(this.isOk);
 }
 
-
-
 class FilterReceptionByTypeLoading extends RecepcionState {}
-
 
 class FilterReceptionByTypeSuccess extends RecepcionState {
   final List<ResultEntrada> receptions;
@@ -332,8 +308,6 @@ class FilterReceptionByTypeFailure extends RecepcionState {
   final String error;
   FilterReceptionByTypeFailure(this.error);
 }
-
-
 
 class FilterUbicacionesLoading extends RecepcionState {}
 
@@ -347,18 +321,20 @@ class FilterUbicacionesSuccess extends RecepcionState {
   FilterUbicacionesSuccess(this.locations);
 }
 
-
 class SendTemperatureSuccess extends RecepcionState {
   final String message;
   SendTemperatureSuccess(this.message);
 }
 
 class SendTemperatureLoading extends RecepcionState {}
+
 class GetTemperatureLoading extends RecepcionState {}
+
 class SendTemperatureFailure extends RecepcionState {
   final String error;
   SendTemperatureFailure(this.error);
 }
+
 class GetTemperatureFailure extends RecepcionState {
   final String error;
   GetTemperatureFailure(this.error);
@@ -368,8 +344,6 @@ class GetTemperatureSuccess extends RecepcionState {
   final TemperatureIa temperature;
   GetTemperatureSuccess(this.temperature);
 }
-
-
 
 //todo devoluciones
 class FetchDevolucionesLoadingDB extends RecepcionState {}
@@ -384,24 +358,21 @@ class FetchDevolucionesFailureDB extends RecepcionState {
   FetchDevolucionesFailureDB(this.error);
 }
 
+class DelectedProductWmsLoading extends RecepcionState {}
 
-class DelectedProductWmsLoading   extends RecepcionState {}
 class DelectedProductWmsSuccess extends RecepcionState {
   final String message;
   DelectedProductWmsSuccess(this.message);
 }
-
 
 class DelectedProductWmsFailure extends RecepcionState {
   final String error;
   DelectedProductWmsFailure(this.error);
 }
 
+class SendImageNovedadLoading extends RecepcionState {}
 
-class SendImageNovedadLoading   extends RecepcionState {}
-
-
-class  SendImageNovedadSuccess extends RecepcionState {
+class SendImageNovedadSuccess extends RecepcionState {
   final ImageSendNovedad response;
   SendImageNovedadSuccess(this.response);
 }
@@ -411,6 +382,11 @@ class SendImageNovedadFailure extends RecepcionState {
   SendImageNovedadFailure(this.error);
 }
 
-
 //estado para decir que el dispositivo no esta autorizado
-final class  DeviceNotAuthorized extends RecepcionState {}
+final class DeviceNotAuthorized extends RecepcionState {}
+
+class ProductExpansionToggled extends RecepcionState {
+  final bool isExpanded;
+
+  ProductExpansionToggled(this.isExpanded);
+}

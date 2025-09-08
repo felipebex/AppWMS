@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -24,6 +26,8 @@ class Tab2ScreenTrans extends StatefulWidget {
 }
 
 class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   FocusNode focusNode1 = FocusNode(); //cantidad textformfield
 
   final TextEditingController _controllerToDo = TextEditingController();
@@ -120,7 +124,8 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
 
     // 1️⃣ Buscar producto por código de barras principal
     final product = listOfProducts.firstWhere(
-      (p) => p.productBarcode?.toLowerCase() == scan,
+      (p) => p.productBarcode?.toLowerCase() == scan
+          || p.productCode?.toLowerCase() == scan,
       orElse: () => LineasTransferenciaTrans(),
     );
 
@@ -137,15 +142,18 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
 
     if (barcode.barcode != null) {
       final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.idMove == barcode.idMove,
+        (p) => p.productId == barcode.idProduct,
         orElse: () => LineasTransferenciaTrans(),
       );
 
-      if (productByBarcode.idMove != null) {
+      if (productByBarcode.productId != null) {
         processProduct(productByBarcode);
         return;
       }
     }
+
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
 
     // 3️⃣ Si no se encuentra nada → mostrar error
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

@@ -138,13 +138,33 @@ class Tab1ScreenRecep extends StatelessWidget {
                       padding: const EdgeInsets.all(10),
                       child: Column(
                         children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(ordeCompraBd.name ?? '',
-                                style: TextStyle(
-                                    color: primaryColorApp,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold)),
+                          Row(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(ordeCompraBd.name ?? '',
+                                    style: TextStyle(
+                                        color: primaryColorApp,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              //icno de desplegar
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () {
+                                  context.read<RecepcionBloc>().add(
+                                      ToggleProductExpansionEvent(!context
+                                          .read<RecepcionBloc>()
+                                          .isExpanded));
+                                },
+                                icon: Icon(
+                                  !context.read<RecepcionBloc>().isExpanded
+                                      ? Icons.expand_less
+                                      : Icons.expand_more,
+                                  color: primaryColorApp,
+                                ),
+                              ),
+                            ],
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
@@ -209,255 +229,260 @@ class Tab1ScreenRecep extends StatelessWidget {
                             thickness: 1,
                             height: 5,
                           ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_month_sharp,
-                                  color: primaryColorApp,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  ordeCompraBd.fechaCreacion != null
-                                      ? DateFormat('dd/MM/yyyy hh:mm ').format(
-                                          DateTime.parse(
-                                              ordenCompra?.fechaCreacion ?? ''))
-                                      : "Sin fecha",
-                                  style: const TextStyle(
-                                      fontSize: 14, color: black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(ordeCompraBd.proveedor ?? '',
-                                style: TextStyle(
-                                  color: black,
-                                  fontSize: 14,
-                                )),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.shopping_cart_sharp,
-                                  color: primaryColorApp,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  ordeCompraBd.purchaseOrderName == ""
-                                      ? 'Sin orden de compra'
-                                      : ordeCompraBd.purchaseOrderName ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 14, color: black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Visibility(
-                            visible: ordeCompraBd.backorderId != 0,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.file_copy,
-                                  color: primaryColorApp,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 5),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(ordeCompraBd.backorderName ?? '',
-                                      style: TextStyle(
-                                          color: black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Peso: ',
-                                    style: TextStyle(
-                                        fontSize: 14, color: primaryColorApp),
-                                  )),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  // Formateamos el número a 2 decimales
-                                  NumberFormat('0.00')
-                                      .format(ordeCompraBd.pesoTotal ?? 0),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: black,
+                          if (!context.read<RecepcionBloc>().isExpanded) ...[
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_month_sharp,
+                                    color: primaryColorApp,
+                                    size: 15,
                                   ),
-                                ),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Total productos : ',
-                                    style: TextStyle(
-                                        fontSize: 14, color: primaryColorApp),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    ordeCompraBd.fechaCreacion != null
+                                        ? DateFormat('dd/MM/yyyy hh:mm ')
+                                            .format(DateTime.parse(
+                                                ordenCompra?.fechaCreacion ??
+                                                    ''))
+                                        : "Sin fecha",
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(ordeCompraBd.proveedor ?? '',
+                                  style: TextStyle(
+                                    color: black,
+                                    fontSize: 14,
                                   )),
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    ordeCompraBd.numeroLineas.toString(),
-                                    style:
-                                        TextStyle(fontSize: 14, color: black),
-                                  )),
-                            ],
-                          ),
-                          Visibility(
-                            visible: context
-                                    .read<RecepcionBloc>()
-                                    .configurations
-                                    .result
-                                    ?.result
-                                    ?.hideExpectedQty ==
-                                false,
-                            child: Row(
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.shopping_cart_sharp,
+                                    color: primaryColorApp,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    ordeCompraBd.purchaseOrderName == ""
+                                        ? 'Sin orden de compra'
+                                        : ordeCompraBd.purchaseOrderName ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Visibility(
+                              visible: ordeCompraBd.backorderId != 0,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.file_copy,
+                                    color: primaryColorApp,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                        ordeCompraBd.backorderName ?? '',
+                                        style: TextStyle(
+                                            color: black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
                               children: [
                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      'Total de unidades: ',
+                                      'Peso: ',
+                                      style: TextStyle(
+                                          fontSize: 14, color: primaryColorApp),
+                                    )),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    // Formateamos el número a 2 decimales
+                                    NumberFormat('0.00')
+                                        .format(ordeCompraBd.pesoTotal ?? 0),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: black,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Total productos : ',
                                       style: TextStyle(
                                           fontSize: 14, color: primaryColorApp),
                                     )),
                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      ordeCompraBd.numeroItems.toString(),
+                                      ordeCompraBd.numeroLineas.toString(),
                                       style:
                                           TextStyle(fontSize: 14, color: black),
                                     )),
                               ],
                             ),
-                          ),
-                          Row(
-                            children: [
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Unidades recibidas: ',
-                                    style: TextStyle(
-                                        fontSize: 14, color: primaryColorApp),
-                                  )),
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    totalEnviadas.toString(),
-                                    style:
-                                        TextStyle(fontSize: 14, color: black),
-                                  )),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Temperatura: ',
-                                    style: TextStyle(
-                                        fontSize: 14, color: primaryColorApp),
-                                  )),
-                              Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    ordeCompraBd.manejaTemperatura == 1
-                                        ? (ordeCompraBd.temperatura == 0.0
-                                            ? 'Sin temperatura'
-                                            : '${ordeCompraBd.temperatura} °C')
-                                        : 'No aplica',
-                                    style:
-                                        TextStyle(fontSize: 14, color: black),
-                                  )),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Destino: ',
-                                  style: TextStyle(
-                                      fontSize: 14, color: primaryColorApp),
-                                ),
+                            Visibility(
+                              visible: context
+                                      .read<RecepcionBloc>()
+                                      .configurations
+                                      .result
+                                      ?.result
+                                      ?.hideExpectedQty ==
+                                  false,
+                              child: Row(
+                                children: [
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Total de unidades: ',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: primaryColorApp),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        ordeCompraBd.numeroItems.toString(),
+                                        style: TextStyle(
+                                            fontSize: 14, color: black),
+                                      )),
+                                ],
                               ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  ordeCompraBd.locationDestName ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 14, color: black),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
+                            ),
+                            Row(
                               children: [
-                                Icon(
-                                  Icons.person_rounded,
-                                  color: primaryColorApp,
-                                  size: 15,
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Unidades recibidas: ',
+                                      style: TextStyle(
+                                          fontSize: 14, color: primaryColorApp),
+                                    )),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      totalEnviadas.toString(),
+                                      style:
+                                          TextStyle(fontSize: 14, color: black),
+                                    )),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Temperatura: ',
+                                      style: TextStyle(
+                                          fontSize: 14, color: primaryColorApp),
+                                    )),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      ordeCompraBd.manejaTemperatura == 1
+                                          ? (ordeCompraBd.temperatura == 0.0
+                                              ? 'Sin temperatura'
+                                              : '${ordeCompraBd.temperatura} °C')
+                                          : 'No aplica',
+                                      style:
+                                          TextStyle(fontSize: 14, color: black),
+                                    )),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Destino: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  ),
                                 ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  ordeCompraBd.responsable == false
-                                      ? 'Sin responsable'
-                                      : ordeCompraBd.responsable ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 14, color: black),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    ordeCompraBd.locationDestName ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.timer,
-                                  color: primaryColorApp,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  'Tiempo de inicio : ',
-                                  style: TextStyle(
-                                      fontSize: 14, color: primaryColorApp),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  ordeCompraBd.startTimeReception ?? "",
-                                  style: const TextStyle(
-                                      fontSize: 14, color: black),
-                                ),
-                              ],
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.person_rounded,
+                                    color: primaryColorApp,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    ordeCompraBd.responsable == false
+                                        ? 'Sin responsable'
+                                        : ordeCompraBd.responsable ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.timer,
+                                    color: primaryColorApp,
+                                    size: 15,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    'Tiempo de inicio : ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    ordeCompraBd.startTimeReception ?? "",
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
                   ),
                 ),
-                const Spacer(),
+                // const Spacer(),
                 Visibility(
                   visible: context
                           .read<RecepcionBloc>()

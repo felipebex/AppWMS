@@ -69,7 +69,6 @@ class ProductScannerAll extends StatelessWidget {
     );
   }
 
-  
   Widget _buildZebraLayout(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
@@ -87,7 +86,10 @@ class ProductScannerAll extends StatelessWidget {
               focusNode: focusNode,
               onChanged: onValidateProduct,
               decoration: InputDecoration(
-                hintText: currentProduct?.name ?? 'Esperando escaneo',
+                hintText: currentProduct?.productName == "" ||
+                        currentProduct?.productName == null
+                    ? 'Esperando escaneo'
+                    : currentProduct?.productName,
                 disabledBorder: InputBorder.none,
                 hintStyle: const TextStyle(fontSize: 12, color: black),
                 border: InputBorder.none,
@@ -116,7 +118,7 @@ class ProductScannerAll extends StatelessWidget {
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 5),
-         child: productDropdown ?? const SizedBox(),
+        child: productDropdown ?? const SizedBox(),
       ),
     );
   }

@@ -23,7 +23,8 @@ class ProductoPedido {
   final String? observation;
   final int? isPacking;
   final int? idPackage;
-  final dynamic? packageName;
+  final dynamic packageName;
+  final dynamic productCode;
   final int? isPackage;
   final dynamic isCertificate;
   final int? isSendOdoo;
@@ -63,6 +64,7 @@ class ProductoPedido {
       this.pedidoId,
       this.idProduct,
       this.loteId,
+      this.productCode,
       this.idMove,
       this.lotId,
       this.locationId,
@@ -114,6 +116,7 @@ class ProductoPedido {
       batchId: json["batch_id"],
       pedidoId: json["pedido_id"],
       idProduct: json["id_product"],
+      productCode: json["product_code"],
       loteId: json["lote_id"],
       idMove: json["id_move"],
       lotId: json["lot_id"],
@@ -168,6 +171,7 @@ class ProductoPedido {
         "id_product": idProduct,
         "lote_id": loteId,
         "lot_id": lotId,
+        "product_code": productCode,
         "id_move": idMove,
         "location_id": locationId,
         "id_location": idLocation,

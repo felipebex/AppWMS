@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_confirmated_packing_widget.dart';
@@ -21,6 +23,8 @@ class Tab2PedidoScreen extends StatefulWidget {
 }
 
 class _Tab2ScreenState extends State<Tab2PedidoScreen> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   FocusNode focusNode1 = FocusNode(); //cantidad textformfield
 
   final TextEditingController _controllerToDo = TextEditingController();
@@ -91,7 +95,9 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
 
     // 1️⃣ Buscar por código de barras principal
     final product = listOfProducts.firstWhere(
-      (p) => p.barcode?.toLowerCase() == scan,
+      (p) =>
+          p.barcode?.toLowerCase() == scan ||
+          p.productCode?.toLowerCase() == scan,
       orElse: () => ProductoPedido(),
     );
 
@@ -108,15 +114,18 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
 
     if (barcode.barcode != null) {
       final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.idMove == barcode.idMove,
+        (p) => p.productId == barcode.idProduct,
         orElse: () => ProductoPedido(),
       );
 
-      if (productByBarcode.idMove != null) {
+      if (productByBarcode.productId != null) {
         processProduct(productByBarcode);
         return;
       }
     }
+
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
 
     // 3️⃣ Si no se encuentra nada → mostrar error
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

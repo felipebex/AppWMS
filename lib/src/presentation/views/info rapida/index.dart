@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
@@ -19,6 +21,9 @@ class InfoRapidaScreen extends StatefulWidget {
 }
 
 class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   final TextEditingController _controllerSearch = TextEditingController();
   final FocusNode focusNode1 = FocusNode();
 
@@ -46,7 +51,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
       listenWhen: (previous, current) => current is! InfoRapidaInitial,
       buildWhen: (previous, current) =>
           current is InfoRapidaInitial || current is InfoRapidaLoaded,
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is DeviceNotAuthorized) {
           Navigator.pop(context);
           Get.defaultDialog(
@@ -65,6 +70,8 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
             onWillPop: () async => false,
           );
         } else if (state is InfoRapidaError) {
+           _vibrationService.vibrate();
+           _audioService.playErrorSound();
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',

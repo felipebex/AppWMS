@@ -133,9 +133,11 @@ class ProductScannerWidget extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 13, color: primaryColorApp)),
                               const SizedBox(width: 5),
-                              Text(category,
-                                  style: const TextStyle(
-                                      fontSize: 13, color: black)),
+                              Flexible(
+                                child: Text(category,
+                                    style: const TextStyle(
+                                        fontSize: 13, color: black)),
+                              ),
                             ],
                           ),
                           Row(

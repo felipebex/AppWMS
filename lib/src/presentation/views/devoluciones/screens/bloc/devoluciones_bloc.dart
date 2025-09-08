@@ -343,18 +343,23 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       final response = await devolucionesRepository.createLote(
         true,
         currentProduct.productId ?? 0,
-        event.nameLote,
-        event.fechaCaducidad,
+        event.nameLote ?? "",
+        event.fechaCaducidad ?? "",
       );
 
       if (response != null) {
-        //agregamos el nuevo lote a la lista de lotes
-        listLotesProductFilters.add(response.result?.result ?? LotesProduct());
-        lotesProductCurrent = response.result?.result ?? LotesProduct();
-        dateLoteController.clear();
-        newLoteController.clear();
-
-        emit(CreateLoteProductSuccess(lotesProductCurrent));
+        if (response.result?.code == 200) {
+          //agregamos el nuevo lote a la lista de lotes
+          listLotesProductFilters
+              .add(response.result?.result ?? LotesProduct());
+          lotesProductCurrent = response.result?.result ?? LotesProduct();
+          dateLoteController.clear();
+          newLoteController.clear();
+          emit(CreateLoteProductSuccess(lotesProductCurrent));
+        } else {
+          emit(CreateLoteProductFailure(
+              response.result?.msg ?? 'Error al crear el lote'));
+        }
       } else {
         emit(CreateLoteProductFailure('Error al crear el lote'));
       }
@@ -657,11 +662,23 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
 
   void _onAddProductEvent(
       Addproduct event, Emitter<DevolucionesState> emit) async {
-    await db.devolucionRepository.insertProductoDevolucion(event.product);
-    productosDevolucion.add(event.product);
-    print('Producto añadido: ${event.product.toMap()}');
-    emit(AddProductSuccess(event.product));
-    // }
+//validamos que este producto no este ya en la lista de devoluciones
+
+    if (productosDevolucion.any((p) =>
+        p.productId == event.product.productId &&
+        p.lotId == event.product.lotId)) {
+      print('❌ El producto ya está en la lista de devoluciones');
+      emit(AddProductFailure(
+          'El producto ${event.product.name} ${event.product.tracking == 'lot' ? ' con lote ${event.product.lotName}' : ''} ya está en la lista de devoluciones. Para agregar el mismo producto con el mismo lote  debe realizarlo desde la opción de editar'));
+      return;
+    } else {
+      //insertamos el producto en la base de datos
+
+      await db.devolucionRepository.insertProductoDevolucion(event.product);
+      productosDevolucion.add(event.product);
+      print('Producto añadido: ${event.product.toMap()}');
+      emit(AddProductSuccess(event.product));
+    }
   }
 
   void _onRemoveProductEvent(
@@ -719,10 +736,15 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       if (product.tracking == 'lot') {
         add(GetLotesProduct());
       }
+
+
       // Actualizar el producto actual
       currentProduct = product;
       viewQuantity = false;
       quantitySelected = 0;
+
+
+      
     } else {
       // Buscar coincidencia directa por barcode o code
       final matchedProduct = productos.firstWhere(

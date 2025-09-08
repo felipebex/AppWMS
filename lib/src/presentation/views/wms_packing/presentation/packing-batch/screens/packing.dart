@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -40,6 +42,9 @@ class PackingScreen extends StatefulWidget {
 }
 
 class _PackingScreenState extends State<PackingScreen> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
@@ -121,8 +126,9 @@ class _PackingScreenState extends State<PackingScreen> {
           currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
       batchBloc.add(ClearScannedValuePackEvent('location'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       batchBloc.add(ValidateFieldsPackingEvent(field: "location", isOk: false));
-
       batchBloc.add(ClearScannedValuePackEvent('location'));
     }
   }
@@ -151,6 +157,8 @@ class _PackingScreenState extends State<PackingScreen> {
       final isok = validateScannedBarcode(
           scan, batchBloc.currentProduct, batchBloc, true);
       if (!isok) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         batchBloc
             .add(ValidateFieldsPackingEvent(field: "product", isOk: false));
         batchBloc.add(ClearScannedValuePackEvent('product'));
@@ -211,6 +219,8 @@ class _PackingScreenState extends State<PackingScreen> {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if ((matchedBarcode.cantidad + batchBloc.quantitySelected) >
             currentProduct.quantity!) {
+          _audioService.playErrorSound();
+          _vibrationService.vibrate();
           return false;
         }
         batchBloc.add(AddQuantitySeparate(
@@ -219,8 +229,12 @@ class _PackingScreenState extends State<PackingScreen> {
             currentProduct.idProduct ?? 0,
             currentProduct.pedidoId ?? 0));
       }
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       return false;
     }
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
     return false;
   }
 
@@ -1334,6 +1348,8 @@ class _PackingScreenState extends State<PackingScreen> {
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -1386,6 +1402,8 @@ class _PackingScreenState extends State<PackingScreen> {
                   });
             });
       } else {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 1000),
           content: const Text('Cantidad erronea'),

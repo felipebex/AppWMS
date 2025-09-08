@@ -44,6 +44,10 @@ class ProductosOrdenConteoTable {
   // is_original
   static const String columnIsOriginal = 'is_original';
 
+  //use_expiration_date
+  static const String columnUseExpirationDate = 'use_expiration_date';
+
+
   static String createTable() {
     return '''
     CREATE TABLE $tableName (
@@ -81,6 +85,7 @@ class ProductosOrdenConteoTable {
       $columnIsOriginal INTEGER,
       $columnProductIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
+      $columnUseExpirationDate INTEGER,
       $columnIsLocationIsOk INTEGER
 
       )

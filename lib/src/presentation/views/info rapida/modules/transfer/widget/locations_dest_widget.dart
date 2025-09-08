@@ -46,7 +46,6 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.only(top: 20),
                       decoration: BoxDecoration(
                         color: primaryColorApp,
                         borderRadius: const BorderRadius.only(
@@ -69,7 +68,7 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                                       top: connectionStatus !=
                                               ConnectionStatus.online
                                           ? 0
-                                          : 35,
+                                          : 25,
                                     ),
                                     child: Row(
                                       mainAxisAlignment:

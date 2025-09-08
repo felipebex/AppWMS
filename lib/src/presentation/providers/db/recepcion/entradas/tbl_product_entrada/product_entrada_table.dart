@@ -54,6 +54,9 @@ class ProductRecepcionTable {
   static const String columnImage = 'image';
   static const String columnImageNovedad = 'image_novedad';
 
+  //use_expiration_date
+  static const String columnUseExpirationDate = 'use_expiration_date';
+
 //Meotdo para crar la tabla
   static String createTable() {
     return '''
@@ -100,6 +103,7 @@ class ProductRecepcionTable {
       $columnCantidadFaltante INTEGER,
       $columnManejoTemperature INTEGER,
       $columnTemperature INTEGER,
+      $columnUseExpirationDate INTEGER,
       $columnImage TEXT,
       $columnImageNovedad TEXT,
       

@@ -29,7 +29,7 @@ class InfoRapidaRepository {
 
       print("barcode $barcode");
       var response = await ApiRequestService().getInfo(
-        endpoint: 'transferencias/quickinfo/v2',
+        endpoint: 'transferencias/quickinfo',
         body: {
           "params": {
             "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
@@ -123,7 +123,7 @@ class InfoRapidaRepository {
       final mac = await PrefUtils.getMacPDA();
       final imei = await PrefUtils.getImeiPDA();
       var response = await ApiRequestService().getInfo(
-        endpoint: 'transferencias/quickinfo/id/v2',
+        endpoint: 'transferencias/quickinfo/id',
         body: {
           "params": isProduct
               ? {

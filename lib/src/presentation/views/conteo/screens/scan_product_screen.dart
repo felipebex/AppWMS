@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -35,6 +37,9 @@ class ScanProductConteoScreen extends StatefulWidget {
 
 class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   //*focus
   FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
   FocusNode focusNode2 = FocusNode(); // producto
@@ -191,6 +196,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
       bloc.add(SelectecLoteEvent(matchedLote));
       bloc.add(ClearScannedValueEvent('lote'));
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       print('lote no encontrado');
       bloc.add(ValidateFieldsEvent(field: "lote", isOk: false));
       bloc.add(ClearScannedValueEvent('lote'));
@@ -210,6 +217,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
           product.productId ?? 0, product.orderId ?? 0, product.idMove ?? 0));
       bloc.oldLocation = product.locationId.toString();
     } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       bloc.add(ValidateFieldsEvent(field: "location", isOk: false));
     }
 
@@ -237,6 +246,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
     } else {
       final isOk = validateScannedBarcode(scan, product, bloc, true);
       if (!isOk) {
+        _vibrationService.vibrate();
+        _audioService.playErrorSound();
         bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
       }
     }
@@ -290,8 +301,12 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
             matchedBarcode.cantidad,
             false));
       }
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
       return false;
     }
+    _vibrationService.vibrate();
+    _audioService.playErrorSound();
     return false;
   }
 
@@ -379,9 +394,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                             ));
                             //limpiamos los valores pa volver a iniciar con otro producto
                             cantidadController.clear();
-                            context
-                                .read<ConteoBloc>()
-                                .add(ResetValuesEvent(resetAll: true, isLoading: false));
+                            context.read<ConteoBloc>().add(ResetValuesEvent(
+                                resetAll: true, isLoading: false));
 
                             context.read<ConteoBloc>().add(
                                   LoadConteoAndProductsEvent(
@@ -468,7 +482,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                             ResetValuesEvent(
                                                 resetAll: true,
                                                 isLoading: false));
-                                        
+
                                         Navigator.pushReplacementNamed(
                                           context,
                                           'conteo-detail',
@@ -1037,6 +1051,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
 
     // Validación de formato
     if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -1053,6 +1069,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
     // Intentar convertir a double
     double? cantidad = double.tryParse(input);
     if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       Get.snackbar(
         'Error',
         'Cantidad inválida',
@@ -1078,6 +1096,9 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
 
     if (bloc.currentProduct?.productTracking == 'lot') {
       if (bloc.currentProductLote?.id == null) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
+
         Get.snackbar(
           '360 Software Informa',
           "No se ha selecionado el lote",

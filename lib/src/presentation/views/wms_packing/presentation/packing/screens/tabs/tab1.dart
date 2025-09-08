@@ -322,415 +322,417 @@ class Tab1PedidoScreen extends StatelessWidget {
                                 child: context
                                         .read<PackingPedidoBloc>()
                                         .viewDetail
-                                    ? Column(
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Text('Prioridad: ',
+                                    ? SingleChildScrollView(
+                                      child: Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Text('Prioridad: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp)),
+                                                  Text(
+                                                    pedidoCurrent.priority == '0'
+                                                        ? 'Normal'
+                                                        : 'Alta'
+                                                            "",
                                                     style: TextStyle(
-                                                        fontSize: 12,
-                                                        color:
-                                                            primaryColorApp)),
+                                                      fontSize: 12,
+                                                      color: pedidoCurrent
+                                                                  .priority ==
+                                                              '0'
+                                                          ? black
+                                                          : red,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
                                                 Text(
-                                                  pedidoCurrent.priority == '0'
-                                                      ? 'Normal'
-                                                      : 'Alta'
-                                                          "",
+                                                  'Operacion: ',
                                                   style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: primaryColorApp),
+                                                ),
+                                                Text(
+                                                  pedidoCurrent.pickingType ?? "",
+                                                  style: TextStyle(
+                                                      fontSize: 12, color: black),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Referencia: ',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: primaryColorApp),
+                                                ),
+                                                Text(
+                                                  pedidoCurrent.referencia ?? '',
+                                                  style: TextStyle(
+                                                      fontSize: 12, color: black),
+                                                ),
+                                              ],
+                                            ),
+                                            Divider(
+                                              color: black,
+                                              thickness: 1,
+                                              height: 5,
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.calendar_month_sharp,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    pedidoCurrent.fechaCreacion !=
+                                                            null
+                                                        ? DateFormat(
+                                                                'dd/MM/yyyy hh:mm ')
+                                                            .format(DateTime.parse(
+                                                                pedidoCurrent
+                                                                    .fechaCreacion
+                                                                    .toString()))
+                                                        : "Sin fecha",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                pedidoCurrent.proveedor == "" ||
+                                                        pedidoCurrent.proveedor ==
+                                                            null
+                                                    ? 'Sin proveedor'
+                                                    : pedidoCurrent.proveedor ??
+                                                        "",
+                                                style: TextStyle(
                                                     fontSize: 12,
                                                     color: pedidoCurrent
-                                                                .priority ==
-                                                            '0'
-                                                        ? black
-                                                        : red,
-                                                  ),
-                                                ),
-                                              ],
+                                                                    .proveedor ==
+                                                                "" ||
+                                                            pedidoCurrent
+                                                                    .proveedor ==
+                                                                null
+                                                        ? red
+                                                        : primaryColorApp),
+                                              ),
                                             ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Operacion: ',
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'Contacto: ',
                                                 style: TextStyle(
                                                     fontSize: 12,
                                                     color: primaryColorApp),
                                               ),
-                                              Text(
-                                                pedidoCurrent.pickingType ?? "",
-                                                style: TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Referencia: ',
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                pedidoCurrent.contactoName ==
+                                                            "" ||
+                                                        pedidoCurrent
+                                                                .contactoName ==
+                                                            null
+                                                    ? 'Sin contacto'
+                                                    : pedidoCurrent
+                                                            .contactoName ??
+                                                        "",
                                                 style: TextStyle(
                                                     fontSize: 12,
-                                                    color: primaryColorApp),
+                                                    color: pedidoCurrent
+                                                                    .contactoName ==
+                                                                "" ||
+                                                            pedidoCurrent
+                                                                    .contactoName ==
+                                                                null
+                                                        ? red
+                                                        : black),
                                               ),
-                                              Text(
-                                                pedidoCurrent.referencia ?? '',
-                                                style: TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ],
-                                          ),
-                                          Divider(
-                                            color: black,
-                                            thickness: 1,
-                                            height: 5,
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
+                                            ),
+                                            Row(
                                               children: [
-                                                Icon(
-                                                  Icons.calendar_month_sharp,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  pedidoCurrent.fechaCreacion !=
-                                                          null
-                                                      ? DateFormat(
-                                                              'dd/MM/yyyy hh:mm ')
-                                                          .format(DateTime.parse(
-                                                              pedidoCurrent
-                                                                  .fechaCreacion
-                                                                  .toString()))
-                                                      : "Sin fecha",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                ),
+                                                Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      'Total productos : ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: primaryColorApp),
+                                                    )),
+                                                Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      pedidoCurrent.numeroLineas
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    )),
                                               ],
                                             ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              pedidoCurrent.proveedor == "" ||
-                                                      pedidoCurrent.proveedor ==
-                                                          null
-                                                  ? 'Sin proveedor'
-                                                  : pedidoCurrent.proveedor ??
-                                                      "",
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: pedidoCurrent
-                                                                  .proveedor ==
-                                                              "" ||
-                                                          pedidoCurrent
-                                                                  .proveedor ==
-                                                              null
-                                                      ? red
-                                                      : primaryColorApp),
+                                            Row(
+                                              children: [
+                                                Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      'Total de unidades: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: primaryColorApp),
+                                                    )),
+                                                Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      pedidoCurrent.numeroItems
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    )),
+                                              ],
                                             ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              'Contacto: ',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp),
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              pedidoCurrent.contactoName ==
-                                                          "" ||
-                                                      pedidoCurrent
-                                                              .contactoName ==
-                                                          null
-                                                  ? 'Sin contacto'
-                                                  : pedidoCurrent
-                                                          .contactoName ??
-                                                      "",
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: pedidoCurrent
-                                                                  .contactoName ==
-                                                              "" ||
-                                                          pedidoCurrent
-                                                                  .contactoName ==
-                                                              null
-                                                      ? red
-                                                      : black),
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    'Total productos : ',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp),
-                                                  )),
-                                              Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    pedidoCurrent.numeroLineas
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: black),
-                                                  )),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    'Total de unidades: ',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp),
-                                                  )),
-                                              Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    pedidoCurrent.numeroItems
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: black),
-                                                  )),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Total productos empacados: ',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp),
-                                              ),
-                                              Text(
-                                                context
-                                                    .read<PackingPedidoBloc>()
-                                                    .listOfProductos
-                                                    .where((element) =>
-                                                        element.isPackage == 1)
-                                                    .length
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                'Numero de paquetes: ',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp),
-                                              ),
-                                              Text(
-                                                context
-                                                    .read<PackingPedidoBloc>()
-                                                    .packages
-                                                    .length
-                                                    .toString(),
-                                                style: TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  'Destino: ',
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Total productos empacados: ',
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       color: primaryColorApp),
                                                 ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  pedidoCurrent
-                                                          .locationDestName ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.person_rounded,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
                                                 Text(
-                                                  pedidoCurrent.responsable ==
-                                                          false
-                                                      ? 'Sin responsable'
-                                                      : pedidoCurrent
-                                                              .responsable ??
-                                                          '',
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.timer,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  'Tiempo de inicio : ',
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: primaryColorApp),
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  pedidoCurrent
-                                                          .startTimeTransfer ??
-                                                      "",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Visibility(
-                                            visible: pedidoCurrent
-                                                        .isTerminate !=
-                                                    1 &&
-                                                context
-                                                        .read<
-                                                            PackingPedidoBloc>()
-                                                        .configurations
-                                                        .result!
-                                                        .result
-                                                        ?.hideValidatePacking ==
-                                                    false,
-                                            child: ElevatedButton(
-                                                onPressed: () {
-                                                  if (context
+                                                  context
                                                       .read<PackingPedidoBloc>()
-                                                      .productsDone
-                                                      .isNotEmpty) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: const Text(
-                                                          'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
-                                                          style: TextStyle(
-                                                              color: white),
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.red[200],
-                                                      ),
-                                                    );
-                                                    return;
-                                                  }
-                                                  if (context
+                                                      .listOfProductos
+                                                      .where((element) =>
+                                                          element.isPackage == 1)
+                                                      .length
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 12, color: black),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Numero de paquetes: ',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: primaryColorApp),
+                                                ),
+                                                Text(
+                                                  context
                                                       .read<PackingPedidoBloc>()
                                                       .packages
-                                                      .isEmpty) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        content: const Text(
-                                                          'No se puede confirmar un pedido sin empaques',
-                                                          style: TextStyle(
-                                                              color: white),
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.red[200],
-                                                      ),
-                                                    );
-                                                    return;
-                                                  }
-
-                                                  final progress = (totalEnviadas /
-                                                              context
-                                                                  .read<
-                                                                      PackingPedidoBloc>()
-                                                                  .currentPedidoPack
-                                                                  .numeroItems ??
-                                                          0) *
-                                                      100;
-
-                                                  showDialog(
-                                                      context: Navigator.of(
-                                                              context,
-                                                              rootNavigator:
-                                                                  true)
-                                                          .context,
-                                                      builder: (context) {
-                                                        return DialogBackorderPack(
-                                                          totalEnviadas:
-                                                              progress,
-                                                          createBackorder: context
-                                                                  .read<
-                                                                      PackingPedidoBloc>()
-                                                                  .currentPedidoPack
-                                                                  .createBackorder ??
-                                                              "ask",
-                                                        );
-                                                      });
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  minimumSize: Size(
-                                                    size.width * 0.9,
-                                                    30, // Alto
-                                                  ),
-                                                  backgroundColor:
-                                                      primaryColorApp,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                      .length
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 12, color: black),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(
+                                                    'Destino: ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp),
                                                   ),
                                                 ),
-                                                child: const Text(
-                                                  'Confirmar pedido',
-                                                  style: TextStyle(
-                                                      color: white,
-                                                      fontSize: 12),
-                                                )),
-                                          ),
-                                        ],
-                                      )
+                                                Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(
+                                                    pedidoCurrent
+                                                            .locationDestName ??
+                                                        '',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.person_rounded,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    pedidoCurrent.responsable ==
+                                                            false
+                                                        ? 'Sin responsable'
+                                                        : pedidoCurrent
+                                                                .responsable ??
+                                                            '',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.timer,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    'Tiempo de inicio : ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    pedidoCurrent
+                                                            .startTimeTransfer ??
+                                                        "",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Visibility(
+                                              visible: pedidoCurrent
+                                                          .isTerminate !=
+                                                      1 &&
+                                                  context
+                                                          .read<
+                                                              PackingPedidoBloc>()
+                                                          .configurations
+                                                          .result!
+                                                          .result
+                                                          ?.hideValidatePacking ==
+                                                      false,
+                                              child: ElevatedButton(
+                                                  onPressed: () {
+                                                    if (context
+                                                        .read<PackingPedidoBloc>()
+                                                        .productsDone
+                                                        .isNotEmpty) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: const Text(
+                                                            'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
+                                                            style: TextStyle(
+                                                                color: white),
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.red[200],
+                                                        ),
+                                                      );
+                                                      return;
+                                                    }
+                                                    if (context
+                                                        .read<PackingPedidoBloc>()
+                                                        .packages
+                                                        .isEmpty) {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: const Text(
+                                                            'No se puede confirmar un pedido sin empaques',
+                                                            style: TextStyle(
+                                                                color: white),
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.red[200],
+                                                        ),
+                                                      );
+                                                      return;
+                                                    }
+                                      
+                                                    final progress = (totalEnviadas /
+                                                                context
+                                                                    .read<
+                                                                        PackingPedidoBloc>()
+                                                                    .currentPedidoPack
+                                                                    .numeroItems ??
+                                                            0) *
+                                                        100;
+                                      
+                                                    showDialog(
+                                                        context: Navigator.of(
+                                                                context,
+                                                                rootNavigator:
+                                                                    true)
+                                                            .context,
+                                                        builder: (context) {
+                                                          return DialogBackorderPack(
+                                                            totalEnviadas:
+                                                                progress,
+                                                            createBackorder: context
+                                                                    .read<
+                                                                        PackingPedidoBloc>()
+                                                                    .currentPedidoPack
+                                                                    .createBackorder ??
+                                                                "ask",
+                                                          );
+                                                        });
+                                                  },
+                                                  style: ElevatedButton.styleFrom(
+                                                    minimumSize: Size(
+                                                      size.width * 0.9,
+                                                      30, // Alto
+                                                    ),
+                                                    backgroundColor:
+                                                        primaryColorApp,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Confirmar pedido',
+                                                    style: TextStyle(
+                                                        color: white,
+                                                        fontSize: 12),
+                                                  )),
+                                            ),
+                                          ],
+                                        ),
+                                    )
                                     : SizedBox.shrink(),
                               ),
                             ],

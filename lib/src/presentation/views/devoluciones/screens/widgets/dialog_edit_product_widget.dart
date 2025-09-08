@@ -119,6 +119,20 @@ class DialogEditProduct extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Maneja fecha: ',
+                                      style: TextStyle(
+                                          fontSize: 12, color: primaryColorApp),
+                                    ),
+                                    Text(
+                                      bloc.currentProduct.useExpirationDate == 1 ? "Si" : "No",
+                                      style: const TextStyle(
+                                          fontSize: 12, color: black),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -599,6 +613,13 @@ class DialogEditProduct extends StatelessWidget {
                       child: const Text('Agregar',
                           style: TextStyle(color: Colors.white)),
                     ),
+
+
+
+
+
+
+                    
                   if (isEdit)
                     ElevatedButton(
                       onPressed: () {

@@ -313,13 +313,34 @@ class Tab1ScreenTrans extends StatelessWidget {
                             padding: const EdgeInsets.all(10),
                             child: Column(
                               children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text("${transferenciaDetail.name}",
-                                      style: TextStyle(
-                                          color: primaryColorApp,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
+                                Row(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text("${transferenciaDetail.name}",
+                                          style: TextStyle(
+                                              color: primaryColorApp,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                      onPressed: () {
+                                        context.read<TransferenciaBloc>().add(
+                                            ToggleProductExpansionEvent(!context
+                                                .read<TransferenciaBloc>()
+                                                .isExpanded));
+                                      },
+                                      icon: Icon(
+                                        !context
+                                                .read<TransferenciaBloc>()
+                                                .isExpanded
+                                            ? Icons.expand_less
+                                            : Icons.expand_more,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Align(
                                   alignment: Alignment.centerLeft,
@@ -366,237 +387,250 @@ class Tab1ScreenTrans extends StatelessWidget {
                                   thickness: 1,
                                   height: 5,
                                 ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_month_sharp,
-                                        color: primaryColorApp,
-                                        size: 15,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        transferenciaDetail.fechaCreacion !=
-                                                null
-                                            ? DateFormat('dd/MM/yyyy hh:mm ')
-                                                .format(DateTime.parse(
-                                                    transferenciaDetail
-                                                            .fechaCreacion ??
-                                                        ''))
-                                            : "Sin fecha",
-                                        style: const TextStyle(
-                                            fontSize: 12, color: black),
-                                      ),
-                                    ],
+                                if (!context
+                                    .read<TransferenciaBloc>()
+                                    .isExpanded) ...[
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_month_sharp,
+                                          color: primaryColorApp,
+                                          size: 15,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          transferenciaDetail.fechaCreacion !=
+                                                  null
+                                              ? DateFormat('dd/MM/yyyy hh:mm ')
+                                                  .format(DateTime.parse(
+                                                      transferenciaDetail
+                                                              .fechaCreacion ??
+                                                          ''))
+                                              : "Sin fecha",
+                                          style: const TextStyle(
+                                              fontSize: 12, color: black),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                      transferenciaDetail.proveedor == ""
-                                          ? 'Sin provedor'
-                                          : transferenciaDetail.proveedor ?? '',
-                                      style: TextStyle(
-                                        color:
-                                            transferenciaDetail.proveedor == ""
-                                                ? red
-                                                : black,
-                                        fontSize: 12,
-                                      )),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.shopping_cart_sharp,
-                                        color: primaryColorApp,
-                                        size: 15,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        transferenciaDetail.origin == ""
-                                            ? 'Sin orden de compra'
-                                            : transferenciaDetail.origin ?? '',
-                                        style: const TextStyle(
-                                            fontSize: 12, color: black),
-                                      ),
-                                    ],
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                        transferenciaDetail.proveedor == ""
+                                            ? 'Sin provedor'
+                                            : transferenciaDetail.proveedor ??
+                                                '',
+                                        style: TextStyle(
+                                          color:
+                                              transferenciaDetail.proveedor ==
+                                                      ""
+                                                  ? red
+                                                  : black,
+                                          fontSize: 12,
+                                        )),
                                   ),
-                                ),
-                                Visibility(
-                                  visible: transferenciaDetail.backorderId != 0,
-                                  child: Row(
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.shopping_cart_sharp,
+                                          color: primaryColorApp,
+                                          size: 15,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          transferenciaDetail.origin == ""
+                                              ? 'Sin orden de compra'
+                                              : transferenciaDetail.origin ??
+                                                  '',
+                                          style: const TextStyle(
+                                              fontSize: 12, color: black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible:
+                                        transferenciaDetail.backorderId != 0,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.file_copy,
+                                          color: primaryColorApp,
+                                          size: 15,
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                              transferenciaDetail
+                                                      .backorderName ??
+                                                  '',
+                                              style: TextStyle(
+                                                  color: black,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
                                     children: [
-                                      Icon(
-                                        Icons.file_copy,
-                                        color: primaryColorApp,
-                                        size: 15,
-                                      ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Peso: ',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp),
+                                          )),
                                       Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                            transferenciaDetail.backorderName ??
-                                                '',
-                                            style: TextStyle(
-                                                color: black,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Peso: ',
+                                          // Formateamos el número a 2 decimales
+                                          NumberFormat('0.00').format(
+                                              transferenciaDetail.pesoTotal ??
+                                                  0),
                                           style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        )),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        // Formateamos el número a 2 decimales
-                                        NumberFormat('0.00').format(
-                                            transferenciaDetail.pesoTotal ?? 0),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: black,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Total productos : ',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        )),
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          transferenciaDetail.numeroLineas
-                                              .toString(),
-                                          style: TextStyle(
-                                              fontSize: 12, color: black),
-                                        )),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Total de unidades: ',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        )),
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          transferenciaDetail.numeroItems
-                                              .toString(),
-                                          style: TextStyle(
-                                              fontSize: 12, color: black),
-                                        )),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Unidades recibidas: ',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        )),
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          totalEnviadas.toString(),
-                                          style: TextStyle(
-                                              fontSize: 12, color: black),
-                                        )),
-                                  ],
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Ubicacion destino: ',
-                                    style: TextStyle(
-                                        fontSize: 12, color: primaryColorApp),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    transferenciaDetail.locationDestName ??
-                                        'Sin ubicacion',
-                                    style: const TextStyle(
-                                        fontSize: 12, color: black),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.person_rounded,
-                                        color: primaryColorApp,
-                                        size: 15,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        transferenciaDetail.responsable == false
-                                            ? 'Sin responsable'
-                                            : transferenciaDetail.responsable ??
-                                                '',
-                                        style: const TextStyle(
-                                            fontSize: 12, color: black),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.timer,
-                                        color: primaryColorApp,
-                                        size: 15,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        'Tiempo de inicio : ',
-                                        style: TextStyle(
                                             fontSize: 12,
-                                            color: primaryColorApp),
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        transferenciaDetail.startTimeTransfer ??
-                                            "Sin tiempo",
-                                        style: const TextStyle(
-                                            fontSize: 12, color: black),
-                                      ),
+                                            color: black,
+                                          ),
+                                        ),
+                                      )
                                     ],
                                   ),
-                                ),
+                                  Row(
+                                    children: [
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Total productos : ',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp),
+                                          )),
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            transferenciaDetail.numeroLineas
+                                                .toString(),
+                                            style: TextStyle(
+                                                fontSize: 12, color: black),
+                                          )),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Total de unidades: ',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp),
+                                          )),
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            transferenciaDetail.numeroItems
+                                                .toString(),
+                                            style: TextStyle(
+                                                fontSize: 12, color: black),
+                                          )),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Unidades recibidas: ',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp),
+                                          )),
+                                      Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            totalEnviadas.toString(),
+                                            style: TextStyle(
+                                                fontSize: 12, color: black),
+                                          )),
+                                    ],
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Ubicacion destino: ',
+                                      style: TextStyle(
+                                          fontSize: 12, color: primaryColorApp),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      transferenciaDetail.locationDestName ??
+                                          'Sin ubicacion',
+                                      style: const TextStyle(
+                                          fontSize: 12, color: black),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.person_rounded,
+                                          color: primaryColorApp,
+                                          size: 15,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          transferenciaDetail.responsable ==
+                                                  false
+                                              ? 'Sin responsable'
+                                              : transferenciaDetail
+                                                      .responsable ??
+                                                  '',
+                                          style: const TextStyle(
+                                              fontSize: 12, color: black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.timer,
+                                          color: primaryColorApp,
+                                          size: 15,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          'Tiempo de inicio : ',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: primaryColorApp),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          transferenciaDetail
+                                                  .startTimeTransfer ??
+                                              "Sin tiempo",
+                                          style: const TextStyle(
+                                              fontSize: 12, color: black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -797,7 +831,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                 context.read<TransferenciaBloc>().add(
                                     CheckAvailabilityEvent(
                                         transferenciaDetail.id ?? 0,
-                                        transferenciaDetail.type ?? "transfer"));
+                                        transferenciaDetail.type ??
+                                            "transfer"));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColorAppLigth,
