@@ -257,3 +257,8 @@ class MuellesErrorState extends BatchState {
   final String error;
   MuellesErrorState(this.error);
 }
+
+class LoadSelectedProductState extends BatchState {
+  final ProductsBatch selectedProduct;
+  LoadSelectedProductState(this.selectedProduct);
+}

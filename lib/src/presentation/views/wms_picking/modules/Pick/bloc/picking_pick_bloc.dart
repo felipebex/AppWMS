@@ -842,7 +842,27 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       await sortProductsByLocationId();
     } else {
       filteredProducts = pickWithProducts.products!.where((batch) {
-        return batch.productId?.toLowerCase().contains(query) ?? false;
+        final queryLower =
+            query.toLowerCase(); // Normalizar el query una sola vez
+        // Se normalizan todos los campos a buscar
+        final productId = batch.productId?.toLowerCase() ?? '';
+        final barcode = batch.barcode?.toLowerCase() ?? '';
+        final productCode = batch.productCode?.toLowerCase() ?? '';
+        final location = batch.locationId?.toLowerCase() ?? '';
+        final origin = batch.origin?.toLowerCase() ??
+            ''; // Se obtiene el valor del campo origin
+
+        // 🔎 ¡Depura aquí!
+        // Imprime el valor de origin para verificar su contenido
+        print('🔎 Verificando producto con origen: "$origin"');
+        print('🔎 El filtro busca: "$queryLower"');
+
+        // Realizar la búsqueda usando el operador OR
+        return productId.contains(queryLower) ||
+            barcode.contains(queryLower) ||
+            location.contains(queryLower) ||
+            productCode.contains(queryLower) ||
+            origin.contains(queryLower); // El filtro para origin
       }).toList();
     }
     emit(LoadProductsPickSuccesState(

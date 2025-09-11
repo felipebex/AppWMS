@@ -132,7 +132,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
                   fontWeight: FontWeight.bold,
                 ),
                 unselectedLabelStyle: TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

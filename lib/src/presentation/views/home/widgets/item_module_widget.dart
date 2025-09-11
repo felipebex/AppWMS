@@ -66,7 +66,7 @@ class _ImteModuleContent extends StatelessWidget {
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   color: primaryColorApp,
                   fontWeight: FontWeight.bold,
                 ),

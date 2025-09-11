@@ -29,7 +29,7 @@ class DialogPicking extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: primaryColorApp,
-                  fontSize: 20,
+                  fontSize: 16,
                 )),
             const SizedBox(height: 10),
             Center(
@@ -59,7 +59,7 @@ class DialogPicking extends StatelessWidget {
                 child: Text('POR BATCH',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
             ElevatedButton(
                 onPressed: () {
@@ -80,7 +80,7 @@ class DialogPicking extends StatelessWidget {
                 child: Text('POR PEDIDO',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
             ElevatedButton(
                 onPressed: () {
@@ -97,7 +97,7 @@ class DialogPicking extends StatelessWidget {
                 child: Text('CANCELAR',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
           ],
         )),

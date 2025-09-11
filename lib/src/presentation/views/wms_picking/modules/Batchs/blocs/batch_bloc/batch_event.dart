@@ -222,3 +222,8 @@ class CloseStateEvent extends BatchEvent {}
 class FetchMuellesEvent extends BatchEvent {
 
 }
+
+class LoadSelectedProductEvent extends BatchEvent {
+  final ProductsBatch selectedProduct;
+  LoadSelectedProductEvent(this.selectedProduct);
+}

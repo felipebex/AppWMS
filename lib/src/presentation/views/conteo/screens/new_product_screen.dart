@@ -174,8 +174,8 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
         ? value.trim().toLowerCase()
         : bloc.scannedValue2.trim().toLowerCase();
 
-    print('scan product: $scan');
     _controllerProduct.clear();
+    print('🔎 Scan barcode: $scan');
 
     Product? matchedProducts = bloc.productosFilters.firstWhere(
         (productoUbi) =>
@@ -189,14 +189,46 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
       print('producto encontrado: ${matchedProducts.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(true, matchedProducts, 0, true, 0, 0, 0));
-    } else {
-      _audioService.playErrorSound();
-      _vibrationService.vibrate();
-      print('producto encontrado: ${matchedProducts.name}');
-      bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
+      return;
     }
 
-    bloc.add(ClearScannedValueEvent('product'));
+    // Buscar en barcodes adicionales
+    final matchedBarcode = bloc.listAllOfBarcodes.firstWhere(
+      (b) => b.barcode?.toLowerCase() == scan,
+      orElse: () => Barcodes(),
+    );
+
+    if (matchedBarcode.barcode == null) {
+      print('❌ Producto no encontrado en barcodes');
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: false))
+        ..add(ClearScannedValueEvent('product'));
+      return;
+    }
+
+    // Buscar producto por id relacionado al barcode encontrado
+    final matchedById = bloc.productos.firstWhere(
+      (p) => p.productId == matchedBarcode.idProduct,
+      orElse: () => Product(),
+    );
+
+    if (matchedById.productId != null) {
+      print('✅ Producto encontrado por ID: ${matchedById.name}');
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: true))
+        ..add(ChangeProductIsOkEvent(true, matchedById, 0, true, 0, 0, 0));
+      return;
+    } else {
+      print('❌ Producto no encontrado por ID');
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc
+        ..add(ValidateFieldsEvent(field: "product", isOk: false))
+        ..add(ClearScannedValueEvent('product'));
+      return;
+    }
   }
 
   void validateQuantity(String value) {

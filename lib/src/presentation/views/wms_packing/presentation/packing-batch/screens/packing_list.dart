@@ -299,11 +299,13 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                 }
 
                                                 return Container(
-                                                  width: size.width * 0.46,
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Text(
                                                     displayDate,
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                     style: TextStyle(
                                                         fontSize: 12,
                                                         color: primaryColorApp),
@@ -610,11 +612,12 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                     .read<WmsPackingBloc>()
                                                     .packages = [];
                                                 // Pedimos todos los productos de un pedido
-                                                context.read<WmsPackingBloc>().add(
-                                                    LoadAllProductsFromPedidoEvent(
-                                                        packing.id ?? 0,
-                                                        
-                                                        ));
+                                                context
+                                                    .read<WmsPackingBloc>()
+                                                    .add(
+                                                        LoadAllProductsFromPedidoEvent(
+                                                      packing.id ?? 0,
+                                                    ));
                                                 //cerramos el teclado focus
                                                 FocusScope.of(context)
                                                     .unfocus();
@@ -653,9 +656,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                                       primaryColorApp)),
                                                           const SizedBox(
                                                               width: 10),
-                                                          SizedBox(
-                                                            width: size.width *
-                                                                0.65,
+                                                          Flexible(
                                                             child: Text(
                                                                 packing.name ??
                                                                     " ",
@@ -676,12 +677,10 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                                       primaryColorApp)),
                                                           const SizedBox(
                                                               width: 10),
-                                                          SizedBox(
-                                                            width: size.width *
-                                                                0.65,
+                                                          Flexible(
                                                             child: Text(
                                                                 packing.zonaEntrega ??
-                                                                    " ",
+                                                                    "",
                                                                 style: const TextStyle(
                                                                     fontSize:
                                                                         12,
@@ -699,9 +698,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                                       primaryColorApp)),
                                                           const SizedBox(
                                                               width: 10),
-                                                          SizedBox(
-                                                            width: size.width *
-                                                                0.6,
+                                                          Flexible(
                                                             child: Text(
                                                                 packing.zonaEntregaTms ??
                                                                     " ",

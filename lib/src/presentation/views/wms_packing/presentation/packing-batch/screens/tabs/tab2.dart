@@ -120,11 +120,11 @@ class _Tab2ScreenState extends State<Tab2Screen> {
 
     if (barcode.barcode != null) {
       final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.productId == barcode.idProduct,
+        (p) => p.idProduct.toString() == barcode.idProduct.toString(),
         orElse: () => ProductoPedido(),
       );
 
-      if (productByBarcode.productId != null) {
+      if (productByBarcode.idProduct != null) {
         processProduct(productByBarcode);
         return;
       }
@@ -551,7 +551,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         ),
                                                         const Spacer(),
                                                         Text(
-                                                          "Unidad de medida: ",
+                                                          "UND Medida: ",
                                                           style: TextStyle(
                                                             fontSize: 12,
                                                             color:

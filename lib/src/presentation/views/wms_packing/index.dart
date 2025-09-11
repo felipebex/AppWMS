@@ -3,7 +3,6 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -17,7 +16,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_start_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
-
 
 class WmsPackingScreen extends StatefulWidget {
   const WmsPackingScreen({super.key});
@@ -117,7 +115,8 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         left: size.width * 0.22),
                                     child: GestureDetector(
                                       onTap: () async {
-                                        await DataBaseSqlite().delePacking('packing-batch');
+                                        await DataBaseSqlite()
+                                            .delePacking('packing-batch');
                                         context
                                             .read<WmsPackingBloc>()
                                             .add(LoadAllPackingEvent(
@@ -146,7 +145,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                   const Spacer(),
                                 ],
                               ),
-                              
                             ],
                           ),
                         ),
@@ -369,16 +367,19 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         Text(batch.name ?? '',
                                             style:
                                                 const TextStyle(fontSize: 14)),
-                                        const Spacer(),
-                                        Text(batch.zonaEntrega ?? '',
-                                            style: const TextStyle(
-                                                fontSize: 12, color: black)),
+                                 
                                       ],
                                     ),
                                     subtitle: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       children: [
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(batch.zonaEntrega ?? '',
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black)),
+                                        ),
                                         Row(
                                           children: [
                                             const Align(
@@ -450,31 +451,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                           child: Row(
                                             children: [
                                               Icon(
-                                                Icons.person,
-                                                color: primaryColorApp,
-                                                size: 15,
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Expanded(
-                                                child: Text(
-                                                  batch.userName ??
-                                                      "Sin usuario",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Row(
-                                            children: [
-                                              Icon(
                                                 Icons.add,
                                                 color: primaryColorApp,
                                                 size: 15,
@@ -494,6 +470,33 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       color: primaryColorApp),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.person,
+                                                color: primaryColorApp,
+                                                size: 15,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Expanded(
+                                                child: Text(
+                                                  batch.userName == null ||
+                                                          batch.userName == ""
+                                                      ? "Sin responsable"
+                                                      : batch.userName!,
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
                                                   maxLines: 2,
                                                   overflow:
                                                       TextOverflow.ellipsis,

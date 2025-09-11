@@ -300,6 +300,8 @@ class ProductsBatch {
       isQuantityIsOk; // Variable para si la cantidad es leída correctamente
   final String? fechaTransaccion;
 
+  final dynamic productCode;
+
   ProductsBatch({
     this.id,
     this.batchId,
@@ -350,6 +352,7 @@ class ProductsBatch {
     this.otherBarcode,
     this.fechaTransaccion,
     this.typePick,
+    this.productCode,
   });
 
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
@@ -404,6 +407,7 @@ class ProductsBatch {
       weight: map['weight'],
       fechaTransaccion: map['fecha_transaccion'],
       typePick: map['type_pick'],
+      productCode: map['product_code'],
     );
   }
 
@@ -457,6 +461,7 @@ class ProductsBatch {
       "weight": weight,
       "fecha_transaccion": fechaTransaccion,
       "type_pick": typePick,
+      "product_code": productCode,
     };
   }
 }

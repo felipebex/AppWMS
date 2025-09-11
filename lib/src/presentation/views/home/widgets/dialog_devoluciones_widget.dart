@@ -33,7 +33,7 @@ class DialogDevoluciones extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: primaryColorApp,
-                  fontSize: 20,
+                  fontSize: 16,
                 )),
             const SizedBox(height: 10),
             Center(
@@ -72,7 +72,7 @@ class DialogDevoluciones extends StatelessWidget {
                 child: Text('POR BATCH',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
             ElevatedButton(
                 onPressed: () {
@@ -99,7 +99,7 @@ class DialogDevoluciones extends StatelessWidget {
                 child: Text('INDIVIDUAL',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
             ElevatedButton(
                 onPressed: () {
@@ -129,7 +129,7 @@ class DialogDevoluciones extends StatelessWidget {
                 child: Text('CREAR NUEVA',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
             ElevatedButton(
                 onPressed: () {
@@ -146,7 +146,7 @@ class DialogDevoluciones extends StatelessWidget {
                 child: Text('CANCELAR',
                     style: TextStyle(
                       color: white,
-                      fontSize: 14,
+                      fontSize: 12,
                     ))),
           ],
         )),

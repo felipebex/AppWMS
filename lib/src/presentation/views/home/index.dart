@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   elevation: 2,
                                   child: Container(
                                       padding: const EdgeInsets.only(
-                                          left: 20, top: 40),
+                                          left: 10, top: 40),
                                       width: size.width,
                                       height: 170,
                                       child: Row(
@@ -222,13 +222,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 children: [
                                                   Text("Bienvenido a, ",
                                                       style: TextStyle(
-                                                          fontSize: 18,
+                                                          fontSize: 16,
                                                           color:
                                                               primaryColorApp)),
                                                   // Text('WMS',
                                                   Text('OnPoint',
                                                       style: TextStyle(
-                                                          fontSize: 18,
+                                                          fontSize: 16,
                                                           color:
                                                               primaryColorApp,
                                                           fontWeight:
@@ -298,7 +298,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                           // color: Colors.amber[200],
                                                           color:
                                                               primaryColorApp,
-                                                          fontSize: 18,
+                                                          fontSize: 16,
                                                           // fontWeight:
                                                           //     FontWeight.bold
                                                         ),
@@ -323,7 +323,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       homeBloc.userEmail,
                                                       style: const TextStyle(
                                                           color: black,
-                                                          fontSize: 12,
+                                                          fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                       maxLines: 1,
@@ -346,7 +346,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                           .toString(),
                                                       style: const TextStyle(
                                                           color: black,
-                                                          fontSize: 12,
+                                                          fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                       maxLines: 1,
@@ -368,7 +368,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       homeBloc.userRol,
                                                       style: const TextStyle(
                                                           color: black,
-                                                          fontSize: 12,
+                                                          fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                       maxLines: 1,
@@ -418,7 +418,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   child: Text("Mis módulos",
                                       style: TextStyle(
                                           color: primaryColorApp,
-                                          fontSize: 18,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold)),
                                 ),
                               ),

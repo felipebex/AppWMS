@@ -41,100 +41,102 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
     super.dispose();
   }
 
-  void validateBarcode(String value, BuildContext context) {
-    final bloc = context.read<PackingPedidoBloc>();
+void validateBarcode(String value, BuildContext context) {
+  final bloc = context.read<PackingPedidoBloc>();
+  final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+      .trim()
+      .toLowerCase();
 
-    // Normalizamos el valor escaneado
-    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
-        .trim()
-        .toLowerCase();
+  _controllerToDo.clear();
+  print('🔎 Scan barcode (packing pedido): $scan');
 
-    _controllerToDo.clear();
-    print('🔎 Scan barcode (packing pedido): $scan');
+  final listOfProducts = bloc.listOfProductosProgress;
 
-    final listOfProducts = bloc.listOfProductosProgress;
+  // Función auxiliar para procesar un producto encontrado
+  void processProduct(ProductoPedido product) {
+    bloc
+      ..add(FetchProductEvent(product))
+      ..add(ChangeLocationIsOkEvent(
+        product.idProduct ?? 0,
+        product.pedidoId ?? 0,
+        product.idMove ?? 0,
+      ))
+      ..add(ChangeProductIsOkEvent(
+        true,
+        product.idProduct ?? 0,
+        product.pedidoId ?? 0,
+        0,
+        product.idMove ?? 0,
+      ))
+      ..add(ChangeIsOkQuantity(
+        true,
+        product.idProduct ?? 0,
+        product.pedidoId ?? 0,
+        product.idMove ?? 0,
+      ))
+      ..add(ClearScannedValuePackEvent('toDo'));
 
-    /// Función auxiliar para procesar el producto encontrado
-    void processProduct(ProductoPedido product) {
-      bloc
-        ..add(FetchProductEvent(product))
-        ..add(ChangeLocationIsOkEvent(
-          product.idProduct ?? 0,
-          product.pedidoId ?? 0,
-          product.idMove ?? 0,
-        ))
-        ..add(ChangeProductIsOkEvent(
-          true,
-          product.idProduct ?? 0,
-          product.pedidoId ?? 0,
-          0,
-          product.idMove ?? 0,
-        ))
-        ..add(ChangeIsOkQuantity(
-          true,
-          product.idProduct ?? 0,
-          product.pedidoId ?? 0,
-          product.idMove ?? 0,
-        ))
-        ..add(ClearScannedValuePackEvent('toDo'));
+    showDialog(
+      context: context,
+      builder: (_) => const DialogLoading(
+        message: 'Cargando información del producto...',
+      ),
+    );
 
-      showDialog(
-        context: context,
-        builder: (_) => const DialogLoading(
-          message: 'Cargando información del producto...',
-        ),
-      );
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.of(context, rootNavigator: true).pop();
+      Navigator.pushReplacementNamed(context, 'scan-pack');
+    });
 
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.of(context, rootNavigator: true).pop();
-        Navigator.pushReplacementNamed(context, 'scan-pack');
-      });
+    print('✅ Producto procesado: ${product.toMap()}');
+  }
 
-      print('✅ Producto procesado: ${product.toMap()}');
-    }
+  // Buscar el producto usando el código de barras principal o el código de producto
+  final product = listOfProducts.firstWhere(
+    (p) =>
+        p.barcode?.toLowerCase() == scan ||
+        p.productCode?.toLowerCase() == scan,
+    orElse: () => ProductoPedido(),
+  );
 
-    // 1️⃣ Buscar por código de barras principal
-    final product = listOfProducts.firstWhere(
-      (p) =>
-          p.barcode?.toLowerCase() == scan ||
-          p.productCode?.toLowerCase() == scan,
+  if (product.idMove != null) {
+    print('🔎 Producto encontrado por código principal: ${product.idProduct}');
+    processProduct(product);
+    return;
+  }
+
+  // Buscar el producto usando códigos de barras secundarios
+  final barcode = bloc.listAllOfBarcodes.firstWhere(
+    (b) => b.barcode?.toLowerCase() == scan,
+    orElse: () => Barcodes(),
+  );
+
+  if (barcode.barcode != null) {
+    print('🔎 Código de barras secundario encontrado. Buscando ID de producto: ${barcode.idProduct}');
+    // Nos aseguramos de convertir ambos lados a strings para una comparación segura
+    final productByBarcode = listOfProducts.firstWhere(
+      (p) => p.idProduct.toString() == barcode.idProduct.toString(),
       orElse: () => ProductoPedido(),
     );
 
-    if (product.idMove != null) {
-      processProduct(product);
+    if (productByBarcode.idProduct != null) {
+      print('🔎 Producto encontrado por código de barras secundario: ${productByBarcode.idProduct}');
+      processProduct(productByBarcode);
       return;
     }
-
-    // 2️⃣ Buscar por barcodes secundarios
-    final barcode = bloc.listAllOfBarcodes.firstWhere(
-      (b) => b.barcode?.toLowerCase() == scan,
-      orElse: () => Barcodes(),
-    );
-
-    if (barcode.barcode != null) {
-      final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.productId == barcode.idProduct,
-        orElse: () => ProductoPedido(),
-      );
-
-      if (productByBarcode.productId != null) {
-        processProduct(productByBarcode);
-        return;
-      }
-    }
-
-    _audioService.playErrorSound();
-    _vibrationService.vibrate();
-
-    // 3️⃣ Si no se encuentra nada → mostrar error
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text("Código erróneo"),
-      backgroundColor: Colors.red[200],
-      duration: const Duration(milliseconds: 500),
-    ));
-    bloc.add(ClearScannedValuePackEvent('toDo'));
   }
+
+  // Si no se encuentra ningún producto, mostrar un error
+  _audioService.playErrorSound();
+  _vibrationService.vibrate();
+
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: const Text("Código erróneo"),
+    backgroundColor: Colors.red[200],
+    duration: const Duration(milliseconds: 500),
+  ));
+  bloc.add(ClearScannedValuePackEvent('toDo'));
+}
 
   @override
   Widget build(BuildContext context) {

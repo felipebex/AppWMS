@@ -56,6 +56,8 @@ class PickProductsRepository {
                 product.quantitySeparate ?? 0,
             PickProductsTable.columnIsSendOdoo:
                 product.isSeparate == 0 ? null : product.isSeparate ?? 1,
+            //product_code
+            PickProductsTable.columnProductCode: product.productCode ?? '',
             PickProductsTable.columnTimeSeparateStart:
                 _parseDurationToSeconds(product.timeSeparate),
           };

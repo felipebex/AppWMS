@@ -169,6 +169,22 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //evento par aobtener todos los muelles disponibles
     on<FetchMuellesEvent>(_onFetchMuellesEvent);
+
+
+    //*evento para cargar un producto seleccionado
+    on<LoadSelectedProductEvent>(_onLoadSelectedProductEvent);
+  }
+
+
+  //metodo para cargar un producto seleccionado
+  void _onLoadSelectedProductEvent(LoadSelectedProductEvent event, Emitter<BatchState> emit) {
+    try {
+      currentProduct = event.selectedProduct;
+      quantitySelected = currentProduct.quantitySeparate ?? 0;
+      emit(LoadSelectedProductState(currentProduct));
+    } catch (e, s) {
+      print("❌ Error en _onLoadSelectedProductEvent: $e -> $s");
+    }
   }
 
   //*evento para obtener todos los muelles disponibles
@@ -1317,7 +1333,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await sortProductsByLocationId();
     } else {
       filteredProducts = batchWithProducts.products!.where((batch) {
-        return batch.productId?.toLowerCase().contains(query) ?? false;
+        return batch.productId?.toLowerCase().contains(query) ??
+            false || batch.barcode?.toLowerCase().contains(query) ??
+            false || batch.origin?.toLowerCase().contains(query) ??
+            false || batch.productCode?.toLowerCase().contains(query) ??
+            false ||
+                batch.locationId.contains(query) ||
+                false; // Buscar en lotes también
       }).toList();
     }
     emit(LoadProductsBatchSuccesState(

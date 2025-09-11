@@ -4,8 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 InfoRapida infoRapidaFromMap(String str) =>
     InfoRapida.fromMap(json.decode(str));
@@ -71,13 +69,13 @@ class InfoRapidaResult {
 class InfoResult {
   int? id;
   String? nombre;
-  dynamic? precio;
+  dynamic precio;
   String? referencia;
-  dynamic? peso;
-  dynamic? volumen;
-  dynamic? codigoBarras;
-  dynamic? cantidadDisponible;
-  dynamic? previsto;
+  dynamic peso;
+  dynamic volumen;
+  dynamic codigoBarras;
+  dynamic cantidadDisponible;
+  dynamic previsto;
   // List<Barcodes>? codigosBarrasPaquetes;
   String? categoria;
   List<Ubicacion>? ubicaciones;
@@ -168,12 +166,12 @@ class Ubicacion {
   int? idAlmacen;
   int? idUbicacion;
   String? ubicacion;
-  dynamic? cantidad;
-  dynamic? reservado;
-  dynamic? cantidadMano;
+  dynamic cantidad;
+  dynamic reservado;
+  dynamic cantidadMano;
   String? codigoBarras;
   String? lote;
-  dynamic? loteId;
+  dynamic loteId;
   String? fechaEliminacion;
   String? fechaEntrada;
   String? unidadMedida;
@@ -230,9 +228,9 @@ class Ubicacion {
 class Producto {
   int? id;
   String? producto;
-  dynamic? cantidad;
-  dynamic? codigoBarras;
-  dynamic? lotId;
+  dynamic cantidad;
+  dynamic codigoBarras;
+  dynamic lotId;
   String? lote;
   String? unidadMedida;
 

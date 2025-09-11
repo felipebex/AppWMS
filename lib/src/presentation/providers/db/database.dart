@@ -200,7 +200,7 @@ class DataBaseSqlite {
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 8) {
+    if (oldVersion < newVersion) {
       await db.execute('''
       ALTER TABLE ${ProductosPedidosTable.tableName}
       ADD COLUMN ${ProductosPedidosTable.columnProductCode} TEXT NOT NULL DEFAULT '';
