@@ -20,6 +20,7 @@ class DocOriginTable {
         $columnIdBatch INTEGER,
         $columnOriginType VARCHAR(100),
         FOREIGN KEY ($columnIdBatch) REFERENCES ${BatchPickingTable.tableName} (id)
+      );
     ''';
   }
 }

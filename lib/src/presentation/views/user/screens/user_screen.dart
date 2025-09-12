@@ -288,6 +288,18 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14, color: black))
                                         ],
                                       ),
+                                      Row(
+                                        children: [
+                                          Text("Version Database Onpoint: ",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: primaryColorApp)),
+                                          // Text('WMS',
+                                          Text('9',
+                                              style: const TextStyle(
+                                                  fontSize: 14, color: black))
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),

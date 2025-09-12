@@ -86,6 +86,9 @@ class InfoResult {
   String? tipoUbicacion;
   List<Producto>? productos;
 
+
+
+
   InfoResult({
     this.id,
     this.nombre,
