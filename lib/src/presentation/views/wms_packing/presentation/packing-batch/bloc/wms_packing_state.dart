@@ -7,6 +7,7 @@ final class WmsPackingInitial extends WmsPackingState {}
 
 //*estados para cargar todos los batchs para packing
 final class WmsPackingWMSLoading extends WmsPackingState {}
+
 final class WmsPackingLoading extends WmsPackingState {}
 
 final class WmsProductInfoLoading extends WmsPackingState {}
@@ -17,6 +18,7 @@ final class WmsPackingLoaded extends WmsPackingState {
   final List<BatchPackingModel> listOfBatchs;
   WmsPackingLoaded({required this.listOfBatchs});
 }
+
 final class WmsPackingLoadedBD extends WmsPackingState {}
 
 final class WmsPackingError extends WmsPackingState {
@@ -143,6 +145,7 @@ class ShowQuantityPackState extends WmsPackingState {
   final bool showQuantity;
   ShowQuantityPackState(this.showQuantity);
 }
+
 class ShowDetailState extends WmsPackingState {
   final bool show;
   ShowDetailState(this.show);
@@ -170,25 +173,21 @@ class TimeSeparatePackError extends WmsPackingState {
   TimeSeparatePackError(this.msg);
 }
 
-
-
 class SendTemperatureSuccess extends WmsPackingState {
   final String message;
   SendTemperatureSuccess(this.message);
 }
 
 class SendTemperatureLoading extends WmsPackingState {}
+
 class SendTemperatureFailure extends WmsPackingState {
   final String error;
   SendTemperatureFailure(this.error);
 }
 
+class SendImageNovedadLoading extends WmsPackingState {}
 
-
-class SendImageNovedadLoading   extends WmsPackingState {}
-
-
-class  SendImageNovedadSuccess extends WmsPackingState {
+class SendImageNovedadSuccess extends WmsPackingState {
   final dynamic cantidad;
   final ImageSendNovedad response;
   SendImageNovedadSuccess(this.response, this.cantidad);
@@ -199,7 +198,6 @@ class SendImageNovedadFailure extends WmsPackingState {
   SendImageNovedadFailure(this.error);
 }
 
-
 class GetTemperatureLoading extends WmsPackingState {}
 
 class GetTemperatureSuccess extends WmsPackingState {
@@ -207,8 +205,12 @@ class GetTemperatureSuccess extends WmsPackingState {
   GetTemperatureSuccess(this.temperature);
 }
 
-
 class GetTemperatureFailure extends WmsPackingState {
   final String error;
   GetTemperatureFailure(this.error);
+}
+
+class LoadDocOriginsState extends WmsPackingState {
+  final List<Origin> listOfOrigins;
+  LoadDocOriginsState({required this.listOfOrigins});
 }

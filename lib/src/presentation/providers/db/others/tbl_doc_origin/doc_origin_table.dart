@@ -9,6 +9,7 @@ class DocOriginTable {
   static const String columnId = 'id';
   static const String columnName = 'name';
   static const String columnIdBatch = 'id_batch';
+  static const String columnOriginType = 'origin_type';
 
   // Método para crear la tabla
   static String createTable() {
@@ -17,8 +18,8 @@ class DocOriginTable {
         $columnId INTEGER PRIMARY KEY,
         $columnName VARCHAR(255),
         $columnIdBatch INTEGER,
-        FOREIGN KEY ($columnIdBatch) REFERENCES ${BatchPickingTable.tableName}(${BatchPickingTable.columnId}) ON DELETE CASCADE
-      )
+        $columnOriginType VARCHAR(100),
+        FOREIGN KEY ($columnIdBatch) REFERENCES ${BatchPickingTable.tableName} (id)
     ''';
   }
 }

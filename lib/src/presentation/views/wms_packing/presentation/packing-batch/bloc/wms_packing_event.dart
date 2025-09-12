@@ -228,6 +228,7 @@ class SendTemperatureEvent extends WmsPackingEvent {
     required this.moveLineId,
   });
 }
+
 class SendTemperaturePackingEvent extends WmsPackingEvent {
   final int moveLineId;
   SendTemperaturePackingEvent({
@@ -257,4 +258,9 @@ class GetTemperatureEvent extends WmsPackingEvent {
   GetTemperatureEvent({
     required this.file,
   });
+}
+
+class LoadDocOriginsEvent extends WmsPackingEvent {
+  final int idBatch;
+  LoadDocOriginsEvent(this.idBatch);
 }

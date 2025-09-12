@@ -745,6 +745,22 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
         emit(SendProductPickOdooSuccess());
       } else {
+        //validamos si es el error que dice que la linea ya fue enviada entonces pasamos todo como enviado
+
+        if (response.result?.msg?.contains('ya fue procesada anteriormente') ??
+            false) {
+          // Si la línea ya fue procesada, la marcamos como enviada
+          await db.setFieldTableBatchProducts(
+            event.product.batchId ?? 0,
+            event.product.idProduct ?? 0,
+            'is_send_odoo',
+            1,
+            event.product.idMove ?? 0,
+          );
+          emit(SendProductPickOdooSuccess());
+          return;
+        }
+
         // Elementos que no se pudieron enviar a Odoo
         await db.setFieldTableBatchProducts(
           event.product.batchId ?? 0,

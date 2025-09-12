@@ -66,7 +66,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       LoadDocOriginsEvent event, Emitter<PickingState> emit) async {
     try {
       final batchsFromDB = await _databas.docOriginRepository
-          .getAllOriginsByIdBatch(event.idBatch);
+          .getAllOriginsByIdBatch(event.idBatch, 'picking');
 
       listOfOrigins.clear();
 
@@ -177,7 +177,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
           await DataBaseSqlite()
               .docOriginRepository
-              .insertAllDocsOrigins(originsIterable, userId);
+              .insertAllDocsOrigins(originsIterable, 'picking');
 
           if (allBarcodes.isNotEmpty) {
             // Enviar la lista agrupada a insertBarcodesPackageProduct

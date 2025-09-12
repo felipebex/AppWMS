@@ -1464,12 +1464,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           batchWithProducts.products!.isEmpty) {
         return "0.0";
       }
-      double totalSeparadas = 0;
-      double totalCantidades = 0;
+      dynamic totalSeparadas = 0;
+      dynamic totalCantidades = 0;
       for (var product in batchWithProducts.products!) {
         totalSeparadas += product.quantitySeparate ?? 0;
         totalCantidades +=
-            (product.quantity as int?) ?? 0; // Aseguramos que sea int
+            (product.quantity as dynamic?) ?? 0; // Aseguramos que sea int
       }
       // Evitar división por cero
       if (totalCantidades == 0) {

@@ -36,8 +36,8 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_novedades/noved
 import 'package:wms_app/src/presentation/providers/db/others/tbl_novedades/novedades_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_pedidos_pack/pedidos_pack_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_pedidos_pack/pedidos_pack_table.dart';
-import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_repository.dart';
-import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_table.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_doc_origin/doc_origin_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_doc_origin/doc_origin_table.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick/picking_pick_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick/picking_pick_table.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick_products/pick_products_repository.dart';
@@ -79,11 +79,10 @@ class DataBaseSqlite {
   // Método para inicializar la base de datos si no está inicializada
   Future<Database> initDB() async {
     if (_database != null) return _database!;
-
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 8,
+      version: 9,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -199,15 +198,32 @@ class DataBaseSqlite {
      ''');
   }
 
-  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < newVersion) {
-      await db.execute('''
-      ALTER TABLE ${ProductosPedidosTable.tableName}
-      ADD COLUMN ${ProductosPedidosTable.columnProductCode} TEXT NOT NULL DEFAULT '';
-    ''');
+Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    // Migración para la versión 9
+    if (oldVersion < 9) {
+      // ✅ Solución: Añade la columna 'origin_type' a la tabla 'tbldoc_origin'
+      try {
+        await db.execute('''
+          ALTER TABLE ${DocOriginTable.tableName}
+          ADD COLUMN ${DocOriginTable.columnOriginType} TEXT;
+        ''');
+        print('✅ Columna ${DocOriginTable.columnOriginType} añadida a ${DocOriginTable.tableName}.');
+      } catch (e) {
+        print('❌ Error al añadir la columna origin_type, es posible que ya exista.');
+      }
+      
+      // Aquí también puedes mantener tu migración anterior
+      try {
+         await db.execute('''
+           ALTER TABLE ${ProductosPedidosTable.tableName}
+           ADD COLUMN ${ProductosPedidosTable.columnProductCode} TEXT NOT NULL DEFAULT '';
+         ''');
+         print('✅ Columna product_code añadida a ${ProductosPedidosTable.tableName}.');
+      } catch (e) {
+         print('❌ Error al añadir la columna product_code, es posible que ya exista.');
+      }
     }
   }
-
   //todo repositorios de las tablas
   // Método para obtener una instancia del repositorio de novedades
   NovedadesRepository get novedadesRepository => NovedadesRepository();
@@ -473,7 +489,7 @@ class DataBaseSqlite {
     await db.delete('tblbatch_products');
     await db.delete(BarcodesPackagesTable.tableName);
     await db.delete(SubmuellesTable.tableName);
-    await deleBarcodes("picking");
+    await deleOrigin("picking");
     // await db.delete(DocOriginTable.tableName);
   }
 
@@ -504,6 +520,7 @@ class DataBaseSqlite {
   Future<void> delePacking(String type) async {
     final db = await getDatabaseInstance();
     if (type == "packing-batch") {
+      await deleOrigin("packing");
       await db.delete(BatchPackingTable.tableName);
     }
     if (type == "packing-pack") {
@@ -592,6 +609,14 @@ class DataBaseSqlite {
     await db.delete(BarcodesPackagesTable.tableName,
         where: '${BarcodesPackagesTable.columnBarcodeType} = ?',
         whereArgs: [barcodeType]);
+  }
+
+  Future<void> deleOrigin(String originType) async {
+    final db = await getDatabaseInstance();
+    //eliminamos los codigos de barras que tienen el mismo tipo
+    await db.delete(DocOriginTable.tableName,
+        where: '${DocOriginTable.columnOriginType} = ?',
+        whereArgs: [originType]);
   }
 
   Future<void> deleAllBarcodes() async {

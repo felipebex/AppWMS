@@ -93,6 +93,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   bool isSearch = false;
   bool viewQuantity = false;
   bool viewDetail = true;
+  List<Origin> listOfOrigins = [];
 
   //* ultima ubicacion
   String oldLocation = '';
@@ -196,6 +197,25 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<SendImageNovedad>(_onSendImageNovedad);
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
     on<SendTemperaturePackingEvent>(_onSendTemperaturePackingEvent);
+
+    on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
+  }
+
+  void _onLoadDocOriginsEvent(
+      LoadDocOriginsEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      final batchsFromDB = await db.docOriginRepository
+          .getAllOriginsByIdBatch(event.idBatch, 'packing');
+
+      listOfOrigins.clear();
+
+      listOfOrigins = batchsFromDB;
+      print('listOfOrigins: ${listOfOrigins.length}');
+
+      emit(LoadDocOriginsState(listOfOrigins: listOfOrigins));
+    } catch (e, s) {
+      print('Error LoadDocOriginsEvent: $e, $s');
+    }
   }
 
   void _onGetTemperatureEvent(
@@ -1382,6 +1402,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               .expand((pedido) => pedido.listaPaquetes!)
               .toList();
 
+          final originsIterable =
+              _extractAllOrigins(listOfBatchs).toList(growable: false);
           print(
               'productsPackagesToInsert Packing : ${productsPackagesToInsert.length}');
 
@@ -1390,6 +1412,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           print('barcode product Packing : ${barcodesToInsert.length}');
           print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
           print('packagesToInsert Packing : ${packagesToInsert.length}');
+          print('listOfBatchs origin : ${originsIterable.length}');
 
           // Enviar la lista agrupada de productos de un batch para packing
           await DataBaseSqlite()
@@ -1417,6 +1440,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               .packagesRepository
               .insertPackages(packagesToInsert, 'packing-batch');
 
+          await DataBaseSqlite()
+              .docOriginRepository
+              .insertAllDocsOrigins(originsIterable, 'packing');
+
           //creamos las cajas que ya estan creadas
 
           // //* Carga los batches desde la base de datos
@@ -1433,6 +1460,15 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       print('Error en el  _onLoadAllPackingEvent: $e, $s');
       emit(WmsPackingError(e.toString()));
     }
+  }
+
+  Iterable<Origin> _extractAllOrigins(List<BatchPackingModel> batches) {
+    return batches.expand((batch) {
+      final origins = batch.origin ?? [];
+      return origins.where((p) => p.id != null && p.name != null).map((p) {
+        return Origin(id: p.id!, name: p.name!, idBatch: batch.id);
+      });
+    });
   }
 
   void _onLoadBatchsFromDBEvent(

@@ -1160,8 +1160,37 @@ class DialogoConfirmateProductLoad extends StatelessWidget {
           child: Text("Confirmación",
               style: TextStyle(color: primaryColorApp, fontSize: 20)),
         ),
-        content: const Text(
-            "¿Está seguro que desea comenzar a separar este producto?"),
+        content: Text.rich(
+          TextSpan(
+            text: "¿Está seguro que desea comenzar a separar ",
+            style: const TextStyle(color: Colors.black), // estilo base
+            children: [
+              TextSpan(
+                text: productsBatch.productId,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: primaryColorApp),
+              ),
+              if (productsBatch.lotId != null && productsBatch.lotId != "") ...[
+                TextSpan(
+                  text: " con lote: ",
+                  style: const TextStyle(
+                       color: Colors.black),
+                ),
+                TextSpan(
+                  text: productsBatch.lotId ?? "",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: primaryColorApp),
+                ),
+              ],
+              TextSpan(
+                text: "?",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: primaryColorApp),
+              ),
+            ],
+          ),
+          textAlign: TextAlign.center,
+        ),
         actions: [
           ElevatedButton(
               style: ElevatedButton.styleFrom(

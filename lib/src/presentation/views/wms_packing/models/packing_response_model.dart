@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 class PackingModelResponse {
   final String? jsonrpc;
@@ -89,6 +90,7 @@ class BatchPackingModel {
   final String? zonaEntregaTms;
   final dynamic startTimePack;
   final dynamic endTimePack;
+  final List<Origin>? origin;
 
   dynamic? manejaTemperatura;
   dynamic temperatura;
@@ -116,6 +118,7 @@ class BatchPackingModel {
     this.endTimePack,
     this.manejaTemperatura,
     this.temperatura,
+    this.origin,
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -149,6 +152,10 @@ class BatchPackingModel {
         endTimePack: json["end_time_pack"],
         manejaTemperatura: json["maneja_temperatura"],
         temperatura: json["temperatura"],
+        origin: json["origin"] == null
+            ? []
+            : List<Origin>.from(
+                json["origin"]!.map((x) => Origin.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
@@ -174,6 +181,9 @@ class BatchPackingModel {
         'end_time_pack': endTimePack,
         "maneja_temperatura": manejaTemperatura,
         "temperatura": temperatura,
+        "origin": origin == null
+            ? []
+            : List<dynamic>.from(origin!.map((x) => x.toMap())),
       };
 }
 

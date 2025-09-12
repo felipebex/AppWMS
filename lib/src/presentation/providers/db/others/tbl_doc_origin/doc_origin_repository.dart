@@ -1,8 +1,8 @@
-
+ 
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_table.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_doc_origin/doc_origin_table.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 class DocOriginRepository {
@@ -11,7 +11,7 @@ class DocOriginRepository {
 
 
   Future<void> insertAllDocsOrigins(
-      List<Origin> listOfOrigins, int userId) async {
+      List<Origin> listOfOrigins, String originType) async {
     final db = await DataBaseSqlite().getDatabaseInstance();
 
     await db.transaction((txn) async {
@@ -23,7 +23,7 @@ class DocOriginRepository {
             DocOriginTable.columnId: batchItem.id,
             DocOriginTable.columnName: batchItem.name ?? '',
             DocOriginTable.columnIdBatch: batchItem.idBatch,
-          
+            DocOriginTable.columnOriginType: originType,  
           };
 
           // Elimina si existe (por ID), y luego inserta
@@ -48,7 +48,7 @@ class DocOriginRepository {
 
 
 
-    Future<List<Origin>> getAllOriginsByIdBatch(int idBatch) async {
+    Future<List<Origin>> getAllOriginsByIdBatch(int idBatch, String originType) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -58,10 +58,10 @@ class DocOriginRepository {
         columns: [
           DocOriginTable.columnId,
           DocOriginTable.columnName,
-         
+          DocOriginTable.columnOriginType,
         ],
-        where: '${DocOriginTable.columnIdBatch} = ?',
-        whereArgs: [idBatch],
+        where: '${DocOriginTable.columnIdBatch} = ? AND ${DocOriginTable.columnOriginType} = ?',
+        whereArgs: [idBatch, originType],
       );
 
       // Mapeo directo
