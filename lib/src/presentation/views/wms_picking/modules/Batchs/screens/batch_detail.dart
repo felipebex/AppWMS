@@ -779,36 +779,39 @@ class BatchDetailScreen extends StatelessWidget {
                                                           ""
                                                       ? true
                                                       : false),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.bookmarks_sharp,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Lote:",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: black)),
-                                                    const SizedBox(width: 5),
-                                                    SizedBox(
-                                                      width: size.width * 0.55,
-                                                      child: Text(
-                                                          productsBatch.lotId
-                                                              .toString(),
+
+                                              if (productsBatch.lotId != null &&
+                                                  productsBatch.lotId != "")
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 8),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.bookmarks_sharp,
+                                                        color: primaryColorApp,
+                                                        size: 15,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      const Text("Lote:",
                                                           style: TextStyle(
                                                               fontSize: 12,
-                                                              color:
-                                                                  primaryColorApp)),
-                                                    ),
-                                                  ],
+                                                              color: black)),
+                                                      const SizedBox(width: 5),
+                                                      SizedBox(
+                                                        width:
+                                                            size.width * 0.55,
+                                                        child: Text(
+                                                            productsBatch.lotId
+                                                                .toString(),
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
                                               Card(
                                                 elevation: 0,
                                                 color: white,
@@ -1173,8 +1176,7 @@ class DialogoConfirmateProductLoad extends StatelessWidget {
               if (productsBatch.lotId != null && productsBatch.lotId != "") ...[
                 TextSpan(
                   text: " con lote: ",
-                  style: const TextStyle(
-                       color: Colors.black),
+                  style: const TextStyle(color: Colors.black),
                 ),
                 TextSpan(
                   text: productsBatch.lotId ?? "",

@@ -9,8 +9,6 @@ class FetchPickingPickEvent extends PickingPickEvent {
   FetchPickingPickEvent(this.isLoadinDialog);
 }
 
-
-
 class FetchPickingComponentesEvent extends PickingPickEvent {
   final bool isLoadinDialog;
 
@@ -235,8 +233,12 @@ class ValidateConfirmEvent extends PickingPickEvent {
 
 class FetchMuellesEvent extends PickingPickEvent {}
 
-
-class PickOkEvent  extends PickingPickEvent {
+class PickOkEvent extends PickingPickEvent {
   final int idPick;
   PickOkEvent(this.idPick);
+}
+
+class LoadSelectedProductEvent extends PickingPickEvent {
+  final ProductsBatch selectedProduct;
+  LoadSelectedProductEvent(this.selectedProduct);
 }

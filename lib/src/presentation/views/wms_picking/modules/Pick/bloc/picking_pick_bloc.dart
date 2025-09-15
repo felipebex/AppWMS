@@ -181,10 +181,25 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     //evento par aobtener todos los muelles disponibles
     on<FetchMuellesEvent>(_onFetchMuellesEvent);
 
+    //*evento para cargar un producto seleccionado
+    on<LoadSelectedProductEvent>(_onLoadSelectedProductEvent);
+
     //todo picking para componentes
     on<FetchPickingComponentesEvent>(_onFetchPickingComponentesEvent);
+
     on<FetchPickingComponentesFromDBEvent>(
         _onFetchPickingComponentesFromDBEvent);
+  }
+  //metodo para cargar un producto seleccionado
+  void _onLoadSelectedProductEvent(
+      LoadSelectedProductEvent event, Emitter<PickingPickState> emit) {
+    try {
+      currentProduct = event.selectedProduct;
+      quantitySelected = currentProduct.quantitySeparate ?? 0;
+      emit(LoadSelectedProductState(currentProduct));
+    } catch (e, s) {
+      print("❌ Error en _onLoadSelectedProductEvent: $e -> $s");
+    }
   }
 
   //*evento para obtener todos los muelles disponibles
@@ -936,9 +951,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
       //ordenamos los productos por ubicacion
       await sortProductsByLocationId();
-      add(FetchPickWithProductsEvent(
-        pickWithProducts.pick?.id ?? 0,
-      ));
+      add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
       emit(ProductPendingSuccess());
     } catch (e, s) {
       emit(ProductPendingError());

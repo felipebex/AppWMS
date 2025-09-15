@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 // import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_edit_product_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
@@ -17,7 +18,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_edit_product_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_request_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
-
 
 class PickDetailScreen extends StatelessWidget {
   const PickDetailScreen({super.key});
@@ -110,8 +110,8 @@ class PickDetailScreen extends StatelessWidget {
                                         color: white),
                                     onPressed: () {
                                       bloc.add(ClearSearchProudctsPickEvent());
-                                      bloc.add(FetchPickWithProductsEvent(
-                                          bloc.pickWithProducts.pick?.id ?? 0));
+                                      // bloc.add(FetchPickWithProductsEvent(
+                                      //     bloc.pickWithProducts.pick?.id ?? 0));
                                       Navigator.pushReplacementNamed(
                                           context, 'scan-product-pick');
                                     },
@@ -413,22 +413,53 @@ class PickDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Image.asset(
-                                                    "assets/icons/barcode.png",
-                                                    color: primaryColorApp,
-                                                    width: 20,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(productsBatch.barcode,
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: black,
-                                                      )),
-                                                ],
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 5),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/icons/barcode.png",
+                                                      color: primaryColorApp,
+                                                      width: 20,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(productsBatch.barcode,
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black,
+                                                        )),
+                                                    if (productsBatch
+                                                                .isSendOdoo !=
+                                                            1 &&
+                                                        productsBatch
+                                                                .isSeparate !=
+                                                            1) ...[
+                                                      const Spacer(),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return DialogoConfirmateProductLoad(
+                                                                    productsBatch:
+                                                                        productsBatch);
+                                                              });
+                                                        },
+                                                        child: Icon(
+                                                          Icons.play_circle,
+                                                          color: green,
+                                                          size: 20,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
                                               ),
                                               Visibility(
                                                 visible: bloc
@@ -629,43 +660,45 @@ class PickDetailScreen extends StatelessWidget {
                                                           ""
                                                       ? true
                                                       : false),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.bookmarks_sharp,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Lote:",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: black)),
-                                                    const SizedBox(width: 5),
-                                                    SizedBox(
-                                                      width: size.width * 0.55,
-                                                      child: Text(
-                                                          productsBatch.loteId ==
-                                                                      "" ||
-                                                                  productsBatch
-                                                                          .loteId ==
-                                                                      null
-                                                              ? 'Sin manejo por lote'
-                                                              : productsBatch
-                                                                  .lote
-                                                                  .toString(),
+                                              if (productsBatch.lote != "" &&
+                                                  productsBatch.lote != null)
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 8),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.bookmarks_sharp,
+                                                        color: primaryColorApp,
+                                                        size: 15,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      const Text("Lote:",
                                                           style: TextStyle(
                                                               fontSize: 12,
-                                                              color:
-                                                                  primaryColorApp)),
-                                                    ),
-                                                  ],
+                                                              color: black)),
+                                                      const SizedBox(width: 5),
+                                                      SizedBox(
+                                                        width:
+                                                            size.width * 0.55,
+                                                        child: Text(
+                                                            productsBatch.loteId ==
+                                                                        "" ||
+                                                                    productsBatch
+                                                                            .loteId ==
+                                                                        null
+                                                                ? 'Sin manejo por lote'
+                                                                : productsBatch
+                                                                    .lote
+                                                                    .toString(),
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
                                               Card(
                                                 elevation: 0,
                                                 color: white,
@@ -990,5 +1023,85 @@ class PickDetailScreen extends StatelessWidget {
       return const Color.fromARGB(
           255, 211, 190, 1); // Amarillo para entre 50% y 100%
     }
+  }
+}
+
+class DialogoConfirmateProductLoad extends StatelessWidget {
+  const DialogoConfirmateProductLoad({
+    super.key,
+    required this.productsBatch,
+  });
+
+  final ProductsBatch productsBatch;
+
+  @override
+  Widget build(BuildContext context) {
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: AlertDialog(
+        actionsAlignment: MainAxisAlignment.center,
+        title: Center(
+          child: Text("Confirmación",
+              style: TextStyle(color: primaryColorApp, fontSize: 20)),
+        ),
+        content: Text.rich(
+          TextSpan(
+            text: "¿Está seguro que desea comenzar a separar ",
+            style: const TextStyle(color: Colors.black), // estilo base
+            children: [
+              TextSpan(
+                text: productsBatch.productId,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: primaryColorApp),
+              ),
+              if (productsBatch.lote != null && productsBatch.lote != "") ...[
+                TextSpan(
+                  text: " con lote: ",
+                  style: const TextStyle(color: Colors.black),
+                ),
+                TextSpan(
+                  text: productsBatch.lote ?? "",
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: primaryColorApp),
+                ),
+              ],
+              TextSpan(
+                text: "?",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: primaryColorApp),
+              ),
+            ],
+          ),
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: grey,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar", style: TextStyle(color: white))),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColorApp,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                context
+                    .read<PickingPickBloc>()
+                    .add(LoadSelectedProductEvent(productsBatch));
+                Navigator.pushReplacementNamed(
+                                          context, 'scan-product-pick');
+              },
+              child: const Text("Aceptar", style: TextStyle(color: white))),
+        ],
+      ),
+    );
   }
 }

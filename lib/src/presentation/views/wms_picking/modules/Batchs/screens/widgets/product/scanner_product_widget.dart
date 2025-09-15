@@ -140,36 +140,36 @@ class ProductScannerWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              if (isViewLote) ...[
-                                Text('Lote/serie:',
-                                    style: TextStyle(
-                                        fontSize: 13, color: primaryColorApp)),
-                                const SizedBox(width: 5),
-                                Text(
-                                    lotId == "" || lotId == null
-                                        ? "Sin lote"
-                                        : lotId ?? "",
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: lotId == "" || lotId == null
-                                            ? red
-                                            : black)),
-                              ],
-                              const Spacer(),
-                              GestureDetector(
-                                onTap: onBarcodesDialogTap,
-                                child: Visibility(
-                                  visible: listOfBarcodes.isNotEmpty,
-                                  child: Image.asset(
-                                      "assets/icons/package_barcode.png",
-                                      color: primaryColorApp,
-                                      width: 20),
-                                ),
-                              ),
+                        Row(
+                          children: [
+                             if (lotId != "") ...[
+                              Text('Lote/serie:',
+                                  style: TextStyle(
+                                      fontSize: 13, color: primaryColorApp)),
+                              const SizedBox(width: 5),
+                              Text(
+                                  lotId == "" || lotId == null
+                                      ? "Sin lote"
+                                      : lotId ?? "",
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: lotId == "" || lotId == null
+                                          ? red
+                                          : black)),
                             ],
-                          ),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: onBarcodesDialogTap,
+                              child: Visibility(
+                                visible: listOfBarcodes.isNotEmpty,
+                                child: Image.asset(
+                                    "assets/icons/package_barcode.png",
+                                    color: primaryColorApp,
+                                    width: 20),
+                              ),
+                            ),
+                          ],
+                        ),
                         if (origin != null && origin!.isNotEmpty)
                           Row(
                             children: [
@@ -238,20 +238,20 @@ class ProductScannerWidget extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          if (isViewLote) ...[
-                          Text('Lote/serie:',
-                              style: TextStyle(
-                                  fontSize: 13, color: primaryColorApp)),
-                          const SizedBox(width: 5),
-                          Text(
-                              lotId == "" || lotId == null
-                                  ? "Sin lote"
-                                  : lotId ?? "",
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  color: lotId == "" || lotId == null
-                                      ? red
-                                      : black)),
+                          if (lotId != "") ...[
+                            Text('Lote/serie:',
+                                style: TextStyle(
+                                    fontSize: 13, color: primaryColorApp)),
+                            const SizedBox(width: 5),
+                            Text(
+                                lotId == "" || lotId == null
+                                    ? "Sin lote"
+                                    : lotId ?? "",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: lotId == "" || lotId == null
+                                        ? red
+                                        : black)),
                           ],
                           const Spacer(),
                           GestureDetector(

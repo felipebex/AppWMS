@@ -31,6 +31,7 @@ class BatchPickingTable {
   static const String columnStartTimePick = 'start_time_pick';
   static const String columnEndTimePick = 'end_time_pick';
   static const String columnZonaEntrega = 'zona_entrega';
+  
 
 
 

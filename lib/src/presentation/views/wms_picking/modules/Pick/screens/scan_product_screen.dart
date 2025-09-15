@@ -98,6 +98,11 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
   }
 
   void _handleDependencies() {
+
+
+
+
+
     //mostremos que focus estan activos
 
     final batchBloc = context.read<PickingPickBloc>();
@@ -410,7 +415,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                           listenWhen: (previous, current) {
                         return true;
                       }, listener: (context, state) {
-                        print("❤️‍🔥 state : $state");
+                        print("❤️‍🔥 state ::: $state");
 
                         if (state is CreateBackOrderOrNotLoading) {
                           showDialog(
@@ -1103,70 +1108,72 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                           ""
                                                       ? true
                                                       : false),
-                                              Row(
-                                                children: [
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      'Lote/serie:',
-                                                      style: TextStyle(
-                                                          fontSize: 13,
-                                                          color:
-                                                              primaryColorApp),
+                                              if (currentProduct.lote != null &&
+                                                  currentProduct.lote != "")
+                                                Row(
+                                                  children: [
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Lote/serie:',
+                                                        style: TextStyle(
+                                                            fontSize: 13,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      currentProduct.lote ==
-                                                                  "" ||
-                                                              currentProduct
-                                                                      .lote ==
-                                                                  null
-                                                          ? 'Sin lote/serie'
-                                                          : currentProduct
-                                                                  .lote ??
-                                                              '',
-                                                      style: TextStyle(
-                                                          fontSize: 13,
-                                                          color: currentProduct
-                                                                          .lote ==
-                                                                      "" ||
-                                                                  currentProduct
-                                                                          .lote ==
-                                                                      null
-                                                              ? red
-                                                              : black),
+                                                    const SizedBox(width: 5),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        currentProduct.lote ==
+                                                                    "" ||
+                                                                currentProduct
+                                                                        .lote ==
+                                                                    null
+                                                            ? 'Sin lote/serie'
+                                                            : currentProduct
+                                                                    .lote ??
+                                                                '',
+                                                        style: TextStyle(
+                                                            fontSize: 13,
+                                                            color: currentProduct
+                                                                            .lote ==
+                                                                        "" ||
+                                                                    currentProduct
+                                                                            .lote ==
+                                                                        null
+                                                                ? red
+                                                                : black),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  const Spacer(),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      showDialog(
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return DialogBarcodes(
-                                                                listOfBarcodes:
-                                                                    batchBloc
-                                                                        .listOfBarcodes);
-                                                          });
-                                                    },
-                                                    child: Visibility(
-                                                      visible: batchBloc
-                                                          .listOfBarcodes
-                                                          .isNotEmpty,
-                                                      child: Image.asset(
-                                                          "assets/icons/package_barcode.png",
-                                                          color:
-                                                              primaryColorApp,
-                                                          width: 20),
+                                                    const Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return DialogBarcodes(
+                                                                  listOfBarcodes:
+                                                                      batchBloc
+                                                                          .listOfBarcodes);
+                                                            });
+                                                      },
+                                                      child: Visibility(
+                                                        visible: batchBloc
+                                                            .listOfBarcodes
+                                                            .isNotEmpty,
+                                                        child: Image.asset(
+                                                            "assets/icons/package_barcode.png",
+                                                            color:
+                                                                primaryColorApp,
+                                                            width: 20),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
+                                                  ],
+                                                ),
                                               Visibility(
                                                 visible:
                                                     currentProduct.origin !=
@@ -1312,71 +1319,74 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                               //informacion del lote:
                                               Column(
                                                 children: [
-                                                  Row(
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Lote/serie:',
-                                                          style: TextStyle(
-                                                              fontSize: 13,
-                                                              color:
-                                                                  primaryColorApp),
+                                                  if (currentProduct.lote !=
+                                                          null &&
+                                                      currentProduct.lote != "")
+                                                    Row(
+                                                      children: [
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            'Lote/serie:',
+                                                            style: TextStyle(
+                                                                fontSize: 13,
+                                                                color:
+                                                                    primaryColorApp),
+                                                          ),
                                                         ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          currentProduct.lote ==
-                                                                      "" ||
-                                                                  currentProduct
-                                                                          .lote ==
-                                                                      null
-                                                              ? 'Sin lote/serie'
-                                                              : currentProduct
-                                                                      .lote ??
-                                                                  '',
-                                                          style: TextStyle(
-                                                              fontSize: 13,
-                                                              color: currentProduct
-                                                                              .lote ==
-                                                                          "" ||
-                                                                      currentProduct
-                                                                              .lote ==
-                                                                          null
-                                                                  ? red
-                                                                  : black),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            currentProduct.lote ==
+                                                                        "" ||
+                                                                    currentProduct
+                                                                            .lote ==
+                                                                        null
+                                                                ? 'Sin lote/serie'
+                                                                : currentProduct
+                                                                        .lote ??
+                                                                    '',
+                                                            style: TextStyle(
+                                                                fontSize: 13,
+                                                                color: currentProduct.lote ==
+                                                                            "" ||
+                                                                        currentProduct.lote ==
+                                                                            null
+                                                                    ? red
+                                                                    : black),
+                                                          ),
                                                         ),
-                                                      ),
-                                                      const Spacer(),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return DialogBarcodes(
-                                                                    listOfBarcodes:
-                                                                        batchBloc
-                                                                            .listOfBarcodes);
-                                                              });
-                                                        },
-                                                        child: Visibility(
-                                                          visible: batchBloc
-                                                              .listOfBarcodes
-                                                              .isNotEmpty,
-                                                          child: Image.asset(
-                                                              "assets/icons/package_barcode.png",
-                                                              color:
-                                                                  primaryColorApp,
-                                                              width: 20),
+                                                        const Spacer(),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return DialogBarcodes(
+                                                                      listOfBarcodes:
+                                                                          batchBloc
+                                                                              .listOfBarcodes);
+                                                                });
+                                                          },
+                                                          child: Visibility(
+                                                            visible: batchBloc
+                                                                .listOfBarcodes
+                                                                .isNotEmpty,
+                                                            child: Image.asset(
+                                                                "assets/icons/package_barcode.png",
+                                                                color:
+                                                                    primaryColorApp,
+                                                                width: 20),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                      ],
+                                                    ),
                                                 ],
                                               ),
                                               Visibility(

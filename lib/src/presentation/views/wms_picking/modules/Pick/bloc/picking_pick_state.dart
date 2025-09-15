@@ -307,3 +307,10 @@ class PickOkEventSuccess extends PickingPickState {
 
   PickOkEventSuccess( this.message);
 }
+
+
+
+class LoadSelectedProductState extends PickingPickState {
+  final ProductsBatch selectedProduct;
+  LoadSelectedProductState(this.selectedProduct);
+}

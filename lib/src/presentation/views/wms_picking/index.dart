@@ -155,19 +155,17 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             final products =
                                                 await DataBaseSqlite()
                                                     .getProducts();
-                                            final productsNoSendOdoo =
-                                                products
-                                                    .where((element) =>
-                                                        element.isSendOdoo ==
-                                                        0)
-                                                    .toList();
+                                            final productsNoSendOdoo = products
+                                                .where((element) =>
+                                                    element.isSendOdoo == 0)
+                                                .toList();
                                             if (productsNoSendOdoo.isEmpty) {
                                               await DataBaseSqlite()
                                                   .delePicking();
                                               context
                                                   .read<WMSPickingBloc>()
-                                                  .add(LoadAllBatchsEvent(
-                                                      true));
+                                                  .add(
+                                                      LoadAllBatchsEvent(true));
                                             } else {
                                               showDialog(
                                                   context: context,
@@ -189,7 +187,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       fontWeight:
                                                           FontWeight.bold),
                                                 ),
-                        
+
                                                 const SizedBox(
                                                   width: 5,
                                                 ),
@@ -309,8 +307,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                           ],
                         ),
                       ),
-
-                     
 
                       //filtro por tipo de batch
 
