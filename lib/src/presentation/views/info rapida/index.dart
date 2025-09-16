@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,8 +72,8 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
             onWillPop: () async => false,
           );
         } else if (state is InfoRapidaError) {
-           _vibrationService.vibrate();
-           _audioService.playErrorSound();
+          _vibrationService.vibrate();
+          _audioService.playErrorSound();
           Navigator.pop(context);
           Get.snackbar(
             '360 Software Informa',
@@ -105,6 +107,12 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                 'location-info',
                 arguments: [state.infoRapidaResult],
               );
+            } else if (state.infoRapidaResult.type == 'paquete') {
+              Navigator.pushReplacementNamed(
+                context,
+                'paquete-info',
+                arguments: [state.infoRapidaResult],
+              );
             }
           });
         }
@@ -117,7 +125,9 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
             backgroundColor: primaryColorApp,
             onPressed: () => showDialog(
               context: context,
-              builder: (_) => const DialogInfoQuick(),
+              builder: (_) =>  DialogInfoQuick(
+                contextScreen: context,
+              ),
             ),
             child: const Icon(Icons.search, color: white),
           ),

@@ -34,6 +34,10 @@ class Validator {
     }
   }
 
+
+
+
+
   static String? passwordConfirm(
       String? value, String? password, BuildContext context) {
     if (value! != password) {

@@ -17,6 +17,7 @@ import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_locations_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_products_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/locations_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/paquete_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/product_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/screens/transfer_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/widget/locations_dest_widget.dart';
@@ -142,6 +143,7 @@ class AppRoutes {
   static const String infoRapida = 'info-rapida';
   static const String productInfo = 'product-info';
   static const String locationInfo = 'location-info';
+  static const String paqueteInfo = 'paquete-info';
   static const String transferInfo = 'transfer-info';
   static const String listLocation = 'list-location';
   static const String listProduct = 'list-product';
@@ -394,6 +396,14 @@ class AppRoutes {
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
         final info = arguments[0] as InfoRapidaResult?;
         return LocationInfoScreen(
+          infoRapidaResult: info,
+        );
+      },
+      paqueteInfo: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final info = arguments[0] as InfoRapidaResult?;
+        return PaqueteInfoScreen(
           infoRapidaResult: info,
         );
       },
