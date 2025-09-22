@@ -957,7 +957,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                     locationIsOk: context.read<ConteoBloc>().locationIsOk,
                     productIsOk: context.read<ConteoBloc>().productIsOk,
                     locationDestIsOk: false,
-                    totalQuantity: 0,
+                    totalQuantity: context.read<ConteoBloc>().currentProduct.quantityInventory,
                     quantitySelected:
                         context.read<ConteoBloc>().quantitySelected,
                     unidades:
@@ -1021,7 +1021,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                       controller: cantidadController,
                       onchanged: _validatebuttonquantity,
                     ),
-                    isViewCant: false,
+                    isViewCant: context.read<ConteoBloc>().ordenConteo.mostrarCantidad == 1 ? true : false,
                   ),
                 ],
               ));

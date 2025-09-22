@@ -147,7 +147,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Text(
-                        "Este es el módulo de información rápida de 360 software para OnPoint. Escanee un código de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su información.",
+                        "Este es el módulo de información rápida de 360 software para OnPoint. Escanee un código de barras de PRODUCTO, PAQUETE, LOTE/SERIE o una UBICACIÓN para obtener toda su información.",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 14, color: black),
                       ),

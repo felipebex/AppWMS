@@ -313,7 +313,7 @@ class AppBar extends StatelessWidget {
                   left: size.width * 0.05,
                   right: size.width * 0.05,
                   bottom: 10,
-                  top: status != ConnectionStatus.online ? 0 : 30),
+                  top: status != ConnectionStatus.online ? 0 : 35),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

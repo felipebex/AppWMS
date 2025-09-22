@@ -21,19 +21,20 @@ class FilterBatchsByDateEvent extends PickingEvent {
 
 class LoadAllBatchsEvent extends PickingEvent {
   bool isLoadinDialog;
-  LoadAllBatchsEvent( this.isLoadinDialog);
+  LoadAllBatchsEvent(this.isLoadinDialog);
 }
 //*evento para cargar hisotural de  los batchs de odoo
 
 class LoadHistoryBatchsEvent extends PickingEvent {
   bool isLoadinDialog;
   String date;
-  LoadHistoryBatchsEvent( this.isLoadinDialog, this.date);
+  LoadHistoryBatchsEvent(this.isLoadinDialog, this.date);
 }
+
 class LoadHistoryBatchIdEvent extends PickingEvent {
   bool isLoadinDialog;
   int batchId;
-  LoadHistoryBatchIdEvent( this.isLoadinDialog, this.batchId);
+  LoadHistoryBatchIdEvent(this.isLoadinDialog, this.batchId);
 }
 
 //*evento para buscar un producto
@@ -116,8 +117,18 @@ class LoadAllNovedades extends PickingEvent {
   LoadAllNovedades(this.context);
 }
 
-
 class LoadDocOriginsEvent extends PickingEvent {
   final int idBatch;
   LoadDocOriginsEvent(this.idBatch);
+}
+
+class UpdateScannedValuePickingEvent extends PickingEvent {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValuePickingEvent(this.scannedValue, this.scan);
+}
+
+class ClearScannedValuePickingEvent extends PickingEvent {
+  final String scan;
+  ClearScannedValuePickingEvent(this.scan);
 }

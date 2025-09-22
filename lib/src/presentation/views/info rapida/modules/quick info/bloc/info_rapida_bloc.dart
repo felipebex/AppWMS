@@ -317,10 +317,18 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
           event.isProduct,
         );
       } else {
-        infoRapida = await _infoRapidaRepository.getInfoQuick(
-          false,
-          event.barcode.trim(),
-        );
+        //validamos si la peticion es para un paquete
+        if (event.barcode.contains("Caja") || event.barcode.contains("CAJA")) {
+          infoRapida = await _infoRapidaRepository.getInfoQuick(
+            false,
+            event.barcode,
+          );
+        } else {
+          infoRapida = await _infoRapidaRepository.getInfoQuick(
+            false,
+            event.barcode.trim(),
+          );
+        }
       }
 
       if (infoRapida.result?.code == 200) {

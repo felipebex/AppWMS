@@ -135,10 +135,7 @@ class InfoResult {
         peso: json["peso"],
         volumen: json["volumen"],
         codigoBarras: json["codigo_barras"],
-        // codigosBarrasPaquetes: json["codigos_barras_paquetes"] == null
-        //     ? []
-        //     : List<Barcodes>.from(
-        //         json["codigos_barras_paquetes"]!.map((x) => x)),
+       
         categoria: json["categoria"],
         ubicaciones: json["ubicaciones"] == null
             ? []
@@ -172,9 +169,7 @@ class InfoResult {
         "peso": peso,
         "volumen": volumen,
         "codigo_barras": codigoBarras,
-        // "codigos_barras_paquetes": codigosBarrasPaquetes == null
-        //     ? []
-        //     : List<dynamic>.from(codigosBarrasPaquetes!.map((x) => x)),
+        
         "categoria": categoria,
         "ubicaciones": ubicaciones == null
             ? []
@@ -272,6 +267,7 @@ class Producto {
   String? tercero;
   String? numeroCaja;
   String? nombreAlmacen;
+  dynamic? operador;
 
   Producto({
     this.id,
@@ -286,6 +282,7 @@ class Producto {
     this.tercero,
     this.numeroCaja,
     this.nombreAlmacen,
+    this.operador,
 
     
   });
@@ -303,6 +300,7 @@ class Producto {
         tercero: json["tercero"],
         numeroCaja: json["numero_caja"],
         nombreAlmacen: json["nombre_almacen"],
+        operador: json["operador"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -318,5 +316,6 @@ class Producto {
         "tercero": tercero,
         "numero_caja": numeroCaja,
         "nombre_almacen": nombreAlmacen,
+        "operador": operador,
       };
 }

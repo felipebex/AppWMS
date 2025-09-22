@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -17,8 +19,8 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/response_packi
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
-
 
 class ListPackingScreen extends StatefulWidget {
   const ListPackingScreen({super.key});
@@ -29,6 +31,56 @@ class ListPackingScreen extends StatefulWidget {
 
 class _WmsPackingScreenState extends State<ListPackingScreen> {
   NotchBottomBarController controller = NotchBottomBarController();
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+  FocusNode focusNodeBuscar = FocusNode();
+  final TextEditingController _controllerToDo = TextEditingController();
+
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<PackingPedidoBloc>();
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
+
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (batch picking): $scan');
+
+    final listOfBatchs = bloc.listOfPedidosBD;
+
+    void processBatch(PedidoPackingResult batch) {
+      bloc.add(ClearScannedValuePackEvent('toDo'));
+
+      print(batch.toMap());
+      try {
+        _handlePackingOnTap(context, batch, context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar los datos'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+
+    // Buscar el producto usando el código de barras principal o el código de producto
+    final batchs = listOfBatchs.firstWhere(
+      (b) =>
+          b.name?.toLowerCase() == scan || b.zonaEntrega?.toLowerCase() == scan,
+      orElse: () => PedidoPackingResult(),
+    );
+
+    if (batchs.id != null) {
+      print(
+          '🔎 batch encontrado : ${batchs.id} ${batchs.name} - ${batchs.zonaEntrega}');
+      processBatch(batchs);
+      return;
+    } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc.add(ClearScannedValuePackEvent('toDo'));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +279,13 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                             .read<PackingPedidoBloc>()
                                             .add(ShowKeyboardEvent(false));
 
-                                        FocusScope.of(context).unfocus();
+                                        //pasamos el foco a focusNodeBuscar
+                                        Future.delayed(
+                                            const Duration(seconds: 1), () {
+                                          // _handleDependencies();
+                                          FocusScope.of(context)
+                                              .requestFocus(focusNodeBuscar);
+                                        });
                                       },
                                       icon:
                                           const Icon(Icons.close, color: grey)),
@@ -260,6 +318,21 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                         ],
                       ),
                     )),
+
+                //*buscar por scan
+                BarcodeScannerField(
+                  controller: _controllerToDo,
+                  focusNode: focusNodeBuscar,
+                  scannedValue5: "",
+                  onBarcodeScanned: (value, context) {
+                    return validateBarcode(value, context);
+                  },
+                  onKeyScanned: (keyLabel, type, context) {
+                    return context.read<PackingPedidoBloc>().add(
+                          UpdateScannedValuePackEvent(keyLabel, type),
+                        );
+                  },
+                ),
 
                 //*listado de batchs
                 Expanded(
@@ -304,58 +377,8 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                   horizontal: 10, vertical: 5),
                               child: GestureDetector(
                                 onTap: () async {
-                                  try {
-//cargamos las configuraciones
-                                    context
-                                        .read<PackingPedidoBloc>()
-                                        .add(LoadConfigurationsUser());
-
-                                    if (batch.responsableId == null ||
-                                        batch.responsableId == 0) {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible:
-                                            false, // No permitir que el usuario cierre el diálogo manualmente
-                                        builder: (context) =>
-                                            DialogAsignUserToOrderWidget(
-                                          title:
-                                              'Esta seguro de tomar este pedido de packing, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                          onAccepted: () async {
-                                            // asignamos el tiempo de inicio
-
-                                            //asignamos el responsable a esa orden de entrada
-                                            //cerramos el dialogo
-                                            Navigator.pop(context);
-                                            context
-                                                .read<PackingPedidoBloc>()
-                                                .add(ShowKeyboardEvent(false));
-                                            context
-                                                .read<PackingPedidoBloc>()
-                                                .searchController
-                                                .clear();
-                                            context
-                                                .read<PackingPedidoBloc>()
-                                                .add(
-                                                  AssignUserToPedido(
-                                                      batch.id ?? 0),
-                                                );
-                                          },
-                                        ),
-                                      );
-                                    } else {
-                                      validateTime(batch, context);
-                                    }
-                                  } catch (e) {
-                                    // Manejo de errores, por si ocurre algún problema
-                                    ScaffoldMessenger.of(contextBuilder)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content:
-                                            Text('Error al cargar los datos'),
-                                        duration: Duration(seconds: 4),
-                                      ),
-                                    );
-                                  }
+                                  _handlePackingOnTap(
+                                      context, batch, contextBuilder);
                                 },
                                 child: Card(
                                   color: batch.isTerminate == 1
@@ -493,8 +516,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                             children: [
                                               Align(
                                                 alignment: Alignment.centerLeft,
-                                                child: Icon(
-                                                    Icons.file_copy,
+                                                child: Icon(Icons.file_copy,
                                                     color: primaryColorApp,
                                                     size: 15),
                                               ),
@@ -510,7 +532,6 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                             ],
                                           ),
                                         ),
-                                        
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Row(
@@ -741,4 +762,50 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
           arguments: [0]);
     }
   }
+
+  void _handlePackingOnTap(
+      BuildContext context, dynamic batch, BuildContext contextBuilder) async {
+    try {
+      // 1. Cargar las configuraciones una sola vez
+      context.read<PackingPedidoBloc>().add(LoadConfigurationsUser());
+
+      // 2. Lógica para asignar el responsable o continuar
+      if (batch.responsableId == null || batch.responsableId == 0) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => DialogAsignUserToOrderWidget(
+            title:
+                'Esta seguro de tomar este pedido de packing, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+            onAccepted: () async {
+              // Lógica para asignar el usuario
+              final packingBloc = context.read<PackingPedidoBloc>();
+              packingBloc.add(AssignUserToPedido(batch.id ?? 0));
+              packingBloc.add(ShowKeyboardEvent(false));
+              packingBloc.searchController.clear();
+
+              Navigator.pop(dialogContext); // Cierra el diálogo de asignación
+
+              // Después de asignar el usuario, continuar con la validación de tiempo
+              validateTime(batch, context);
+            },
+          ),
+        );
+      } else {
+        // Si el responsable ya existe, validar el tiempo directamente
+        validateTime(batch, context);
+      }
+    } catch (e) {
+      // 3. Manejo de errores centralizado
+      ScaffoldMessenger.of(contextBuilder).showSnackBar(
+        const SnackBar(
+          content: Text('Error al cargar los datos'),
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
+// Nota: La función `validateTime` debe estar definida en la misma clase
+// o ser un método del BLoC para ser accesible.
 }

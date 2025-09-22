@@ -237,8 +237,6 @@ class StartOrStopTimeTransferFailure extends PickingPickState {
 }
 
 class LoadSearchPickingState extends PickingPickState {
-  final List<ResultPick> listOfPicking;
-  LoadSearchPickingState({required this.listOfPicking});
 }
 
 class AssignUserToPickLoading extends PickingPickState {}

@@ -27,6 +27,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   bool isKeyboardVisible = false;
   List<Origin> listOfOrigins = [];
 
+  String scannedToDo = '';
+
   HistoryBatchId historyBatchId = HistoryBatchId();
 
   WmsPickingRepository wmsPickingRepository = WmsPickingRepository();
@@ -60,6 +62,48 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     on<LoadAllNovedades>(_onLoadAllNovedadesEvent);
 
     on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
+
+    on<UpdateScannedValuePickingEvent>(_onUpdateScannedValueEvent);
+    on<ClearScannedValuePickingEvent>(_onClearScannedValueEvent);
+  }
+
+//*evento para limpiar el valor del scan
+  void _onClearScannedValueEvent(
+      ClearScannedValuePickingEvent event, Emitter<PickingState> emit) {
+    try {
+      switch (event.scan) {
+        case 'toDo':
+          scannedToDo = '';
+          emit(ClearScannedValueState());
+          break;
+
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+      emit(ClearScannedValueState());
+    } catch (e, s) {
+      print("❌ Error en _onClearScannedValueEvent: $e, $s");
+    }
+  }
+
+  //*evento para actualizar el valor del scan
+  void _onUpdateScannedValueEvent(
+      UpdateScannedValuePickingEvent event, Emitter<PickingState> emit) {
+    try {
+      print('scannedValue: ${event.scannedValue}');
+      switch (event.scan) {
+        case 'toDo':
+          // Acumulador de valores escaneados
+          scannedToDo += event.scannedValue.trim();
+          print('scannedToDo: $scannedToDo.');
+          emit(UpdateScannedValueState(scannedToDo, event.scan));
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+    } catch (e, s) {
+      print("❌ Error en _onUpdateScannedValueEvent: $e, $s");
+    }
   }
 
   void _onLoadDocOriginsEvent(

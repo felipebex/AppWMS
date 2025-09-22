@@ -7,6 +7,8 @@ import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -18,6 +20,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,8 +35,10 @@ class WMSPickingPage extends StatefulWidget {
 
 class _PickingPageState extends State<WMSPickingPage> {
   NotchBottomBarController controller = NotchBottomBarController();
-
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   FocusNode focusNodeBuscar = FocusNode();
+  final TextEditingController _controllerToDo = TextEditingController();
 
   @override
   void initState() {
@@ -49,6 +54,52 @@ class _PickingPageState extends State<WMSPickingPage> {
     super.dispose();
   }
 
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<WMSPickingBloc>();
+    final scan = (bloc.scannedToDo.isEmpty ? value : bloc.scannedToDo)
+        .trim()
+        .toLowerCase();
+
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (batch picking): $scan');
+
+    final listOfBatchs = bloc.listOfBatchs;
+
+    void processBatch(BatchsModel batch) {
+      bloc.add(ClearScannedValuePickingEvent('toDo'));
+
+      print(batch.toMap());
+      try {
+        _handleBatchSelection(context, context, batch);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar los datos'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+
+    // // Buscar el producto usando el código de barras principal o el código de producto
+    final batchs = listOfBatchs.firstWhere(
+      (b) =>
+          b.name?.toLowerCase() == scan || b.zonaEntrega?.toLowerCase() == scan,
+      orElse: () => BatchsModel(),
+    );
+
+    if (batchs.id != null) {
+      print(
+          '🔎 batch encontrado : ${batchs.id} ${batchs.name} - ${batchs.zonaEntrega}');
+      processBatch(batchs);
+      return;
+    } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc.add(ClearScannedValuePickingEvent('toDo'));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -60,19 +111,7 @@ class _PickingPageState extends State<WMSPickingPage> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<WMSPickingBloc, PickingState>(
-              listener: (context, state) {
-            // if (state is LoadBatchsSuccesState) {
-            //   if (state.listOfBatchs.isEmpty) {
-            //     Get.snackbar(
-            //       '360 Software Informa',
-            //       "No hay batch disponibles",
-            //       backgroundColor: white,
-            //       colorText: primaryColorApp,
-            //       icon: Icon(Icons.error, color: Colors.amber),
-            //     );
-            //   }
-            // }
-          }),
+              listener: (context, state) {}),
           BlocListener<BatchBloc, BatchState>(
             listener: (context, state) {
               if (state is PickingOkState) {
@@ -308,6 +347,20 @@ class _PickingPageState extends State<WMSPickingPage> {
                         ),
                       ),
 
+                      BarcodeScannerField(
+                        controller: _controllerToDo,
+                        focusNode: focusNodeBuscar,
+                        scannedValue5: "",
+                        onBarcodeScanned: (value, context) {
+                          return validateBarcode(value, context);
+                        },
+                        onKeyScanned: (keyLabel, type, context) {
+                          return context.read<WMSPickingBloc>().add(
+                                UpdateScannedValuePickingEvent(keyLabel, type),
+                              );
+                        },
+                      ),
+
                       //filtro por tipo de batch
 
                       //*listado de batchs
@@ -341,58 +394,75 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       horizontal: 10,
                                     ),
                                     child: GestureDetector(
+                                      // onTap: () async {
+                                      //   // Agrupar eventos de BatchBloc si es necesario
+                                      //   final batchBloc =
+                                      //       context.read<BatchBloc>();
+                                      //   print(batch.toMap());
+                                      //   try {
+                                      //     print(batch.toMap());
+
+                                      //     if (batch.startTimePick != "") {
+                                      //       batchBloc.add(
+                                      //           FetchBatchWithProductsEvent(
+                                      //               batch.id ?? 0));
+                                      //       batchBloc
+                                      //           .add(LoadInfoDeviceEvent());
+                                      //       batchBloc
+                                      //           .add(LoadConfigurationsUser());
+
+                                      //       goBatchInfo(contextBuilder,
+                                      //           batchBloc, batch);
+                                      //     } else {
+                                      //       showDialog(
+                                      //         context: context,
+                                      //         barrierDismissible:
+                                      //             false, // No permitir que el usuario cierre el diálogo manualmente
+                                      //         builder: (context) =>
+                                      //             DialogStartTimeWidget(
+                                      //           onAccepted: () async {
+                                      //             // Disparar eventos de BatchBloc
+                                      //             batchBloc.add(
+                                      //                 FetchBatchWithProductsEvent(
+                                      //                     batch.id ?? 0));
+                                      //             batchBloc.add(
+                                      //                 LoadInfoDeviceEvent());
+                                      //             batchBloc.add(
+                                      //                 LoadConfigurationsUser());
+
+                                      //             batchBloc.add(StartTimePick(
+                                      //                 batch.id ?? 0,
+                                      //                 DateTime.now()));
+
+                                      //             Navigator.pop(context);
+
+                                      //             goBatchInfo(contextBuilder,
+                                      //                 batchBloc, batch);
+                                      //           },
+                                      //           title: 'Iniciar Picking',
+                                      //         ),
+                                      //       );
+                                      //     }
+                                      //   } catch (e) {
+                                      //     // Manejo de errores, por si ocurre algún problema
+
+                                      //     ScaffoldMessenger.of(contextBuilder)
+                                      //         .showSnackBar(
+                                      //       const SnackBar(
+                                      //         content: Text(
+                                      //             'Error al cargar los datos'),
+                                      //         duration: Duration(seconds: 4),
+                                      //       ),
+                                      //     );
+                                      //   }
+                                      // },
+
                                       onTap: () async {
-                                        // Agrupar eventos de BatchBloc si es necesario
-                                        final batchBloc =
-                                            context.read<BatchBloc>();
                                         print(batch.toMap());
                                         try {
-                                          print(batch.toMap());
-
-                                          if (batch.startTimePick != "") {
-                                            batchBloc.add(
-                                                FetchBatchWithProductsEvent(
-                                                    batch.id ?? 0));
-                                            batchBloc
-                                                .add(LoadInfoDeviceEvent());
-                                            batchBloc
-                                                .add(LoadConfigurationsUser());
-
-                                            goBatchInfo(contextBuilder,
-                                                batchBloc, batch);
-                                          } else {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible:
-                                                  false, // No permitir que el usuario cierre el diálogo manualmente
-                                              builder: (context) =>
-                                                  DialogStartTimeWidget(
-                                                onAccepted: () async {
-                                                  // Disparar eventos de BatchBloc
-                                                  batchBloc.add(
-                                                      FetchBatchWithProductsEvent(
-                                                          batch.id ?? 0));
-                                                  batchBloc.add(
-                                                      LoadInfoDeviceEvent());
-                                                  batchBloc.add(
-                                                      LoadConfigurationsUser());
-
-                                                  batchBloc.add(StartTimePick(
-                                                      batch.id ?? 0,
-                                                      DateTime.now()));
-
-                                                  Navigator.pop(context);
-
-                                                  goBatchInfo(contextBuilder,
-                                                      batchBloc, batch);
-                                                },
-                                                title: 'Iniciar Picking',
-                                              ),
-                                            );
-                                          }
+                                          _handleBatchSelection(
+                                              context, contextBuilder, batch);
                                         } catch (e) {
-                                          // Manejo de errores, por si ocurre algún problema
-
                                           ScaffoldMessenger.of(contextBuilder)
                                               .showSnackBar(
                                             const SnackBar(
@@ -403,6 +473,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           );
                                         }
                                       },
+
                                       child: Card(
                                         color: batch.isSeparate == 1
                                             ? Colors.green[100]
@@ -761,5 +832,39 @@ class _PickingPageState extends State<WMSPickingPage> {
     if (batch.isSeparate != 1) {
       Navigator.pushReplacementNamed(context, 'batch');
     } else {}
+  }
+
+// Tu código refactorizado en un método privado
+  void _handleBatchSelection(
+      BuildContext context, BuildContext contextBuilder, dynamic batch) {
+    final batchBloc = context.read<BatchBloc>();
+
+    // 1. Cargar todos los datos del BLoC de forma asíncrona y una sola vez
+    batchBloc.add(FetchBatchWithProductsEvent(batch.id ?? 0));
+    batchBloc.add(LoadInfoDeviceEvent());
+    batchBloc.add(LoadConfigurationsUser());
+
+    // 2. Definir la función de navegación, que se llama después de cargar
+    void navigateToBatchInfo() {
+      goBatchInfo(contextBuilder, batchBloc, batch);
+    }
+
+    // 3. Lógica para decidir si mostrar el diálogo o navegar directamente
+    if (batch.startTimePick != "") {
+      navigateToBatchInfo();
+    } else {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => DialogStartTimeWidget(
+          onAccepted: () async {
+            batchBloc.add(StartTimePick(batch.id ?? 0, DateTime.now()));
+            Navigator.pop(context);
+            navigateToBatchInfo();
+          },
+          title: 'Iniciar Picking',
+        ),
+      );
+    }
   }
 }

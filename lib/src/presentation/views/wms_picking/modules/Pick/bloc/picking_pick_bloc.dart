@@ -73,6 +73,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
+  String scannedToDo = '';
 
   String selectedNovedad = '';
 
@@ -389,50 +390,51 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   void _onSearchPickEvent(
       SearchPickEvent event, Emitter<PickingPickState> emit) async {
-    print('event._onSearchPickEvent: ${event.query}');
-    final query = event.query.toLowerCase();
+    try {
+      final query = event.query.toLowerCase();
 
-    if (query.isEmpty) {
-      if (event.isComponentes) {
-        //parte de componentes
-        listOfPickCompoFiltered.clear();
-        listOfPickCompoFiltered = listOfPickCompo;
+      if (query.isEmpty) {
+        if (event.isComponentes) {
+          // ✅ Cuando el query está vacío y es de componentes, se muestra todo el listado de componentes
+          listOfPickCompoFiltered = [];
+          listOfPickCompoFiltered=listOfPickCompo;
+        } else {
+          // ✅ Cuando el query está vacío y NO es de componentes, se muestra todo el listado de pick
+          listOfPickFiltered =[];
+          listOfPickFiltered = listOfPick;
+        }
       } else {
-        listOfPickFiltered.clear();
-        listOfPickFiltered = listOfPick;
+        if (event.isComponentes) {
+          // Lógica de búsqueda para la lista de componentes
+          listOfPickCompoFiltered = listOfPickCompo.where((batch) {
+            final name = batch.name?.toLowerCase() ?? '';
+            final origin = batch.origin?.toLowerCase() ?? '';
+            final proveedor = batch.proveedor?.toLowerCase() ?? '';
+            final backorder = batch.backorderName?.toLowerCase() ?? '';
+            return name.contains(query) ||
+                origin.contains(query) ||
+                proveedor.contains(query) ||
+                backorder.contains(query);
+          }).toList();
+        } else {
+          // Lógica de búsqueda para la lista de pick
+          listOfPickFiltered = listOfPick.where((batch) {
+            final name = batch.name?.toLowerCase() ?? '';
+            final origin = batch.origin?.toLowerCase() ?? '';
+            final proveedor = batch.proveedor?.toLowerCase() ?? '';
+            final backorder = batch.backorderName?.toLowerCase() ?? '';
+            return name.contains(query) ||
+                origin.contains(query) ||
+                proveedor.contains(query) ||
+                backorder.contains(query);
+          }).toList();
+        }
       }
-    } else {
-      if (event.isComponentes) {
-        //parte de componentes
-        listOfPickCompoFiltered = listOfPickCompo.where((batch) {
-          final name = batch.name?.toLowerCase() ?? '';
-          final origin = batch.origin?.toLowerCase() ?? '';
-          final proveedor = batch.proveedor?.toLowerCase() ?? '';
-          final backorder = batch.backorderName?.toLowerCase() ?? '';
-          return name.contains(query) ||
-              origin.contains(query) ||
-              proveedor.contains(query) ||
-              backorder.contains(query);
-        }).toList();
-      } else {
-        //parte de picking
-        listOfPickFiltered = listOfPick.where((batch) {
-          final name = batch.name?.toLowerCase() ?? '';
-          final origin = batch.origin?.toLowerCase() ?? '';
-          final proveedor = batch.proveedor?.toLowerCase() ?? '';
-          final backorder = batch.backorderName?.toLowerCase() ?? '';
-          return name.contains(query) ||
-              origin.contains(query) ||
-              proveedor.contains(query) ||
-              backorder.contains(query);
-        }).toList();
-      }
+
+      emit(LoadSearchPickingState());
+    } catch (e, s) {
+      print('Error en _onSearchPickEvent: $e, $s');
     }
-
-    emit(LoadSearchPickingState(
-      listOfPicking:
-          event.isComponentes ? listOfPickCompoFiltered : listOfPickFiltered,
-    ));
   }
 
   //metodo para empezar o terminar el tiempo
@@ -1169,6 +1171,13 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           scannedValue4 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue4, event.scan));
           break;
+
+        case 'toDo':
+          scannedToDo += event.scannedValue.trim();
+          print('scannedToDo: $scannedToDo');
+          emit(UpdateScannedValueState(scannedToDo, event.scan));
+          break;
+
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -1219,6 +1228,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           break;
         case 'muelle':
           scannedValue4 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'toDo':
+          scannedToDo = '';
           emit(ClearScannedValueState());
           break;
         default:
@@ -1779,11 +1792,13 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       final result = await db.pickRepository.getAllPickingPicks(
         'pick',
       );
-      listOfPick = [];
+      listOfPick.clear();
+      listOfPickFiltered.clear();
 
       if (result.isNotEmpty) {
         listOfPick = result;
         listOfPickFiltered = result;
+
         emit(PickingPickLoadedBD(listOfPickFiltered));
         return;
       }
@@ -1800,8 +1815,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       // Aquí llamas a tu repositorio para obtener los datos
       final result = await pickingPickRepository.resPicks(event.isLoadinDialog);
 
-      listOfPick = [];
-      listOfPickFiltered = [];
+      // listOfPick = [];
+      // listOfPickFiltered = [];
 
       if (result.isNotEmpty) {
         await db.pickRepository.insertAllPickingPicks(result, 'pick');

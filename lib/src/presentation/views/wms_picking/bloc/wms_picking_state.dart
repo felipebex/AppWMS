@@ -70,3 +70,12 @@ class LoadDocOriginsState extends PickingState {
   final List<Origin> listOfOrigins;
   LoadDocOriginsState({required this.listOfOrigins});
 }
+
+
+class UpdateScannedValueState extends PickingState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueState(this.scannedValue, this.scan);
+}
+
+class ClearScannedValueState extends PickingState {}

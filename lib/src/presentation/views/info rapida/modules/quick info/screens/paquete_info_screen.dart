@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -11,7 +10,6 @@ import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/widgets/info_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
@@ -62,19 +60,19 @@ class PaqueteInfoScreen extends StatelessWidget {
               child: Column(
                 children: [
                   AppBar(size: size),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5, left: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Paquete",
-                        style: TextStyle(
-                            color: black,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(top: 5, left: 20),
+                  //   child: Align(
+                  //     alignment: Alignment.centerLeft,
+                  //     child: Text(
+                  //       "Paquete",
+                  //       style: TextStyle(
+                  //           color: black,
+                  //           fontSize: 13,
+                  //           fontWeight: FontWeight.bold),
+                  //     ),
+                  //   ),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: SizedBox(
@@ -86,33 +84,116 @@ class PaqueteInfoScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               children: [
-                                ProductInfoRow(
-                                  title: 'Nombre: ',
-                                  value: '${paquete?.nombre}',
+                                // ProductInfoRow(
+                                //   title: 'Nombre: ',
+                                //   value: '${paquete?.nombre}',
+                                // ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    paquete?.nombre ?? 'Sin nombre',
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        color: primaryColorApp,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                                ProductInfoRow(
-                                  title: 'Código de barras: ',
-                                  value: '${paquete?.codigoBarras}',
+                                Divider(
+                                  color: black,
+                                  thickness: 1,
+                                  height: 5,
                                 ),
-                                ProductInfoRow(
-                                  title: 'Total de productos: ',
-                                  value: '${paquete?.numeroProductos}',
+                                Row(
+                                  children: [
+                                    //icono de codigo de barras
+                                    Icon(
+                                      Icons.qr_code,
+                                      color: primaryColorApp,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ProductInfoRow(
+                                      title: 'Código de barras: ',
+                                      value: '${paquete?.codigoBarras}',
+                                    ),
+                                  ],
                                 ),
-                                ProductInfoRow(
-                                  title: 'Total de unidades: ',
-                                  value: '${paquete?.totalProductos}',
+                                Row(
+                                  children: [
+                                    //icono de mas
+                                    Icon(
+                                      Icons.add,
+                                      color: primaryColorApp,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ProductInfoRow(
+                                      title: 'Total de productos: ',
+                                      value: '${paquete?.numeroProductos}',
+                                    ),
+                                  ],
                                 ),
-                                ProductInfoRow(
-                                  title: 'Paquete certificado: ',
-                                  value: '${paquete?.isCertificate}',
+                                Row(
+                                  children: [
+                                    //icono de mas
+                                    Icon(
+                                      Icons.add,
+                                      color: primaryColorApp,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ProductInfoRow(
+                                      title: 'Total de unidades: ',
+                                      value: '${paquete?.totalProductos}',
+                                    ),
+                                  ],
                                 ),
-                                ProductInfoRow(
-                                  title: 'Almacen: ',
-                                  value: '${paquete?.nombreAlmacen}',
+                                Row(
+                                  children: [
+                                    //icono de certificado
+                                    Icon(
+                                      Icons.verified,
+                                      color: primaryColorApp,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ProductInfoRow(
+                                      title: 'Paquete certificado: ',
+                                      value: '${paquete?.isCertificate}',
+                                    ),
+                                  ],
                                 ),
-                                ProductInfoRow(
-                                  title: 'Fecha de empaquetado: ',
-                                  value: '${paquete?.fechaEmpaquetado}',
+                                Row(
+                                  children: [
+                                    //icono de almacen
+                                    Icon(
+                                      Icons.store,
+                                      color: primaryColorApp,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ProductInfoRow(
+                                      title: 'Almacen: ',
+                                      value: '${paquete?.nombreAlmacen}',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    //icono de fecha
+                                    Icon(
+                                      Icons.calendar_month,
+                                      color: primaryColorApp,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 5),
+
+                                    ProductInfoRow(
+                                      title: 'Fecha de empaquetado: ',
+                                      value: '${paquete?.fechaEmpaquetado}',
+                                    ),
+                                  ],
                                 ),
                               ],
                             )),
@@ -155,55 +236,159 @@ class PaqueteInfoScreen extends StatelessWidget {
                                     ),
                                     subtitle: Column(
                                       children: [
-                                        ProductInfoRow(
-                                          title: 'Cantidad: ',
-                                          value: '${producto?.cantidad}',
+                                        Row(
+                                          children: [
+                                            //icono de mas
+                                            Icon(
+                                              Icons.add,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Cantidad: ',
+                                              value: '${producto?.cantidad}',
+                                            ),
+                                          ],
                                         ),
-                                        ProductInfoRow(
-                                          title: 'Unidad medida: ',
-                                          value: producto?.unidadMedida == false
-                                              ? 'Sin unidad medida'
-                                              : '${producto?.unidadMedida}',
+                                        Row(
+                                          children: [
+                                            //icono de unidad de medida
+                                            Icon(
+                                              Icons.straighten,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Unidad medida: ',
+                                              value: producto?.unidadMedida ==
+                                                      false
+                                                  ? 'Sin unidad medida'
+                                                  : '${producto?.unidadMedida}',
+                                            ),
+                                          ],
                                         ),
-                                        ProductInfoRow(
-                                          title: 'Barcode: ',
-                                          value: producto?.codigoBarras == false
-                                              ? 'Sin barcode'
-                                              : '${producto?.codigoBarras}',
+                                        Row(
+                                          children: [
+                                            //icono de codigo de barras
+                                            Icon(
+                                              Icons.qr_code,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Barcode: ',
+                                              value: producto?.codigoBarras ==
+                                                      false
+                                                  ? 'Sin barcode'
+                                                  : '${producto?.codigoBarras}',
+                                            ),
+                                          ],
                                         ),
                                         Visibility(
                                           visible: producto?.lote != "" &&
                                               producto?.lote != null,
-                                          child: ProductInfoRow(
-                                            title: 'Lote: ',
-                                            value: producto?.lote == false
-                                                ? 'Sin lote'
-                                                : '${producto?.lote}',
+                                          child: Row(
+                                            children: [
+                                              //icono de lote
+                                              Icon(
+                                                Icons.inventory_2,
+                                                color: primaryColorApp,
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              ProductInfoRow(
+                                                title: 'Lote: ',
+                                                value: producto?.lote == false
+                                                    ? 'Sin lote'
+                                                    : '${producto?.lote}',
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        ProductInfoRow(
-                                          title: 'Tercero: ',
-                                          value: producto?.tercero == false
-                                              ? 'Sin tercero'
-                                              : '${producto?.tercero}',
+                                        Row(
+                                          children: [
+                                            //icono de tercero
+                                            Icon(
+                                              Icons.person,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Contacto: ',
+                                              value: producto?.tercero == false
+                                                  ? 'Sin tercero'
+                                                  : '${producto?.tercero}',
+                                            ),
+                                          ],
                                         ),
-                                        ProductInfoRow(
-                                          title: 'Origin: ',
-                                          value: producto?.origin == false
-                                              ? 'Sin origen'
-                                              : '${producto?.origin}',
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.list_alt,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: '',
+                                              value: producto?.pedido == false
+                                                  ? 'Sin pedido'
+                                                  : '${producto?.pedido}',
+                                            ),
+                                          ],
                                         ),
-                                        ProductInfoRow(
-                                          title: 'pedido: ',
-                                          value: producto?.pedido == false
-                                              ? 'Sin pedido'
-                                              : '${producto?.pedido}',
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.receipt,
+                                              color: primaryColorApp,
+                                              size: 15,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Doc. origin: ',
+                                              value: producto?.origin == false
+                                                  ? 'Sin origen'
+                                                  : '${producto?.origin}',
+                                            ),
+                                          ],
                                         ),
-                                        ProductInfoRow(
-                                          title: 'Numero de caja: ',
-                                          value: producto?.numeroCaja == false
-                                              ? 'Sin numero de caja'
-                                              : '${producto?.numeroCaja}',
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.inventory,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Numero de caja: ',
+                                              value: producto?.numeroCaja ==
+                                                      false
+                                                  ? 'Sin numero de caja'
+                                                  : '${producto?.numeroCaja}',
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.person,
+                                              color: primaryColorApp,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            ProductInfoRow(
+                                              title: 'Empaquetado por: ',
+                                              value: producto?.operador == false
+                                                  ? 'Sin operador'
+                                                  : '${producto?.operador}',
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -255,7 +440,7 @@ class AppBar extends StatelessWidget {
                   left: size.width * 0.05,
                   right: size.width * 0.05,
                   bottom: 10,
-                  top: status != ConnectionStatus.online ? 0 : 30),
+                  top: status != ConnectionStatus.online ? 0 : 35),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

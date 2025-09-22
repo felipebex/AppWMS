@@ -1,8 +1,12 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -14,6 +18,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class IndexListPickScreen extends StatelessWidget {
@@ -23,6 +28,58 @@ class IndexListPickScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final bloc = context.read<PickingPickBloc>();
+
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+    FocusNode focusNodeBuscar = FocusNode();
+    final TextEditingController _controllerToDo = TextEditingController();
+
+    void validateBarcode(String value, BuildContext context) {
+      final bloc = context.read<PickingPickBloc>();
+      final scan = (bloc.scannedToDo.isEmpty ? value : bloc.scannedToDo)
+          .trim()
+          .toLowerCase();
+
+      _controllerToDo.clear();
+      print('🔎 Scan barcode (batch picking): $scan');
+
+      final listOfBatchs = bloc.listOfPick;
+
+      void processBatch(ResultPick batch) {
+        bloc.add(ClearScannedValueEvent('toDo'));
+
+        print(batch.toMap());
+        try {
+          _handleTransferTap(context, context, batch);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error al cargar los datos'),
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+
+      // // Buscar el producto usando el código de barras principal o el código de producto
+      final batchs = listOfBatchs.firstWhere(
+        (b) =>
+            b.name?.toLowerCase() == scan ||
+            b.zonaEntrega?.toLowerCase() == scan,
+        orElse: () => ResultPick(),
+      );
+
+      if (batchs.id != null) {
+        print(
+            '🔎 batch encontrado : ${batchs.id} ${batchs.name} - ${batchs.zonaEntrega}');
+        processBatch(batchs);
+        return;
+      } else {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
+        bloc.add(ClearScannedValueEvent('toDo'));
+      }
+    }
 
     return WillPopScope(
       onWillPop: () async {
@@ -193,6 +250,16 @@ class IndexListPickScreen extends StatelessWidget {
                                               bloc.add(
                                                   SearchPickEvent('', false));
                                               bloc.searchPickController.clear();
+
+                                              //pasamos el foco a focusNodeBuscar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                // _handleDependencies();
+                                                FocusScope.of(context)
+                                                    .requestFocus(
+                                                        focusNodeBuscar);
+                                              });
                                             },
                                             icon: const Icon(Icons.close,
                                                 color: grey, size: 20),
@@ -215,6 +282,7 @@ class IndexListPickScreen extends StatelessWidget {
                                             .contains("Zebra")
                                         ? null
                                         : () {
+                                            //pasamos el foco a
                                             bloc.add(ShowKeyboard(true));
                                           }),
                               ),
@@ -222,6 +290,22 @@ class IndexListPickScreen extends StatelessWidget {
                           ),
                         ],
                       )),
+
+                  //*buscar por scan
+                  BarcodeScannerField(
+                    controller: _controllerToDo,
+                    focusNode: focusNodeBuscar,
+                    scannedValue5: "",
+                    onBarcodeScanned: (value, context) {
+                      return validateBarcode(value, context);
+                    },
+                    onKeyScanned: (keyLabel, type, context) {
+                      return context.read<PickingPickBloc>().add(
+                            UpdateScannedValueEvent(keyLabel, type),
+                          );
+                    },
+                  ),
+
                   Expanded(
                     child: bloc.listOfPickFiltered
                             .where((batch) => batch.isSeparate == 0)
@@ -247,95 +331,8 @@ class IndexListPickScreen extends StatelessWidget {
                                 child: GestureDetector(
                                   onTap: () async {
                                     // Agrupar eventos de BatchBloc si es necesario
-                                    print("Batch: ${batch.toMap()}");
-
-                                    try {
-                                      if (batch.responsableId == null ||
-                                          batch.responsableId == 0) {
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible:
-                                              false, // No permitir que el usuario cierre el diálogo manualmente
-                                          builder: (context) =>
-                                              DialogAsignUserToOrderWidget(
-                                            title:
-                                                'Esta seguro de tomar este pick, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                            onAccepted: () async {
-                                              // asignamos el tiempo de inicio
-
-                                              //asignamos el responsable a esa orden de entrada
-                                              //cerramos el dialogo
-                                              Navigator.pop(context);
-                                              bloc.add(ShowKeyboard(false));
-                                              bloc.searchPickController.clear();
-                                              bloc.add(
-                                                AssignUserToTransfer(
-                                                    batch.id ?? 0),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      } else {
-                                        if (batch.startTimeTransfer == "") {
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible:
-                                                false, // No permitir que el usuario cierre el diálogo manualmente
-                                            builder: (context) =>
-                                                DialogStartTimeWidget(
-                                              onAccepted: () async {
-                                                bloc.add(ShowKeyboard(false));
-                                                bloc.searchPickController
-                                                    .clear();
-                                                bloc.add(
-                                                    SearchPickEvent('', false));
-
-                                                bloc.add(
-                                                    FetchPickWithProductsEvent(
-                                                        batch.id ?? 0));
-                                                bloc.add(
-                                                    LoadConfigurationsUser());
-
-                                                bloc.add(
-                                                    StartOrStopTimeTransfer(
-                                                  batch.id ?? 0,
-                                                  'start_time_transfer',
-                                                ));
-                                                bloc.add(ShowKeyboard(false));
-                                                bloc.searchPickController
-                                                    .clear();
-                                                Navigator.pop(context);
-                                                Navigator.pushReplacementNamed(
-                                                    context,
-                                                    'scan-product-pick');
-                                              },
-                                              title: 'Iniciar Pick',
-                                            ),
-                                          );
-                                        } else {
-                                          bloc.add(FetchPickWithProductsEvent(
-                                              batch.id ?? 0));
-                                          bloc.add(LoadConfigurationsUser());
-
-                                          goBatchInfo(
-                                            contextBuilder,
-                                            bloc,
-                                            batch,
-                                          );
-                                        }
-                                      }
-                                    } catch (e) {
-                                      // Manejo de errores, por si ocurre algún problema
-
-                                      ScaffoldMessenger.of(contextBuilder)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Error al cargar los datos'),
-                                          duration: Duration(seconds: 4),
-                                        ),
-                                      );
-                                    }
+                                    _handleTransferTap(
+                                        context, contextBuilder, batch);
                                   },
                                   child: Card(
                                     color: batch.isSeparate == 1
@@ -711,5 +708,73 @@ class IndexListPickScreen extends StatelessWidget {
       batchBloc.searchPickController.clear();
       Navigator.pushReplacementNamed(context, 'scan-product-pick');
     } else {}
+  }
+
+// Tu código refactorizado en un método privado
+  void _handleTransferTap(
+      BuildContext context, BuildContext contextBuilder, dynamic batch) async {
+    print("Batch: ${batch.toMap()}");
+    final bloc = context.read<PickingPickBloc>(); // Asumo que es PickBloc
+
+    try {
+      // Lógica para asignar responsable si no existe
+      if (batch.responsableId == null || batch.responsableId == 0) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => DialogAsignUserToOrderWidget(
+            title:
+                'Esta seguro de tomar este pick, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+            onAccepted: () async {
+              // Se llama a la lógica del BLoC
+              bloc.add(AssignUserToTransfer(batch.id ?? 0));
+              Navigator.pop(dialogContext); // Cierra el diálogo de asignación
+            },
+          ),
+        );
+        // El resto del código se ejecuta después de que el diálogo se cierre.
+        bloc.add(ShowKeyboard(false));
+        bloc.searchPickController.clear();
+        return; // Salimos de la función si solo se asignó el responsable
+      }
+
+      // Lógica para iniciar la transferencia si el tiempo no ha comenzado
+      if (batch.startTimeTransfer == "") {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => DialogStartTimeWidget(
+            title: 'Iniciar Pick',
+            onAccepted: () async {
+              bloc.add(StartOrStopTimeTransfer(
+                batch.id ?? 0,
+                'start_time_transfer',
+              ));
+              Navigator.pop(dialogContext); // Cierra el diálogo de inicio
+            },
+          ),
+        );
+      }
+
+      // Lógica de carga y navegación que es común en ambos flujos
+      bloc.add(ShowKeyboard(false));
+      bloc.searchPickController.clear();
+      bloc.add(FetchPickWithProductsEvent(batch.id ?? 0));
+      bloc.add(LoadConfigurationsUser());
+
+      goBatchInfo(
+        contextBuilder,
+        bloc,
+        batch,
+      );
+    } catch (e) {
+      // Manejo de errores centralizado
+      ScaffoldMessenger.of(contextBuilder).showSnackBar(
+        const SnackBar(
+          content: Text('Error al cargar los datos'),
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
   }
 }

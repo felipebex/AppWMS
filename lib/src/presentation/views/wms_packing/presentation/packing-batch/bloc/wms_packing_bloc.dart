@@ -474,6 +474,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           emit(ClearScannedValuePackState());
           break;
 
+       
+
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -515,6 +517,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValuePackState(scannedValue5, event.scan));
           break;
+
+      
 
         default:
           print('Scan type not recognized: ${event.scan}');
@@ -874,10 +878,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     final query = event.query.toLowerCase();
 
     if (query.isEmpty) {
+      listOfBatchsDB = [];
       listOfBatchsDB = listOfBatchs;
-      listOfBatchsDB = listOfBatchsDB
-          .where((element) => element.isSeparate == null)
-          .toList();
+      // listOfBatchsDB =
+      //     listOfBatchsDB.where((batch) => batch.isSeparate == 0).toList();
+      print('listOfBatchsDB: ${listOfBatchsDB.length}');
+      print('listOfBatchs: ${listOfBatchs.length}');
     } else {
       listOfBatchsDB = listOfBatchs.where((batch) {
         return batch.name?.toLowerCase().contains(query) ?? false;
