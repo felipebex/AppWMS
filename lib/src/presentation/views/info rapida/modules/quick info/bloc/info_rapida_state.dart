@@ -138,3 +138,25 @@ class ProductExpansionToggled extends InfoRapidaState {
 
   ProductExpansionToggled(this.isExpanded);
 }
+
+
+class SortLocationsLoading extends InfoRapidaState {}
+
+class SortLocationsSuccess extends InfoRapidaState {
+}
+
+class SortLocationsFailure extends InfoRapidaState {
+  final String error;
+  SortLocationsFailure(this.error);
+}
+
+
+class SortProductsLoading extends InfoRapidaState {}
+
+class SortProductsSuccess extends InfoRapidaState {
+}
+
+class SortProductsFailure extends InfoRapidaState {
+  final String error;
+  SortProductsFailure(this.error);
+}

@@ -39,6 +39,9 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   bool isEdit = false;
   bool isNumericKeyboardType = false;
   bool isExpanded = false;
+
+  bool isAscending = true;
+
   TextEditingController? controllerActivo;
 
   //*configuracion del usuario //permisos
@@ -81,6 +84,52 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
     // ToggleProductExpansionEvent
     on<ToggleProductExpansionEvent>(_onToggleProductExpansionEvent);
+
+    //metodo para ordenar de formar ascendente o descendente las ubicaciones
+    on<SortLocationsEvent>(_onSortLocationsEvent);
+
+    //metodo para ordenar de forma ascendente o descendente los productos
+    on<SortProductsEvent>(_onSortProductsEvent);
+  }
+
+
+void _onSortProductsEvent(
+      SortProductsEvent event, Emitter<InfoRapidaState> emit) {
+    try {
+      print('Ordenando productos, ascending: ${event.ascending}');
+      emit(SortProductsLoading());
+      if (event.ascending) {
+        isAscending = true;
+          infoRapidaResult.result?.productos?.sort((a, b) => a.producto!.compareTo(b.producto!));
+      } else {
+        isAscending = false;
+        infoRapidaResult.result?.productos?.sort((a, b) => b.producto!.compareTo(a.producto!));
+      }
+      emit(SortProductsSuccess());
+    } catch (e, s) {
+      print('Error en el SortProductsEvent: $e, $s');
+      emit(SortProductsFailure(e.toString()));
+    }
+  }
+
+
+  void _onSortLocationsEvent(
+      SortLocationsEvent event, Emitter<InfoRapidaState> emit) {
+    try {
+      print('Ordenando ubicaciones, ascending: ${event.ascending}');
+      emit(SortLocationsLoading());
+      if (event.ascending) {
+        isAscending = true;
+        infoRapidaResult.result?.ubicaciones?.sort((a, b) => a.ubicacion!.compareTo(b.ubicacion!));
+      } else {
+        isAscending = false;
+        infoRapidaResult.result?.ubicaciones?.sort((a, b) => b.ubicacion!.compareTo(a.ubicacion!));
+      }
+      emit(SortLocationsSuccess());
+    } catch (e, s) {
+      print('Error en el SortLocationsEvent: $e, $s');
+      emit(SortLocationsFailure(e.toString()));
+    }
   }
 
   void _onToggleProductExpansionEvent(
@@ -228,7 +277,8 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       } else {
         productosFilters = productos.where((product) {
           return (product.name?.toLowerCase().contains(query) ?? false) ||
-              (product.code?.toLowerCase().contains(query) ?? false);
+              (product.code?.toLowerCase().contains(query) ?? false) ||
+              (product.barcode?.toLowerCase().contains(query) ?? false);
         }).toList();
       }
       emit(SearchProductSuccess(productosFilters));

@@ -56,6 +56,7 @@ class OrdenConteoRepository {
             OrdenTable.columnDateStart: orden.startTimeOrden ?? "",
             OrdenTable.columnDateFinish: orden.endTimeOrden ?? "",
             OrdenTable.columnIsDoneItem: orden.isDoneItem == true ? 1 : 0,
+            OrdenTable.columnObservationGeneral: orden.observationGeneral ?? "",
           };
 
           if (existingIds.contains(id)) {

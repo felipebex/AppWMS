@@ -123,7 +123,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
 
     if (barcode.barcode != null) {
       final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.productId == barcode.idProduct,
+        (p) => p.productId.toString() == barcode.idProduct.toString(),
         orElse: () => LineasTransferencia(),
       );
 

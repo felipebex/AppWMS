@@ -54,6 +54,8 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/sacn_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/detail_pick_donde_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick__done_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/pick_detail_pick_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/scan_product_screen.dart';
@@ -77,8 +79,10 @@ class AppRoutes {
   static const String historyDetail = 'history-detail';
   //todo pick
   static const String pick = 'pick';
+  static const String pickDone = 'pick-done';
   static const String scanProductPick = "scan-product-pick";
   static const String pickDetail = 'pick-detail';
+  static const String detailPickDone = 'detail-pick-done';
 
   //todo picking componentes
   static const String pickingComponentes = 'picking-componentes';
@@ -210,11 +214,13 @@ class AppRoutes {
       historyLits: (_) => const HistoryListScreen(),
       historyDetail: (_) => const HistoryDetailScreen(),
       pick: (_) => const IndexListPickScreen(),
+      pickDone: (_) => const IndexListPickDoneScreen(),
       scanProductPick: (_) => const ScanProductPickScreen(),
       pickDetail: (_) => const PickDetailScreen(),
+      detailPickDone: (_) => const DetailPickDoneScreen(),
 
       //todo picking componentes
-      pickingComponentes: (_) => const IndexListPickComponentsScreen(),
+      pickingComponentes: (_) =>  IndexListPickComponentsScreen(),
 
       // todo WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
@@ -328,7 +334,7 @@ class AppRoutes {
             initialTabIndex: initialTabIndexArg ?? 0);
       },
 
-      listOrdenesCompra: (_) => const ListOrdenesCompraScreen(),
+      listOrdenesCompra: (_) =>  ListOrdenesCompraScreen(),
 
       //todo devoluciones individual
       devoluciones: (_) => const ListDevolutionsScreen(),

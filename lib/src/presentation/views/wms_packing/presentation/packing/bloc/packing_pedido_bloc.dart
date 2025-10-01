@@ -188,7 +188,53 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
     //*metodo para validar la confirmacion
     on<ValidateConfirmEvent>(_onValidateConfirmEvent);
 
-    
+    //evento para eliminar un producto del paquete temporal
+    on<DeleteProductFromTemporaryPackageEvent>(
+        _onDeleteProductFromTemporaryPackageEvent);
+  }
+
+  void _onDeleteProductFromTemporaryPackageEvent(
+      DeleteProductFromTemporaryPackageEvent event,
+      Emitter<PackingPedidoState> emit) async {
+    try {
+      emit(DeleteProductFromTemporaryPackageLoading());
+
+      //tenemos que revertir los valores de is_ok
+
+      //validamos que el producto no este en la lista de producto de por hacer
+
+      if (listOfProductosProgress
+          .any((prod) => prod.idMove == event.product.idMove)) {
+        ///buscamos
+
+        await db.productosPedidosRepository.findAndAddQuantityAndDelete(
+          event.product.idProduct ?? 0,
+          event.product.idMove ?? 0,
+          event.product.quantitySeparate ?? 0,
+          event.product.pedidoId ?? 0,
+        );
+        //actualizamos todas las listas
+        add(LoadPedidoAndProductsEvent(event.product.pedidoId ?? 0));
+        emit(DeleteProductFromTemporaryPackageOkState());
+        return;
+      }
+
+      print('event.product.pedidoId: ${event.product.toMap()}');
+
+      // is_separate
+      await db.productosPedidosRepository.revertProductFields(
+          event.product.pedidoId ?? 0,
+          event.product.idProduct ?? 0,
+          event.product.idMove ?? 0);
+
+      //actualizamos todas las listas
+      add(LoadPedidoAndProductsEvent(event.product.pedidoId ?? 0));
+
+      emit(DeleteProductFromTemporaryPackageOkState());
+    } catch (e, s) {
+      print('Error en el  _onDeleteProductFromTemporaryPackageEvent: $e, $s');
+      emit(DeleteProductFromTemporaryPackageError(e.toString()));
+    }
   }
 
   void _onValidateConfirmEvent(
@@ -1062,7 +1108,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
 
     await db.productosPedidosRepository.incremenQtytProductSeparatePacking(
         event.pedidoId, event.productId, event.idMove, event.quantity);
-        
+
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
 

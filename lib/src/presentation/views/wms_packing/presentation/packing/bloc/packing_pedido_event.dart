@@ -247,3 +247,14 @@ class ValidateConfirmEvent extends PackingPedidoEvent {
   final bool isLoadinDialog;
   ValidateConfirmEvent(this.idPedido, this.isBackOrder, this.isLoadinDialog);
 }
+
+
+
+
+class DeleteProductFromTemporaryPackageEvent extends PackingPedidoEvent {
+  final ProductoPedido product;
+
+  DeleteProductFromTemporaryPackageEvent({
+    required this.product,
+  });
+}

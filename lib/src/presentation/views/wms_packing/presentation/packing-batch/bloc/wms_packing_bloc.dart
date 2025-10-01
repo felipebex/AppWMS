@@ -199,6 +199,43 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<SendTemperaturePackingEvent>(_onSendTemperaturePackingEvent);
 
     on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
+
+    //evento para eliminar un producto del paquete temporal
+    on<DeleteProductFromTemporaryPackageEvent>(
+        _onDeleteProductFromTemporaryPackageEvent);
+  }
+
+  void _onDeleteProductFromTemporaryPackageEvent(
+      DeleteProductFromTemporaryPackageEvent event,
+      Emitter<WmsPackingState> emit) async {
+    try {
+      emit(DeleteProductFromTemporaryPackageLoading());
+
+      //tenemos que revertir los valores de is_ok
+
+      //validamos que el producto no este en la lista de producto de por hacer
+
+      if (listOfProductosProgress
+          .any((prod) => prod.idMove == event.product.idMove)) {
+        emit(DeleteProductFromTemporaryPackageError(
+            "No se puede eliminar el producto porque ya está en la lista de por hacer"));
+        return;
+      }
+
+      //is_package
+      await db.productosPedidosRepository.revertProductFields(
+          event.product.pedidoId ?? 0,
+          event.product.idProduct ?? 0,
+          event.product.idMove ?? 0);
+
+      //actualizamos todas las listas
+      add(LoadAllProductsFromPedidoEvent(event.product.pedidoId ?? 0));
+
+      emit(DeleteProductFromTemporaryPackageOkState());
+    } catch (e, s) {
+      print('Error en el  _onDeleteProductFromTemporaryPackageEvent: $e, $s');
+      emit(DeleteProductFromTemporaryPackageError(e.toString()));
+    }
   }
 
   void _onLoadDocOriginsEvent(
@@ -474,8 +511,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           emit(ClearScannedValuePackState());
           break;
 
-       
-
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -517,8 +552,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValuePackState(scannedValue5, event.scan));
           break;
-
-      
 
         default:
           print('Scan type not recognized: ${event.scan}');

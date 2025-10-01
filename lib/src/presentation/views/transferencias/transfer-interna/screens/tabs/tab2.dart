@@ -142,7 +142,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
 
     if (barcode.barcode != null) {
       final productByBarcode = listOfProducts.firstWhere(
-        (p) => p.productId == barcode.idProduct,
+        (p) => p.productId.toString() == barcode.idProduct.toString(),
         orElse: () => LineasTransferenciaTrans(),
       );
 

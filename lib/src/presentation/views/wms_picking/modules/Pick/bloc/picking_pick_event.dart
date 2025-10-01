@@ -221,7 +221,8 @@ class SearchPickEvent extends PickingPickEvent {
 class CreateBackOrderOrNot extends PickingPickEvent {
   final int idPick;
   final bool isBackOrder;
-  CreateBackOrderOrNot(this.idPick, this.isBackOrder);
+  final bool isExternalProduct;
+  CreateBackOrderOrNot(this.idPick, this.isBackOrder, this.isExternalProduct);
 }
 
 class ValidateConfirmEvent extends PickingPickEvent {
@@ -241,4 +242,17 @@ class PickOkEvent extends PickingPickEvent {
 class LoadSelectedProductEvent extends PickingPickEvent {
   final ProductsBatch selectedProduct;
   LoadSelectedProductEvent(this.selectedProduct);
+}
+
+
+class LoadHistoryPickEvent extends PickingPickEvent {
+  final bool isLoadinDialog;
+  final String date;
+  LoadHistoryPickEvent(this.isLoadinDialog, this.date);
+}
+
+class LoadHistoryPickIdEvent extends PickingPickEvent {
+  final bool isLoadinDialog;
+  final int idPicking;
+  LoadHistoryPickIdEvent(this.isLoadinDialog, this.idPicking);
 }

@@ -17,10 +17,9 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
   bool quantityIsOk = true;
   dynamic quantitySelected = 0;
   String scannedValue1 = '';
-  String selectedAlmacen ='';
+  String selectedAlmacen = '';
 
-  // String selectedLocation = '';
-  // int selectLocationDestId = 0;
+  String dateStart = '';
 
   ResultUbicaciones selectedLocationDest = ResultUbicaciones();
 
@@ -158,6 +157,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     quantitySelected = 0;
     selectedLocationDest = ResultUbicaciones();
     locationDestIsOk = false;
+    dateStart = '';
   }
 
   void _onChangeLocationDestIsOkEvent(ChangeLocationDestIsOkEventTransfer event,
@@ -165,6 +165,10 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     try {
       locationDestIsOk = event.locationDestIsOk;
       selectedLocationDest = event.location;
+
+      //actualizamos la fecha de inicio
+      DateTime fechaActual = DateTime.now();
+      dateStart = fechaActual.toString();
 
       emit(ChangeLocationDestIsOkStateTransfer(
         locationDestIsOk,

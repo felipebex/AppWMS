@@ -204,6 +204,28 @@ class Tab1ScreenConteo extends StatelessWidget {
                                   )),
                             ],
                           ),
+
+                           Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Observación:',
+                                  style: TextStyle(fontSize: 12, color: primaryColorApp),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  ordeConteoBd.observationGeneral != null &&
+                                          ordeConteoBd.observationGeneral != ""
+                                      ? ordeConteoBd.observationGeneral!
+                                      : 'Sin observación',
+                                  style: TextStyle(
+                                      fontSize: 12, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                         
                           Row(
                             children: [
                               Align(

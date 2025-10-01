@@ -32,10 +32,8 @@ class TransferInfoScreen extends StatefulWidget {
 
 class _TransferInfoScreenState extends State<TransferInfoScreen>
     with WidgetsBindingObserver {
-
   final AudioService _audioService = AudioService();
   final VibrationService _vibrationService = VibrationService();
-
 
   @override
   void initState() {
@@ -210,6 +208,14 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
       return;
     }
 
+    final dateStar = bloc.dateStart;
+    final dateEnd = DateTime.now().toString();
+
+//sacamos la diferencia en segundos
+    final differenceInSeconds =
+        DateTime.parse(dateEnd).difference(DateTime.parse(dateStar)).inSeconds;
+    print("diferencia en segundos $differenceInSeconds");
+
     bloc.add(SendTransferInfo(
         TransferInfoRequest(
           idAlmacen: widget.ubicacion?.idAlmacen ?? 0,
@@ -217,10 +223,12 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
           idProducto: widget.infoRapidaResult?.id ?? 0,
           idLote: widget.ubicacion?.loteId,
           idUbicacionOrigen: widget.ubicacion?.idUbicacion ?? 0,
-          timeLine: 0,
+          timeLine: differenceInSeconds,
           observacion: "Sin novedad",
         ),
         cantidad));
+
+    print('timeline: $differenceInSeconds');
   }
 
   @override
@@ -435,7 +443,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                               child: Container(
                                   // color: Colors.amber,
                                   width: size.width * 0.85,
-                                  height: 120,
+                                  // height: 150,
                                   padding: const EdgeInsets.only(
                                       left: 10, right: 10, top: 10, bottom: 10),
                                   child: Column(
@@ -541,7 +549,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                           //                 ""
                                           //             ? true
                                           //             : false),
-                                          if (widget.ubicacion?.loteId != null)
+                                          if (widget.ubicacion?.lote != "")
                                             Row(
                                               children: [
                                                 Align(

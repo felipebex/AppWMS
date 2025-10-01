@@ -1,7 +1,10 @@
 // ignore_for_file: unrelated_type_equality_checks, avoid_print
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
@@ -13,7 +16,34 @@ class Tab3Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocBuilder<WmsPackingBloc, WmsPackingState>(
+    return BlocConsumer<WmsPackingBloc, WmsPackingState>(
+      listener: (context, state) {
+        if (state is DeleteProductFromTemporaryPackageError) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.message,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
@@ -148,17 +178,174 @@ class Tab3Screen extends StatelessWidget {
                                           horizontal: 12, vertical: 10),
                                       child: Column(
                                         children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                "${product.productId}",
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black)),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      "${product.productId}",
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black)),
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    //dialogo de confirmacion
+                                                    showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (_) =>
+                                                                BackdropFilter(
+                                                                  filter: ImageFilter
+                                                                      .blur(
+                                                                          sigmaX:
+                                                                              5,
+                                                                          sigmaY:
+                                                                              5),
+                                                                  child:
+                                                                      AlertDialog(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    actionsAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    title:
+                                                                        Center(
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            height:
+                                                                                100,
+                                                                            width:
+                                                                                150,
+                                                                            child:
+                                                                                Image.asset(
+                                                                              "assets/images/icono.jpeg",
+                                                                              fit: BoxFit.cover,
+                                                                            ),
+                                                                          ),
+                                                                          Align(
+                                                                            alignment:
+                                                                                Alignment.center,
+                                                                            child:
+                                                                                RichText(
+                                                                              textAlign: TextAlign.center,
+                                                                              text: TextSpan(
+                                                                                children: [
+                                                                                  TextSpan(
+                                                                                    text: '¿Está seguro de eliminar el producto del paquete temporal: ',
+                                                                                    style: TextStyle(
+                                                                                      color: primaryColorApp,
+                                                                                      fontSize: 16,
+                                                                                    ),
+                                                                                  ),
+                                                                                  TextSpan(
+                                                                                    text: '${product.productId}?',
+                                                                                    style: const TextStyle(
+                                                                                      color: red,
+                                                                                      fontSize: 16,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                    content:
+                                                                        const Column(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        Align(
+                                                                          alignment:
+                                                                              Alignment.center,
+                                                                          child:
+                                                                              Text(
+                                                                            "El producto será eliminado y volverá al listado de por hacer.",
+                                                                            style:
+                                                                                TextStyle(color: black, fontSize: 12),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    actions: [
+                                                                      ElevatedButton(
+                                                                        onPressed:
+                                                                            () =>
+                                                                                Navigator.pop(context),
+                                                                        style: ElevatedButton
+                                                                            .styleFrom(
+                                                                          backgroundColor:
+                                                                              grey,
+                                                                          shape:
+                                                                              RoundedRectangleBorder(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            const Text(
+                                                                          'Cancelar',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ),
+                                                                      ),
+                                                                      ElevatedButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          context
+                                                                              .read<WmsPackingBloc>()
+                                                                              .add(DeleteProductFromTemporaryPackageEvent(product: product));
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        },
+                                                                        style: ElevatedButton
+                                                                            .styleFrom(
+                                                                          backgroundColor:
+                                                                              primaryColorApp,
+                                                                          shape:
+                                                                              RoundedRectangleBorder(
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(10),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            const Text(
+                                                                          'Aceptar',
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ));
+                                                  },
+                                                  child: Icon(
+                                                    Icons.delete,
+                                                    color: red,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-
                                           Card(
                                             elevation: 3,
                                             color: product.quantity ==
@@ -252,7 +439,8 @@ class Tab3Screen extends StatelessWidget {
                                                         Icon(
                                                           Icons
                                                               .thermostat_outlined,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                           size: 16,
                                                         ),
                                                         Text(

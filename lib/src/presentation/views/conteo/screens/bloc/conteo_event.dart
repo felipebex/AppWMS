@@ -116,7 +116,11 @@ class AddQuantitySeparate extends ConteoEvent {
       this.productId, this.idOrder, this.idMove, this.quantity, this.isOk);
 }
 
-class FetchBarcodesProductEvent extends ConteoEvent {}
+class FetchBarcodesProductEvent extends ConteoEvent {
+  final bool isNewProduct;
+
+  FetchBarcodesProductEvent(this.isNewProduct);
+}
 
 class GetLotesProduct extends ConteoEvent {
   final bool isManual;

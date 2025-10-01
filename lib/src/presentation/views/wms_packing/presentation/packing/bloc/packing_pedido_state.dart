@@ -270,3 +270,14 @@ class ValidateConfirmFailure extends PackingPedidoState {
   final String error;
   ValidateConfirmFailure(this.error);
 }
+
+
+class DeleteProductFromTemporaryPackageError extends PackingPedidoState {
+  final String message;
+  DeleteProductFromTemporaryPackageError(this.message);
+}
+
+class DeleteProductFromTemporaryPackageOkState extends PackingPedidoState {}
+
+
+class DeleteProductFromTemporaryPackageLoading extends PackingPedidoState {}

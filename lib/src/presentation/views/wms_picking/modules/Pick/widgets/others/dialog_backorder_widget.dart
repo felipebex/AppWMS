@@ -9,13 +9,16 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 
 class DialogBackorderPick extends StatelessWidget {
   const DialogBackorderPick(
-      {Key? key,
+      {super.key,
       required this.unidadesSeparadas,
-      required this.createBackorder})
-      : super(key: key);
+      required this.createBackorder,
+      required this.idPick,
+      required this.isExternalProduct});
 
   final double unidadesSeparadas;
   final String createBackorder;
+  final int idPick;
+  final bool isExternalProduct;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,6 @@ class DialogBackorderPick extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-          
             Align(
               alignment: Alignment.center,
               child: Text(
@@ -70,7 +72,9 @@ class DialogBackorderPick extends StatelessWidget {
               onPressed: () {
                 batchBloc.add(ShowKeyboard(false));
                 batchBloc.add(CreateBackOrderOrNot(
-                    batchBloc.pickWithProducts.pick?.id ?? 0, true));
+                    batchBloc.pickWithProducts.pick?.id ?? 0,
+                    true,
+                    isExternalProduct));
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
@@ -95,7 +99,8 @@ class DialogBackorderPick extends StatelessWidget {
                       ? false
                       : createBackorder == "always"
                           ? true
-                          : false));
+                          : false,
+                  isExternalProduct));
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(

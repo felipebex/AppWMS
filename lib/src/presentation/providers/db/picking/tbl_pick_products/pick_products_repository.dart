@@ -58,6 +58,9 @@ class PickProductsRepository {
                 product.isSeparate == 0 ? null : product.isSeparate ?? 1,
             //product_code
             PickProductsTable.columnProductCode: product.productCode ?? '',
+            //product_tracking
+            PickProductsTable.columnProductTracking: product.productTracking ?? '',
+            // Convertir timeSeparate a segundos
             PickProductsTable.columnTimeSeparateStart:
                 _parseDurationToSeconds(product.timeSeparate),
           };

@@ -323,10 +323,9 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
             matchedBarcode.idMove ?? 0,
             matchedBarcode.cantidad,
             false));
+        return true;
       }
-      _audioService.playErrorSound();
-      _vibrationService.vibrate();
-      return false;
+     
     }
     _audioService.playErrorSound();
     _vibrationService.vibrate();

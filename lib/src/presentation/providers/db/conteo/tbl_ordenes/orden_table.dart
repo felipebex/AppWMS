@@ -27,6 +27,9 @@ class OrdenTable {
 
   static const String columnIsDoneItem = 'is_done_item';
 
+  // observation_general
+  static const String columnObservationGeneral = 'observation_general';
+
   static String createTable() {
     return '''
     CREATE TABLE $tableName (
@@ -52,6 +55,7 @@ class OrdenTable {
       $columnIsFinished INTEGER,
       $columnDateFinish TEXT,
       $columnIsDoneItem INTEGER,
+      $columnObservationGeneral TEXT,
       $columnDateStart TEXT
     )
     ''';

@@ -1504,6 +1504,7 @@ class ApiRequestService {
     required String endpoint,
     required bool isLoadinDialog,
     required bool isunecodePath,
+    required String field,
     required String date,
   }) async {
     var url = await PrefUtils.getEnterprise();
@@ -1571,8 +1572,10 @@ class ApiRequestService {
 
           var request = http.Request('GET', Uri.parse(url));
           request.body = json.encode({
-            "params": {"fecha_batch": "$date"}
+            "params": {"$field": "$date"}
           });
+
+
 
           request.headers.addAll(headers);
 

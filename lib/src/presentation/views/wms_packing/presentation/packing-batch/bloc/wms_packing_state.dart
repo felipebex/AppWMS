@@ -214,3 +214,14 @@ class LoadDocOriginsState extends WmsPackingState {
   final List<Origin> listOfOrigins;
   LoadDocOriginsState({required this.listOfOrigins});
 }
+
+
+class DeleteProductFromTemporaryPackageLoading extends WmsPackingState {}
+
+
+class DeleteProductFromTemporaryPackageError extends WmsPackingState {
+  final String message;
+  DeleteProductFromTemporaryPackageError(this.message);
+}
+
+class DeleteProductFromTemporaryPackageOkState extends WmsPackingState {}

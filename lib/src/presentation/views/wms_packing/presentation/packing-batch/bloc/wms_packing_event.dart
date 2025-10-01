@@ -264,3 +264,12 @@ class LoadDocOriginsEvent extends WmsPackingEvent {
   final int idBatch;
   LoadDocOriginsEvent(this.idBatch);
 }
+
+
+class DeleteProductFromTemporaryPackageEvent extends WmsPackingEvent {
+  final ProductoPedido product;
+
+  DeleteProductFromTemporaryPackageEvent({
+    required this.product,
+  });
+}

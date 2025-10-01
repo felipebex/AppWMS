@@ -150,9 +150,7 @@ class ProductosPedidosRepository {
                 producto.imageNovedad ?? '',
             ProductosPedidosTable.columnTimeSeparate:
                 producto.timeSeparate ?? 0,
-            ProductosPedidosTable.columnProductCode:
-                producto.productCode ?? '',
-                
+            ProductosPedidosTable.columnProductCode: producto.productCode ?? '',
           };
 
           if (existingProducto.isNotEmpty) {
@@ -462,6 +460,153 @@ class ProductosPedidosRepository {
     print(
         "☢️2 update tblproductos_pedidos (certificate and no package): ($field): $resUpdate");
     return resUpdate;
+  }
+
+  // Revertir varios campos de un producto en productos_pedidos a sus valores predeterminados
+  Future<int?> revertProductFields(
+      int pedidoId, int productId, int idMove) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    // El mapa de valores que se van a actualizar
+    final Map<String, dynamic> updatedValues = {
+      "is_separate": null,
+      "is_selected": null,
+      "is_location_is_ok": 0,
+      "product_is_ok": 0,
+      "location_dest_is_ok": 0,
+      "is_quantity_is_ok": 0,
+      "time_separate": 0.0,
+      "time_separate_start": null,
+      "time_separate_end": null,
+      "quantity_separate": null,
+      "observation": null,
+      "image_novedad": "",
+      "image": "",
+      "temperatura": 0,
+      "is_certificate": null,
+      "is_package": null,
+    };
+
+    final resUpdate = await db.update(
+      ProductosPedidosTable.tableName,
+      updatedValues,
+      where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+          '${ProductosPedidosTable.columnPedidoId} = ? AND '
+          '${ProductosPedidosTable.columnIdMove} = ?',
+      whereArgs: [productId, pedidoId, idMove],
+    );
+
+    print("✅ Producto revertido en la BD. Filas afectadas: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> revertProductFieldsSplit(
+    int pedidoId,
+    int productId,
+    int idMove,
+  ) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    // El mapa de valores que se van a actualizar
+    final Map<String, dynamic> updatedValues = {
+      "is_separate": null,
+      "is_selected": null,
+      "is_location_is_ok": 0,
+      "product_is_ok": 0,
+      "location_dest_is_ok": 0,
+      "is_quantity_is_ok": 0,
+      "time_separate": 0.0,
+      "time_separate_start": null,
+      "time_separate_end": null,
+      "quantity_separate": null,
+      "observation": null,
+      "image_novedad": "",
+      "image": "",
+      "temperatura": 0,
+      "is_certificate": null,
+      "is_package": null,
+    };
+
+    final resUpdate = await db.update(
+      ProductosPedidosTable.tableName,
+      updatedValues,
+      where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+          '${ProductosPedidosTable.columnPedidoId} = ? AND '
+          '${ProductosPedidosTable.columnIdMove} = ?',
+      whereArgs: [productId, pedidoId, idMove],
+    );
+
+    print("✅ Producto revertido en la BD. Filas afectadas: $resUpdate");
+    return resUpdate;
+  }
+
+
+
+
+
+
+
+  Future<int?> findAndAddQuantityAndDelete(int productId, int idMove,
+      dynamic quantityToAdd, int idPedido ) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    int? rowsAffected;
+
+    await db.transaction((txn) async {
+      // 1️⃣ Buscar y obtener la cantidad del producto para actualizar
+      final List<Map<String, dynamic>> productsToUpdate = await txn.query(
+        ProductosPedidosTable.tableName,
+        columns: [ProductosPedidosTable.columnQuantity],
+        where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+            '${ProductosPedidosTable.columnIdMove} = ? AND '
+            '${ProductosPedidosTable.columnPedidoId} = ? AND '
+            '${ProductosPedidosTable.columnIsSeparate} IS NULL AND '
+            '${ProductosPedidosTable.columnIsProductSplit} = 1 AND '
+            '${ProductosPedidosTable.columnIsSelected} = 0 AND '
+            '${ProductosPedidosTable.columnIsPackage} IS NULL',
+        whereArgs: [productId, idMove, idPedido],
+        limit: 1,
+      );
+
+      if (productsToUpdate.isNotEmpty) {
+        final currentQuantity = (productsToUpdate
+                .first[ProductosPedidosTable.columnQuantity] as num)
+            .toDouble();
+        final newQuantity = currentQuantity + quantityToAdd;
+
+        // 2️⃣ Actualizar la cantidad del producto encontrado
+        rowsAffected = await txn.update(
+          ProductosPedidosTable.tableName,
+          {ProductosPedidosTable.columnQuantity: newQuantity},
+          where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+              '${ProductosPedidosTable.columnIdMove} = ?',
+          whereArgs: [productId, idMove],
+        );
+
+        // 3️⃣ Eliminar el producto que ya fue procesado
+        final int rowsDeleted = await txn.delete(
+          ProductosPedidosTable.tableName,
+          where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+              '${ProductosPedidosTable.columnIdMove} = ? AND '
+              '${ProductosPedidosTable.columnPedidoId} = ? AND '
+              '${ProductosPedidosTable.columnIsSeparate} = 1 AND '
+              '${ProductosPedidosTable.columnIsSelected} = 1 AND '
+              '${ProductosPedidosTable.columnIsPackage} = 0 AND '
+              '${ProductosPedidosTable.columnIsCertificate} = 1 AND '
+              '${ProductosPedidosTable.columnIsProductSplit} = 1',
+          whereArgs: [productId, idMove, idPedido],
+        );
+
+        print(
+            "✅ Producto actualizado exitosamente. Filas afectadas: $rowsAffected");
+        print(
+            "✅ Producto eliminado exitosamente. Filas eliminadas: $rowsDeleted");
+      } else {
+        print("⚠️ No se encontró el producto para actualizar.");
+        rowsAffected = 0;
+      }
+    });
+
+    return rowsAffected;
   }
 
   // Actualizar la tabla de productos de un pedido (con certificado y paquete)

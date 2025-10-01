@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -16,10 +18,63 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListOrdenesCompraScreen extends StatelessWidget {
-  const ListOrdenesCompraScreen({super.key});
+  ListOrdenesCompraScreen({super.key});
+
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+  FocusNode focusNodeBuscar = FocusNode();
+  final TextEditingController _controllerToDo = TextEditingController();
+
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<RecepcionBloc>();
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
+
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (batch picking): $scan');
+
+    final listOfBatchs = bloc.listOrdenesCompra;
+
+    void processBatch(ResultEntrada batch) {
+      bloc.add(ClearScannedValueOrderEvent('toDo'));
+
+      print(batch.toMap());
+      try {
+        _handleOrderTap(
+          context,
+          batch,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar los datos'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+
+    // Buscar el producto usando el código de barras principal o el código de producto
+    final batchs = listOfBatchs.firstWhere(
+      (b) => b.name?.toLowerCase() == scan,
+      orElse: () => ResultEntrada(),
+    );
+
+    if (batchs.id != null) {
+      print('🔎 batch encontrado : ${batchs.id} ${batchs.name} ');
+      processBatch(batchs);
+      return;
+    } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc.add(ClearScannedValueOrderEvent('toDo'));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +125,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.green),
           );
-          context
-              .read<RecepcionBloc>()
-              .add(GetPorductsToEntrada(state.ordenCompra.id ?? 0, 'reception'));
+          context.read<RecepcionBloc>().add(
+              GetPorductsToEntrada(state.ordenCompra.id ?? 0, 'reception'));
           context
               .read<RecepcionBloc>()
               .add(CurrentOrdenesCompra(state.ordenCompra));
@@ -211,7 +265,14 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                 .read<RecepcionBloc>()
                                                 .add(ShowKeyboardEvent(false));
 
-                                            FocusScope.of(context).unfocus();
+                                            //pasamos el foco a focusNodeBuscar
+                                            Future.delayed(
+                                                const Duration(seconds: 1), () {
+                                              // _handleDependencies();
+                                              FocusScope.of(context)
+                                                  .requestFocus(
+                                                      focusNodeBuscar);
+                                            });
                                           },
                                           icon: const Icon(
                                             Icons.close,
@@ -248,6 +309,21 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                             ],
                           ),
                         )),
+
+                    //*buscar por scan
+                    BarcodeScannerField(
+                      controller: _controllerToDo,
+                      focusNode: focusNodeBuscar,
+                      scannedValue5: "",
+                      onBarcodeScanned: (value, context) {
+                        return validateBarcode(value, context);
+                      },
+                      onKeyScanned: (keyLabel, type, context) {
+                        return context.read<RecepcionBloc>().add(
+                              UpdateScannedValueOrderEvent(keyLabel, type),
+                            );
+                      },
+                    ),
 
                     (ordenCompra.isEmpty)
                         ? Expanded(
@@ -640,59 +716,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                           ],
                                         ),
                                         onTap: () async {
-                                          print(
-                                              'ordenCompra: ${ordenCompra[index].toMap()}');
-                                          //cargamos los permisos del usuario
-                                          context.read<RecepcionBloc>().add(
-                                              LoadConfigurationsUserOrder());
-
-                                          //verficamos is la orden de entrada tiene ya un responsable
-                                          if (ordenCompra[index]
-                                                      .responsableId ==
-                                                  null ||
-                                              ordenCompra[index]
-                                                      .responsableId ==
-                                                  0) {
-                                            showDialog(
-                                              context: context,
-                                              barrierDismissible:
-                                                  false, // No permitir que el usuario cierre el diálogo manualmente
-                                              builder: (context) =>
-                                                  DialogAsignUserToOrderWidget(
-                                                title:
-                                                    'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                                onAccepted: () async {
-                                                  context
-                                                      .read<RecepcionBloc>()
-                                                      .searchControllerOrderC
-                                                      .clear();
-
-                                                  context
-                                                      .read<RecepcionBloc>()
-                                                      .add(
-                                                          SearchOrdenCompraEvent(
-                                                        '',
-                                                      ));
-
-                                                  context
-                                                      .read<RecepcionBloc>()
-                                                      .add(ShowKeyboardEvent(
-                                                          false));
-
-                                                  //asignamos el responsable a esa orden de entrada
-                                                  context
-                                                      .read<RecepcionBloc>()
-                                                      .add(AssignUserToOrder(
-                                                        ordenCompra[index],
-                                                      ));
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            );
-                                          } else {
-                                            validateTime(
-                                                ordenCompra[index], context);
-                                          }
+                                          _handleOrderTap(
+                                              context, ordenCompra[index]);
                                         },
                                       ),
                                     ),
@@ -707,7 +732,39 @@ class ListOrdenesCompraScreen extends StatelessWidget {
     );
   }
 
-  void validateTime(ResultEntrada ordenCompra, BuildContext context) {
+  void _handleOrderTap(BuildContext context, dynamic ordenCompra) async {
+    print('ordenCompra: ${ordenCompra.toMap()}');
+    final recepcionBloc = context.read<RecepcionBloc>();
+
+    // 1. Cargamos los permisos del usuario una sola vez
+    recepcionBloc.add(LoadConfigurationsUserOrder());
+
+    // 2. Lógica para asignar el responsable o continuar
+    if (ordenCompra.responsableId == null || ordenCompra.responsableId == 0) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => DialogAsignUserToOrderWidget(
+          title:
+              'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+          onAccepted: () async {
+            // Lógica para asignar el usuario
+            recepcionBloc.searchControllerOrderC.clear();
+            recepcionBloc.add(SearchOrdenCompraEvent(''));
+            recepcionBloc.add(ShowKeyboardEvent(false));
+            recepcionBloc.add(AssignUserToOrder(ordenCompra));
+
+            Navigator.pop(dialogContext); // Cierra el diálogo de asignación
+          },
+        ),
+      );
+    } else {
+      // Si el responsable ya existe, validar el tiempo directamente
+      validateTime(ordenCompra, context);
+    }
+  }
+
+  void validateTime(ResultEntrada ordenCompra, BuildContext context) async {
     if (ordenCompra.startTimeReception == "" ||
         ordenCompra.startTimeReception == null) {
       showDialog(
@@ -758,6 +815,24 @@ class ListOrdenesCompraScreen extends StatelessWidget {
           .add(GetPorductsToEntrada(ordenCompra.id ?? 0, 'reception'));
       //traemos la orden de entrada actual desde la bd actualizada
       context.read<RecepcionBloc>().add(CurrentOrdenesCompra(ordenCompra));
+      // Navigator.pushReplacementNamed(
+      //   context,
+      //   'recepcion',
+      //   arguments: [ordenCompra, 0],
+      // );
+
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (_) => const DialogLoading(
+          message: 'Cargando interfaz...',
+        ),
+      );
+
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pop(context);
+
       Navigator.pushReplacementNamed(
         context,
         'recepcion',

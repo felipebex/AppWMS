@@ -82,7 +82,7 @@ class DataBaseSqlite {
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 9,
+      version: 11,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -198,7 +198,7 @@ class DataBaseSqlite {
      ''');
   }
 
-Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     // Migración para la versión 9
     if (oldVersion < 9) {
       // ✅ Solución: Añade la columna 'origin_type' a la tabla 'tbldoc_origin'
@@ -207,23 +207,61 @@ Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
           ALTER TABLE ${DocOriginTable.tableName}
           ADD COLUMN ${DocOriginTable.columnOriginType} TEXT;
         ''');
-        print('✅ Columna ${DocOriginTable.columnOriginType} añadida a ${DocOriginTable.tableName}.');
+        print(
+            '✅ Columna ${DocOriginTable.columnOriginType} añadida a ${DocOriginTable.tableName}.');
       } catch (e) {
-        print('❌ Error al añadir la columna origin_type, es posible que ya exista.');
+        print(
+            '❌ Error al añadir la columna origin_type, es posible que ya exista.');
       }
-      
+
       // Aquí también puedes mantener tu migración anterior
       try {
-         await db.execute('''
+        await db.execute('''
            ALTER TABLE ${ProductosPedidosTable.tableName}
            ADD COLUMN ${ProductosPedidosTable.columnProductCode} TEXT NOT NULL DEFAULT '';
          ''');
-         print('✅ Columna product_code añadida a ${ProductosPedidosTable.tableName}.');
+        print(
+            '✅ Columna product_code añadida a ${ProductosPedidosTable.tableName}.');
       } catch (e) {
-         print('❌ Error al añadir la columna product_code, es posible que ya exista.');
+        print(
+            '❌ Error al añadir la columna product_code, es posible que ya exista.');
+      }
+    }
+
+    if (oldVersion < 10) {
+      print('Migrando la base de datos a la versión 10...');
+      try {
+        // ✅ Solución: Añade la nueva columna a la tabla OrdenTable
+        await db.execute('''
+        ALTER TABLE ${OrdenTable.tableName}
+        ADD COLUMN ${OrdenTable.columnObservationGeneral} TEXT NOT NULL DEFAULT '';
+      ''');
+        print(
+            '✅ Columna ${OrdenTable.columnObservationGeneral} añadida a ${OrdenTable.tableName}.');
+      } catch (e) {
+        print(
+            '❌ Error al añadir la columna ${OrdenTable.columnObservationGeneral}, es posible que ya exista.');
+      }
+    }
+
+
+    if (oldVersion < 11) {
+      print('Migrando la base de datos a la versión 11...');
+      try {
+        // ✅ Solución: Añade la nueva columna a la tabla PickProductsTable
+        await db.execute('''
+        ALTER TABLE ${PickProductsTable.tableName}
+        ADD COLUMN ${PickProductsTable.columnProductTracking} TEXT NOT NULL DEFAULT '';
+      ''');
+        print(
+            '✅ Columna ${PickProductsTable.columnProductTracking} añadida a ${PickProductsTable.tableName}.');
+      } catch (e) {
+        print(
+            '❌ Error al añadir la columna ${PickProductsTable.columnProductTracking}, es posible que ya exista.');
       }
     }
   }
+
   //todo repositorios de las tablas
   // Método para obtener una instancia del repositorio de novedades
   NovedadesRepository get novedadesRepository => NovedadesRepository();

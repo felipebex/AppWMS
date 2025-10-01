@@ -207,7 +207,7 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
                 _buildInfoRow("Lote:", product.lotName, emptyText: 'Sin lote'),
               ],
             ),
-          ),
+          ), 
         ),
       ),
     );

@@ -98,11 +98,6 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
   }
 
   void _handleDependencies() {
-
-
-
-
-
     //mostremos que focus estan activos
 
     final batchBloc = context.read<PickingPickBloc>();
@@ -403,6 +398,13 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
           final currentProduct = batchBloc.currentProduct;
 
           return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: primaryColorApp,
+              onPressed: () {
+                print('pickWithProducts: ${batchBloc.pickWithProducts.pick?.toMap()}');
+              },
+              child: const Icon(Icons.check, color: Colors.white),
+            ),
             backgroundColor: white,
             body: Column(
               children: [
@@ -2214,9 +2216,11 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
               context: Navigator.of(context, rootNavigator: true).context,
               builder: (context) {
                 return DialogBackorderPick(
+                  idPick: batchBloc.pickWithProducts.pick?.id ?? 0,
                   unidadesSeparadas: unidadesSeparadas,
                   createBackorder:
                       batchBloc.pickWithProducts.pick?.createBackorder ?? "ask",
+                  isExternalProduct: false, // Pasamos false por defecto
                 );
               });
         } else {
@@ -2264,10 +2268,13 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                             Navigator.of(context, rootNavigator: true).context,
                         builder: (context) {
                           return DialogBackorderPick(
+                            idPick: batchBloc.pickWithProducts.pick?.id ?? 0,
                             unidadesSeparadas: unidadesSeparadas,
                             createBackorder: batchBloc
                                     .pickWithProducts.pick?.createBackorder ??
                                 "ask",
+                            isExternalProduct:
+                                false, // Pasamos false por defecto
                           );
                         });
                   });

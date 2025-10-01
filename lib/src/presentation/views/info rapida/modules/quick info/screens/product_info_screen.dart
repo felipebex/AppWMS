@@ -295,10 +295,9 @@ class ProductInfoScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 context.read<InfoRapidaBloc>().add(
-                                    ToggleProductExpansionEvent(
-                                        !context
-                                            .read<InfoRapidaBloc>()
-                                            .isExpanded));
+                                    ToggleProductExpansionEvent(!context
+                                        .read<InfoRapidaBloc>()
+                                        .isExpanded));
                               },
                               child: Icon(
                                 context.read<InfoRapidaBloc>().isExpanded
@@ -316,15 +315,46 @@ class ProductInfoScreen extends StatelessWidget {
 
                 Padding(
                   padding: const EdgeInsets.only(top: 10, left: 20),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Ubicaciones",
-                      style: TextStyle(
-                          color: black,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold),
-                    ),
+                  child: Row(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Ubicaciones",
+                          style: TextStyle(
+                              color: black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          context.read<InfoRapidaBloc>().add(SortLocationsEvent(
+                              !context.read<InfoRapidaBloc>().isAscending));
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              "Ordenar ",
+                              style: TextStyle(
+                                  color: black,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 5),
+                            Icon(
+                              context.read<InfoRapidaBloc>().isAscending
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              color: primaryColorApp,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10)
+                    ],
                   ),
                 ),
 

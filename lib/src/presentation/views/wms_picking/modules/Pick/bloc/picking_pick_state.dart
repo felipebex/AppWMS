@@ -312,3 +312,26 @@ class LoadSelectedProductState extends PickingPickState {
   final ProductsBatch selectedProduct;
   LoadSelectedProductState(this.selectedProduct);
 }
+
+class PickingLoadingState extends PickingPickState {}
+
+class LoadHistoryPicksState extends PickingPickState {
+  final List<ResultPick> listOfBatchs;
+  LoadHistoryPicksState({required this.listOfBatchs});
+}
+
+class PickingErrorState extends PickingPickState {
+  final String error;
+  PickingErrorState(this.error);
+}
+
+class BatchHistoryLoadedState extends PickingPickState {
+  final RespondePickDoneId historyBatchId;
+  BatchHistoryLoadedState(this.historyBatchId);
+}
+
+
+class BatchsPickingErrorState extends PickingPickState {
+  final String error;
+  BatchsPickingErrorState(this.error);
+}

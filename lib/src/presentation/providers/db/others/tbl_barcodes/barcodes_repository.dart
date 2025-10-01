@@ -45,6 +45,49 @@ class BarcodesRepository {
       return [];
     }
   }
+  Future<List<Barcodes>> getBarcodesProductNotMove(
+      int batchId, int productId, String barcodeType) async {
+    try {
+      // Obtiene la instancia de la base de datos
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Realizamos la consulta para obtener los barcodes
+      final List<Map<String, dynamic>> maps = await db.query(
+        BarcodesPackagesTable.tableName,
+        where: '${BarcodesPackagesTable.columnBatchId} = ? AND '
+            '${BarcodesPackagesTable.columnIdProduct} = ? AND '
+
+            '${BarcodesPackagesTable.columnBarcodeType} = ?',
+        whereArgs: [batchId,  productId, barcodeType],
+      );
+
+      // Verificamos si la consulta ha devuelto resultados
+      if (maps.isEmpty) {
+        print("No se encontraron barcodes para los parámetros proporcionados.");
+        return [];
+      }
+
+     //no traier duplicados por el campo barcode
+    final barcodes = maps.fold<Map<String, Barcodes>>({}, (map, item) {
+  final barcode = item[BarcodesPackagesTable.columnBarcode];
+  if (!map.containsKey(barcode)) {
+    map[barcode] = Barcodes(
+      batchId: item[BarcodesPackagesTable.columnBatchId],
+      idMove: item[BarcodesPackagesTable.columnIdMove],
+      idProduct: item[BarcodesPackagesTable.columnIdProduct],
+      barcode: barcode,
+      cantidad: item[BarcodesPackagesTable.columnCantidad]?.toDouble(),
+      barcodeType: item[BarcodesPackagesTable.columnBarcodeType],
+    );
+  }
+  return map;
+}).values.toList();
+      return barcodes;
+    } catch (e) {
+      print("Error al obtener los barcodes: $e");
+      return [];
+    }
+  }
 
   Future<List<Barcodes>> getBarcodesProductTransfer(
       int batchId, int productId, String barcodeType) async {

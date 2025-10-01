@@ -16,6 +16,10 @@ class HistoryDetailScreen extends StatelessWidget {
     return BlocBuilder<WMSPickingBloc, PickingState>(
       builder: (context, state) {
         final batch = context.read<WMSPickingBloc>().historyBatchId;
+
+
+
+        
         return Scaffold(
           backgroundColor: white,
           body: Column(

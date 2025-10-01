@@ -118,55 +118,58 @@ class ResultPick {
 
   List<ProductsBatch>? lineasTransferenciaEnviadas;
 
-  ResultPick({
-    this.id,
-    this.name,
-    this.fechaCreacion,
-    this.locationId,
-    this.locationName,
-    this.locationBarcode,
-    this.locationDestId,
-    this.locationDestName,
-    this.locationDestBarcode,
-    this.proveedor,
-    this.numeroTransferencia,
-    this.pesoTotal,
-    this.numeroLineas,
-    this.numeroItems,
-    this.state,
-    this.origin,
-    this.priority,
-    this.warehouseId,
-    this.warehouseName,
-    this.responsableId,
-    this.responsable,
-    this.pickingType,
-    this.startTimeTransfer,
-    this.endTimeTransfer,
-    this.backorderId,
-    this.backorderName,
-    this.showCheckAvailability,
-    this.lineasTransferencia,
-    this.lineasTransferenciaEnviadas,
-    this.isSeparate,
-    this.isSelected,
-    this.zonaEntrega,
-    this.muelle,
-    this.barcodeMuelle,
-    this.muelleId,
-    this.idMuellePadre,
-    this.indexList,
-    this.isSendOdoo,
-    this.isSendOdooDate,
-    this.observation,
-    this.orderBy,
-    this.orderPicking,
-    this.typePick,
-    this.productoFinalNombre,
-    this.productoFinalReferencia,
-    this.createBackorder,
+  final dynamic quantityDone;
+  final dynamic quantityOrdered;
 
-  });
+  ResultPick(
+      {this.id,
+      this.name,
+      this.fechaCreacion,
+      this.locationId,
+      this.locationName,
+      this.locationBarcode,
+      this.locationDestId,
+      this.locationDestName,
+      this.locationDestBarcode,
+      this.proveedor,
+      this.numeroTransferencia,
+      this.pesoTotal,
+      this.numeroLineas,
+      this.numeroItems,
+      this.state,
+      this.origin,
+      this.priority,
+      this.warehouseId,
+      this.warehouseName,
+      this.responsableId,
+      this.responsable,
+      this.pickingType,
+      this.startTimeTransfer,
+      this.endTimeTransfer,
+      this.backorderId,
+      this.backorderName,
+      this.showCheckAvailability,
+      this.lineasTransferencia,
+      this.lineasTransferenciaEnviadas,
+      this.isSeparate,
+      this.isSelected,
+      this.zonaEntrega,
+      this.muelle,
+      this.barcodeMuelle,
+      this.muelleId,
+      this.idMuellePadre,
+      this.indexList,
+      this.isSendOdoo,
+      this.isSendOdooDate,
+      this.observation,
+      this.orderBy,
+      this.orderPicking,
+      this.typePick,
+      this.productoFinalNombre,
+      this.productoFinalReferencia,
+      this.createBackorder,
+      this.quantityDone,
+      this.quantityOrdered});
 
   factory ResultPick.fromMap(Map<String, dynamic> json) => ResultPick(
         id: json["id"],
@@ -200,12 +203,11 @@ class ResultPick {
             ? []
             : List<ProductsBatch>.from(json["lineas_transferencia"]!
                 .map((x) => ProductsBatch.fromMap(x))),
-        lineasTransferenciaEnviadas:
-            json["lineas_transferencia_enviadas"] == null
-                ? []
-                : List<ProductsBatch>.from(
-                    json["lineas_transferencia_enviadas"]!
-                        .map((x) => ProductsBatch.fromMap(x))),
+        lineasTransferenciaEnviadas: json["lineas_transferencia_enviadas"] ==
+                null
+            ? []
+            : List<ProductsBatch>.from(json["lineas_transferencia_enviadas"]!
+                .map((x) => ProductsBatch.fromMap(x))),
         isSeparate: json["is_separate"],
         isSelected: json["is_selected"],
         zonaEntrega: json["zona_entrega"],
@@ -223,6 +225,8 @@ class ResultPick {
         productoFinalNombre: json["producto_final_nombre"],
         productoFinalReferencia: json["producto_final_referencia"],
         createBackorder: json["create_backorder"],
+        quantityDone: json["quantity_done"],
+        quantityOrdered: json["quantity_ordered"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -277,5 +281,7 @@ class ResultPick {
         "producto_final_nombre": productoFinalNombre,
         "producto_final_referencia": productoFinalReferencia,
         "create_backorder": createBackorder,
+        "quantity_done": quantityDone,
+        "quantity_ordered": quantityOrdered,
       };
 }

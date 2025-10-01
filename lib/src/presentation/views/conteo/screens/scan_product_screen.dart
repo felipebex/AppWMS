@@ -356,7 +356,6 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                           print("❤️‍🔥 state : $state");
 
                           if (state is SendProductConteoFailure) {
-                            Navigator.pop(context);
                             Get.defaultDialog(
                               title: '360 Software Informa',
                               titleStyle:
@@ -448,24 +447,26 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                           }
 
                           //*estado cuando el producto es leido ok
-                          if (state is ChangeProductOrderIsOkState) {
-                            //validamos si el producto tiene lote, si es asi pasamos el foco al lote
-                            if (context
-                                    .read<ConteoBloc>()
-                                    .currentProduct
-                                    .productTracking ==
-                                "lot") {
-                              Future.delayed(const Duration(seconds: 1), () {
-                                FocusScope.of(context).requestFocus(focusNode5);
-                              });
-                            } else {
-                              Future.delayed(const Duration(seconds: 1), () {
-                                FocusScope.of(context).requestFocus(focusNode3);
-                              });
-                            }
+                         if (state is ChangeProductOrderIsOkState) {
+  // Verificamos si el producto tiene lote para saber a dónde mover el foco
+  if (context.read<ConteoBloc>().currentProduct.productTracking == "lot") {
+    // Si la pantalla sigue activa, movemos el foco
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        FocusScope.of(context).requestFocus(focusNode5);
+      }
+    });
+  } else {
+    // Si no tiene lote, movemos el foco a otro lugar
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        FocusScope.of(context).requestFocus(focusNode3);
+      }
+    });
+  }
 
-                            _handleFocusAccordingToState();
-                          }
+  _handleFocusAccordingToState();
+}
                         }, builder: (context, status) {
                           return Column(
                             children: [

@@ -174,6 +174,18 @@ class ConteoRepository {
               id: jsonResponse['id'],
               result: ResponseSendProductResult.fromMap(jsonResponse['result']),
             );
+          }else{
+            return ResponseSendProductConteo(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+
+              result: ResponseSendProductResult(
+                code: jsonResponse['error']['code'],
+                msg: jsonResponse['error']['message'],
+                result: [],
+                data: null,
+              ),
+            );
           }
         }
       } else {}

@@ -84,6 +84,7 @@ class DatumConteo {
   final String? filterType;
   final dynamic enableAllLocations;
   final dynamic enableAllProducts;
+  final String? observationGeneral;
 
   final dynamic isDoneItem;
 
@@ -113,6 +114,7 @@ class DatumConteo {
     this.mostrarCantidad,
     this.countType,
     this.numberCount,
+    this.observationGeneral,
     this.numeroLineas,
     this.numeroItemsContados,
     this.filterType,
@@ -183,6 +185,7 @@ class DatumConteo {
         startTimeOrden: json["start_time_orden"],
         endTimeOrden: json["end_time_orden"],
         isDoneItem: json["is_done_item"],
+        observationGeneral: json["observation_general"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -225,6 +228,7 @@ class DatumConteo {
         "start_time_orden": startTimeOrden,
         "end_time_orden": endTimeOrden,
         "is_done_item": isDoneItem,
+        "observation_general": observationGeneral,
       };
 }
 

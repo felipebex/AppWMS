@@ -215,11 +215,11 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           },
                                           child: Padding(
                                             padding: EdgeInsets.only(
-                                                left: size.width * 0.12),
+                                                left: size.width * 0.2),
                                             child: Row(
                                               children: [
                                                 const Text(
-                                                  'PICKING - BATCH',
+                                                  'PICKING',
                                                   style: TextStyle(
                                                       color: white,
                                                       fontSize: 18,
@@ -241,6 +241,50 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           ),
                                         ),
                                         const Spacer(),
+                                        IconButton(
+                                          icon: const Icon(Icons.calendar_month,
+                                              color: white),
+                                          onPressed: () async {
+                                            // Primero, asegúrate de que el FocusNode esté activo
+                                            FocusScope.of(context).unfocus();
+                                            var pickedDate = await DatePicker
+                                                .showSimpleDatePicker(
+                                              titleText: 'Seleccione una fecha',
+                                              context,
+                                              confirmText: 'Buscar',
+                                              cancelText: 'Cancelar',
+                                              // initialDate: DateTime(2020),
+                                              firstDate:
+                                                  //un mes atras
+                                                  DateTime.now().subtract(
+                                                      const Duration(days: 30)),
+                                              lastDate: DateTime.now(),
+                                              dateFormat: "dd-MMMM-yyyy",
+                                              locale: DateTimePickerLocale.es,
+                                              looping: false,
+                                            );
+
+                                            // Verificar si el usuario seleccionó una fecha
+                                            if (pickedDate != null) {
+                                              // Formatear la fecha al formato "yyyy-MM-dd"
+                                              final formattedDate =
+                                                  DateFormat('yyyy-MM-dd')
+                                                      .format(pickedDate);
+
+                                              // Disparar el evento con la fecha seleccionada
+                                              context
+                                                  .read<WMSPickingBloc>()
+                                                  .add(
+                                                    LoadHistoryBatchsEvent(
+                                                        true, formattedDate),
+                                                  );
+
+                                              // Navegar a la pantalla de historial
+                                              Navigator.pushNamed(
+                                                  context, 'history-list');
+                                            }
+                                          },
+                                        ),
                                       ],
                                     ),
                                   ],
@@ -251,101 +295,101 @@ class _PickingPageState extends State<WMSPickingPage> {
                         }),
                       ),
 
-                      Container(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                                onPressed: () {
-                                  context
-                                      .read<WMSPickingBloc>()
-                                      .add(FilterBatchesBStatusEvent(''));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.batch_prediction,
-                                      color: primaryColorApp,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      'En Proceso',
-                                      style: TextStyle(
-                                          color: primaryColorApp, fontSize: 12),
-                                    )
-                                  ],
-                                )),
-                            ElevatedButton(
-                              onPressed: () async {
-                                // Primero, asegúrate de que el FocusNode esté activo
-                                FocusScope.of(context).unfocus();
-                                var pickedDate =
-                                    await DatePicker.showSimpleDatePicker(
-                                  titleText: 'Seleccione una fecha',
-                                  context,
-                                  confirmText: 'Buscar',
-                                  cancelText: 'Cancelar',
-                                  // initialDate: DateTime(2020),
-                                  firstDate:
-                                      //un mes atras
-                                      DateTime.now()
-                                          .subtract(const Duration(days: 30)),
-                                  lastDate: DateTime.now(),
-                                  dateFormat: "dd-MMMM-yyyy",
-                                  locale: DateTimePickerLocale.es,
-                                  looping: false,
-                                );
+                      // Container(
+                      //   padding: const EdgeInsets.only(top: 3),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //     children: [
+                      // ElevatedButton(
+                      //     onPressed: () {
+                      //       context
+                      //           .read<WMSPickingBloc>()
+                      //           .add(FilterBatchesBStatusEvent(''));
+                      //     },
+                      //     style: ElevatedButton.styleFrom(
+                      //         backgroundColor: white,
+                      //         shape: RoundedRectangleBorder(
+                      //             borderRadius:
+                      //                 BorderRadius.circular(10))),
+                      //     child: Row(
+                      //       children: [
+                      //         Icon(
+                      //           Icons.batch_prediction,
+                      //           color: primaryColorApp,
+                      //           size: 20,
+                      //         ),
+                      //         const SizedBox(width: 5),
+                      //         Text(
+                      //           'En Proceso',
+                      //           style: TextStyle(
+                      //               color: primaryColorApp, fontSize: 12),
+                      //         )
+                      //       ],
+                      //     )),
+                      //       ElevatedButton(
+                      //         onPressed: () async {
+                      //           // Primero, asegúrate de que el FocusNode esté activo
+                      //           FocusScope.of(context).unfocus();
+                      //           var pickedDate =
+                      //               await DatePicker.showSimpleDatePicker(
+                      //             titleText: 'Seleccione una fecha',
+                      //             context,
+                      //             confirmText: 'Buscar',
+                      //             cancelText: 'Cancelar',
+                      //             // initialDate: DateTime(2020),
+                      //             firstDate:
+                      //                 //un mes atras
+                      //                 DateTime.now()
+                      //                     .subtract(const Duration(days: 30)),
+                      //             lastDate: DateTime.now(),
+                      //             dateFormat: "dd-MMMM-yyyy",
+                      //             locale: DateTimePickerLocale.es,
+                      //             looping: false,
+                      //           );
 
-                                // Verificar si el usuario seleccionó una fecha
-                                if (pickedDate != null) {
-                                  // Formatear la fecha al formato "yyyy-MM-dd"
-                                  final formattedDate = DateFormat('yyyy-MM-dd')
-                                      .format(pickedDate);
+                      //           // Verificar si el usuario seleccionó una fecha
+                      //           if (pickedDate != null) {
+                      //             // Formatear la fecha al formato "yyyy-MM-dd"
+                      //             final formattedDate = DateFormat('yyyy-MM-dd')
+                      //                 .format(pickedDate);
 
-                                  // Disparar el evento con la fecha seleccionada
-                                  context.read<WMSPickingBloc>().add(
-                                        LoadHistoryBatchsEvent(
-                                            true, formattedDate),
-                                      );
+                      //             // Disparar el evento con la fecha seleccionada
+                      //             context.read<WMSPickingBloc>().add(
+                      //                   LoadHistoryBatchsEvent(
+                      //                       true, formattedDate),
+                      //                 );
 
-                                  // Navegar a la pantalla de historial
-                                  Navigator.pushNamed(context, 'history-list');
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.history,
-                                    color: green,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    'Histórico',
-                                    style: TextStyle(
-                                      color: primaryColorApp,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      //             // Navegar a la pantalla de historial
+                      //             Navigator.pushNamed(context, 'history-list');
+                      //           }
+                      //         },
+                      //         style: ElevatedButton.styleFrom(
+                      //           backgroundColor: white,
+                      //           shape: RoundedRectangleBorder(
+                      //             borderRadius: BorderRadius.circular(10),
+                      //           ),
+                      //         ),
+                      //         child: Row(
+                      //           children: [
+                      //             const Icon(
+                      //               Icons.history,
+                      //               color: green,
+                      //               size: 20,
+                      //             ),
+                      //             const SizedBox(width: 5),
+                      //             Text(
+                      //               'Histórico',
+                      //               style: TextStyle(
+                      //                 color: primaryColorApp,
+                      //                 fontSize: 12,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
 
                       BarcodeScannerField(
                         controller: _controllerToDo,

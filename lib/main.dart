@@ -36,6 +36,7 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:wms_app/src/services/webSocket_service.dart';
 import 'src/presentation/views/home/index.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -86,7 +87,7 @@ void main() async {
       }
     } on SocketException catch (_) {}
   });
-
+  // WebSocketService().connect();
   runApp(const MyApp());
 }
 
@@ -183,10 +184,7 @@ void searchProductsNoSendOdoo(BuildContext context) async {
                 ? product.quantity ?? 0
                 : product.quantitySeparate ?? 0,
             novedad: product.observation ?? 'Sin novedad',
-            timeLine: 
-            totalTime == null?
-            0.0 :
-            double.parse(totalTime),
+            timeLine: totalTime == null ? 0.0 : double.parse(totalTime),
             muelle: product.idLocationDest ?? 0,
             idOperario: userId,
             fechaTransaccion: product.fechaTransaccion ?? fechaFormateada,

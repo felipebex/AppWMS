@@ -45,6 +45,9 @@ class PickProductsTable {
   //columnTypePick
   static const String columnTypePick = 'type_pick';
 
+  //productTracking 
+  static const String columnProductTracking = 'product_tracking';
+
   static String createTable() {
     return '''
       CREATE TABLE $tableName (
@@ -87,6 +90,7 @@ class PickProductsTable {
         $columnIsSendOdoo INTEGER,
         $columnIsSendOdooDate VARCHAR(255),
         $columnProductCode TEXT,
+        $columnProductTracking TEXT,
         $columnTypePick TEXT,
         FOREIGN KEY ($columnBatchId) REFERENCES tbl_picking_pick (id)
       )

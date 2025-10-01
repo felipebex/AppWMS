@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -17,6 +19,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListTransferenciasScreen extends StatefulWidget {
@@ -30,6 +33,58 @@ class ListTransferenciasScreen extends StatefulWidget {
 }
 
 class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+  FocusNode focusNodeBuscar = FocusNode();
+  final TextEditingController _controllerToDo = TextEditingController();
+
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<TransferenciaBloc>();
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
+
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (batch picking): $scan');
+
+    final listOfBatchs = bloc.transferenciasDB;
+
+    void processBatch(ResultTransFerencias batch) {
+      bloc.add(ClearScannedValueEvent('toDo'));
+
+      print(batch.toMap());
+      try {
+        _handleTransferTap(
+          context,
+          batch,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar los datos'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+
+    // Buscar el producto usando el código de barras principal o el código de producto
+    final batchs = listOfBatchs.firstWhere(
+      (b) => b.name?.toLowerCase() == scan,
+      orElse: () => ResultTransFerencias(),
+    );
+
+    if (batchs.id != null) {
+      print('🔎 batch encontrado : ${batchs.id} ${batchs.name} ');
+      processBatch(batchs);
+      return;
+    } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc.add(ClearScannedValueEvent('toDo'));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
@@ -339,8 +394,13 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                           context.read<TransferenciaBloc>().add(
                                               ShowKeyboardEvent(
                                                   showKeyboard: false));
-
-                                          FocusScope.of(context).unfocus();
+//pasamos el foco a focusNodeBuscar
+                                          Future.delayed(
+                                              const Duration(seconds: 1), () {
+                                            // _handleDependencies();
+                                            FocusScope.of(context)
+                                                .requestFocus(focusNodeBuscar);
+                                          });
                                         },
                                         icon: const Icon(
                                           Icons.close,
@@ -373,6 +433,21 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                           ],
                         ),
                       )),
+
+                  //*buscar por scan
+                  BarcodeScannerField(
+                    controller: _controllerToDo,
+                    focusNode: focusNodeBuscar,
+                    scannedValue5: "",
+                    onBarcodeScanned: (value, context) {
+                      return validateBarcode(value, context);
+                    },
+                    onKeyScanned: (keyLabel, type, context) {
+                      return context.read<TransferenciaBloc>().add(
+                            UpdateScannedValueEvent(keyLabel, type),
+                          );
+                    },
+                  ),
 
                   (transferBloc.transferenciasDbFilters
                           .where((element) =>
@@ -743,55 +818,8 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                         ],
                                       ),
                                       onTap: () async {
-                                        print(
-                                            'transferenciaDetail: ${transferenciaDetail.toMap()}');
-                                        //cargamos los permisos del usuario
-                                        context.read<TransferenciaBloc>().add(
-                                            LoadConfigurationsUserTransfer());
-
-                                        //verificamos si la orden de entrada tiene ya un responsable
-                                        if (transferenciaDetail.responsableId ==
-                                                null ||
-                                            transferenciaDetail.responsableId ==
-                                                0) {
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible:
-                                                false, // No permitir que el usuario cierre el diálogo manualmente
-                                            builder: (context) =>
-                                                DialogAsignUserToOrderWidget(
-                                              title:
-                                                  'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                              onAccepted: () async {
-                                                context
-                                                    .read<TransferenciaBloc>()
-                                                    .add(ShowKeyboardEvent(
-                                                        showKeyboard: false));
-
-                                                context
-                                                    .read<TransferenciaBloc>()
-                                                    .searchControllerTransfer
-                                                    .clear();
-
-                                                context
-                                                    .read<TransferenciaBloc>()
-                                                    .add(SearchTransferEvent(
-                                                        "", 'transfer'));
-                                                //asignamos el responsable a esa orden de entrada
-                                                context
-                                                    .read<TransferenciaBloc>()
-                                                    .add(
-                                                      AssignUserToTransfer(
-                                                          transferenciaDetail),
-                                                    );
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          );
-                                        } else {
-                                          validateTime(
-                                              transferenciaDetail, context);
-                                        }
+                                        _handleTransferTap(
+                                            context, transferenciaDetail);
                                       },
                                     ),
                                   ),
@@ -805,7 +833,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
         }));
   }
 
-  void validateTime(ResultTransFerencias transfer, BuildContext context) {
+  void validateTime(ResultTransFerencias transfer, BuildContext context) async {
     if (transfer.startTimeTransfer == "" ||
         transfer.startTimeTransfer == null) {
       showDialog(
@@ -862,11 +890,58 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
       //traemos la orden de entrada actual desde la bd actualizada
       context.read<TransferenciaBloc>().add(CurrentTransferencia(transfer));
       context.read<TransferenciaBloc>().add(LoadLocations());
+
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (_) => const DialogLoading(
+          message: 'Cargando interfaz...',
+        ),
+      );
+
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pop(context);
+
       Navigator.pushReplacementNamed(
         context,
         'transferencia-detail',
         arguments: [transfer, 0],
       );
+    }
+  }
+
+  void _handleTransferTap(
+      BuildContext context, dynamic transferenciaDetail) async {
+    print('transferenciaDetail: ${transferenciaDetail.toMap()}');
+    final transferenciaBloc = context.read<TransferenciaBloc>();
+
+    // 1. Cargamos las configuraciones una sola vez
+    transferenciaBloc.add(LoadConfigurationsUserTransfer());
+
+    // 2. Lógica para asignar el responsable o continuar
+    if (transferenciaDetail.responsableId == null ||
+        transferenciaDetail.responsableId == 0) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => DialogAsignUserToOrderWidget(
+          title:
+              'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+          onAccepted: () async {
+            // Lógica para asignar el usuario
+            transferenciaBloc.add(ShowKeyboardEvent(showKeyboard: false));
+            transferenciaBloc.searchControllerTransfer.clear();
+            transferenciaBloc.add(SearchTransferEvent("", 'transfer'));
+            transferenciaBloc.add(AssignUserToTransfer(transferenciaDetail));
+
+            Navigator.pop(dialogContext); // Cierra el diálogo de asignación
+          },
+        ),
+      );
+    } else {
+      // Si el responsable ya existe, validar el tiempo directamente
+      validateTime(transferenciaDetail, context);
     }
   }
 }

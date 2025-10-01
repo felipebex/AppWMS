@@ -16,6 +16,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/data/picking_pick_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/PickhWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_done_id_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 
 part 'picking_pick_event.dart';
@@ -26,6 +27,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   List<ResultPick> listOfPick = [];
   List<ResultPick> listOfPickFiltered = [];
+
+  List<ResultPick> historyPicks = [];
+  List<ResultPick> filtersHistoryPicks = [];
+
+  RespondePickDoneId historyPickId = RespondePickDoneId();
 
   ///listado de pickos por componenetes
   List<ResultPick> listOfPickCompo = [];
@@ -73,7 +79,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
-  String scannedToDo = '';
+  String scannedValue5 = '';
 
   String selectedNovedad = '';
 
@@ -116,6 +122,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     on<LoadConfigurationsUser>(_onLoadConfigurationsUserEvent);
     //*evento para mostrar el teclado
     on<ShowKeyboard>(_onShowKeyboardEvent);
+
+    //*obtener todos los pick desde el historial de odoo
+    on<LoadHistoryPickEvent>(_onLoadHistoryPickEvent);
 
     //todo escanear producto
     //*cambiar el estado de las variables
@@ -185,12 +194,66 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     //*evento para cargar un producto seleccionado
     on<LoadSelectedProductEvent>(_onLoadSelectedProductEvent);
 
+    //*obtener un batch por id del hisorial
+    on<LoadHistoryPickIdEvent>(_onLoadHistoryBatchIdEvent);
+
     //todo picking para componentes
     on<FetchPickingComponentesEvent>(_onFetchPickingComponentesEvent);
 
     on<FetchPickingComponentesFromDBEvent>(
         _onFetchPickingComponentesFromDBEvent);
   }
+
+  void _onLoadHistoryPickEvent(
+      LoadHistoryPickEvent event, Emitter<PickingPickState> emit) async {
+    try {
+      print('date: ${event.date}');
+      emit(PickingLoadingState());
+
+      final response = await pickingPickRepository.resPicksDone(
+        event.isLoadinDialog,
+        event.date,
+      );
+
+      if (response != null && response is List) {
+        historyPicks.clear();
+        filtersHistoryPicks.clear();
+        historyPicks.addAll(response);
+        filtersHistoryPicks.addAll(response);
+
+        emit(LoadHistoryPicksState(listOfBatchs: filtersHistoryPicks));
+      } else {
+        print('Error resHistoryBatchs: response is null');
+      }
+    } catch (e, s) {
+      print('Error LoadHistoryBatchsEvent: $e, $s');
+      emit(PickingErrorState(e.toString()));
+    }
+  }
+
+  void _onLoadHistoryBatchIdEvent(
+      LoadHistoryPickIdEvent event, Emitter<PickingPickState> emit) async {
+    try {
+      emit(PickingLoadingState());
+
+      final response = await pickingPickRepository.getPicksDoneId(
+        event.isLoadinDialog,
+        event.idPicking,
+      );
+
+      if (response != null && response is RespondePickDoneId) {
+        historyPickId = RespondePickDoneId();
+        historyPickId = response;
+        emit(BatchHistoryLoadedState(historyPickId));
+      } else {
+        print('Error resHistoryBatchs: response is null');
+      }
+    } catch (e, s) {
+      print('Error LoadHistoryBatchsEvent: $e, $s');
+      emit(BatchsPickingErrorState(e.toString()));
+    }
+  }
+
   //metodo para cargar un producto seleccionado
   void _onLoadSelectedProductEvent(
       LoadSelectedProductEvent event, Emitter<PickingPickState> emit) {
@@ -323,33 +386,39 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       CreateBackOrderOrNot event, Emitter<PickingPickState> emit) async {
     try {
       emit(CreateBackOrderOrNotLoading());
-      final response = await repository.validateTransfer(
-          event.idPick, event.isBackOrder, false);
+     
+     print('Crear backorder: ${event.isBackOrder}');
+     print('idPick: ${event.idPick}');
+     
+      // final response = await repository.validateTransfer(
+      //     event.idPick, event.isBackOrder, false);
 
-      if (response.result?.code == 200) {
-        add(StartOrStopTimeTransfer(
-          event.idPick,
-          'end_time_transfer',
-        ));
+      // if (response.result?.code == 200) {
+      //   add(StartOrStopTimeTransfer(
+      //     event.idPick,
+      //     'end_time_transfer',
+      //   ));
 
-        add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-        add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
-            pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
-        isSearch = true;
-
-        add(PickingOkEvent(
-            pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
-        //pedimos los nuevos picks
-        add(FetchPickingPickEvent(false));
-
-        emit(CreateBackOrderOrNotSuccess(
-            event.isBackOrder, response.result?.msg ?? ""));
-      } else {
-        emit(CreateBackOrderOrNotFailure(
-          response.result?.msg ?? '',
-          event.isBackOrder,
-        ));
-      }
+      //   if (event.isExternalProduct == true) {
+      //     add(LoadHistoryPickIdEvent(true, event.idPick));
+      //   } else {
+      //     add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+      //     add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
+      //         pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
+      //     isSearch = true;
+      //     add(PickingOkEvent(
+      //         pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
+      //     //pedimos los nuevos picks
+      //     add(FetchPickingPickEvent(false));
+      //   }
+      //   emit(CreateBackOrderOrNotSuccess(
+      //       event.isBackOrder, response.result?.msg ?? ""));
+      // } else {
+      //   emit(CreateBackOrderOrNotFailure(
+      //     response.result?.msg ?? '',
+      //     event.isBackOrder,
+      //   ));
+      // }
     } catch (e, s) {
       emit(CreateBackOrderOrNotFailure(
         'Error al crear la backorder',
@@ -397,10 +466,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         if (event.isComponentes) {
           // ✅ Cuando el query está vacío y es de componentes, se muestra todo el listado de componentes
           listOfPickCompoFiltered = [];
-          listOfPickCompoFiltered=listOfPickCompo;
+          listOfPickCompoFiltered = listOfPickCompo;
         } else {
           // ✅ Cuando el query está vacío y NO es de componentes, se muestra todo el listado de pick
-          listOfPickFiltered =[];
+          listOfPickFiltered = [];
           listOfPickFiltered = listOfPick;
         }
       } else {
@@ -705,6 +774,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       DateTime fechaTransaccion = DateTime.now();
       String fechaFormateada = formatoFecha(fechaTransaccion);
 
+      print(
+          'Enviando producto a Odoo: ${event.product.toMap()}');
+
       final response = await repository.sendProductTransferPick(
         TransferRequest(
           idTransferencia: currentProduct.batchId ?? 0,
@@ -774,6 +846,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             1,
             event.product.idMove ?? 0,
           );
+
+//actualizamos la lista de productos
+
+          add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
           emit(SendProductPickOdooSuccess());
           return;
         }
@@ -1173,9 +1249,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           break;
 
         case 'toDo':
-          scannedToDo += event.scannedValue.trim();
-          print('scannedToDo: $scannedToDo');
-          emit(UpdateScannedValueState(scannedToDo, event.scan));
+          scannedValue5 += event.scannedValue.trim();
+          print('scannedValue5: $scannedValue5');
+          emit(UpdateScannedValueState(scannedValue5, event.scan));
           break;
 
         default:
@@ -1231,7 +1307,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           emit(ClearScannedValueState());
           break;
         case 'toDo':
-          scannedToDo = '';
+          scannedValue5 = '';
           emit(ClearScannedValueState());
           break;
         default:
@@ -1621,6 +1697,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   void _onFetchPickWithProductsEvent(
       FetchPickWithProductsEvent event, Emitter<PickingPickState> emit) async {
     try {
+      print('Fetching pick with ID: ${event.pickId}');
       pickWithProducts = PickWithProducts();
 
       final response =

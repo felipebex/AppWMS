@@ -13,8 +13,6 @@ import 'package:wms_app/src/presentation/views/info%20rapida/models/transfer_inf
 import 'package:wms_app/src/presentation/views/info%20rapida/models/update_product_request.dart';
 
 class InfoRapidaRepository {
-
-  
   Future<InfoRapida> getInfoQuick(bool isLoadinDialog, String barcode) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -61,6 +59,16 @@ class InfoRapidaRepository {
               ),
             );
           } else if (jsonResponse['result']['code'] == 403) {
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          } else if (jsonResponse['result']['code'] == 404) {
             return InfoRapida(
               jsonrpc: jsonResponse["jsonrpc"],
               id: jsonResponse["id"],
@@ -160,6 +168,16 @@ class InfoRapidaRepository {
               ),
             );
           } else if (jsonResponse['result']['code'] == 403) {
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: null,
+              ),
+            );
+          } else if (jsonResponse['result']['code'] == 404) {
             return InfoRapida(
               jsonrpc: jsonResponse["jsonrpc"],
               id: jsonResponse["id"],

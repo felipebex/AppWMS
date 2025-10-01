@@ -87,3 +87,14 @@ class ToggleProductExpansionEvent extends InfoRapidaEvent {
 
   ToggleProductExpansionEvent(this.isExpanded);
 }
+
+
+class SortLocationsEvent extends InfoRapidaEvent {
+  final bool ascending;
+  SortLocationsEvent(this.ascending);
+}
+
+class SortProductsEvent extends InfoRapidaEvent {
+  final bool ascending;
+  SortProductsEvent(this.ascending);
+}

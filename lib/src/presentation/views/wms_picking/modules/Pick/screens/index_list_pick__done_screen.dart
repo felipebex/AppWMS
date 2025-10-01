@@ -2,123 +2,33 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_holo_date_picker/date_picker.dart';
-import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/core/utils/sounds_utils.dart';
-import 'package:wms_app/src/core/utils/vibrate_utils.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
-import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
-class IndexListPickScreen extends StatelessWidget {
-  const IndexListPickScreen({super.key});
+class IndexListPickDoneScreen extends StatelessWidget {
+  const IndexListPickDoneScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final bloc = context.read<PickingPickBloc>();
 
-    final AudioService _audioService = AudioService();
-    final VibrationService _vibrationService = VibrationService();
-    FocusNode focusNodeBuscar = FocusNode();
-    final TextEditingController _controllerToDo = TextEditingController();
-
-    void validateBarcode(String value, BuildContext context) {
-      final bloc = context.read<PickingPickBloc>();
-      final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
-          .trim()
-          .toLowerCase();
-
-      _controllerToDo.clear();
-      print('🔎 Scan barcode (batch picking): $scan');
-
-      final listOfBatchs = bloc.listOfPick;
-
-      void processBatch(ResultPick batch) {
-        bloc.add(ClearScannedValueEvent('toDo'));
-
-        print(batch.toMap());
-        try {
-          _handleTransferTap(context, context, batch);
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error al cargar los datos'),
-              duration: Duration(seconds: 4),
-            ),
-          );
-        }
-      }
-
-      // // Buscar el producto usando el código de barras principal o el código de producto
-      final batchs = listOfBatchs.firstWhere(
-        (b) =>
-            b.name?.toLowerCase() == scan ||
-            b.zonaEntrega?.toLowerCase() == scan,
-        orElse: () => ResultPick(),
-      );
-
-      if (batchs.id != null) {
-        print(
-            '🔎 batch encontrado : ${batchs.id} ${batchs.name} - ${batchs.zonaEntrega}');
-        processBatch(batchs);
-        return;
-      } else {
-        _audioService.playErrorSound();
-        _vibrationService.vibrate();
-        bloc.add(ClearScannedValueEvent('toDo'));
-      }
-    }
-
     return WillPopScope(
       onWillPop: () async {
         return false;
       },
       child: BlocConsumer<PickingPickBloc, PickingPickState>(
-        listener: (context, state) {
-          if (state is AssignUserToPickError) {
-            Get.snackbar(
-              '360 Software Informa',
-              state.error,
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.red),
-            );
-          }
-
-          if (state is AssignUserToPickLoading) {
-            // mostramos un dialogo de carga y despues
-            showDialog(
-              context: context,
-              barrierDismissible:
-                  false, // No permitir que el usuario cierre el diálogo manualmente
-              builder: (_) => const DialogLoading(
-                message: 'Cargando interfaz...',
-              ),
-            );
-          }
-
-          if (state is AssignUserToPickSuccess) {
-            // cerramos el dialogo de carga
-            Navigator.pop(context);
-            bloc.add(FetchPickWithProductsEvent(state.id));
-            bloc.add(LoadConfigurationsUser());
-            Navigator.pushReplacementNamed(context, 'scan-product-pick');
-          }
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(
             backgroundColor: white,
@@ -170,39 +80,22 @@ class IndexListPickScreen extends StatelessWidget {
                                       icon: const Icon(Icons.arrow_back,
                                           color: white),
                                       onPressed: () {
+
+                                      
+
                                         Navigator.pushReplacementNamed(
-                                            context, '/home');
+                                            context, 'pick');
                                       },
                                     ),
-                                    GestureDetector(
-                                      onTap: () async {
-                                        await DataBaseSqlite().delePick('pick');
-                                        bloc.add(FetchPickingPickEvent(true));
-                                      },
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            left: size.width * 0.15),
-                                        child: Row(
-                                          children: [
-                                            const Text(
-                                              'PICKING - PICK',
-                                              style: TextStyle(
-                                                  color: white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            //icono de refres
-                                            Icon(
-                                              Icons.refresh,
-                                              color: white,
-                                              size: 20,
-                                            ),
-                                          ],
-                                        ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: size.width * 0.15),
+                                      child: const Text(
+                                        'HISTORIAL PICK',
+                                        style: TextStyle(
+                                            color: white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ),
                                     const Spacer(),
@@ -216,157 +109,16 @@ class IndexListPickScreen extends StatelessWidget {
                     }),
                   ),
 
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          // right: 5,
-                        ),
-                        child: SizedBox(
-                          width: size.width * 0.8,
-                          height: 55,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 3,
-                            child: TextFormField(
-                                textAlignVertical: TextAlignVertical.center,
-                                controller: bloc.searchPickController,
-                                decoration: InputDecoration(
-                                  prefixIcon: const Icon(Icons.search,
-                                      color: grey, size: 20),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        bloc.searchPickController.clear();
-                                        bloc.add(SearchPickEvent('', false));
-                                        FocusScope.of(context).unfocus();
-                                      },
-                                      icon: IconButton(
-                                        onPressed: () {
-                                          bloc.add(ShowKeyboard(false));
-                                          bloc.add(SearchPickEvent('', false));
-                                          bloc.searchPickController.clear();
-
-                                          //pasamos el foco a focusNodeBuscar
-                                          Future.delayed(
-                                              const Duration(seconds: 1), () {
-                                            // _handleDependencies();
-                                            FocusScope.of(context)
-                                                .requestFocus(focusNodeBuscar);
-                                          });
-                                        },
-                                        icon: const Icon(Icons.close,
-                                            color: grey, size: 20),
-                                      )),
-                                  disabledBorder: const OutlineInputBorder(),
-                                  hintText: "Buscar pick",
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey, fontSize: 12),
-                                  border: InputBorder.none,
-                                ),
-                                onChanged: (value) {
-                                  bloc.add(SearchPickEvent(value, false));
-                                },
-                                style: const TextStyle(
-                                    color: Colors.black, fontSize: 14),
-                                onTap: !context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra")
-                                    ? null
-                                    : () {
-                                        //pasamos el foco a
-                                        bloc.add(ShowKeyboard(true));
-                                      }),
-                          ),
-                        ),
-                      ),
-
-                      //icono de fecha
-                      GestureDetector(
-                        onTap: () async {
-                          // Primero, asegúrate de que el FocusNode esté activo
-                          FocusScope.of(context).unfocus();
-                          var pickedDate =
-                              await DatePicker.showSimpleDatePicker(
-                            titleText: 'Seleccione una fecha',
-                            context,
-                            confirmText: 'Buscar',
-                            cancelText: 'Cancelar',
-                            // initialDate: DateTime(2020),
-                            firstDate:
-                                //un mes atras
-                                DateTime.now()
-                                    .subtract(const Duration(days: 30)),
-                            lastDate: DateTime.now(),
-                            dateFormat: "dd-MMMM-yyyy",
-                            locale: DateTimePickerLocale.es,
-                            looping: false,
-                          );
-
-                          // Verificar si el usuario seleccionó una fecha
-                          if (pickedDate != null) {
-                            // Formatear la fecha al formato "yyyy-MM-dd"
-                            final formattedDate =
-                                DateFormat('yyyy-MM-dd').format(pickedDate);
-
-                            // Disparar el evento con la fecha seleccionada
-                            context.read<PickingPickBloc>().add(
-                                  LoadHistoryPickEvent(true, formattedDate),
-                                );
-
-                            // Navegar a la pantalla de historial
-                            Navigator.pushNamed(context, 'pick-done');
-                          }
-                        },
-                        child: Card(
-                          elevation: 3,
-                          color: white,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              Icons.calendar_month,
-                              color: primaryColorApp,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                    ],
-                  ),
-
-                  //*buscar por scan
-                  BarcodeScannerField(
-                    controller: _controllerToDo,
-                    focusNode: focusNodeBuscar,
-                    scannedValue5: "",
-                    onBarcodeScanned: (value, context) {
-                      return validateBarcode(value, context);
-                    },
-                    onKeyScanned: (keyLabel, type, context) {
-                      return context.read<PickingPickBloc>().add(
-                            UpdateScannedValueEvent(keyLabel, type),
-                          );
-                    },
-                  ),
-
                   Expanded(
-                    child: bloc.listOfPickFiltered
-                            .where((batch) => batch.isSeparate == 0)
-                            .isNotEmpty
+                    child: bloc.filtersHistoryPicks.isNotEmpty
                         ? ListView.builder(
                             padding: EdgeInsets.only(
                                 top: 10, bottom: size.height * 0.15),
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
-                            itemCount: bloc.listOfPickFiltered
-                                .where((batch) => batch.isSeparate == 0)
-                                .length,
+                            itemCount: bloc.filtersHistoryPicks.length,
                             itemBuilder: (contextBuilder, index) {
-                              final batch = bloc.listOfPickFiltered
-                                  .where((batch) => batch.isSeparate == 0)
-                                  .toList()[index];
+                              final batch = bloc.filtersHistoryPicks[index];
                               //convertimos la fecha
 
                               return Padding(
@@ -375,9 +127,12 @@ class IndexListPickScreen extends StatelessWidget {
                                 ),
                                 child: GestureDetector(
                                   onTap: () async {
-                                    // Agrupar eventos de BatchBloc si es necesario
-                                    _handleTransferTap(
-                                        context, contextBuilder, batch);
+                                    context.read<PickingPickBloc>().add(
+                                        LoadHistoryPickIdEvent(
+                                            true, batch.id ?? 0));
+
+                                    Navigator.pushReplacementNamed(
+                                        context, 'detail-pick-done');
                                   },
                                   child: Card(
                                     color: batch.isSeparate == 1
@@ -436,6 +191,7 @@ class IndexListPickScreen extends StatelessWidget {
                                               ),
                                             ],
                                           ),
+                                        
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(
@@ -519,39 +275,39 @@ class IndexListPickScreen extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.receipt,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                const Text(
-                                                  "Doc. Origen: ",
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Expanded(
-                                                  child: Text(
-                                                    batch.origin.toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                          // Align(
+                                          //   alignment: Alignment.centerLeft,
+                                          //   child: Row(
+                                          //     children: [
+                                          //       Icon(
+                                          //         Icons.receipt,
+                                          //         color: primaryColorApp,
+                                          //         size: 15,
+                                          //       ),
+                                          //       const SizedBox(width: 5),
+                                          //       const Text(
+                                          //         "Doc. Origen: ",
+                                          //         style: TextStyle(
+                                          //             fontSize: 12,
+                                          //             color: black),
+                                          //         maxLines: 2,
+                                          //         overflow:
+                                          //             TextOverflow.ellipsis,
+                                          //       ),
+                                          //       Expanded(
+                                          //         child: Text(
+                                          //           batch.origin.toString(),
+                                          //           style: TextStyle(
+                                          //               fontSize: 12,
+                                          //               color: primaryColorApp),
+                                          //           maxLines: 2,
+                                          //           overflow:
+                                          //               TextOverflow.ellipsis,
+                                          //         ),
+                                          //       ),
+                                          //     ],
+                                          //   ),
+                                          // ),
                                           Visibility(
                                             visible: batch.backorderId != 0,
                                             child: Row(

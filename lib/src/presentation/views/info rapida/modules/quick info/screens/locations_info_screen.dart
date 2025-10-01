@@ -38,7 +38,7 @@ class LocationInfoScreen extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
-   if (state is InfoRapidaLoading) {
+        if (state is InfoRapidaLoading) {
           showDialog(
             context: context,
             builder: (context) {
@@ -147,7 +147,7 @@ class LocationInfoScreen extends StatelessWidget {
                                             isNumeric: false));
                                   },
                                   controller: barcodeController,
-                                   isExpanded: true,
+                                  isExpanded: true,
                                 ),
                                 ProductInfoRow(
                                   title: 'Ubicación padre:',
@@ -205,15 +205,48 @@ class LocationInfoScreen extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10, left: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Productos",
-                        style: TextStyle(
-                            color: black,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
+                    child: Row(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Productos",
+                            style: TextStyle(
+                                color: black,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            context.read<InfoRapidaBloc>().add(
+                                SortProductsEvent(!context
+                                    .read<InfoRapidaBloc>()
+                                    .isAscending));
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                "Ordenar ",
+                                style: TextStyle(
+                                    color: black,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 5),
+                              Icon(
+                                context.read<InfoRapidaBloc>().isAscending
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward,
+                                color: primaryColorApp,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10)
+                      ],
                     ),
                   ),
 

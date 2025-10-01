@@ -147,6 +147,7 @@ class WmsPickingRepository {
           endpoint: 'batchs_done',
           isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
+          field: 'fecha_batch',
           date: date);
 
       if (response.statusCode < 400) {

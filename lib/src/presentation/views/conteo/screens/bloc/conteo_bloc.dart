@@ -668,9 +668,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         locationId: event.isNewProduct
             ? currentUbication?.id ?? 0
             : event.currentProduct.locationId,
-        loteId: event.isNewProduct
-            ? currentProductLote?.id
-            : event.currentProduct.lotId,
+        loteId: currentProductLote?.id,
       );
 
       //validamos si el producto ya fue enviado
@@ -696,6 +694,30 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       final response = await _repository.sendProductConteo(true, productSend);
 
       if (response.result?.code == 200) {
+//validamso si el producto tiene lote para guardarlo con el lote que seleccionamos
+        if (event.currentProduct.productTracking == "lot") {
+          //actualizamos el lote del producto en la bd
+          await db.productoOrdenConteoRepository
+              .setFieldTableProductOrdenConteo(
+            productSend.orderId,
+            productSend.productId,
+            'lot_id',
+            currentProductLote?.id ?? 0,
+            productSend.lineId.toString(),
+            productSend.locationId.toString(),
+          );
+
+          await db.productoOrdenConteoRepository
+              .setFieldTableProductOrdenConteo(
+            productSend.orderId,
+            productSend.productId,
+            'lot_name',
+            currentProductLote?.name ?? '',
+            productSend.lineId.toString(),
+            productSend.locationId.toString(),
+          );
+        }
+
 //si el producto es nuevo
         if (event.isNewProduct) {
           //creamos y guardamos el producto en la base de datos
@@ -878,16 +900,19 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     try {
       listOfBarcodes.clear();
 
-      final responseList = await db.barcodesPackagesRepository.getAllBarcodes();
-
-      print("responseList: ${responseList.length}");
-
-      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-          currentProduct.orderId ?? 0,
-          currentProduct.productId ?? 0,
-          currentProduct.idMove ?? 0,
-          'orden');
+      if (event.isNewProduct) {
+        listOfBarcodes = await db.barcodesPackagesRepository
+            .getBarcodesProductNotMove(currentProduct.orderId ?? 0,
+                currentProduct.productId ?? 0, 'orden');
+      } else {
+        listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+            currentProduct.orderId ?? 0,
+            currentProduct.productId ?? 0,
+            currentProduct.idMove ?? 0,
+            'orden');
+      }
       print("listOfBarcodes: ${listOfBarcodes.length}");
+      //imprimir todos los barcodes
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
     }
@@ -1063,6 +1088,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
             idLote: currentProduct?.lotId ?? 0,
           ));
         }
+        add(FetchBarcodesProductEvent(true));
       }
     }
     productIsOk = event.productIsOk;
@@ -1310,7 +1336,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       currentProduct = productBD ?? CountedLine();
       print('Producto actual db: ${currentProduct.productName}');
       products();
-      add(FetchBarcodesProductEvent());
+      add(FetchBarcodesProductEvent(false));
       //validamos si el producto tiene lote
       if (currentProduct.productTracking == "lot") {
         add(GetLotesProduct(
@@ -1404,6 +1430,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       print("listAllOfBarcodes : ${listAllOfBarcodes.length}");
 
+      for (var barcode in listAllOfBarcodes) {
+        print("barcode: ${barcode.barcode}");
+      }
+
       //obtenemos las ubicaciones de esa orden de conteo
       ubicacionesConteo = await db.ubicacionesConteoRepository
           .getUbicacionesByOrdenId(event.ordenConteoId ?? 0);
@@ -1469,12 +1499,18 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         final allBarcodes =
             _extractAllBarcodes(response.data as List<DatumConteo>)
                 .toList(growable: false);
+        final allBarcodesDone =
+            _extractAllBarcodesDone(response.data as List<DatumConteo>)
+                .toList(growable: false);
 
         if (allBarcodes.isNotEmpty) {
           // Enviar la lista agrupada a insertBarcodesPackageProduct
           await DataBaseSqlite()
               .barcodesPackagesRepository
               .insertOrUpdateBarcodes(allBarcodes, 'orden');
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(allBarcodesDone, 'orden');
         }
 
         add(GetConteosFromDBEvent());
@@ -1493,6 +1529,21 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       if (batch.countedLines == null) continue;
 
       for (final product in batch.countedLines!) {
+        if (product.productPacking != null) {
+          yield* product.productPacking!;
+        }
+        if (product.otherBarcodes != null) {
+          yield* product.otherBarcodes!;
+        }
+      }
+    }
+  }
+
+  Iterable<Barcodes> _extractAllBarcodesDone(List<DatumConteo> batches) sync* {
+    for (final batch in batches) {
+      if (batch.countedLinesDone == null) continue;
+
+      for (final product in batch.countedLinesDone!) {
         if (product.productPacking != null) {
           yield* product.productPacking!;
         }

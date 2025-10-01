@@ -354,6 +354,39 @@ class ListConteoScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.notes,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      'Observación:',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      conteo?.observationGeneral !=
+                                                                  null &&
+                                                              conteo?.observationGeneral !=
+                                                                  ""
+                                                          ? conteo!
+                                                              .observationGeneral!
+                                                          : 'Sin observación',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Align(
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Row(

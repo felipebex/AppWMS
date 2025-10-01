@@ -414,7 +414,7 @@ class TransferenciasRepository {
       return ResponseSenTransfer(); // Si no hay conexión, terminamos la ejecución
     }
 
-    print("transferRequest ${transferRequest.toMap()}");
+    print("transferRequest pick ${transferRequest.toMap()}");
 
     try {
       var response = await ApiRequestService().postPacking(

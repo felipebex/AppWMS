@@ -268,7 +268,7 @@ class ProductsBatch {
   final dynamic quantity; // Cambiado a double
   final List<Barcodes>? productPacking;
   final List<Barcodes>? otherBarcode;
-  final String? tracking;
+  final String? productTracking;
 
   final dynamic barcodeLocation;
   final dynamic barcodeLocationDest;
@@ -314,7 +314,7 @@ class ProductsBatch {
     this.orderProduct,
     this.origin,
 
-    this.tracking,
+    this.productTracking,
 
     
     this.barcodeLocation,
@@ -371,7 +371,7 @@ class ProductsBatch {
       muelleId: map['muelle_id'],
       idMove: map['id_move'],
 
-      tracking: map['tracking'],
+      productTracking: map['product_tracking'],
 
       barcodeLocation: map['barcode_location'],
       barcodeLocationDest: map['barcode_location_dest'],
@@ -428,7 +428,7 @@ class ProductsBatch {
       "muelle_id": muelleId,
       "origin": origin,
 
-      "tracking": tracking,
+      "product_tracking": productTracking,
 
       "order_product": orderProduct,
       "barcode_location_dest": barcodeLocation,
