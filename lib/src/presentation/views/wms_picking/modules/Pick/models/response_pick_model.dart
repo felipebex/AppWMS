@@ -95,6 +95,7 @@ class ResultPick {
   String? createBackorder;
 
   String? typePick;
+  String? referencia; //dato solo para pick done
 
   //valores para el pick
   dynamic isSeparate;
@@ -169,6 +170,7 @@ class ResultPick {
       this.productoFinalReferencia,
       this.createBackorder,
       this.quantityDone,
+      this.referencia, //dato solo para pick done
       this.quantityOrdered});
 
   factory ResultPick.fromMap(Map<String, dynamic> json) => ResultPick(
@@ -219,6 +221,7 @@ class ResultPick {
         isSendOdoo: json["is_send_odoo"],
         isSendOdooDate: json["is_send_odoo_date"],
         observation: json["observation"],
+        referencia: json["referencia"], //dato solo para pick done
         orderBy: json["order_by"],
         orderPicking: json["order_picking"],
         typePick: json["type_pick"],
@@ -250,6 +253,7 @@ class ResultPick {
         "warehouse_id": warehouseId,
         "warehouse_name": warehouseName,
         "responsable_id": responsableId,
+        "referencia": referencia, //dato solo para pick done
         "responsable": responsable,
         "picking_type": pickingType,
         "start_time_transfer": startTimeTransfer,

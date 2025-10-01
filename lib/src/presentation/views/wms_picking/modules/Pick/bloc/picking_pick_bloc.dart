@@ -469,8 +469,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           listOfPickCompoFiltered = listOfPickCompo;
         } else {
           // ✅ Cuando el query está vacío y NO es de componentes, se muestra todo el listado de pick
+          filtersHistoryPicks = [];
+          filtersHistoryPicks = historyPicks;
           listOfPickFiltered = [];
           listOfPickFiltered = listOfPick;
+          
         }
       } else {
         if (event.isComponentes) {
@@ -492,11 +495,31 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             final origin = batch.origin?.toLowerCase() ?? '';
             final proveedor = batch.proveedor?.toLowerCase() ?? '';
             final backorder = batch.backorderName?.toLowerCase() ?? '';
+            final zona = batch.zonaEntrega?.toLowerCase() ?? '';
             return name.contains(query) ||
                 origin.contains(query) ||
                 proveedor.contains(query) ||
-                backorder.contains(query);
+                backorder.contains(query) ||
+                zona.contains(query);
           }).toList();
+
+          filtersHistoryPicks = historyPicks.where((batch) {
+            final name = batch.name?.toLowerCase() ?? '';
+            final origin = batch.referencia?.toLowerCase() ?? '';
+            final proveedor = batch.proveedor?.toLowerCase() ?? '';
+            final backorder = batch.backorderName?.toLowerCase() ?? '';
+            final zona = batch.zonaEntrega?.toLowerCase() ?? '';
+            return name.contains(query) ||
+                origin.contains(query) ||
+                proveedor.contains(query) ||
+                backorder.contains(query) ||
+                zona.contains(query);
+          }).toList();
+
+
+
+
+
         }
       }
 

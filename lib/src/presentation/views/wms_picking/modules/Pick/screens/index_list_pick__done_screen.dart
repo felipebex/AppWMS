@@ -1,18 +1,20 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously
+// ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class IndexListPickDoneScreen extends StatelessWidget {
@@ -20,8 +22,64 @@ class IndexListPickDoneScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+    FocusNode focusNodeBuscar = FocusNode();
+    final TextEditingController _controllerToDo = TextEditingController();
+
     final size = MediaQuery.of(context).size;
     final bloc = context.read<PickingPickBloc>();
+
+    void validateBarcode(String value, BuildContext context) {
+      final bloc = context.read<PickingPickBloc>();
+      final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+          .trim()
+          .toLowerCase();
+
+      _controllerToDo.clear();
+      print('🔎 Scan barcode (batch picking): $scan');
+
+      final listOfBatchs = bloc.filtersHistoryPicks;
+
+      void processBatch(ResultPick batch) {
+        bloc.add(ClearScannedValueEvent('toDo'));
+
+        print(batch.toMap());
+        try {
+          context
+              .read<PickingPickBloc>()
+              .add(LoadHistoryPickIdEvent(true, batch.id ?? 0));
+
+          Navigator.pushReplacementNamed(context, 'detail-pick-done');
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error al cargar los datos'),
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+
+      // // Buscar el producto usando el código de barras principal o el código de producto
+      final batchs = listOfBatchs.firstWhere(
+        (b) =>
+            b.name?.toLowerCase() == scan ||
+            b.zonaEntrega?.toLowerCase() == scan,
+        orElse: () => ResultPick(),
+      );
+
+      if (batchs.id != null) {
+        print(
+            '🔎 batch encontrado : ${batchs.id} ${batchs.name} - ${batchs.zonaEntrega}');
+        processBatch(batchs);
+        return;
+      } else {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
+        bloc.add(ClearScannedValueEvent('toDo'));
+      }
+    }
 
     return WillPopScope(
       onWillPop: () async {
@@ -80,9 +138,6 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                       icon: const Icon(Icons.arrow_back,
                                           color: white),
                                       onPressed: () {
-
-                                      
-
                                         Navigator.pushReplacementNamed(
                                             context, 'pick');
                                       },
@@ -107,6 +162,84 @@ class IndexListPickDoneScreen extends StatelessWidget {
                         ],
                       );
                     }),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      // right: 5,
+                    ),
+                    child: SizedBox(
+                      height: 55,
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 3,
+                        child: TextFormField(
+                            textAlignVertical: TextAlignVertical.center,
+                            controller: bloc.searchPickController,
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.search,
+                                  color: grey, size: 20),
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    bloc.searchPickController.clear();
+                                    bloc.add(SearchPickEvent('', false));
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  icon: IconButton(
+                                    onPressed: () {
+                                      bloc.add(ShowKeyboard(false));
+                                      bloc.add(SearchPickEvent('', false));
+                                      bloc.searchPickController.clear();
+
+                                      //pasamos el foco a focusNodeBuscar
+                                      Future.delayed(const Duration(seconds: 1),
+                                          () {
+                                        // _handleDependencies();
+                                        FocusScope.of(context)
+                                            .requestFocus(focusNodeBuscar);
+                                      });
+                                    },
+                                    icon: const Icon(Icons.close,
+                                        color: grey, size: 20),
+                                  )),
+                              disabledBorder: const OutlineInputBorder(),
+                              hintText: "Buscar pick",
+                              hintStyle: const TextStyle(
+                                  color: Colors.grey, fontSize: 12),
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
+                              bloc.add(SearchPickEvent(value, false));
+                            },
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 14),
+                            onTap: !context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra")
+                                ? null
+                                : () {
+                                    //pasamos el foco a
+                                    bloc.add(ShowKeyboard(true));
+                                  }),
+                      ),
+                    ),
+                  ),
+
+                  //*buscar por scan
+                  BarcodeScannerField(
+                    controller: _controllerToDo,
+                    focusNode: focusNodeBuscar,
+                    scannedValue5: "",
+                    onBarcodeScanned: (value, context) {
+                      return validateBarcode(value, context);
+                    },
+                    onKeyScanned: (keyLabel, type, context) {
+                      return context.read<PickingPickBloc>().add(
+                            UpdateScannedValueEvent(keyLabel, type),
+                          );
+                    },
                   ),
 
                   Expanded(
@@ -191,7 +324,7 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                               ),
                                             ],
                                           ),
-                                        
+
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(
@@ -241,6 +374,39 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                                   style: const TextStyle(
                                                       color: black,
                                                       fontSize: 12),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.receipt,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                const Text(
+                                                  "Doc. Origen: ",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    batch.referencia.toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -508,74 +674,6 @@ class IndexListPickDoneScreen extends StatelessWidget {
       batchBloc.add(ShowKeyboard(false));
       batchBloc.searchPickController.clear();
       Navigator.pushReplacementNamed(context, 'scan-product-pick');
-    }
-  }
-
-// Tu código refactorizado en un método privado
-  void _handleTransferTap(
-      BuildContext context, BuildContext contextBuilder, dynamic batch) async {
-    print("Batch: ${batch.toMap()}");
-    final bloc = context.read<PickingPickBloc>(); // Asumo que es PickBloc
-
-    try {
-      // Lógica para asignar responsable si no existe
-      if (batch.responsableId == null || batch.responsableId == 0) {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (dialogContext) => DialogAsignUserToOrderWidget(
-            title:
-                'Esta seguro de tomar este pick, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-            onAccepted: () async {
-              // Se llama a la lógica del BLoC
-              bloc.add(AssignUserToTransfer(batch.id ?? 0));
-              Navigator.pop(dialogContext); // Cierra el diálogo de asignación
-            },
-          ),
-        );
-        // El resto del código se ejecuta después de que el diálogo se cierre.
-        bloc.add(ShowKeyboard(false));
-        bloc.searchPickController.clear();
-        return; // Salimos de la función si solo se asignó el responsable
-      }
-
-      // Lógica para iniciar la transferencia si el tiempo no ha comenzado
-      if (batch.startTimeTransfer == "") {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (dialogContext) => DialogStartTimeWidget(
-            title: 'Iniciar Pick',
-            onAccepted: () async {
-              bloc.add(StartOrStopTimeTransfer(
-                batch.id ?? 0,
-                'start_time_transfer',
-              ));
-              Navigator.pop(dialogContext); // Cierra el diálogo de inicio
-            },
-          ),
-        );
-      }
-
-      // Lógica de carga y navegación que es común en ambos flujos
-      bloc.add(ShowKeyboard(false));
-      bloc.searchPickController.clear();
-      bloc.add(FetchPickWithProductsEvent(batch.id ?? 0));
-      bloc.add(LoadConfigurationsUser());
-
-      goBatchInfo(
-        contextBuilder,
-        bloc,
-        batch,
-      );
-    } catch (e) {
-      // Manejo de errores centralizado
-      ScaffoldMessenger.of(contextBuilder).showSnackBar(
-        const SnackBar(
-          content: Text('Error al cargar los datos'),
-          duration: Duration(seconds: 4),
-        ),
-      );
     }
   }
 }

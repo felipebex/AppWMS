@@ -31,6 +31,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
+  String scannedValue5 = '';
 
   // //*validaciones de campos del estado de la vista
   bool isLocationOk = true;
