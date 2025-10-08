@@ -13,12 +13,15 @@ class DialogBackorderPick extends StatelessWidget {
       required this.unidadesSeparadas,
       required this.createBackorder,
       required this.idPick,
-      required this.isExternalProduct});
+      required this.isExternalProduct,
+      required this.isHistory
+      });
 
   final double unidadesSeparadas;
   final String createBackorder;
   final int idPick;
   final bool isExternalProduct;
+  final bool isHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +97,7 @@ class DialogBackorderPick extends StatelessWidget {
             onPressed: () async {
               batchBloc.add(ShowKeyboard(false));
               batchBloc.add(CreateBackOrderOrNot(
+                  isHistory ? idPick :
                   batchBloc.pickWithProducts.pick?.id ?? 0,
                   createBackorder == "never"
                       ? false

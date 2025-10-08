@@ -390,35 +390,35 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
      print('Crear backorder: ${event.isBackOrder}');
      print('idPick: ${event.idPick}');
      
-      // final response = await repository.validateTransfer(
-      //     event.idPick, event.isBackOrder, false);
+      final response = await repository.validateTransfer(
+          event.idPick, event.isBackOrder, false);
 
-      // if (response.result?.code == 200) {
-      //   add(StartOrStopTimeTransfer(
-      //     event.idPick,
-      //     'end_time_transfer',
-      //   ));
+      if (response.result?.code == 200) {
+        add(StartOrStopTimeTransfer(
+          event.idPick,
+          'end_time_transfer',
+        ));
 
-      //   if (event.isExternalProduct == true) {
-      //     add(LoadHistoryPickIdEvent(true, event.idPick));
-      //   } else {
-      //     add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-      //     add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
-      //         pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
-      //     isSearch = true;
-      //     add(PickingOkEvent(
-      //         pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
-      //     //pedimos los nuevos picks
-      //     add(FetchPickingPickEvent(false));
-      //   }
-      //   emit(CreateBackOrderOrNotSuccess(
-      //       event.isBackOrder, response.result?.msg ?? ""));
-      // } else {
-      //   emit(CreateBackOrderOrNotFailure(
-      //     response.result?.msg ?? '',
-      //     event.isBackOrder,
-      //   ));
-      // }
+        if (event.isExternalProduct == true) {
+          add(LoadHistoryPickIdEvent(false, event.idPick));
+        } else {
+          add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+          add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
+              pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
+          isSearch = true;
+          add(PickingOkEvent(
+              pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
+          //pedimos los nuevos picks
+          add(FetchPickingPickEvent(false));
+        }
+        emit(CreateBackOrderOrNotSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
+      } else {
+        emit(CreateBackOrderOrNotFailure(
+          response.result?.msg ?? '',
+          event.isBackOrder,
+        ));
+      }
     } catch (e, s) {
       emit(CreateBackOrderOrNotFailure(
         'Error al crear la backorder',

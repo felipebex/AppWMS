@@ -280,7 +280,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   );
 
                                               // Navegar a la pantalla de historial
-                                              Navigator.pushNamed(
+                                              Navigator.pushReplacementNamed(
                                                   context, 'history-list');
                                             }
                                           },

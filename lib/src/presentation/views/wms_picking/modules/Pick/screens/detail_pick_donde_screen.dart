@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -14,7 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 
 class DetailPickDoneScreen extends StatelessWidget {
-  const DetailPickDoneScreen({Key? key}) : super(key: key);
+  const DetailPickDoneScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +36,7 @@ class DetailPickDoneScreen extends StatelessWidget {
             }
 
             if (state is CreateBackOrderOrNotSuccess) {
+              Navigator.pop(context);
               //volvemos a llamar las entradas que tenemos guardadas en la bd
               if (state.isBackorder) {
                 Get.snackbar("360 Software Informa", state.msg,
@@ -49,7 +49,6 @@ class DetailPickDoneScreen extends StatelessWidget {
                     colorText: primaryColorApp,
                     icon: Icon(Icons.error, color: Colors.green));
               }
-
             }
 
             if (state is CreateBackOrderOrNotFailure) {
@@ -506,6 +505,7 @@ class DetailPickDoneScreen extends StatelessWidget {
                               .context,
                           builder: (context) {
                             return DialogBackorderPick(
+                              isHistory: true,
                               idPick: batch.id ?? 0,
                               unidadesSeparadas:
                                   double.parse(unidadesSeparadas),

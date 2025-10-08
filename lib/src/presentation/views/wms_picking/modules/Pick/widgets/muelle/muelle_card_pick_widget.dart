@@ -228,6 +228,7 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
               context: Navigator.of(context, rootNavigator: true).context,
               builder: (context) {
                 return DialogBackorderPick(
+                  isHistory: false,
                   idPick: context.read<PickingPickBloc>().pickWithProducts.pick?.id ?? 0,
                   unidadesSeparadas: unidadesSeparadas,
                   createBackorder:
@@ -279,6 +280,7 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                             Navigator.of(context, rootNavigator: true).context,
                         builder: (context) {
                           return DialogBackorderPick(
+                            isHistory: false,
                             idPick: batchBloc.pickWithProducts.pick?.id ?? 0,
                             unidadesSeparadas: unidadesSeparadas,
                             createBackorder: batchBloc

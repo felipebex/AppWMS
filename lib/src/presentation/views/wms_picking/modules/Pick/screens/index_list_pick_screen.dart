@@ -316,7 +316,8 @@ class IndexListPickScreen extends StatelessWidget {
                                 );
 
                             // Navegar a la pantalla de historial
-                            Navigator.pushNamed(context, 'pick-done');
+                            Navigator.pushReplacementNamed(
+                                context, 'pick-done');
                           }
                         },
                         child: Card(
