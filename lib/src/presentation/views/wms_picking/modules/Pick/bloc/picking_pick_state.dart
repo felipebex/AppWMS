@@ -207,8 +207,7 @@ class SendProductPickOdooSuccess extends PickingPickState {}
 
 class SendProductPickOdooError extends PickingPickState {
   final String error;
-  final TransferRequest transferRequest;
-  SendProductPickOdooError(this.error, this.transferRequest);
+  SendProductPickOdooError(this.error,  );
 }
 
 //*est

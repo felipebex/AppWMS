@@ -216,8 +216,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       );
 
       if (response != null && response is List) {
-        historyPicks.clear();
-        filtersHistoryPicks.clear();
+        historyPicks = [];
+        filtersHistoryPicks = [];
         historyPicks.addAll(response);
         filtersHistoryPicks.addAll(response);
 
@@ -386,10 +386,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       CreateBackOrderOrNot event, Emitter<PickingPickState> emit) async {
     try {
       emit(CreateBackOrderOrNotLoading());
-     
-     print('Crear backorder: ${event.isBackOrder}');
-     print('idPick: ${event.idPick}');
-     
+
+      print('Crear backorder: ${event.isBackOrder}');
+      print('idPick: ${event.idPick}');
+
       final response = await repository.validateTransfer(
           event.idPick, event.isBackOrder, false);
 
@@ -473,7 +473,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           filtersHistoryPicks = historyPicks;
           listOfPickFiltered = [];
           listOfPickFiltered = listOfPick;
-          
         }
       } else {
         if (event.isComponentes) {
@@ -515,11 +514,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
                 backorder.contains(query) ||
                 zona.contains(query);
           }).toList();
-
-
-
-
-
         }
       }
 
@@ -797,8 +791,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       DateTime fechaTransaccion = DateTime.now();
       String fechaFormateada = formatoFecha(fechaTransaccion);
 
-      print(
-          'Enviando producto a Odoo: ${event.product.toMap()}');
+      print('Enviando producto a Odoo: ${event.product.toMap()}');
 
       final response = await repository.sendProductTransferPick(
         TransferRequest(
@@ -891,28 +884,28 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
         emit(SendProductPickOdooError(
           response.result?.msg ?? 'Error al enviar el producto',
-          TransferRequest(
-            idTransferencia: currentProduct.batchId ?? 0,
-            listItems: [
-              ListItem(
-                idMove: event.product.idMove ?? 0,
-                idProducto: event.product.idProduct ?? 0,
-                idLote: event.product.loteId ?? 0,
-                idUbicacionDestino: event.product.muelleId ?? 0,
-                cantidadEnviada: event.product.quantitySeparate ?? 0,
-                idOperario: userid,
-                timeLine: event.product.timeSeparate == null
-                    ? 30.0
-                    : event.product.timeSeparate.toDouble(),
-                fechaTransaccion: event.product.fechaTransaccion == "" ||
-                        event.product.fechaTransaccion == null
-                    ? fechaFormateada
-                    : event.product.fechaTransaccion ?? "",
-                observacion: event.product.observation ?? 'Sin novedad',
-                dividida: false,
-              ),
-            ],
-          ),
+          // TransferRequest(
+          //   idTransferencia: currentProduct.batchId ?? 0,
+          //   listItems: [
+          //     ListItem(
+          //       idMove: event.product.idMove ?? 0,
+          //       idProducto: event.product.idProduct ?? 0,
+          //       idLote: event.product.loteId ?? 0,
+          //       idUbicacionDestino: event.product.muelleId ?? 0,
+          //       cantidadEnviada: event.product.quantitySeparate ?? 0,
+          //       idOperario: userid,
+          //       timeLine: event.product.timeSeparate == null
+          //           ? 30.0
+          //           : event.product.timeSeparate.toDouble(),
+          //       fechaTransaccion: event.product.fechaTransaccion == "" ||
+          //               event.product.fechaTransaccion == null
+          //           ? fechaFormateada
+          //           : event.product.fechaTransaccion ?? "",
+          //       observacion: event.product.observation ?? 'Sin novedad',
+          //       dividida: false,
+          //     ),
+          //   ],
+          // ),
         ));
       }
     } catch (e, s) {
@@ -920,28 +913,28 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       String fechaFormateada = formatoFecha(fechaTransaccion);
       emit(SendProductPickOdooError(
         s.toString(),
-        TransferRequest(
-          idTransferencia: currentProduct.batchId ?? 0,
-          listItems: [
-            ListItem(
-              idMove: event.product.idMove ?? 0,
-              idProducto: event.product.idProduct ?? 0,
-              idLote: event.product.loteId ?? 0,
-              idUbicacionDestino: event.product.muelleId ?? 0,
-              cantidadEnviada: event.product.quantitySeparate ?? 0,
-              idOperario: userid,
-              timeLine: event.product.timeSeparate == null
-                  ? 30.0
-                  : event.product.timeSeparate.toDouble(),
-              fechaTransaccion: event.product.fechaTransaccion == "" ||
-                      event.product.fechaTransaccion == null
-                  ? fechaFormateada
-                  : event.product.fechaTransaccion ?? "",
-              observacion: event.product.observation ?? 'Sin novedad',
-              dividida: false,
-            ),
-          ],
-        ),
+        // TransferRequest(
+        //   idTransferencia: currentProduct.batchId ?? 0,
+        //   listItems: [
+        //     ListItem(
+        //       idMove: event.product.idMove ?? 0,
+        //       idProducto: event.product.idProduct ?? 0,
+        //       idLote: event.product.loteId ?? 0,
+        //       idUbicacionDestino: event.product.muelleId ?? 0,
+        //       cantidadEnviada: event.product.quantitySeparate ?? 0,
+        //       idOperario: userid,
+        //       timeLine: event.product.timeSeparate == null
+        //           ? 30.0
+        //           : event.product.timeSeparate.toDouble(),
+        //       fechaTransaccion: event.product.fechaTransaccion == "" ||
+        //               event.product.fechaTransaccion == null
+        //           ? fechaFormateada
+        //           : event.product.fechaTransaccion ?? "",
+        //       observacion: event.product.observation ?? 'Sin novedad',
+        //       dividida: false,
+        //     ),
+        //   ],
+        // ),
       ));
       print("❌ Error en el SendProductOdooEvent: $e ->$s");
     } finally {
@@ -1344,100 +1337,214 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   //*metodo para cambiar el producto actual
 
-  void _onChangeCurrentProduct(
-      ChangeCurrentProduct event, Emitter<PickingPickState> emit) async {
-    try {
-      viewQuantity = false;
-      emit(CurrentProductChangedStateLoading());
+  // void _onChangeCurrentProduct(
+  //     ChangeCurrentProduct event, Emitter<PickingPickState> emit) async {
+  //   try {
+  //     viewQuantity = false;
+  //     emit(CurrentProductChangedStateLoading());
 
-      // // Desseleccionamos el producto ya separado
-      await db.pickProductsRepository.setFieldTablePickProducts(
-          pickWithProducts.pick?.id ?? 0,
-          event.currentProduct.idProduct ?? 0,
-          'is_selected',
-          0,
-          currentProduct.idMove ?? 0);
+  //     // // Desseleccionamos el producto ya separado
+  //     await db.pickProductsRepository.setFieldTablePickProducts(
+  //         pickWithProducts.pick?.id ?? 0,
+  //         event.currentProduct.idProduct ?? 0,
+  //         'is_selected',
+  //         0,
+  //         currentProduct.idMove ?? 0);
 
-      DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+  //     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
 
-      // Actualizamos el tiempo total del producto ya separado
-      await db.pickProductsRepository.endStopwatchProduct(
-          pickWithProducts.pick?.id ?? 0,
-          dateTimeActuality.toString(),
-          currentProduct.idProduct ?? 0,
-          currentProduct.idMove ?? 0);
+  //     // Actualizamos el tiempo total del producto ya separado
+  //     await db.pickProductsRepository.endStopwatchProduct(
+  //         pickWithProducts.pick?.id ?? 0,
+  //         dateTimeActuality.toString(),
+  //         currentProduct.idProduct ?? 0,
+  //         currentProduct.idMove ?? 0);
 
-      final starTimeProduct = await db.pickProductsRepository
-          .getFieldTableProductsPick(
-              currentProduct.batchId ?? 0,
-              currentProduct.idProduct ?? 0,
-              currentProduct.idMove ?? 0,
-              "time_separate_start");
+  //     final starTimeProduct = await db.pickProductsRepository
+  //         .getFieldTableProductsPick(
+  //             currentProduct.batchId ?? 0,
+  //             currentProduct.idProduct ?? 0,
+  //             currentProduct.idMove ?? 0,
+  //             "time_separate_start");
 
-      DateTime dateTimeStartProduct =
-          starTimeProduct == "null" || starTimeProduct.isEmpty
-              ? DateTime.parse(DateTime.now().toString())
-              : DateTime.parse(starTimeProduct);
+  //     DateTime dateTimeStartProduct =
+  //         starTimeProduct == "null" || starTimeProduct.isEmpty
+  //             ? DateTime.parse(DateTime.now().toString())
+  //             : DateTime.parse(starTimeProduct);
 
-      // Calcular la diferencia del producto ya separado
-      Duration differenceProduct =
-          dateTimeActuality.difference(dateTimeStartProduct);
+  //     // Calcular la diferencia del producto ya separado
+  //     Duration differenceProduct =
+  //         dateTimeActuality.difference(dateTimeStartProduct);
 
-      // Obtener la diferencia en segundos
-      double secondsDifferenceProduct =
-          differenceProduct.inMilliseconds / 1000.0;
+  //     // Obtener la diferencia en segundos
+  //     double secondsDifferenceProduct =
+  //         differenceProduct.inMilliseconds / 1000.0;
 
-      await db.pickProductsRepository.totalStopwatchProduct(
-          pickWithProducts.pick?.id ?? 0,
-          currentProduct.idProduct ?? 0,
-          currentProduct.idMove ?? 0,
-          secondsDifferenceProduct);
+  //     await db.pickProductsRepository.totalStopwatchProduct(
+  //         pickWithProducts.pick?.id ?? 0,
+  //         currentProduct.idProduct ?? 0,
+  //         currentProduct.idMove ?? 0,
+  //         secondsDifferenceProduct);
 
-      sendProuctOdoo();
+  //     final response = await sendProuctOdoo();
 
-      if (filteredProducts.where((product) => product.isSeparate == 0).length !=
-          0) {
-        productIsOk = false;
-        quantityIsOk = false;
+  //     if (response.success == false) {
+  //       emit(SendProductPickOdooError('Error al enviar el producto a Odoo'));
+  //       return;
+  //     }
 
-        currentProduct = filteredProducts
-            .where((product) => product.isSeparate == 0)
-            .toList()
-            .first;
+  //     if (filteredProducts.where((product) => product.isSeparate == 0).length !=
+  //         0) {
+  //       productIsOk = false;
+  //       quantityIsOk = false;
 
-        if (currentProduct.locationId == oldLocation) {
-          print('La ubicación es igual');
-          locationIsOk = true;
-        } else {
-          locationIsOk = false;
-          print('La ubicación es diferente');
-        }
+  //       currentProduct = filteredProducts
+  //           .where((product) => product.isSeparate == 0)
+  //           .toList()
+  //           .first;
 
-        await db.pickProductsRepository.startStopwatch(
-          pickWithProducts.pick?.id ?? 0,
-          currentProduct.idProduct ?? 0,
-          currentProduct.idMove ?? 0,
-          DateTime.now().toString(),
-        );
+  //       if (currentProduct.locationId == oldLocation) {
+  //         print('La ubicación es igual');
+  //         locationIsOk = true;
+  //       } else {
+  //         locationIsOk = false;
+  //         print('La ubicación es diferente');
+  //       }
+
+  //       await db.pickProductsRepository.startStopwatch(
+  //         pickWithProducts.pick?.id ?? 0,
+  //         currentProduct.idProduct ?? 0,
+  //         currentProduct.idMove ?? 0,
+  //         DateTime.now().toString(),
+  //       );
+  //     }
+
+  //     emit(CurrentProductChangedState(
+  //       currentProduct: currentProduct,
+  //     ));
+
+  //     add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
+
+  //     //mostramos todas las variables
+
+  //     return;
+  //   } catch (e, s) {
+  //     emit(CurrentProductChangedStateError('Error al cambiar de producto'));
+  //     print("❌ Error en el ChangeCurrentProduct $e ->$s");
+  //   }
+  // }
+
+void _onChangeCurrentProduct(
+    ChangeCurrentProduct event, Emitter<PickingPickState> emit) async {
+  try {
+    viewQuantity = false;
+    emit(CurrentProductChangedStateLoading());
+
+    // --- 1. Lógica de Marcado del Producto Actual (Pre-Envío) ---
+    // Estas acciones se ejecutan sin importar si Odoo tiene éxito, ya que son locales.
+    await db.pickProductsRepository.setFieldTablePickProducts(
+        pickWithProducts.pick?.id ?? 0,
+        event.currentProduct.idProduct ?? 0,
+        'is_selected',
+        0,
+        currentProduct.idMove ?? 0);
+    
+    // Cálculo de tiempo (Tu lógica original de cálculo de diferencia)
+    DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+    await db.pickProductsRepository.endStopwatchProduct(
+        pickWithProducts.pick?.id ?? 0,
+        dateTimeActuality.toString(),
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0);
+    
+    final starTimeProduct = await db.pickProductsRepository
+        .getFieldTableProductsPick(
+            currentProduct.batchId ?? 0,
+            currentProduct.idProduct ?? 0,
+            currentProduct.idMove ?? 0,
+            "time_separate_start");
+
+    DateTime dateTimeStartProduct =
+        starTimeProduct == "null" || starTimeProduct.isEmpty
+            ? DateTime.parse(DateTime.now().toString())
+            : DateTime.parse(starTimeProduct);
+
+    Duration differenceProduct =
+        dateTimeActuality.difference(dateTimeStartProduct);
+    double secondsDifferenceProduct = differenceProduct.inMilliseconds / 1000.0;
+
+    await db.pickProductsRepository.totalStopwatchProduct(
+        pickWithProducts.pick?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+        secondsDifferenceProduct);
+
+    // --- 2. PUNTO DE CONTROL CRÍTICO: Envío a Odoo ---
+    // El 'await' aquí garantiza que el código ESPERA la respuesta antes de continuar.
+    final response = await sendProuctOdoo();
+
+    if (response.success == false) {
+      // Si el envío falla (response.success es false, gracias a tu función SendResult),
+      // EMITIMOS EL ERROR y SALIMOS DE LA FUNCIÓN. El currentProduct NO se actualiza.
+      emit(SendProductPickOdooError(response.message)); // Usamos el mensaje de error de la respuesta
+      return;
+    }
+
+    // --- 3. Procesar el Siguiente Producto (Solo si el Envío a Odoo fue Éxito) ---
+
+    // La lista filtrada se debe re-evaluar o re-obtener si es necesario.
+    // Asumo que 'filteredProducts' está disponible y actualizado.
+    final nextProducts = filteredProducts.where((product) => product.isSeparate == 0).toList();
+
+    if (nextProducts.isNotEmpty) {
+      // Restablecemos los estados de la UI para el nuevo producto
+      productIsOk = false;
+      quantityIsOk = false;
+
+      // Seleccionamos el siguiente producto de la lista
+      currentProduct = nextProducts.first;
+
+      // Lógica de ubicación
+      if (currentProduct.locationId == oldLocation) {
+        locationIsOk = true;
+      } else {
+        locationIsOk = false;
       }
 
-      emit(CurrentProductChangedState(
-        currentProduct: currentProduct,
-      ));
-
-      add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
-
-      //mostramos todas las variables
-
-      return;
-    } catch (e, s) {
-      emit(CurrentProductChangedStateError('Error al cambiar de producto'));
-      print("❌ Error en el ChangeCurrentProduct $e ->$s");
+      // Iniciamos el cronómetro del nuevo producto
+      await db.pickProductsRepository.startStopwatch(
+        pickWithProducts.pick?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+        DateTime.now().toString(),
+      );
+    } else {
+      // No hay más productos pendientes. Podemos limpiar el currentProduct o dejar el estado de "terminado".
+      print('✅ Todos los productos han sido separados.');
     }
-  }
 
-//*metodo para enviar al wms
-  void sendProuctOdoo() async {
+    // --- 4. Emisión del Estado Final y Actualización de Lista ---
+
+    emit(CurrentProductChangedState(
+      currentProduct: currentProduct,
+    ));
+
+    // Forzar la actualización de la lista de productos
+    add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
+
+    return;
+  } catch (e, s) {
+    // Manejo de cualquier excepción inesperada (conexión, base de datos)
+    emit(CurrentProductChangedStateError('Error crítico al procesar el cambio de producto.'));
+    print("❌ Error en el ChangeCurrentProduct $e ->$s");
+  }
+} 
+ 
+ 
+ 
+ 
+  //*metodo para enviar al wms
+  Future<SendResult> sendProuctOdoo() async {
     try {
       DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
       //traemos un producto de la base de datos  ya anteriormente guardado
@@ -1513,7 +1620,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             resultProduct.idMove ?? 0,
           );
         }
+        return SendResult(
+            success: true, message: 'Producto enviado exitosamente');
       } else {
+        quantityIsOk = true;
         //elementos que no se pudieron enviar a odoo
         await db.pickProductsRepository.setFieldTablePickProducts(
           product?.batchId ?? 0,
@@ -1522,9 +1632,13 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           0,
           product?.idMove ?? 0,
         );
+        return SendResult(
+            success: false,
+            message: response.result?.msg ?? 'Error al enviar el producto');
       }
     } catch (e, s) {
       print("❌ Error en el sendProuctOdoo $e ->$s ");
+      return SendResult(success: false, message: 'Error inesperado: $e');
     }
   }
 
@@ -1912,6 +2026,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       FetchPickingPickEvent event, Emitter<PickingPickState> emit) async {
     emit(PickingPickLoading());
     try {
+      await DataBaseSqlite().delePick('pick');
+      oldLocation = '';
+
       // Aquí llamas a tu repositorio para obtener los datos
       final result = await pickingPickRepository.resPicks(event.isLoadinDialog);
 
@@ -2046,5 +2163,25 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       print("❌ Error en el calcularUnidadesSeparadas $e ->$s");
       return '';
     }
+  }
+}
+
+class SendResult {
+  final bool success;
+  final String message;
+  SendResult({required this.success, required this.message});
+
+  factory SendResult.fromJson(Map<String, dynamic> json) {
+    return SendResult(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'message': message,
+    };
   }
 }

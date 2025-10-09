@@ -34,7 +34,7 @@ class DialogBackorderPick extends StatelessWidget {
         backgroundColor: Colors.white,
         actionsAlignment: MainAxisAlignment.center,
         title: Text(
-          'Confirmar Pick',
+          'Confirmar Picking',
           style: TextStyle(color: primaryColorApp, fontSize: 16),
           textAlign: TextAlign.center,
         ),
@@ -53,9 +53,9 @@ class DialogBackorderPick extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0)
-                    ? '¿Estás seguro de confirmar el pick para ser enviado?'
+                    ? '¿Estás seguro de confirmar el picking para ser enviado?'
                     : createBackorder == "never"
-                        ? '¿Estás seguro de confirmar el pick para ser enviado?'
+                        ? '¿Estás seguro de confirmar picking para ser enviado?'
                         : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                 style: TextStyle(color: black, fontSize: 14),
                 textAlign: TextAlign.center,
@@ -115,7 +115,7 @@ class DialogBackorderPick extends StatelessWidget {
               ),
             ),
             child: const Text(
-              'Confirmar Pick',
+              'Confirmar Picking',
               style: TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),

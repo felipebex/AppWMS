@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -46,9 +47,31 @@ class PickDetailScreen extends StatelessWidget {
 
         if (state is SendProductPickOdooError) {
           Navigator.pop(context);
-          ErrorDialog.show(
-            error: state.error,
-            request: state.transferRequest.toMap(),
+          // ErrorDialog.show(
+          //   error: state.error,
+          //   request: state.transferRequest.toMap(),
+          // );
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
           );
         }
 
@@ -454,7 +477,7 @@ class PickDetailScreen extends StatelessWidget {
                                                         child: Icon(
                                                           Icons.play_circle,
                                                           color: green,
-                                                          size: 20,
+                                                          size: 25,
                                                         ),
                                                       ),
                                                     ],
@@ -1096,8 +1119,7 @@ class DialogoConfirmateProductLoad extends StatelessWidget {
                 context
                     .read<PickingPickBloc>()
                     .add(LoadSelectedProductEvent(productsBatch));
-                Navigator.pushReplacementNamed(
-                                          context, 'scan-product-pick');
+                Navigator.pushReplacementNamed(context, 'scan-product-pick');
               },
               child: const Text("Aceptar", style: TextStyle(color: white))),
         ],

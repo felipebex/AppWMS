@@ -398,7 +398,6 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
           final currentProduct = batchBloc.currentProduct;
 
           return Scaffold(
-           
             backgroundColor: white,
             body: Column(
               children: [
@@ -461,6 +460,35 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                               'picking-componentes',
                             );
                           }
+                        }
+
+                        if (state is SendProductPickOdooError) {
+                          Navigator.pop(context);
+                          Get.defaultDialog(
+                            title: '360 Software Informa',
+                            titleStyle:
+                                TextStyle(color: Colors.red, fontSize: 18),
+                            middleText: state.error,
+                            middleTextStyle:
+                                TextStyle(color: black, fontSize: 14),
+                            backgroundColor: Colors.white,
+                            radius: 10,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColorApp,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text('Aceptar',
+                                    style: TextStyle(color: white)),
+                              ),
+                            ],
+                          );
                         }
 
                         if (state is MuellesLoadingState) {
@@ -1104,8 +1132,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                           ""
                                                       ? true
                                                       : false),
-                                              if (currentProduct.lote != null &&
-                                                  currentProduct.lote != "")
+                                              if (currentProduct.productTracking == "lot")
                                                 Row(
                                                   children: [
                                                     Align(
@@ -1315,9 +1342,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                               //informacion del lote:
                                               Column(
                                                 children: [
-                                                  if (currentProduct.lote !=
-                                                          null &&
-                                                      currentProduct.lote != "")
+                                                  if (currentProduct.productTracking == "lot")
                                                     Row(
                                                       children: [
                                                         Align(

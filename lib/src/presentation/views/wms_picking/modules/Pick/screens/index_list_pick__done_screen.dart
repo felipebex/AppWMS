@@ -266,6 +266,7 @@ class IndexListPickDoneScreen extends StatelessWidget {
 
                                     Navigator.pushReplacementNamed(
                                         context, 'detail-pick-done');
+                                    print('Tapped on batch: ${batch.toMap()}');
                                   },
                                   child: Card(
                                     color: batch.isSeparate == 1
@@ -349,6 +350,55 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                               ],
                                             ),
                                           ),
+
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Text('Estado: ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            primaryColorApp)),
+                                                Text(
+                                                  batch?.state == 'done'
+                                                      ? 'Completado'
+                                                      : batch?.state == 'draft'
+                                                          ? 'Borrador'
+                                                          : batch?.state ==
+                                                                  'waiting'
+                                                              ? 'Esperando'
+                                                              : batch?.state ==
+                                                                      'confirmed'
+                                                                  ? 'Confirmado'
+                                                                  : batch?.state ==
+                                                                          'assigned'
+                                                                      ? 'Asignado'
+                                                                      : "",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: batch?.state ==
+                                                            'done'
+                                                        ? green
+                                                        : batch?.state ==
+                                                                'draft'
+                                                            ? grey
+                                                            : batch?.state ==
+                                                                    'waiting'
+                                                                ? yellow
+                                                                : batch?.state ==
+                                                                        'confirmed'
+                                                                    ? red
+                                                                    : batch?.state ==
+                                                                            'assigned'
+                                                                        ? red
+                                                                        : black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
                                           Divider(
                                             color: black,
                                             thickness: 1,

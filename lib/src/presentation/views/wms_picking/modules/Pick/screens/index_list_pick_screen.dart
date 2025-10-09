@@ -176,7 +176,6 @@ class IndexListPickScreen extends StatelessWidget {
                                     ),
                                     GestureDetector(
                                       onTap: () async {
-                                        await DataBaseSqlite().delePick('pick');
                                         bloc.add(FetchPickingPickEvent(true));
                                       },
                                       child: Padding(
@@ -185,7 +184,7 @@ class IndexListPickScreen extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             const Text(
-                                              'PICKING - PICK',
+                                              'PICK PEDIDO',
                                               style: TextStyle(
                                                   color: white,
                                                   fontSize: 18,

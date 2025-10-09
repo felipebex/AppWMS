@@ -219,7 +219,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             child: Row(
                                               children: [
                                                 const Text(
-                                                  'PICKING',
+                                                  'PICK BATCH',
                                                   style: TextStyle(
                                                       color: white,
                                                       fontSize: 18,

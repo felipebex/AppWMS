@@ -252,7 +252,20 @@ class DetailPickDoneScreen extends StatelessWidget {
                                                 : batch?.state == 'assigned'
                                                     ? 'Asignado'
                                                     : "",
-                                style: TextStyle(fontSize: 12, color: black),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: batch?.state == 'done'
+                                      ? green
+                                      : batch?.state == 'draft'
+                                          ? grey
+                                          : batch?.state == 'waiting'
+                                              ? yellow
+                                              : batch?.state == 'confirmed'
+                                                  ? red
+                                                  : batch?.state == 'assigned'
+                                                      ? red
+                                                      : black,
+                                ),
                               ),
                             ],
                           ),
