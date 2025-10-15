@@ -1146,6 +1146,10 @@ class RecepcionBatchBloc
           .fetchAllBatchReceptions(event.isLoadinDialog);
 
       if (response.result?.code == 200) {
+        if ((response.result?.updateVersion ?? false) == true) {
+          emit(NeedUpdateVersionState());
+        }
+
         if (response.result?.result?.isNotEmpty == true) {
           final listReceptionBatch = response.result?.result;
           print('cantidad de recepciones: ${listReceptionBatch?.length}');

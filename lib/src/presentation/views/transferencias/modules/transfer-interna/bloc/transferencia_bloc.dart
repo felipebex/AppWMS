@@ -411,6 +411,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       final response = await _transferenciasRepository
           .fetAllEntradasProducts(event.isLoadingDialog);
 
+      if ((response.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
+      }
+
       if (response.code == 200) {
         await db.transferenciaRepository
             .insertEntrada(response.result ?? [], 'entrega');
@@ -1577,6 +1581,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       transferencias.clear();
       final response = await _transferenciasRepository
           .fetAllTransferencias(event.isLoadingDialog);
+
+      if ((response.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
+      }
 
       if (response.code == 200) {
         await db.transferenciaRepository

@@ -37,11 +37,15 @@ class PackingModelResponse {
 
 class PackingModelResponseResult {
   final int? code;
+  final String? msg;
+  final bool? updateVersion;
   final List<BatchPackingModel>? result;
 
   PackingModelResponseResult({
     this.code,
     this.result,
+    this.msg,
+    this.updateVersion,
   });
 
   factory PackingModelResponseResult.fromJson(String str) =>
@@ -52,6 +56,8 @@ class PackingModelResponseResult {
   factory PackingModelResponseResult.fromMap(Map<String, dynamic> json) =>
       PackingModelResponseResult(
         code: json["code"],
+        msg: json["msg"],
+        updateVersion: json["update_version"],
         result: json["result"] == null
             ? []
             : List<BatchPackingModel>.from(
@@ -60,6 +66,8 @@ class PackingModelResponseResult {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
+        "update_version": updateVersion,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),
@@ -154,8 +162,7 @@ class BatchPackingModel {
         temperatura: json["temperatura"],
         origin: json["origin"] == null
             ? []
-            : List<Origin>.from(
-                json["origin"]!.map((x) => Origin.fromMap(x))),
+            : List<Origin>.from(json["origin"]!.map((x) => Origin.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {

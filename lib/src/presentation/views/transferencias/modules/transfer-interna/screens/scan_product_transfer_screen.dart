@@ -13,10 +13,10 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/location/location_card_widget.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/others/dropdowbutton_widget.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/product/product_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/widgets/location/location_card_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/widgets/others/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/widgets/product/product_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
@@ -24,7 +24,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
-import '../../../../providers/network/cubit/connection_status_cubit.dart';
+import '../../../../../providers/network/cubit/connection_status_cubit.dart';
 
 class ScanProductTrasnferScreen extends StatefulWidget {
   final LineasTransferenciaTrans? currentProduct;

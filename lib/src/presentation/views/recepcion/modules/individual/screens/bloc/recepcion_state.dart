@@ -7,7 +7,7 @@ final class RecepcionInitial extends RecepcionState {}
 
 //estados para obtener todas las orndes de compras
 class FetchOrdenesCompraLoading extends RecepcionState {}
-
+class NeedUpdateVersionState extends RecepcionState {}
 class FetchOrdenesCompraSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   FetchOrdenesCompraSuccess(this.ordenesCompra);

@@ -79,3 +79,7 @@ class UpdateScannedValueState extends PickingState {
 }
 
 class ClearScannedValueState extends PickingState {}
+
+
+class NeedUpdateVersionState extends PickingState {
+}

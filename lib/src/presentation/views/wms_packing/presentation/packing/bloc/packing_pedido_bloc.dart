@@ -1607,11 +1607,17 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       final response =
           await wmsPackingRepository.resPackingPedido(event.isLoadinDialog);
 
-      if (response != null && response is List) {
+      if (response.result != null && response.result is List) {
         listOfPedidos.clear();
         listOfPedidosBD.clear();
-        listOfPedidos.addAll(response);
-        listOfPedidosBD.addAll(response);
+        listOfPedidos.addAll(response.result!);
+        listOfPedidosBD.addAll(response.result!);
+
+
+         if ((response.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
+      }
+
 
         if (listOfPedidos.isNotEmpty) {
           await DataBaseSqlite()

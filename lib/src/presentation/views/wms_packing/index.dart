@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -94,17 +95,17 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
         listener: (context, state) {
-      // if (state is WmsPackingLoaded) {
-      //   if (state.listOfBatchs.isEmpty) {
-      //     Get.snackbar(
-      //       '360 Software Informa',
-      //       "No hay batch disponibles",
-      //       backgroundColor: white,
-      //       colorText: primaryColorApp,
-      //       icon: Icon(Icons.error, color: Colors.amber),
-      //     );
-      //   }
-      // }
+      if (state is NeedUpdateVersionState) {
+        Get.snackbar(
+          '360 Software Informa',
+          'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+          showProgressIndicator: true,
+          duration: Duration(seconds: 5),
+        );
+      }
     }, builder: (context, state) {
       return Scaffold(
           backgroundColor: white,

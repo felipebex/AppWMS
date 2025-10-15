@@ -42,11 +42,13 @@ class Recepcionresponse {
 class RecepcionresponseResult {
   int? code;
   String? msg;
+  bool? updateVersion;
   List<ResultEntrada>? result;
 
   RecepcionresponseResult({
     this.code,
     this.msg,
+    this.updateVersion,
     this.result,
   });
 
@@ -54,6 +56,7 @@ class RecepcionresponseResult {
       RecepcionresponseResult(
         code: json["code"],
         msg: json["msg"],
+        updateVersion: json["update_version"] ?? false,
         result: json["result"] == null
             ? []
             : List<ResultEntrada>.from(
@@ -63,6 +66,7 @@ class RecepcionresponseResult {
   Map<String, dynamic> toMap() => {
         "code": code,
         "msg": msg,
+        "update_version": updateVersion,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),

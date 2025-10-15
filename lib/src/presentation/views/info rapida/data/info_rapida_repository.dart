@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
@@ -27,6 +28,8 @@ class InfoRapidaRepository {
       final mac = await PrefUtils.getMacPDA();
       final imei = await PrefUtils.getImeiPDA();
 
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
       print("barcode $barcode");
       var response = await ApiRequestService().getInfo(
         endpoint: 'transferencias/quickinfo',
@@ -34,6 +37,7 @@ class InfoRapidaRepository {
           "params": {
             "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
             "barcode": barcode,
+            "version_app": packageInfo.version
           }
         },
         isLoadinDialog: isLoadinDialog,
@@ -56,6 +60,8 @@ class InfoRapidaRepository {
                 code: jsonResponse['result']['code'],
                 msg: jsonResponse['result']['msg'],
                 result: null,
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
               ),
             );
           } else if (jsonResponse['result']['code'] == 403) {
@@ -65,6 +71,8 @@ class InfoRapidaRepository {
               result: InfoRapidaResult(
                 code: jsonResponse['result']['code'],
                 msg: jsonResponse['result']['msg'],
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
                 result: null,
               ),
             );
@@ -75,6 +83,8 @@ class InfoRapidaRepository {
               result: InfoRapidaResult(
                 code: jsonResponse['result']['code'],
                 msg: jsonResponse['result']['msg'],
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
                 result: null,
               ),
             );
@@ -103,18 +113,37 @@ class InfoRapidaRepository {
                 ),
               ],
             );
-            return InfoRapida();
+            return InfoRapida(
+              jsonrpc: jsonResponse["jsonrpc"],
+              id: jsonResponse["id"],
+              result: InfoRapidaResult(
+                code: jsonResponse['error']['code'],
+                msg: jsonResponse['error']['message'],
+                updateVersion: false,
+                result: null,
+              ),
+            );
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return InfoRapida();
+      return InfoRapida(
+          result: InfoRapidaResult(
+              code: 500,
+              msg: 'Error de red',
+              result: null,
+              updateVersion: false));
     } catch (e, s) {
       // Manejo de otros errores
       print('Error getInfoQuick: $e, $s');
     }
-    return InfoRapida();
+    return InfoRapida(
+        result: InfoRapidaResult(
+            code: 500,
+            msg: 'Error desconocido',
+            result: null,
+            updateVersion: false));
   }
 
   Future<InfoRapida> getInfoQuickManual(
@@ -132,17 +161,20 @@ class InfoRapidaRepository {
       //obtenemos la mac o el device id del dispositivo
       final mac = await PrefUtils.getMacPDA();
       final imei = await PrefUtils.getImeiPDA();
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
       var response = await ApiRequestService().getInfo(
         endpoint: 'transferencias/quickinfo/id',
         body: {
           "params": isProduct
               ? {
                   "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
-                  "id_product": id
+                  "id_product": id,
+                  "version_app": packageInfo.version
                 }
               : {
                   "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
                   "id_location": id,
+                  "version_app": packageInfo.version
                 }
         },
         isLoadinDialog: isLoadinDialog,

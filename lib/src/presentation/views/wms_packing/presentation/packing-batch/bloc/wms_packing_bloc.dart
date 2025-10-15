@@ -1401,11 +1401,15 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       final response =
           await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
 
-      if (response != null && response is List) {
+      if (response.result != null && response.result is List) {
         listOfBatchs.clear();
         listOfBatchsDB.clear();
-        listOfBatchs.addAll(response);
-        listOfBatchsDB.addAll(response);
+        listOfBatchs.addAll(response.result!);
+        listOfBatchsDB.addAll(response.result!);
+
+        if ((response.updateVersion ?? false) == true) {
+          emit(NeedUpdateVersionState());
+        }
 
         if (listOfBatchs.isNotEmpty) {
           await DataBaseSqlite()

@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -89,6 +91,18 @@ class IndexListPickComponentsScreen extends StatelessWidget {
               backgroundColor: white,
               colorText: primaryColorApp,
               icon: Icon(Icons.error, color: Colors.red),
+            );
+          }
+
+          if (state is NeedUpdateVersionState) {
+            Get.snackbar(
+              '360 Software Informa',
+              'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.amber),
+              showProgressIndicator: true,
+              duration: Duration(seconds: 5),
             );
           }
 

@@ -183,9 +183,13 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       listOfBatchs.clear();
       filteredBatchs.clear();
 
-      if (response != null && response is List) {
+      if (response.result != null && response.result is List) {
         int userId = await PrefUtils.getUserId();
-        listOfBatchs.addAll(response);
+        listOfBatchs.addAll(response.result ?? []);
+
+        if ((response.updateVersion ?? false) == true) {
+          emit(NeedUpdateVersionState());
+        }
 
         if (listOfBatchs.isNotEmpty) {
           await DataBaseSqlite()
@@ -199,8 +203,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           final originsIterable =
               _extractAllOrigins(listOfBatchs).toList(growable: false);
 
-          final allBarcodes =
-              _extractAllBarcodes(response).toList(growable: false);
+          final allBarcodes = _extractAllBarcodes(response.result ?? [])
+              .toList(growable: false);
 
           // final List<Muelles> responseMuelles =
           //     await wmsPickingRepository.getmuelles(

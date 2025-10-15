@@ -89,6 +89,19 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
         listener: (context, state) {
       print("Estado del bloc: $state");
+
+      if (state is NeedUpdateVersionState) {
+        Get.snackbar(
+          '360 Software Informa',
+          'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+          showProgressIndicator: true,
+          duration: Duration(seconds: 5),
+        );
+      }
+
       if (state is AssignUserToPedidoError) {
         //validamos que este un dialog abierto
         if (Navigator.canPop(context)) {

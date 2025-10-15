@@ -40,11 +40,13 @@ class InfoRapidaResult {
   int? code;
   String? type;
   String? msg;
+  bool? updateVersion;
   InfoResult? result;
 
   InfoRapidaResult({
     this.code,
     this.msg,
+    this.updateVersion,
     this.type,
     this.result,
   });
@@ -53,6 +55,7 @@ class InfoRapidaResult {
       InfoRapidaResult(
         code: json["code"],
         msg: json["msg"],
+        updateVersion: json["update_version"] ?? false,
         type: json["type"],
         result:
             json["result"] == null ? null : InfoResult.fromMap(json["result"]),
@@ -61,6 +64,7 @@ class InfoRapidaResult {
   Map<String, dynamic> toMap() => {
         "code": code,
         "msg": msg,
+        "update_version": updateVersion,
         "type": type,
         "result": result?.toMap(),
       };

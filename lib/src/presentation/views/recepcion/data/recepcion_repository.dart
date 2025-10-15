@@ -30,7 +30,12 @@ class RecepcionRepository {
       final connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
         print("❌ Sin conexión a Internet.");
-        return Recepcionresponse();
+        return Recepcionresponse(
+            result: RecepcionresponseResult(
+                code: 0,
+                msg: "Sin conexión a Internet",
+                updateVersion: false,
+                result: [])); // Retornar un objeto con código 0 y mensaje de error
       }
 
       final response = await ApiRequestService().getValidation(
@@ -58,6 +63,7 @@ class RecepcionRepository {
             result: RecepcionresponseResult(
               code: jsonResponse['result']['code'],
               msg: jsonResponse['result']['msg'],
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
               result: [],
             ),
           );
@@ -72,6 +78,7 @@ class RecepcionRepository {
             result: RecepcionresponseResult(
               code: result['code'],
               result: ordenes,
+              updateVersion: result['update_version'] ?? false,
             ),
           );
         } else if (jsonResponse['result']['code'] == 403) {
@@ -81,6 +88,7 @@ class RecepcionRepository {
             result: RecepcionresponseResult(
               code: result['code'],
               msg: result['msg'],
+              updateVersion: result['update_version'] ?? false,
               result: [],
             ),
           );
@@ -118,7 +126,12 @@ class RecepcionRepository {
       print('📍 Stack: $s');
     }
 
-    return Recepcionresponse(); // Fallback en todos los casos
+    return Recepcionresponse(
+        result: RecepcionresponseResult(
+            code: 0,
+            msg: "Ocurrió un error inesperado",
+            updateVersion: false,
+            result: [])); // Fallback en todos los casos
   }
 
   Future<Recepcionresponse> fetchAllDevolutions(bool isLoadinDialog) async {
@@ -128,7 +141,12 @@ class RecepcionRepository {
       final connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
         print("❌ Sin conexión a Internet.");
-        return Recepcionresponse();
+        return Recepcionresponse(
+            result: RecepcionresponseResult(
+                code: 0,
+                msg: "Sin conexión a Internet",
+                updateVersion: false,
+                result: [])); // Retornar un objeto con código 0 y mensaje de error
       }
 
       final response = await ApiRequestService().getValidation(
@@ -158,6 +176,7 @@ class RecepcionRepository {
             result: RecepcionresponseResult(
               code: jsonResponse['result']['code'],
               msg: jsonResponse['result']['msg'],
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
               result: [],
             ),
           );
@@ -171,6 +190,7 @@ class RecepcionRepository {
             id: jsonResponse['id'],
             result: RecepcionresponseResult(
               code: result['code'],
+              updateVersion: result['update_version'] ?? false,
               result: ordenes,
             ),
           );
@@ -181,6 +201,7 @@ class RecepcionRepository {
             result: RecepcionresponseResult(
               code: result['code'],
               msg: result['msg'],
+              updateVersion: result['update_version'] ?? false,
               result: [],
             ),
           );
@@ -218,7 +239,12 @@ class RecepcionRepository {
       print('📍 Stack: $s');
     }
 
-    return Recepcionresponse(); // Fallback en todos los casos
+    return Recepcionresponse(
+        result: RecepcionresponseResult(
+            code: 0,
+            msg: "Ocurrió un error inesperado",
+            updateVersion: false,
+            result: [])); // Fallback en todos los casos
   }
 
   Future<ResponseReceptionBatchs> fetchAllBatchReceptions(
@@ -229,7 +255,16 @@ class RecepcionRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return ResponseReceptionBatchs(); // Si no hay conexión, retornar una lista vacía
+      return ResponseReceptionBatchs(
+        jsonrpc: '2.0',
+        id: 1,
+        result: ResponseReceptionBatchsResult(
+          code: 0,
+          msg: "No hay conexión a Internet",
+          updateVersion: false,
+          result: [],
+        ),
+      ); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
@@ -252,6 +287,8 @@ class RecepcionRepository {
               id: jsonResponse['id'],
               result: ResponseReceptionBatchsResult(
                 code: jsonResponse['result']['code'],
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
                 msg: jsonResponse['result']['msg'],
                 result: [],
               ),
@@ -266,6 +303,8 @@ class RecepcionRepository {
               id: jsonResponse['id'],
               result: ResponseReceptionBatchsResult(
                 code: jsonResponse['result']['code'],
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
                 result: ordenes,
               ),
             );
@@ -276,6 +315,8 @@ class RecepcionRepository {
               result: ResponseReceptionBatchsResult(
                 code: jsonResponse['result']['code'],
                 msg: jsonResponse['result']['msg'],
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
                 result: [],
               ),
             );
@@ -304,18 +345,45 @@ class RecepcionRepository {
                 ),
               ],
             );
-            return ResponseReceptionBatchs();
+            return ResponseReceptionBatchs(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: ResponseReceptionBatchsResult(
+                code: 100,
+                msg: 'Sesión expirada, por favor inicie sesión nuevamente',
+                updateVersion: false,
+                result: [],
+              ),
+            );
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return ResponseReceptionBatchs();
+      return ResponseReceptionBatchs(
+        jsonrpc: '2.0',
+        id: 1,
+        result: ResponseReceptionBatchsResult(
+          code: 0,
+          msg: "Error de red: No se pudo conectar al servidor.",
+          updateVersion: false,
+          result: [],
+        ),
+      );
     } catch (e, s) {
       // Manejo de otros errores
       print('Error fetchAllBatchReceptions: $e, $s');
     }
-    return ResponseReceptionBatchs();
+    return ResponseReceptionBatchs(
+      jsonrpc: '2.0',
+      id: 1,
+      result: ResponseReceptionBatchsResult(
+        code: 0,
+        msg: "Ocurrió un error inesperado",
+        updateVersion: false,
+        result: [],
+      ),
+    );
   }
 
   Future<List<LotesProduct>> fetchAllLotesProduct(

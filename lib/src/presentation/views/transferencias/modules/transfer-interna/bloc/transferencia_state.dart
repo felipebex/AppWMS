@@ -48,6 +48,8 @@ final class EntregaError extends TransferenciaState {
   EntregaError(this.message);
 }
 
+class NeedUpdateVersionState extends TransferenciaState {}
+
 final class TransferenciaErrorBD extends TransferenciaState {
   final String message;
   TransferenciaErrorBD(this.message);

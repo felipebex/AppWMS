@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -91,6 +91,16 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             builder: (context) => const DialogLoading(
               message: 'Cargando recepciones...',
             ),
+          );
+        } else if (state is NeedUpdateVersionState) {
+          Get.snackbar(
+            '360 Software Informa',
+            'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.amber),
+            showProgressIndicator: true,
+            duration: Duration(seconds: 5),
           );
         } else if (state is DeviceNotAuthorized) {
           Navigator.pop(context);

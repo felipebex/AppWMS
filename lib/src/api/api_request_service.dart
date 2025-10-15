@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
 
 import 'package:http_parser/http_parser.dart';
@@ -1015,6 +1016,7 @@ class ApiRequestService {
 
     // Extraer el session_id de la cookie
     String sessionId = '';
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     List<String> cookies = cookie.split(',');
     for (var c in cookies) {
       if (c.contains('session_id=')) {
@@ -1077,6 +1079,7 @@ class ApiRequestService {
           request.body = json.encode({
             "params": {
               "device_id": mac == "02:00:00:00:00:00" ? imei : mac,
+              "version_app": packageInfo.version,
             }
           });
 
@@ -1574,8 +1577,6 @@ class ApiRequestService {
           request.body = json.encode({
             "params": {"$field": "$date"}
           });
-
-
 
           request.headers.addAll(headers);
 

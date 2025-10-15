@@ -24,7 +24,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/unpacking_resp
 
 class WmsPackingRepository {
   //metodo para obtener todos los batch de packing con sus pedidos y productos
-  Future<List<BatchPackingModel>> resBatchsPacking(
+  Future<PackingModelResponseResult> resBatchsPacking(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -32,7 +32,8 @@ class WmsPackingRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return PackingModelResponseResult(
+          code: 500, result: [], msg: 'No hay conexión a Internet', updateVersion: false);
     }
 
     try {
@@ -57,13 +58,27 @@ class WmsPackingRepository {
               colorText: primaryColorApp,
               icon: Icon(Icons.check, color: Colors.red),
             );
+            return PackingModelResponseResult(
+                code: 400,
+                result: [],
+                msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false);
+
+
+
           } else if (jsonResponse['result']['code'] == 200) {
             List<dynamic> batches = jsonResponse['result']['result'];
             // Mapea los datos decodificados a una lista de BatchsModel
             List<BatchPackingModel> batchs =
                 batches.map((data) => BatchPackingModel.fromMap(data)).toList();
 
-            return batchs;
+            return PackingModelResponseResult(
+              code: 200,
+              result: batchs,
+              msg: 'Batches obtenidos correctamente',
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
+            );
           } else if (jsonResponse['result']['code'] == 403) {
             Get.defaultDialog(
               title: 'Dispositivo no autorizado',
@@ -80,6 +95,12 @@ class WmsPackingRepository {
                   false, // Evita que se cierre al tocar fuera del diálogo
               onWillPop: () async => false,
             );
+
+            return PackingModelResponseResult(
+                code: 403,
+                result: [],
+                msg: 'Dispositivo no autorizado',
+                updateVersion: false);
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
@@ -105,21 +126,27 @@ class WmsPackingRepository {
                 ),
               ],
             );
-            return [];
+            return PackingModelResponseResult(
+                code: 100,
+                result: [],
+                msg: 'Sesion expirada, por favor inicie sesión nuevamente',
+                updateVersion: false);
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return [];
+      return PackingModelResponseResult(
+          code: 500, result: [], msg: 'Error de red: $e', updateVersion: false);
     } catch (e, s) {
       // Manejo de otros errores
       print('Error resBatchsPacking: $e, $s');
     }
-    return [];
+    return PackingModelResponseResult(
+        code: 500, result: [], msg: 'Error desconocido', updateVersion: false);
   }
 
-  Future<List<PedidoPackingResult>> resPackingPedido(
+  Future<PackingPedidoResult> resPackingPedido(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -127,7 +154,8 @@ class WmsPackingRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return PackingPedidoResult(
+          code: 500, msg: 'No hay conexión a Internet', updateVersion: false);
     }
 
     try {
@@ -152,6 +180,11 @@ class WmsPackingRepository {
               colorText: primaryColorApp,
               icon: Icon(Icons.check, color: Colors.red),
             );
+            return PackingPedidoResult(
+                code: 400,
+                msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false);
           } else if (jsonResponse['result']['code'] == 200) {
             final List<dynamic> rawBatches = jsonResponse['result']['result'];
             final List<PedidoPackingResult> pedidos = rawBatches
@@ -159,7 +192,12 @@ class WmsPackingRepository {
                     PedidoPackingResult.fromMap(data as Map<String, dynamic>))
                 .toList();
 
-            return pedidos;
+            return PackingPedidoResult(
+              code: 200,
+              msg: 'Pedidos obtenidos correctamente',
+              result: pedidos,
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
+            );
           } else if (jsonResponse['result']['code'] == 403) {
             Get.defaultDialog(
               title: 'Dispositivo no autorizado',
@@ -177,6 +215,10 @@ class WmsPackingRepository {
               onWillPop: () async => false,
             );
           }
+            return PackingPedidoResult(
+                code: 403,
+                msg: 'Dispositivo no autorizado',
+                updateVersion: false);
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -201,18 +243,23 @@ class WmsPackingRepository {
                 ),
               ],
             );
-            return [];
+            return PackingPedidoResult(
+                code: 100,
+                msg: 'Sesion expirada, por favor inicie sesión nuevamente',
+                updateVersion: false);
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return [];
+      return PackingPedidoResult(
+          code: 500, msg: 'Error de red: $e', updateVersion: false);
     } catch (e, s) {
       // Manejo de otros errores
       print('Error resPackingPedido: $e, $s');
     }
-    return [];
+    return PackingPedidoResult(
+        code: 500, msg: 'Error desconocido', updateVersion: false);
   }
 
   //metodo para asignar un usuario a una orden de compra

@@ -7,11 +7,10 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_done_id_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_done_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 
 class PickingPickRepository {
-  Future<List<ResultPick>> resPicks(
+  Future<ResponsePickResult> resPicks(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -19,7 +18,10 @@ class PickingPickRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return ResponsePickResult(
+        code: 500,
+        result: [],
+      ); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
@@ -50,7 +52,12 @@ class PickingPickRepository {
               List<dynamic> batches = jsonResponse['result']['result'];
               List<ResultPick> products =
                   batches.map((data) => ResultPick.fromMap(data)).toList();
-              return products;
+              return ResponsePickResult(
+                code: 200,
+                result: products,
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
+              );
             }
           } else if (jsonResponse['result']['code'] == 403) {
             Get.defaultDialog(
@@ -93,14 +100,22 @@ class PickingPickRepository {
                 ),
               ],
             );
-            return [];
+            return ResponsePickResult(
+              code: 500,
+              msg: 'Error de conexión',
+              result: [],
+            );
           }
         }
       } else {}
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
-      return [];
+      return ResponsePickResult(
+        code: 500,
+        msg: 'Error de conexión',
+        result: [],
+      );
     } catch (e, s) {
       // Manejo de otros errores
 
@@ -114,7 +129,11 @@ class PickingPickRepository {
 
       print('Error resPicks: $e, $s');
     }
-    return [];
+    return ResponsePickResult(
+      code: 500,
+      msg: 'Error de conexión',
+      result: [],
+    );
   }
 
   Future<List<ResultPick>> resPicksDone(
@@ -225,7 +244,7 @@ class PickingPickRepository {
     return [];
   }
 
-  Future<List<ResultPick>> resPickingComponentes(
+  Future<ResponsePickResult> resPickingComponentes(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -233,7 +252,11 @@ class PickingPickRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return ResponsePickResult(
+        code: 500,
+        result: [],
+        updateVersion: false,
+      ); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
@@ -258,13 +281,24 @@ class PickingPickRepository {
               colorText: primaryColorApp,
               icon: Icon(Icons.check, color: Colors.red),
             );
+            return ResponsePickResult(
+              code: 400,
+              msg: jsonResponse['result']['msg'],
+              result: [],
+              updateVersion: false,
+            );
           } else if (jsonResponse['result']['code'] == 200) {
             if (jsonResponse['result'].containsKey('result')) {
               // Si contiene 'result', se procede con el mapeo
               List<dynamic> batches = jsonResponse['result']['result'];
               List<ResultPick> products =
                   batches.map((data) => ResultPick.fromMap(data)).toList();
-              return products;
+              return ResponsePickResult(
+                code: 200,
+                result: products,
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
+              );
             }
           } else if (jsonResponse['result']['code'] == 403) {
             Get.defaultDialog(
@@ -283,6 +317,12 @@ class PickingPickRepository {
               onWillPop: () async => false,
             );
           }
+            return ResponsePickResult(
+              code: jsonResponse['result']['code'],
+              msg: jsonResponse['result']['msg'],
+              result: [],
+              updateVersion: false,
+            );
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -307,14 +347,24 @@ class PickingPickRepository {
                 ),
               ],
             );
-            return [];
+            return ResponsePickResult(
+              code: 500,
+              msg: 'Error de conexión',
+              result: [],
+              updateVersion: false,
+            );
           }
         }
       } else {}
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
-      return [];
+      return ResponsePickResult(
+        code: 500,
+        msg: 'Error de conexión',
+        result: [],
+        updateVersion: false,
+      );
     } catch (e, s) {
       // Manejo de otros errores
 
@@ -328,12 +378,15 @@ class PickingPickRepository {
 
       print('Error resPicks: $e, $s');
     }
-    return [];
+    return ResponsePickResult(
+      code: 500,
+      msg: 'Error de conexión',
+      result: [],
+      updateVersion: false,
+    );
   }
 
-
-
-//metodo para pedir un pcikdone por id 
+//metodo para pedir un pcikdone por id
   Future<RespondePickDoneId> getPicksDoneId(
     bool isLoadinDialog,
     int idPicking,
@@ -348,10 +401,10 @@ class PickingPickRepository {
 
     try {
       var response = await ApiRequestService().get(
-          endpoint: 'transferencias/$idPicking',
-          isunecodePath: true,
-          isLoadinDialog: isLoadinDialog,
-         );
+        endpoint: 'transferencias/$idPicking',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
 
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -375,9 +428,10 @@ class PickingPickRepository {
                 jsonrpc: jsonResponse['jsonrpc'],
                 result: jsonResponse['result'] != null
                     ? RespondePickDoneIdResult(
-                      code: jsonResponse['result']['code'],
-                      result: ResultResult .fromMap(jsonResponse['result']['result']),
-                    )
+                        code: jsonResponse['result']['code'],
+                        result: ResultResult.fromMap(
+                            jsonResponse['result']['result']),
+                      )
                     : null,
               );
             }
@@ -445,5 +499,4 @@ class PickingPickRepository {
     }
     return RespondePickDoneId();
   }
-
 }

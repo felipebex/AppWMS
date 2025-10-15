@@ -5,8 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/core/utils/sounds_utils.dart';
-import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -14,77 +12,24 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 // import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/bloc/transfer_externa_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
-import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
-class ListTransferenciasScreen extends StatefulWidget {
-  const ListTransferenciasScreen({
+class ListEntradaProductsScreen extends StatefulWidget {
+  const ListEntradaProductsScreen({
     super.key,
   });
 
   @override
-  State<ListTransferenciasScreen> createState() =>
+  State<ListEntradaProductsScreen> createState() =>
       _ListTransferenciasScreenState();
 }
 
-class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
-  final AudioService _audioService = AudioService();
-  final VibrationService _vibrationService = VibrationService();
-  FocusNode focusNodeBuscar = FocusNode();
-  final TextEditingController _controllerToDo = TextEditingController();
-
-  void validateBarcode(String value, BuildContext context) {
-    final bloc = context.read<TransferenciaBloc>();
-    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
-        .trim()
-        .toLowerCase();
-
-    _controllerToDo.clear();
-    print('🔎 Scan barcode (batch picking): $scan');
-
-    final listOfBatchs = bloc.transferenciasDB;
-
-    void processBatch(ResultTransFerencias batch) {
-      bloc.add(ClearScannedValueEvent('toDo'));
-
-      print(batch.toMap());
-      try {
-        _handleTransferTap(
-          context,
-          batch,
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al cargar los datos'),
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
-    }
-
-    // Buscar el producto usando el código de barras principal o el código de producto
-    final batchs = listOfBatchs.firstWhere(
-      (b) => b.name?.toLowerCase() == scan,
-      orElse: () => ResultTransFerencias(),
-    );
-
-    if (batchs.id != null) {
-      print('🔎 batch encontrado : ${batchs.id} ${batchs.name} ');
-      processBatch(batchs);
-      return;
-    } else {
-      _audioService.playErrorSound();
-      _vibrationService.vibrate();
-      bloc.add(ClearScannedValueEvent('toDo'));
-    }
-  }
-
+class _ListTransferenciasScreenState extends State<ListEntradaProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
@@ -95,8 +40,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
         },
         child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
             listener: (context, state) {
-          print("state transferencia: $state");
-          if (state is TransferenciaLoading) {
+          if (state is EntregaLoading) {
             context.read<TransferenciaBloc>().add(LoadLocations());
             showDialog(
               context: context,
@@ -105,7 +49,17 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                 message: 'Cargando transferencias...',
               ),
             );
-          } else if (state is TransferenciaError) {
+          } else if (state is NeedUpdateVersionState) {
+            Get.snackbar(
+              '360 Software Informa',
+              'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.amber),
+              showProgressIndicator: true,
+              duration: Duration(seconds: 5),
+            );
+          } else if (state is EntregaError) {
             Navigator.pop(context);
             Get.defaultDialog(
               title: '360 Software Informa',
@@ -129,7 +83,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                 ),
               ],
             );
-          } else if (state is TransferenciaLoaded) {
+          } else if (state is EntregaLoaded) {
             Navigator.pop(context);
           } else if (state is DeviceNotAuthorized) {
             Navigator.pop(context);
@@ -194,11 +148,12 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                         .searchControllerTransfer,
                     onchanged: () {
                       context.read<TransferenciaBloc>().add(SearchTransferEvent(
-                          context
-                              .read<TransferenciaBloc>()
-                              .searchControllerTransfer
-                              .text,
-                          'transfer'));
+                            context
+                                .read<TransferenciaBloc>()
+                                .searchControllerTransfer
+                                .text,
+                            "entrega",
+                          ));
                     },
                   )
                 : null,
@@ -242,8 +197,12 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                         .searchControllerTransfer
                                         .clear();
 
-                                    context.read<TransferenciaBloc>().add(
-                                        SearchTransferEvent("", 'transfer'));
+                                    context
+                                        .read<TransferenciaBloc>()
+                                        .add(SearchTransferEvent(
+                                          "",
+                                          "entrega",
+                                        ));
 
                                     Navigator.pushReplacementNamed(
                                       context,
@@ -253,18 +212,18 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                 ),
                                 Padding(
                                   padding:
-                                      EdgeInsets.only(left: size.width * 0.12),
+                                      EdgeInsets.only(left: size.width * 0.1),
                                   child: GestureDetector(
                                     onTap: () async {
                                       await DataBaseSqlite()
-                                          .deleTrasnferencia('transfer');
+                                          .deleTrasnferencia('entrega');
                                       context
                                           .read<TransferenciaBloc>()
-                                          .add(FetchAllTransferencias(false));
+                                          .add(FetchAllEntrega(false));
                                     },
                                     child: Row(
                                       children: [
-                                        const Text("TRANSFERENCIAS",
+                                        const Text("ENTREGA PRODUCTOS",
                                             style: TextStyle(
                                                 color: white, fontSize: 18)),
                                         //icono de refrescar
@@ -387,20 +346,18 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                               .searchControllerTransfer
                                               .clear();
 
-                                          context.read<TransferenciaBloc>().add(
-                                              SearchTransferEvent(
-                                                  "", 'transfer'));
+                                          context
+                                              .read<TransferenciaBloc>()
+                                              .add(SearchTransferEvent(
+                                                "",
+                                                "entrega",
+                                              ));
 
                                           context.read<TransferenciaBloc>().add(
                                               ShowKeyboardEvent(
                                                   showKeyboard: false));
-//pasamos el foco a focusNodeBuscar
-                                          Future.delayed(
-                                              const Duration(seconds: 1), () {
-                                            // _handleDependencies();
-                                            FocusScope.of(context)
-                                                .requestFocus(focusNodeBuscar);
-                                          });
+
+                                          FocusScope.of(context).unfocus();
                                         },
                                         icon: const Icon(
                                           Icons.close,
@@ -408,14 +365,18 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                           size: 20,
                                         )),
                                     disabledBorder: const OutlineInputBorder(),
-                                    hintText: "Buscar transferencia",
+                                    hintText: "Buscar entrega de productos",
                                     hintStyle: const TextStyle(
                                         color: Colors.grey, fontSize: 14),
                                     border: InputBorder.none,
                                   ),
                                   onChanged: (value) {
-                                    context.read<TransferenciaBloc>().add(
-                                        SearchTransferEvent(value, 'transfer'));
+                                    context
+                                        .read<TransferenciaBloc>()
+                                        .add(SearchTransferEvent(
+                                          value,
+                                          "entrega",
+                                        ));
                                   },
                                   onTap: !context
                                           .read<UserBloc>()
@@ -434,22 +395,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                         ),
                       )),
 
-                  //*buscar por scan
-                  BarcodeScannerField(
-                    controller: _controllerToDo,
-                    focusNode: focusNodeBuscar,
-                    scannedValue5: "",
-                    onBarcodeScanned: (value, context) {
-                      return validateBarcode(value, context);
-                    },
-                    onKeyScanned: (keyLabel, type, context) {
-                      return context.read<TransferenciaBloc>().add(
-                            UpdateScannedValueEvent(keyLabel, type),
-                          );
-                    },
-                  ),
-
-                  (transferBloc.transferenciasDbFilters
+                  (transferBloc.entregaProductosBDFilters
                           .where((element) =>
                               element.isFinish == 0 || element.isFinish == null)
                           .toList()
@@ -477,7 +423,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                         )
                       : Expanded(
                           child: ListView.builder(
-                              itemCount: transferBloc.transferenciasDbFilters
+                              itemCount: transferBloc.entregaProductosBDFilters
                                   .where((element) =>
                                       element.isFinish == 0 ||
                                       element.isFinish == null)
@@ -485,7 +431,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                   .length,
                               itemBuilder: (context, index) {
                                 final transferenciaDetail = transferBloc
-                                    .transferenciasDbFilters
+                                    .entregaProductosBDFilters
                                     .where((element) =>
                                         element.isFinish == 0 ||
                                         element.isFinish == null)
@@ -622,7 +568,6 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                   color: primaryColorApp,
                                                   size: 15,
                                                 ),
-                                                const SizedBox(width: 5),
                                                 Text(
                                                   transferenciaDetail.origin ==
                                                           ""
@@ -663,76 +608,6 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                         fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.bold)),
-                                              ],
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.add,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                const Text(
-                                                  "Cantidad Productos: ",
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Expanded(
-                                                  child: Text(
-                                                    transferenciaDetail
-                                                        .numeroLineas
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.add,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                const Text(
-                                                  "Cantidad unidades: ",
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Expanded(
-                                                  child: Text(
-                                                    transferenciaDetail
-                                                        .numeroItems
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
                                               ],
                                             ),
                                           ),
@@ -818,8 +693,57 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                         ],
                                       ),
                                       onTap: () async {
-                                        _handleTransferTap(
-                                            context, transferenciaDetail);
+                                        print(
+                                            'transferenciaDetail: ${transferenciaDetail.toMap()}');
+                                        //cargamos los permisos del usuario
+                                        context.read<TransferenciaBloc>().add(
+                                            LoadConfigurationsUserTransfer());
+
+                                        //verificamos si la orden de entrada tiene ya un responsable
+                                        if (transferenciaDetail.responsableId ==
+                                                null ||
+                                            transferenciaDetail.responsableId ==
+                                                0) {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible:
+                                                false, // No permitir que el usuario cierre el diálogo manualmente
+                                            builder: (context) =>
+                                                DialogAsignUserToOrderWidget(
+                                              title:
+                                                  'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                                              onAccepted: () async {
+                                                context
+                                                    .read<TransferenciaBloc>()
+                                                    .add(ShowKeyboardEvent(
+                                                        showKeyboard: false));
+
+                                                context
+                                                    .read<TransferenciaBloc>()
+                                                    .searchControllerTransfer
+                                                    .clear();
+
+                                                context
+                                                    .read<TransferenciaBloc>()
+                                                    .add(SearchTransferEvent(
+                                                      "",
+                                                      'entrega',
+                                                    ));
+                                                //asignamos el responsable a esa orden de entrada
+                                                context
+                                                    .read<TransferenciaBloc>()
+                                                    .add(
+                                                      AssignUserToTransfer(
+                                                          transferenciaDetail),
+                                                    );
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          );
+                                        } else {
+                                          validateTime(
+                                              transferenciaDetail, context);
+                                        }
                                       },
                                     ),
                                   ),
@@ -833,7 +757,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
         }));
   }
 
-  void validateTime(ResultTransFerencias transfer, BuildContext context) async {
+  void validateTime(ResultTransFerencias transfer, BuildContext context) {
     if (transfer.startTimeTransfer == "" ||
         transfer.startTimeTransfer == null) {
       showDialog(
@@ -850,7 +774,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
 
             context
                 .read<TransferenciaBloc>()
-                .add(SearchTransferEvent("", 'transfer'));
+                .add(SearchTransferEvent("", 'entrega'));
 
             context.read<TransferenciaBloc>().add(StartOrStopTimeTransfer(
                   transfer.id ?? 0,
@@ -880,9 +804,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
 
       context.read<TransferenciaBloc>().searchControllerTransfer.clear();
 
-      context
-          .read<TransferenciaBloc>()
-          .add(SearchTransferEvent("", 'transfer'));
+      context.read<TransferenciaBloc>().add(SearchTransferEvent("", 'entrega'));
 
       context
           .read<TransferenciaBloc>()
@@ -890,58 +812,11 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
       //traemos la orden de entrada actual desde la bd actualizada
       context.read<TransferenciaBloc>().add(CurrentTransferencia(transfer));
       context.read<TransferenciaBloc>().add(LoadLocations());
-
-      showDialog(
-        context: context,
-        barrierDismissible:
-            false, // No permitir que el usuario cierre el diálogo manualmente
-        builder: (_) => const DialogLoading(
-          message: 'Cargando interfaz...',
-        ),
-      );
-
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pop(context);
-
       Navigator.pushReplacementNamed(
         context,
         'transferencia-detail',
         arguments: [transfer, 0],
       );
-    }
-  }
-
-  void _handleTransferTap(
-      BuildContext context, dynamic transferenciaDetail) async {
-    print('transferenciaDetail: ${transferenciaDetail.toMap()}');
-    final transferenciaBloc = context.read<TransferenciaBloc>();
-
-    // 1. Cargamos las configuraciones una sola vez
-    transferenciaBloc.add(LoadConfigurationsUserTransfer());
-
-    // 2. Lógica para asignar el responsable o continuar
-    if (transferenciaDetail.responsableId == null ||
-        transferenciaDetail.responsableId == 0) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (dialogContext) => DialogAsignUserToOrderWidget(
-          title:
-              'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-          onAccepted: () async {
-            // Lógica para asignar el usuario
-            transferenciaBloc.add(ShowKeyboardEvent(showKeyboard: false));
-            transferenciaBloc.searchControllerTransfer.clear();
-            transferenciaBloc.add(SearchTransferEvent("", 'transfer'));
-            transferenciaBloc.add(AssignUserToTransfer(transferenciaDetail));
-
-            Navigator.pop(dialogContext); // Cierra el diálogo de asignación
-          },
-        ),
-      );
-    } else {
-      // Si el responsable ya existe, validar el tiempo directamente
-      validateTime(transferenciaDetail, context);
     }
   }
 }

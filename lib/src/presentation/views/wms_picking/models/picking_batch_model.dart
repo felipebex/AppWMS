@@ -35,10 +35,14 @@ class BatchModelResponse {
 
 class DataBatch {
   final int? code;
+  final String? msg;
+  final bool? updateVersion;
   final List<BatchsModel>? result;
 
   DataBatch({
     this.code,
+    this.msg,
+    this.updateVersion,
     this.result,
   });
 
@@ -48,6 +52,8 @@ class DataBatch {
 
   factory DataBatch.fromMap(Map<String, dynamic> json) => DataBatch(
         code: json["code"],
+        msg: json["msg"],
+        updateVersion: json["update_version"],
         result: json["result"] == null
             ? []
             : List<BatchsModel>.from(
@@ -56,6 +62,8 @@ class DataBatch {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
+        "update_version": updateVersion,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),

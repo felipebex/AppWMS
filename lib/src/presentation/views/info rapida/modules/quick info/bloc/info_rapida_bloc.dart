@@ -92,18 +92,19 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
     on<SortProductsEvent>(_onSortProductsEvent);
   }
 
-
-void _onSortProductsEvent(
+  void _onSortProductsEvent(
       SortProductsEvent event, Emitter<InfoRapidaState> emit) {
     try {
       print('Ordenando productos, ascending: ${event.ascending}');
       emit(SortProductsLoading());
       if (event.ascending) {
         isAscending = true;
-          infoRapidaResult.result?.productos?.sort((a, b) => a.producto!.compareTo(b.producto!));
+        infoRapidaResult.result?.productos
+            ?.sort((a, b) => a.producto!.compareTo(b.producto!));
       } else {
         isAscending = false;
-        infoRapidaResult.result?.productos?.sort((a, b) => b.producto!.compareTo(a.producto!));
+        infoRapidaResult.result?.productos
+            ?.sort((a, b) => b.producto!.compareTo(a.producto!));
       }
       emit(SortProductsSuccess());
     } catch (e, s) {
@@ -112,7 +113,6 @@ void _onSortProductsEvent(
     }
   }
 
-
   void _onSortLocationsEvent(
       SortLocationsEvent event, Emitter<InfoRapidaState> emit) {
     try {
@@ -120,10 +120,12 @@ void _onSortProductsEvent(
       emit(SortLocationsLoading());
       if (event.ascending) {
         isAscending = true;
-        infoRapidaResult.result?.ubicaciones?.sort((a, b) => a.ubicacion!.compareTo(b.ubicacion!));
+        infoRapidaResult.result?.ubicaciones
+            ?.sort((a, b) => a.ubicacion!.compareTo(b.ubicacion!));
       } else {
         isAscending = false;
-        infoRapidaResult.result?.ubicaciones?.sort((a, b) => b.ubicacion!.compareTo(a.ubicacion!));
+        infoRapidaResult.result?.ubicaciones
+            ?.sort((a, b) => b.ubicacion!.compareTo(a.ubicacion!));
       }
       emit(SortLocationsSuccess());
     } catch (e, s) {
@@ -379,6 +381,10 @@ void _onSortProductsEvent(
             event.barcode.trim(),
           );
         }
+      }
+
+      if ((infoRapida.result?.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
       }
 
       if (infoRapida.result?.code == 200) {

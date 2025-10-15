@@ -43,16 +43,20 @@ class ResponseReceptionBatchsResult {
   int? code;
   List<ReceptionBatch>? result;
   String? msg;
+  bool? updateVersion;
 
   ResponseReceptionBatchsResult({
     this.code,
     this.result,
     this.msg,
+    this.updateVersion,
   });
 
   factory ResponseReceptionBatchsResult.fromMap(Map<String, dynamic> json) =>
       ResponseReceptionBatchsResult(
         code: json["code"],
+        msg: json["msg"],
+        updateVersion: json["update_version"] ?? false,
         result: json["result"] == null
             ? []
             : List<ReceptionBatch>.from(
@@ -61,6 +65,7 @@ class ResponseReceptionBatchsResult {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "update_version": updateVersion,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),

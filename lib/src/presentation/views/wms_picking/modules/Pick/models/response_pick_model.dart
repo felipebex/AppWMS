@@ -40,10 +40,14 @@ class ResponsePick {
 class ResponsePickResult {
   int? code;
   List<ResultPick>? result;
+  bool? updateVersion;
+  String? msg;
 
   ResponsePickResult({
     this.code,
     this.result,
+    this.updateVersion,
+    this.msg,
   });
 
   factory ResponsePickResult.fromMap(Map<String, dynamic> json) =>
@@ -53,6 +57,8 @@ class ResponsePickResult {
             ? []
             : List<ResultPick>.from(
                 json["result"]!.map((x) => ResultPick.fromMap(x))),
+        msg: json["msg"],
+        updateVersion: json["update_version"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -60,6 +66,8 @@ class ResponsePickResult {
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),
+        "msg": msg,
+        "update_version": updateVersion,
       };
 }
 

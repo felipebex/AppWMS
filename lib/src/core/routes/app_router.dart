@@ -38,12 +38,13 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
-import 'package:wms_app/src/presentation/views/transferencias/entrega-productos/list_entrada_productos_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/scan_product_create_transfer_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/entrega-productos/list_entrada_productos_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/transferencia_screen.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/location_dest/locations_dest_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/list_transferencias_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/scan_product_transfer_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/transferencia_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/widgets/location_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing.dart';
@@ -54,8 +55,8 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/sacn_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/detail_pick_donde_screen.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick__done_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/history_pick/detail_pick_donde_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/history_pick/index_list_pick__done_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/pick_detail_pick_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/scan_product_screen.dart';
@@ -111,6 +112,7 @@ class AppRoutes {
   static const String searchLocationTrans = 'search-location-trans';
   static const String scanProductTransfer = 'scan-product-transfer';
   static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
+  static const String createTransfer = 'create-transfer';
 
   //todo entrada de productos
   static const String entradaProductos = 'list-entrada-productos';
@@ -413,7 +415,7 @@ class AppRoutes {
           infoRapidaResult: info,
         );
       },
-
+      //todo transfer info
       transferInfo: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
@@ -425,6 +427,8 @@ class AppRoutes {
           ubicacion: ubi,
         );
       },
+
+      createTransfer: (_) => const CreateTransferScreen(),
 
       listLocation: (_) {
         return ListLocationsScreen();

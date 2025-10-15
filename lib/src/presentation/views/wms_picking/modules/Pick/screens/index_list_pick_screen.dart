@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/vibrate_utils.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -89,6 +88,20 @@ class IndexListPickScreen extends StatelessWidget {
       },
       child: BlocConsumer<PickingPickBloc, PickingPickState>(
         listener: (context, state) {
+
+          
+          if (state is NeedUpdateVersionState) {
+            Get.snackbar(
+              '360 Software Informa',
+              'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.amber),
+              showProgressIndicator: true,
+              duration: Duration(seconds: 5),
+            );
+          }
+
           if (state is AssignUserToPickError) {
             Get.snackbar(
               '360 Software Informa',

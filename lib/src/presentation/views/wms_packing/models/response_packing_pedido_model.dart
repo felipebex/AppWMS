@@ -36,10 +36,14 @@ class PackingPedido {
 
 class PackingPedidoResult {
   final int? code;
+  final String? msg;
+  final bool? updateVersion;
   final List<PedidoPackingResult>? result;
 
   PackingPedidoResult({
     this.code,
+    this.msg,
+    this.updateVersion,
     this.result,
   });
 
@@ -51,6 +55,8 @@ class PackingPedidoResult {
   factory PackingPedidoResult.fromMap(Map<String, dynamic> json) =>
       PackingPedidoResult(
         code: json["code"],
+        msg: json["msg"],
+        updateVersion: json["update_version"],
         result: json["result"] == null
             ? []
             : List<PedidoPackingResult>.from(
@@ -59,6 +65,8 @@ class PackingPedidoResult {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
+        "update_version": updateVersion,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),

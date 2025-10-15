@@ -225,3 +225,6 @@ class DeleteProductFromTemporaryPackageError extends WmsPackingState {
 }
 
 class DeleteProductFromTemporaryPackageOkState extends WmsPackingState {}
+
+
+class NeedUpdateVersionState extends WmsPackingState {}

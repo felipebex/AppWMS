@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/tabs/tab1.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/tabs/tab2.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/tabs/tab3.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/tabs/tab1.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/tabs/tab2.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/tabs/tab3.dart';
 
 class TransferenciaScreen extends StatefulWidget {
   const TransferenciaScreen({

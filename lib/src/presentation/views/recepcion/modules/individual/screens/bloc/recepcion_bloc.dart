@@ -362,6 +362,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       final response =
           await _recepcionRepository.fetchAllDevolutions(event.isLoadinDialog);
 
+      if ((response.result?.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
+      }
+
       if (response.result?.code == 200) {
         if (response.result?.result?.isNotEmpty == true) {
           final listRecepcion = response.result?.result;
@@ -1648,6 +1652,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       final response =
           await _recepcionRepository.fetchAllReceptions(event.isLoadinDialog);
+
+      if ((response.result?.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
+      }
 
       if (response.result?.code == 200) {
         if (response.result?.result?.isNotEmpty == true) {

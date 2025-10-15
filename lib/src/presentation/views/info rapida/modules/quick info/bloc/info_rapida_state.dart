@@ -6,7 +6,7 @@ sealed class InfoRapidaState {}
 final class InfoRapidaInitial extends InfoRapidaState {}
 
 class InfoRapidaLoading extends InfoRapidaState {}
-
+class NeedUpdateVersionState extends InfoRapidaState {}
 class InfoRapidaLoaded extends InfoRapidaState {
   final InfoRapidaResult infoRapidaResult;
   final String message;

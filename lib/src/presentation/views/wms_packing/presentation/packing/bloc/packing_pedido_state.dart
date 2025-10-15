@@ -26,6 +26,8 @@ final class WmsPackingPedidoWMSLoaded extends PackingPedidoState {
   WmsPackingPedidoWMSLoaded({required this.listOfPedidos});
 }
 
+class NeedUpdateVersionState extends PackingPedidoState {}
+
 final class PackingPedidoError extends PackingPedidoState {
   final String error;
   PackingPedidoError(this.error);

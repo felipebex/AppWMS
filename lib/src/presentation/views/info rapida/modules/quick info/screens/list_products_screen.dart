@@ -48,6 +48,16 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
                 false, // Evita que se cierre al tocar fuera del diálogo
             onWillPop: () async => false,
           );
+        } else if (state is NeedUpdateVersionState) {
+          Get.snackbar(
+            '360 Software Informa',
+            'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.amber),
+            showProgressIndicator: true,
+            duration: Duration(seconds: 5),
+          );
         } else if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(

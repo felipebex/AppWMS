@@ -44,6 +44,7 @@ class TransferenciasRepository {
             return ResponseTransferenciasResult(
               code: 400,
               msg: jsonResponse['result']['msg'],
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
               result: [],
             );
           } else if (jsonResponse['result']['code'] == 200) {
@@ -54,10 +55,16 @@ class TransferenciasRepository {
                 .toList();
 
             return ResponseTransferenciasResult(
-                code: 200, result: transferencias);
+              code: 200,
+              result: transferencias,
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
+              msg: jsonResponse['result']['msg'] ?? 'Success',
+            );
           } else if (jsonResponse['result']['code'] == 403) {
             return ResponseTransferenciasResult(
               code: 403,
+              msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
               result: [],
             );
           }
@@ -85,18 +92,33 @@ class TransferenciasRepository {
                 ),
               ],
             );
-            return ResponseTransferenciasResult();
+            return ResponseTransferenciasResult(
+              updateVersion: jsonResponse['error']['update_version'] ?? false,
+              code: 100,
+              msg: jsonResponse['error']['msg'] ?? 'Error desconocido',
+              result: [],
+            );
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return ResponseTransferenciasResult();
+      return ResponseTransferenciasResult(
+        updateVersion: false,
+        result: [],
+        code: 500,
+        msg: 'Error de red',
+      );
     } catch (e, s) {
       // Manejo de otros errores
       print('Error fetAllTransferencias: $e, $s');
     }
-    return ResponseTransferenciasResult();
+    return ResponseTransferenciasResult(
+      updateVersion: false,
+      result: [],
+      code: 500,
+      msg: 'Error desconocido',
+    );
   }
 
   Future<ResponseTransferenciasResult> fetAllEntradasProducts(
@@ -107,7 +129,12 @@ class TransferenciasRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return ResponseTransferenciasResult(); // Si no hay conexión, retornar una lista vacía
+      return ResponseTransferenciasResult(
+        result: [],
+        code: 500,
+        msg: 'Error de red',
+        updateVersion: false,
+      ); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
@@ -127,6 +154,7 @@ class TransferenciasRepository {
             return ResponseTransferenciasResult(
               code: 400,
               msg: jsonResponse['result']['msg'],
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
               result: [],
             );
           } else if (jsonResponse['result']['code'] == 200) {
@@ -137,11 +165,17 @@ class TransferenciasRepository {
                 .toList();
 
             return ResponseTransferenciasResult(
-                code: 200, result: transferencias);
+                code: 200,
+                result: transferencias,
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false,
+                msg: jsonResponse['result']['msg'] ?? 'Success');
           } else if (jsonResponse['result']['code'] == 403) {
             return ResponseTransferenciasResult(
               code: 403,
               result: [],
+              msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
             );
           }
         } else if (jsonResponse.containsKey('error')) {
@@ -168,10 +202,22 @@ class TransferenciasRepository {
                 ),
               ],
             );
-            return ResponseTransferenciasResult();
+            return ResponseTransferenciasResult(
+              updateVersion: jsonResponse['error']['update_version'] ?? false,
+              code: 100,
+              msg: jsonResponse['error']['msg'] ?? 'Error desconocido',
+              result: [],
+            );
           }
         }
-      } else {}
+      } else {
+        return ResponseTransferenciasResult(
+          result: [],
+          code: 500,
+          msg: 'Error del servidor',
+          updateVersion: false,
+        );
+      }
     } on SocketException catch (e) {
       print('Error de red: $e');
       return ResponseTransferenciasResult();
@@ -179,7 +225,12 @@ class TransferenciasRepository {
       // Manejo de otros errores
       print('Error fetAllTransferencias: $e, $s');
     }
-    return ResponseTransferenciasResult();
+    return ResponseTransferenciasResult(
+      result: [],
+      code: 500,
+      msg: 'Error desconocido',
+      updateVersion: false,
+    );
   }
 
   Future<bool> sendTime(
@@ -722,11 +773,10 @@ class TransferenciasRepository {
           if (jsonResponse['result']['code'] == 200) {
             return ResponseDeleteLine(
               result: ResponseDeleteLineResult(
-                code: jsonResponse['result']['code'],
-                msg: jsonResponse['result']['msg'],
-                result: ResultResult.fromMap(
-                        jsonResponse['result']['result'])
-              ),
+                  code: jsonResponse['result']['code'],
+                  msg: jsonResponse['result']['msg'],
+                  result:
+                      ResultResult.fromMap(jsonResponse['result']['result'])),
             );
           } else {
             return ResponseDeleteLine(

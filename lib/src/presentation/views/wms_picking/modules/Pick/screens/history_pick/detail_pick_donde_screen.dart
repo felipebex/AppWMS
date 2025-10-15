@@ -9,7 +9,7 @@ import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_done_id_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick__done_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/history_pick/index_list_pick__done_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 
 class DetailPickDoneScreen extends StatelessWidget {

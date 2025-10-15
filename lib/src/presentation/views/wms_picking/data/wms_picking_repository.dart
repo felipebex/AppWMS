@@ -23,8 +23,13 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/response_send_
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 
 class WmsPickingRepository {
+
+
+
+
+
   //metodo para pedir los batchs
-  Future<List<BatchsModel>> resBatchs(
+  Future<DataBatch> resBatchs(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -32,7 +37,9 @@ class WmsPickingRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return DataBatch(
+          code: 500, msg: 'No internet connection', updateVersion: false, result: []
+      ); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
@@ -57,13 +64,27 @@ class WmsPickingRepository {
               colorText: primaryColorApp,
               icon: Icon(Icons.check, color: Colors.red),
             );
+
+            return DataBatch(
+                code: 400,
+                msg: jsonResponse['result']['msg'] ?? 'Error',
+                updateVersion: false,
+                result: []
+            );
+
+
           } else if (jsonResponse['result']['code'] == 200) {
             if (jsonResponse['result'].containsKey('result')) {
               // Si contiene 'result', se procede con el mapeo
               List<dynamic> batches = jsonResponse['result']['result'];
               List<BatchsModel> products =
                   batches.map((data) => BatchsModel.fromMap(data)).toList();
-              return products;
+                  return DataBatch(
+                  code: 200,
+                  msg: jsonResponse['result']['msg'] ?? 'Success',
+                  updateVersion: jsonResponse['result']['update_version'] ?? false,
+                  result: products
+              );
             }
           } else if (jsonResponse['result']['code'] == 403) {
             Get.defaultDialog(
@@ -80,6 +101,12 @@ class WmsPickingRepository {
               barrierDismissible:
                   false, // Evita que se cierre al tocar fuera del diálogo
               onWillPop: () async => false,
+            );
+            return DataBatch(
+                code: 403,
+                msg: 'Device not authorized',
+                updateVersion: false,
+                result: []
             );
           }
         } else if (jsonResponse.containsKey('error')) {
@@ -106,17 +133,23 @@ class WmsPickingRepository {
                 ),
               ],
             );
-            return [];
+            return DataBatch(
+                code: 100,
+                msg: 'Session expired',
+                updateVersion: false,
+                result: []
+            );
           }
         }
-      } else {}
+      } 
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
-      return [];
+      return DataBatch(
+          code: 500, msg: 'Network error: $e', updateVersion: false, result: []
+      );
     } catch (e, s) {
       // Manejo de otros errores
-
       Get.snackbar(
         'Error',
         'Error en resBatchs: $e $s',
@@ -125,9 +158,10 @@ class WmsPickingRepository {
         icon: Icon(Icons.check, color: Colors.red),
       );
 
-      print('Error resBatchs: $e, $s');
     }
-    return [];
+    return DataBatch(
+        code: 500, msg: 'Unknown error', updateVersion: false, result: []
+    );
   }
 
   Future<List<HistoryBatch>> resBatchsHistory(

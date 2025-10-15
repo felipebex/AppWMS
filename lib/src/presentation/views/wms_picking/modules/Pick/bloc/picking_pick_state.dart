@@ -334,3 +334,5 @@ class BatchsPickingErrorState extends PickingPickState {
   final String error;
   BatchsPickingErrorState(this.error);
 }
+
+class NeedUpdateVersionState extends PickingPickState {}

@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -111,7 +112,19 @@ class _PickingPageState extends State<WMSPickingPage> {
       child: MultiBlocListener(
         listeners: [
           BlocListener<WMSPickingBloc, PickingState>(
-              listener: (context, state) {}),
+              listener: (context, state) {
+            if (state is NeedUpdateVersionState) {
+              Get.snackbar(
+                '360 Software Informa',
+                'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.amber),
+                showProgressIndicator: true,
+                duration: Duration(seconds: 5),
+              );
+            }
+          }),
           BlocListener<BatchBloc, BatchState>(
             listener: (context, state) {
               if (state is PickingOkState) {
