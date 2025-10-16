@@ -1110,7 +1110,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                 child: Row(
                                                   children: [
                                                     Text(
-                                                      'Fechan caducidad: ',
+                                                      'Fecha caducidad: ',
                                                       style: TextStyle(
                                                           fontSize: 14,
                                                           color: black),

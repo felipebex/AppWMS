@@ -31,7 +31,7 @@ class ConteoRepository {
     }
 
     try {
-      var response = await ApiRequestService().get(
+      var response = await ApiRequestService().getValidation(
         endpoint: 'inventory/all_orders',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
@@ -50,6 +50,7 @@ class ConteoRepository {
           return ResultConteo(
             code: jsonResponse['result']['code'],
             msg: jsonResponse['result']['msg'],
+            updateVersion: jsonResponse['result']['update_version'],
             data: response.map((item) => DatumConteo.fromMap(item)).toList(),
           );
         } else if (jsonResponse.containsKey('error')) {
@@ -80,6 +81,7 @@ class ConteoRepository {
               code: 0,
               msg: "Sesion expirada, por favor inicie sesión nuevamente",
               data: [],
+              updateVersion: false,
             ); //
           }
         }

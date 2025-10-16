@@ -2,7 +2,6 @@
 //
 //     final responseLotesProduct = responseLotesProductFromMap(jsonString);
 
-import 'dart:convert';
 
 
 
@@ -53,8 +52,8 @@ class ResponseLotesProductResult {
 class LotesProduct {
     int? id;
     String? name;
-    dynamic? quantity;
-    dynamic? expirationDate;
+    dynamic quantity;
+    dynamic expirationDate;
     int? productId;
     String? productName;
 

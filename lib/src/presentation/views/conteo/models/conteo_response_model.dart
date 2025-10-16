@@ -36,11 +36,13 @@ class ResponseConteo {
 class ResultConteo {
   final int? code;
   final String? msg;
+  final bool? updateVersion;
   final List<DatumConteo>? data;
 
   ResultConteo({
     this.code,
     this.msg,
+    this.updateVersion,
     this.data,
   });
 
@@ -51,6 +53,7 @@ class ResultConteo {
 
   factory ResultConteo.fromMap(Map<String, dynamic> json) => ResultConteo(
         code: json["code"],
+        updateVersion: json["update_version"],
         msg: json["msg"],
         data: json["data"] == null
             ? []
@@ -61,6 +64,7 @@ class ResultConteo {
   Map<String, dynamic> toMap() => {
         "code": code,
         "msg": msg,
+        "update_version": updateVersion,
         "data":
             data == null ? [] : List<dynamic>.from(data!.map((x) => x.toMap())),
       };

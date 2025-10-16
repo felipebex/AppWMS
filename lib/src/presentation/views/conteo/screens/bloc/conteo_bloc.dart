@@ -1459,6 +1459,11 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       await DataBaseSqlite().deleConteo();
       final response = await _repository.fetchAllConteos(true);
+
+      if ((response.updateVersion ?? false) == true) {
+        emit(NeedUpdateVersionState());
+      }
+
       if (response.data?.isNotEmpty ?? false) {
         //agregamos esas ordenes a la bd
         await db.ordenRepository

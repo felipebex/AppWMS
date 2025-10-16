@@ -902,7 +902,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                                   child: Row(
                                                     children: [
                                                       Text(
-                                                        'Fechan caducidad: ',
+                                                        'Fecha caducidad: ',
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black),

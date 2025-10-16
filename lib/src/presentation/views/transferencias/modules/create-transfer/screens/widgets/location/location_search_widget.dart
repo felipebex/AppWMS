@@ -2,99 +2,33 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
-class ListLocationsScreen extends StatefulWidget {
-  const ListLocationsScreen({super.key});
+class SearchLocationCreateTransfercreen extends StatefulWidget {
+  const SearchLocationCreateTransfercreen({super.key});
 
   @override
-  State<ListLocationsScreen> createState() => _ListLocationsScreenState();
+  State<SearchLocationCreateTransfercreen> createState() =>
+      _SearchLocationScreenState();
 }
 
-class _ListLocationsScreenState extends State<ListLocationsScreen> {
+class _SearchLocationScreenState
+    extends State<SearchLocationCreateTransfercreen> {
   int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
-      listener: (context, state) {
-        if (state is DeviceNotAuthorized) {
-          Navigator.pop(context);
-          Get.defaultDialog(
-            title: 'Dispositivo no autorizado',
-            titleStyle: TextStyle(
-                color: primaryColorApp,
-                fontWeight: FontWeight.bold,
-                fontSize: 16),
-            middleText:
-                'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            barrierDismissible:
-                false, // Evita que se cierre al tocar fuera del diálogo
-            onWillPop: () async => false,
-          );
-        } else if (state is NeedUpdateVersionState) {
-          Get.snackbar(
-            '360 Software Informa',
-            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.amber),
-            showProgressIndicator: true,
-            duration: Duration(seconds: 5),
-          );
-        } else if (state is InfoRapidaError) {
-          Navigator.pop(context);
-          Get.snackbar(
-            '360 Software Informa',
-            'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.red),
-          );
-        } else if (state is InfoRapidaLoading) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return const DialogLoading(
-                message: "Buscando informacion...",
-              );
-            },
-          );
-        } else if (state is InfoRapidaLoaded) {
-          Navigator.pop(context);
-          Get.snackbar(
-            '360 Software Informa',
-            'Información encontrada',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.green),
-          );
+    final size = MediaQuery.sizeOf(context);
 
-          if (state.infoRapidaResult.type == 'product') {
-            Navigator.pushReplacementNamed(
-              context,
-              'product-info',
-            );
-          } else if (state.infoRapidaResult.type == "ubicacion") {
-            Navigator.pushReplacementNamed(context, 'location-info',
-                arguments: [state.infoRapidaResult]);
-          }
-        }
-      },
+    return BlocBuilder<CreateTransferBloc, CreateTransferState>(
       builder: (context, state) {
-        final size = MediaQuery.sizeOf(context);
-        final bloc = context.read<InfoRapidaBloc>();
+        final bloc = context.read<CreateTransferBloc>();
         return WillPopScope(
           onWillPop: () async {
             return false;
@@ -106,21 +40,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                 height: size.height * 1,
                 child: Column(
                   children: [
-                    _AppBarInfo(
-                      size: size,
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                        bloc.selectedAlmacen == null ||
-                                bloc.selectedAlmacen == ''
-                            ? 'Ubicaciones de todos los almacenes'
-                            : 'Ubicaciones del almacen: ${bloc.selectedAlmacen}',
-                        style: TextStyle(
-                            color: black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500)),
+                    _AppBarInfo(size: size),
                     SizedBox(
                         height: 55,
                         width: size.width * 1,
@@ -160,9 +80,9 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                             bloc.add(SearchLocationEvent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardInfoEvent(
-                                                false,
-                                                TextEditingController()));
+                                            bloc.add(
+                                                ShowKeyboardCreateTransferEvent(
+                                                    false));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -188,8 +108,9 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardInfoEvent(
-                                                true, TextEditingController()));
+                                            bloc.add(
+                                                ShowKeyboardCreateTransferEvent(
+                                                    true));
                                           },
                                   ),
                                 ),
@@ -279,41 +200,6 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                                     ),
                                                   ),
                                                 ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    'Almacen: ',
-                                                    style: TextStyle(
-                                                      color: black,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    bloc
-                                                                .ubicacionesFilters[
-                                                                    index]
-                                                                .warehouseName ==
-                                                            false
-                                                        ? 'Sin almacen'
-                                                        : bloc
-                                                                .ubicacionesFilters[
-                                                                    index]
-                                                                .warehouseName ??
-                                                            '',
-                                                    style: TextStyle(
-                                                      color: bloc
-                                                                  .ubicacionesFilters[
-                                                                      index]
-                                                                  .warehouseName ==
-                                                              false
-                                                          ? red
-                                                          : primaryColorApp,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ],
                                               )
                                             ],
                                           ),
@@ -334,19 +220,22 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                             final selectedLocation =
                                 bloc.ubicacionesFilters[selectedIndex!];
 
-                            bloc.add(ShowKeyboardInfoEvent(
-                                false, TextEditingController()));
+                            //seleccionamos la ubicacion
+                            bloc.add(ValidateFieldsEvent(
+                                field: "location", isOk: true));
+                            bloc.add(ChangeLocationIsOkEvent(selectedLocation));
+
+                            bloc.add(ShowKeyboardCreateTransferEvent(false));
                             FocusScope.of(context).unfocus();
 
                             setState(() {
                               selectedIndex == null;
                             });
 
-                            bloc.add(GetInfoRapida(
-                                selectedLocation.id.toString(),
-                                true,
-                                false,
-                                false));
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'create-transfer',
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -397,100 +286,59 @@ class _AppBarInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: primaryColorApp,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      width: double.infinity,
-
-      // ✅ Ya NO usas BlocProvider aquí
-      child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-        builder: (context, status) {
-          return Column(
-            children: [
-              const WarningWidgetCubit(), // Este ya usa el mismo cubit global
-              Padding(
-                padding: EdgeInsets.only(
-                  top: status != ConnectionStatus.online ? 0 : 25,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: white),
-                      onPressed: () {
-                        context
-                            .read<InfoRapidaBloc>()
-                            .searchControllerLocation
-                            .clear();
-                        context.read<InfoRapidaBloc>().add(
-                            ShowKeyboardInfoEvent(
-                                false, TextEditingController()));
-
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'info-rapida',
-                        );
-                      },
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: size.width * 0.2),
-                      child: const Text(
-                        'UBICACIONES',
-                        style: TextStyle(color: white, fontSize: 18),
-                      ),
-                    ),
-                    const Spacer(),
-                    PopupMenuButton<String>(
-                      color: white,
-                      icon: const Icon(
-                        Icons.more_vert,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onSelected: (value) {
-                        context
-                            .read<InfoRapidaBloc>()
-                            .add(FilterUbicacionesAlmacenEvent(value));
-                      },
-                      itemBuilder: (BuildContext context) {
-                        final tipos = [
-                          ...context.read<UserBloc>().almacenes,
-                        ];
-
-                        return tipos.map((tipo) {
-                          return PopupMenuItem<String>(
-                            value: tipo.name,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.file_upload_outlined,
-                                  color: primaryColorApp,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  tipo.name ?? "",
-                                  style: const TextStyle(
-                                      color: black, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList();
-                      },
-                    ),
-                  ],
+    return BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, connectionStatus) {
+        return BlocBuilder<CreateTransferBloc, CreateTransferState>(
+          builder: (context, state) {
+            return Container(
+              // padding: const EdgeInsets.only(top: 20),
+              decoration: BoxDecoration(
+                color: primaryColorApp,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
                 ),
               ),
-            ],
-          );
-        },
-      ),
+              width: double.infinity,
+              child: Column(
+                children: [
+                  const WarningWidgetCubit(), // Usa cubit global
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: connectionStatus != ConnectionStatus.online ? 0 : 15,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: white),
+                          onPressed: () {
+                            context.read<CreateTransferBloc>().add(
+                                  ShowKeyboardCreateTransferEvent(false),
+                                );
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'create-transfer',
+                            );
+                          },
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: size.width * 0.2),
+                          child: const Text(
+                            'UBICACIONES',
+                            style: TextStyle(color: white, fontSize: 18),
+                          ),
+                        ),
+                        const Spacer()
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

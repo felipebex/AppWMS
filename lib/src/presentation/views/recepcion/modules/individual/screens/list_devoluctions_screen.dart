@@ -38,7 +38,7 @@ class ListDevolutionsScreen extends StatelessWidget {
         } else if (state is NeedUpdateVersionState) {
           Get.snackbar(
             '360 Software Informa',
-            'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+          'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.amber),

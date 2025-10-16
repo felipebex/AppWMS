@@ -17,6 +17,7 @@ class LoteScannerWidget extends StatelessWidget {
   final Function(String keyLabel) onKeyScanned;
   final FocusNode focusNode;
   final TextEditingController controller;
+  final String routeName;
 
   const LoteScannerWidget({
     Key? key,
@@ -32,6 +33,7 @@ class LoteScannerWidget extends StatelessWidget {
     required this.onKeyScanned,
     required this.focusNode,
     required this.controller,
+    required this.routeName,
   }) : super(key: key);
 
   @override
@@ -103,7 +105,7 @@ class LoteScannerWidget extends StatelessWidget {
           onPressed: () {
             Navigator.pushReplacementNamed(
               context,
-              'search-lote-conteo',
+              routeName,
               arguments: [currentProduct],
             );
           },
@@ -187,7 +189,7 @@ class LoteScannerWidget extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            'Fechan caducidad: ',
+            'Fecha caducidad: ',
             style: TextStyle(fontSize: 14, color: black),
           ),
           Text(

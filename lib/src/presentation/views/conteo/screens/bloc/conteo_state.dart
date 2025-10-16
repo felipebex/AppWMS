@@ -6,7 +6,7 @@ sealed class ConteoState {}
 final class ConteoInitial extends ConteoState {}
 
 class ConteoLoading extends ConteoState {}
-
+class NeedUpdateVersionState extends ConteoState {}
 final class ConteoLoaded extends ConteoState {
   final List<DatumConteo> conteos;
 

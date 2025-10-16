@@ -23,6 +23,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/rec
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
@@ -118,6 +119,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => PackingPedidoBloc()),
         BlocProvider(create: (_) => DevolucionesBloc()),
         BlocProvider(create: (_) => ConteoBloc()),
+        BlocProvider(create: (_) => CreateTransferBloc()),
       ],
       child: GetMaterialApp(
         navigatorKey: navigatorKey,

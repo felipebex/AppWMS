@@ -39,8 +39,11 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/scan_product_create_transfer_screen.dart';
-import 'package:wms_app/src/presentation/views/transferencias/modules/entrega-productos/list_entrada_productos_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/lote/search_lote_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/product/product_search_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/entrega-productos/list_entrada_productos_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/list_transferencias_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/scan_product_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/screens/transferencia_screen.dart';
@@ -112,7 +115,16 @@ class AppRoutes {
   static const String searchLocationTrans = 'search-location-trans';
   static const String scanProductTransfer = 'scan-product-transfer';
   static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
+
+//todo create transfer
   static const String createTransfer = 'create-transfer';
+  static const String searchLocationCreateTransfer =
+      'search-location-create-transfer';
+  //search-product-create-transfer
+  static const String searchProductsCreateTransfer =
+      'search-product-create-transfer';
+
+  static const String searchLoteCreateTransfer = 'search-lote-create-transfer';
 
   //todo entrada de productos
   static const String entradaProductos = 'list-entrada-productos';
@@ -222,7 +234,7 @@ class AppRoutes {
       detailPickDone: (_) => const DetailPickDoneScreen(),
 
       //todo picking componentes
-      pickingComponentes: (_) =>  IndexListPickComponentsScreen(),
+      pickingComponentes: (_) => IndexListPickComponentsScreen(),
 
       // todo WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
@@ -336,7 +348,7 @@ class AppRoutes {
             initialTabIndex: initialTabIndexArg ?? 0);
       },
 
-      listOrdenesCompra: (_) =>  ListOrdenesCompraScreen(),
+      listOrdenesCompra: (_) => ListOrdenesCompraScreen(),
 
       //todo devoluciones individual
       devoluciones: (_) => const ListDevolutionsScreen(),
@@ -429,6 +441,19 @@ class AppRoutes {
       },
 
       createTransfer: (_) => const CreateTransferScreen(),
+      searchLocationCreateTransfer: (_) =>
+          const SearchLocationCreateTransfercreen(),
+
+      searchLoteCreateTransfer: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final currentProduct = arguments[0] as Product?;
+        return SearchLoteCreateTransferScreen(
+          currentProduct: currentProduct,
+        );
+      },
+
+      searchProductsCreateTransfer: (_) => SearchProductCreateTransferScreen(),
 
       listLocation: (_) {
         return ListLocationsScreen();

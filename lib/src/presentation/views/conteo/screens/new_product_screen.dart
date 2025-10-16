@@ -325,7 +325,6 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
             false));
         return true;
       }
-     
     }
     _audioService.playErrorSound();
     _vibrationService.vibrate();
@@ -572,10 +571,6 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                           textAndIconColor:
                               primaryColorApp, // Usa tu color primario
                           title: 'Ubicación de existencias',
-                          iconPath: "assets/icons/ubicacion.png",
-                          dialogTitle: '360 Software Informa',
-                          dialogMessage:
-                              "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
                           routeName: 'search-location-conteo',
                           ubicacionFija: true,
                         ), // Pasamos el widget del dropdown como parámetro
@@ -611,6 +606,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                 .productTracking ==
                             "lot",
                         child: LoteScannerWidget(
+                          routeName: 'search-lote-conteo',
                           focusNode: focusNode5,
                           controller: _controllerLote,
                           isLoteOk: context.read<ConteoBloc>().isLoteOk,

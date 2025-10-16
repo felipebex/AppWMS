@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
 // import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/bloc/transfer_externa_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -100,7 +101,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
           if (state is NeedUpdateVersionState) {
             Get.snackbar(
               '360 Software Informa',
-              'Hay una nueva versión disponible. Actualiza la app desde la configuración de tu dispositivo.',
+              'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
               backgroundColor: white,
               colorText: primaryColorApp,
               icon: Icon(Icons.error, color: Colors.amber),
@@ -213,13 +214,16 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                     },
                   )
                 : null,
-            // floatingActionButton: FloatingActionButton(
-            //   backgroundColor: primaryColorApp,
-            //   onPressed: () async {
-            //     Navigator.pushReplacementNamed(context, 'create-transfer');
-            //   },
-            //   child: const Icon(Icons.add),
-            // ),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: primaryColorApp,
+              onPressed: () async {
+                context.read<CreateTransferBloc>()
+                  ..add(GetLocationsEvent())
+                  ..add(GetProductsFromDBEvent());
+                Navigator.pushReplacementNamed(context, 'create-transfer');
+              },
+              child: const Icon(Icons.add),
+            ),
             body: SizedBox(
               width: size.width,
               height: size.height,

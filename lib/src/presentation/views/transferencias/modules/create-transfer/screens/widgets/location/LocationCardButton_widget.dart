@@ -10,6 +10,9 @@ class LocationCardButtonConteo extends StatelessWidget {
   final Color textAndIconColor;
   final Color lockCardColor;
   final String title;
+  final String iconPath;
+  final String dialogTitle;
+  final String dialogMessage;
   final String routeName;
 
   const LocationCardButtonConteo({
@@ -19,7 +22,11 @@ class LocationCardButtonConteo extends StatelessWidget {
     this.cardColor = Colors.white,
     this.textAndIconColor = Colors.blue,
     this.lockCardColor = Colors.white,
-    required this.title,
+    this.title = 'Ubicación de existencias',
+    this.iconPath = "assets/icons/ubicacion.png",
+    this.dialogTitle = '360 Software Informa',
+    this.dialogMessage =
+        "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
     required this.routeName,
   });
 
@@ -60,7 +67,7 @@ class LocationCardButtonConteo extends StatelessWidget {
                         ),
                         const Spacer(),
                         Image.asset(
-                          'assets/icons/ubicacion.png',
+                          iconPath,
                           color: textAndIconColor,
                           width: 20,
                         ),

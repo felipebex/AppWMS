@@ -15,6 +15,7 @@ class ProductScannerAll extends StatelessWidget {
   final Function(String) onValidateProduct;
   final Function(String) onKeyScanned;
   final Widget? productDropdown;
+  final bool? isCreateTransfer;
 
   const ProductScannerAll({
     super.key,
@@ -28,6 +29,7 @@ class ProductScannerAll extends StatelessWidget {
     required this.onValidateProduct,
     required this.onKeyScanned,
     required this.productDropdown,
+    this.isCreateTransfer = false,
   });
 
   @override
@@ -86,10 +88,16 @@ class ProductScannerAll extends StatelessWidget {
               focusNode: focusNode,
               onChanged: onValidateProduct,
               decoration: InputDecoration(
-                hintText: currentProduct?.productName == "" ||
-                        currentProduct?.productName == null
-                    ? 'Esperando escaneo'
-                    : currentProduct?.productName,
+                hintText: 
+                // isCreateTransfer == true
+                //     ? currentProduct?.name == "" || currentProduct?.name == null
+                //         ? 'Esperando escaneo'
+                //         : currentProduct?.name
+                //     : 
+                    currentProduct?.productName == "" ||
+                            currentProduct?.productName == null
+                        ? 'Esperando escaneo'
+                        : currentProduct?.productName,
                 disabledBorder: InputBorder.none,
                 hintStyle: const TextStyle(fontSize: 12, color: black),
                 border: InputBorder.none,

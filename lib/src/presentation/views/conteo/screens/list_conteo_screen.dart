@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
@@ -18,7 +19,20 @@ class ListConteoScreen extends StatelessWidget {
       onWillPop: () async {
         return false;
       },
-      child: BlocBuilder<ConteoBloc, ConteoState>(
+      child: BlocConsumer<ConteoBloc, ConteoState>(
+        listener: (context, state) {
+          if (state is NeedUpdateVersionState) {
+            Get.snackbar(
+              '360 Software Informa',
+              'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.amber),
+              showProgressIndicator: true,
+              duration: Duration(seconds: 5),
+            );
+          }
+        },
         builder: (context, state) {
           return Scaffold(
               backgroundColor: white,
