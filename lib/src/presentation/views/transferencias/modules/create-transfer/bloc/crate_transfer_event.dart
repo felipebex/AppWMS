@@ -95,3 +95,33 @@ class ChangeIsOkQuantity extends CreateTransferEvent {
     this.productId,
   );
 }
+
+class ShowQuantityEvent extends CreateTransferEvent {
+  final bool showQuantity;
+  ShowQuantityEvent(this.showQuantity);
+}
+
+class ChangeQuantitySeparate extends CreateTransferEvent {
+  final dynamic quantity;
+  final int productId;
+
+  ChangeQuantitySeparate(
+    this.quantity,
+    this.productId,
+  );
+}
+
+class ClearDataCreateTransferEvent extends CreateTransferEvent {}
+
+class AddQuantitySeparate extends CreateTransferEvent {
+  final int productId;
+  final dynamic quantity;
+  final bool isOk;
+  AddQuantitySeparate(this.productId, this.quantity, this.isOk);
+}
+
+class FetchBarcodesProductEvent extends CreateTransferEvent {}
+
+class FetchAllBarcodesInventarioEvent extends CreateTransferEvent {
+  FetchAllBarcodesInventarioEvent();
+}

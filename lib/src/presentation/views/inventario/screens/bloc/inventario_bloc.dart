@@ -112,8 +112,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     on<GetProductsEvent>(_onGetProducts);
     on<GetProductsForDB>(_onGetProductsBD);
 
-    // //*traermos solo los productos de una ubicacion
-    // on<GetProductsByLocationEvent>(_onGetProductsByLocation);
     //*limpiamos los campos y el estado
     on<CleanFieldsEent>(_onCleanFields);
 

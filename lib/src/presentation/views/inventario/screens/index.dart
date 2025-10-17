@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -28,6 +30,8 @@ class InventarioScreen extends StatefulWidget {
 
 class _InventarioScreenState extends State<InventarioScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
   FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
@@ -151,6 +155,8 @@ class _InventarioScreenState extends State<InventarioScreen>
       bloc.add(ChangeLocationIsOkEvent(matchedUbicacion));
       bloc.add(ClearScannedValueEvent('location'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('Ubicacion no encontrada');
       bloc.add(ValidateFieldsEvent(field: "location", isOk: false));
       bloc.add(ClearScannedValueEvent('location'));
@@ -177,12 +183,13 @@ class _InventarioScreenState extends State<InventarioScreen>
       bloc.add(SelectecLoteEvent(matchedLote));
       bloc.add(ClearScannedValueEvent('lote'));
     } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('Ubicacion no encontrada');
       bloc.add(ValidateFieldsEvent(field: "lote", isOk: false));
       bloc.add(ClearScannedValueEvent('lote'));
     }
   }
-
 
   void validateProduct(String value) {
     final bloc = context.read<InventarioBloc>();
@@ -217,6 +224,8 @@ class _InventarioScreenState extends State<InventarioScreen>
     );
 
     if (matchedBarcode.barcode == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       print('❌ Producto no encontrado en barcodes');
       bloc
         ..add(ValidateFieldsEvent(field: "product", isOk: false))
@@ -237,6 +246,8 @@ class _InventarioScreenState extends State<InventarioScreen>
         ..add(ChangeProductIsOkEvent(matchedById));
     } else {
       print('❌ Producto no encontrado por ID');
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
       bloc
         ..add(ValidateFieldsEvent(field: "product", isOk: false))
         ..add(ClearScannedValueEvent('product'));

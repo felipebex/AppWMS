@@ -219,7 +219,9 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
               onPressed: () async {
                 context.read<CreateTransferBloc>()
                   ..add(GetLocationsEvent())
+                  ..add(FetchAllBarcodesInventarioEvent())
                   ..add(GetProductsFromDBEvent());
+
                 Navigator.pushReplacementNamed(context, 'create-transfer');
               },
               child: const Icon(Icons.add),

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/vibrate_utils.dart';
@@ -14,10 +15,15 @@ import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_produc
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/lote/lote_scannear_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/ProductScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/others/popup_menu_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/product/product_dropdown_widget.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 class CreateTransferScreen extends StatefulWidget {
   const CreateTransferScreen({super.key});
@@ -166,32 +172,31 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
 
   void validateProduct(String value) {
     final bloc = context.read<CreateTransferBloc>();
-    final scan = bloc.scannedValue2.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue2.trim().toLowerCase();
+
+    final scan = (bloc.scannedValue2.isEmpty ? value : bloc.scannedValue2)
+        .trim()
+        .toLowerCase();
 
     _controllerProduct.clear();
     print('🔎 Scan barcode: $scan');
 
-    Product? matchedProducts = bloc.productosFilters.firstWhere(
-        (productoUbi) =>
-            productoUbi.barcode?.toLowerCase() == scan.trim() ||
-            productoUbi.code?.toLowerCase() == scan.trim(),
-        orElse: () =>
-            Product() // Si no se encuentra ningún match, devuelve null
-        );
+    // Buscar coincidencia directa por barcode o code
+    final matchedProduct = bloc.productos.firstWhere(
+      (p) => p.barcode?.toLowerCase() == scan || p.code?.toLowerCase() == scan,
+      orElse: () => Product(),
+    );
 
-    if (matchedProducts.barcode != null) {
-      print('producto encontrado: ${matchedProducts.name}');
+    if (matchedProduct.barcode != null) {
+      print('✅ producto encontrado directo: ${matchedProduct.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-      bloc.add(ChangeProductIsOkEvent(matchedProducts, true));
+      bloc.add(ChangeProductIsOkEvent(matchedProduct, true));
       return;
     }
 
     // Buscar en barcodes adicionales
-    final matchedBarcode = bloc.listAllOfBarcodes.firstWhere(
+    final matchedBarcode = bloc.allBarcodeInventario.firstWhere(
       (b) => b.barcode?.toLowerCase() == scan,
-      orElse: () => Barcodes(),
+      orElse: () => BarcodeInventario(),
     );
 
     if (matchedBarcode.barcode == null) {
@@ -228,6 +233,78 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     }
   }
 
+  void validateLote(String value) {
+    final bloc = context.read<CreateTransferBloc>();
+    String scan = bloc.scannedValue4.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue4.trim().toLowerCase();
+    print('scan lote: $scan');
+    _controllerLote.clear();
+    //tengo una lista de lotes el cual quiero validar si el scan es igual a alguno de los lotes
+    LotesProduct? matchedLote = bloc.listLotesProduct.firstWhere(
+        (lotes) => lotes.name?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            LotesProduct() // Si no se encuentra ningún match, devuelve null
+        );
+
+    if (matchedLote.name != null) {
+      print('lote encontrado: ${matchedLote.name}');
+      bloc.add(ValidateFieldsEvent(field: "lote", isOk: true));
+      bloc.add(SelectecLoteEvent(matchedLote));
+      bloc.add(ClearScannedValueTransferEvent('lote'));
+    } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      print('lote no encontrado');
+      bloc.add(ValidateFieldsEvent(field: "lote", isOk: false));
+      bloc.add(ClearScannedValueTransferEvent('lote'));
+    }
+  }
+
+  void validateQuantity(String value) {
+    final bloc = context.read<CreateTransferBloc>();
+
+    String scan = bloc.scannedValue3.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue3.trim().toLowerCase();
+    print('scan quantity: $scan');
+    _controllerQuantity.clear();
+    final currentProduct = bloc.currentProduct;
+
+    if (scan == currentProduct?.barcode?.toLowerCase()) {
+      bloc.add(AddQuantitySeparate(currentProduct?.productId ?? 0, 1, false));
+      bloc.add(ClearScannedValueTransferEvent('quantity'));
+    } else {
+      validateScannedBarcode(
+        scan,
+        currentProduct ?? Product(),
+        bloc,
+      );
+      bloc.add(ClearScannedValueTransferEvent('quantity'));
+    }
+  }
+
+  bool validateScannedBarcode(
+    String scannedBarcode,
+    Product currentProduct,
+    CreateTransferBloc bloc,
+  ) {
+    // Buscar el barcode que coincida con el valor escaneado
+    Barcodes? matchedBarcode = bloc.listOfBarcodes.firstWhere(
+        (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
+        orElse: () =>
+            Barcodes() // Si no se encuentra ningún match, devuelve null
+        );
+    if (matchedBarcode.barcode != null) {
+      bloc.add(AddQuantitySeparate(
+          currentProduct.productId ?? 0, matchedBarcode.cantidad, false));
+      return true;
+    }
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
@@ -256,6 +333,36 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
           }
 
           _handleDependencies();
+        } else if (state is ChangeLoteIsOkState) {
+          //cambiamos el foco a cantidad cuando hemos seleccionado un lote
+          Future.delayed(const Duration(seconds: 1), () {
+            FocusScope.of(context).requestFocus(focusNode3);
+          });
+          _handleDependencies();
+        }
+        // else if (state is ChangeQuantitySeparateStateError) {
+        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //     duration: const Duration(milliseconds: 1000),
+        //     content: Text(state.msg),
+        //     backgroundColor: Colors.red[200],
+        //   ));
+        // }
+
+        else if (state is ValidateFieldsStateError) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            duration: const Duration(milliseconds: 1000),
+            content: Text(state.msg),
+            backgroundColor: Colors.red[200],
+          ));
+        } else if (state is ClearDataCreateTransferLoadingState) {
+          showDialog(
+            context: context,
+            builder: (context) =>
+                const DialogLoading(message: "Limpiando datos..."),
+          );
+          Future.delayed(const Duration(seconds: 1), () {
+            Navigator.pop(context);
+          });
         }
       },
       builder: (context, state) {
@@ -303,6 +410,7 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
                                         TextStyle(color: white, fontSize: 18)),
                               ),
                               const Spacer(),
+                              PopupMenuCreateTransferWidget()
                             ],
                           ),
                         ),
@@ -392,26 +500,31 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
                             routeName: 'search-lote-create-transfer',
                             focusNode: focusNode5,
                             controller: _controllerLote,
-                            isLoteOk: context.read<CreateTransferBloc>().isLoteOk,
-                            loteIsOk: context.read<CreateTransferBloc>().loteIsOk,
+                            isLoteOk:
+                                context.read<CreateTransferBloc>().isLoteOk,
+                            loteIsOk:
+                                context.read<CreateTransferBloc>().loteIsOk,
                             locationIsOk:
                                 context.read<CreateTransferBloc>().locationIsOk,
-                            productIsOk: context.read<CreateTransferBloc>().productIsOk,
+                            productIsOk:
+                                context.read<CreateTransferBloc>().productIsOk,
                             quantityIsOk:
                                 context.read<CreateTransferBloc>().quantityIsOk,
                             viewQuantity:
                                 context.read<CreateTransferBloc>().viewQuantity,
-                            currentProduct:
-                                context.read<CreateTransferBloc>().currentProduct,
-                            currentProductLote:
-                                context.read<CreateTransferBloc>().currentProductLote,
+                            currentProduct: context
+                                .read<CreateTransferBloc>()
+                                .currentProduct,
+                            currentProductLote: context
+                                .read<CreateTransferBloc>()
+                                .currentProductLote,
                             onValidateLote: (value) {
-                              // validateLote(value);
+                              validateLote(value);
                             },
                             onKeyScanned: (value) {
-                              context
-                                  .read<CreateTransferBloc>()
-                                  .add(UpdateScannedValueTransferEvent(value, 'lote'));
+                              context.read<CreateTransferBloc>().add(
+                                  UpdateScannedValueTransferEvent(
+                                      value, 'lote'));
                             },
                           ),
                         ),
@@ -419,9 +532,166 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
                     ),
                   ),
                 )
+
+                //todo: cantidad
+                ,
+                QuantityScannerWidget(
+                  size: size,
+                  isQuantityOk: context.read<CreateTransferBloc>().isQuantityOk,
+                  quantityIsOk: context.read<CreateTransferBloc>().quantityIsOk,
+                  locationIsOk: context.read<CreateTransferBloc>().locationIsOk,
+                  productIsOk: context.read<CreateTransferBloc>().productIsOk,
+                  locationDestIsOk: false,
+                  totalQuantity: 0,
+                  quantitySelected:
+                      context.read<CreateTransferBloc>().quantitySelected,
+                  unidades:
+                      context.read<CreateTransferBloc>().currentProduct?.uom ??
+                          "",
+                  controller: _controllerQuantity,
+                  manualController: cantidadController,
+                  scannerFocusNode: focusNode3,
+                  manualFocusNode: focusNode4,
+                  viewQuantity: context.read<CreateTransferBloc>().viewQuantity,
+                  onIconButtonPressed: () {
+                    print('borrando');
+                    context.read<CreateTransferBloc>().add(ShowQuantityEvent(
+                        !context.read<CreateTransferBloc>().viewQuantity));
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      FocusScope.of(context).requestFocus(focusNode3);
+                    });
+                  },
+                  onKeyScanned: (keyLabel) {
+                    context.read<CreateTransferBloc>().add(
+                        UpdateScannedValueTransferEvent(keyLabel, 'quantity'));
+                  },
+                  showKeyboard:
+                      context.read<UserBloc>().fabricante.contains("Zebra"),
+                  onToggleViewQuantity: () {
+                    context.read<CreateTransferBloc>().add(ShowQuantityEvent(
+                        !context.read<CreateTransferBloc>().viewQuantity));
+                    cantidadController.clear();
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      FocusScope.of(context).requestFocus(focusNode4);
+                    });
+                    print('Toggle view quantity');
+                  },
+                  onValidateButton: () {
+                    FocusScope.of(context).unfocus();
+                    _validatebuttonquantity();
+                  },
+                  onValidateScannerInput: (value) {
+                    validateQuantity(value);
+                  },
+                  onManualQuantityChanged: (value) {
+                    print('onManualQuantityChanged: $value');
+                  },
+                  onManualQuantitySubmitted: (value) {
+                    final intValue = double.parse(value);
+
+                    context
+                        .read<CreateTransferBloc>()
+                        .add(ChangeQuantitySeparate(
+                          intValue,
+                          context
+                                  .read<CreateTransferBloc>()
+                                  .currentProduct
+                                  ?.productId ??
+                              0,
+                        ));
+
+                    context.read<CreateTransferBloc>().add(ShowQuantityEvent(
+                        !context.read<CreateTransferBloc>().viewQuantity));
+                  },
+                  customKeyboard: CustomKeyboardNumber(
+                    controller: cantidadController,
+                    onchanged: _validatebuttonquantity,
+                  ),
+                  isViewCant: false,
+                ),
               ],
             ));
       },
     );
+  }
+
+  void _validatebuttonquantity() {
+    final bloc = context.read<CreateTransferBloc>();
+
+    String input = cantidadController.text.trim();
+    //validamos quantity
+
+    print("cantidad: $input");
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = bloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    if (bloc.currentProduct?.tracking == 'lot') {
+      if (bloc.currentProductLote?.id == null) {
+        _audioService.playErrorSound();
+        _vibrationService.vibrate();
+        Get.snackbar(
+          '360 Software Informa',
+          "No se ha selecionado el lote",
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+        );
+        return;
+      } else {
+        double cantidad = double.parse(cantidadController.text.isEmpty
+            ? bloc.quantitySelected.toString()
+            : cantidadController.text);
+        // bloc.add(SendProductConteoEvent(true, cantidad, bloc.currentProduct));
+      }
+    } else {
+      double cantidad = double.parse(cantidadController.text.isEmpty
+          ? bloc.quantitySelected.toString()
+          : cantidadController.text);
+      print("cantidad: $cantidad");
+      // bloc.add(SendProductConteoEvent(true, cantidad, bloc.currentProduct));
+    }
   }
 }

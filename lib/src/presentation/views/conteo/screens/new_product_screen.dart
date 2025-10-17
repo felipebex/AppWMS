@@ -633,7 +633,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                   ),
                 ),
               ),
-              //todo: cantidad
+              //todo: cantidad 
               QuantityScannerWidget(
                 size: size,
                 isQuantityOk: context.read<ConteoBloc>().isQuantityOk,

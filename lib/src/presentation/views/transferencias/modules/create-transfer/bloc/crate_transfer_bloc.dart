@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -52,7 +51,9 @@ class CreateTransferBloc
   List<Product> productosFilters = [];
 
   List<Barcodes> listOfBarcodes = [];
-  List<Barcodes> listAllOfBarcodes = [];
+
+  List<BarcodeInventario> barcodeInventario = [];
+  List<BarcodeInventario> allBarcodeInventario = [];
 
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
@@ -63,6 +64,8 @@ class CreateTransferBloc
   TextEditingController dateLoteController = TextEditingController();
   TextEditingController searchControllerLocation = TextEditingController();
   TextEditingController searchControllerProducts = TextEditingController();
+
+  dynamic quantitySelected = 0;
 
   //*configuracion del usuario //permisos
   Configurations configurations = Configurations();
@@ -115,6 +118,143 @@ class CreateTransferBloc
 
     //*cantidad
     on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
+    //*evento para ver la cantidad
+    on<ShowQuantityEvent>(_onShowQuantityEvent);
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+
+    //*evento para  limpiar los datos de la transferencia y construccion del producto acutal
+    on<ClearDataCreateTransferEvent>(_onClearDataCreateTransferEvent);
+
+//*evento para aumentar la cantidad
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+
+    //*evento para obtener los barcodes de un producto por paquete
+    on<FetchBarcodesProductEvent>(_onFetchBarcodesProductEvent);
+    //meotod para obtener todos los other barcodes y product_packing de inventario
+    on<FetchAllBarcodesInventarioEvent>(_onFetchAllBarcodesInventarioEvent);
+  }
+
+  void _onFetchAllBarcodesInventarioEvent(FetchAllBarcodesInventarioEvent event,
+      Emitter<CreateTransferState> emit) async {
+    try {
+      final response = await db.barcodesInventarioRepository.getAllBarcodes();
+      allBarcodeInventario.clear();
+      if (response.isNotEmpty) {
+        allBarcodeInventario = response;
+        print('Total de códigos de barras: ${allBarcodeInventario.length}');
+        emit(FetchAllBarcodesSuccess(allBarcodeInventario));
+      } else {
+        emit(FetchAllBarcodesFailure('No se encontraron códigos de barras'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onFetchAllBarcodesInventarioEvent: $e, $s");
+      emit(FetchAllBarcodesFailure('Error al obtener los códigos de barras'));
+    }
+  }
+
+  //*evento para obtener los barcodes de un producto por paquete
+  void _onFetchBarcodesProductEvent(FetchBarcodesProductEvent event,
+      Emitter<CreateTransferState> emit) async {
+    try {
+      barcodeInventario.clear();
+
+      final response = await db.barcodesInventarioRepository.getBarcodesProduct(
+        currentProduct?.productId ?? 0,
+      );
+
+      if (response.isNotEmpty) {
+        barcodeInventario = response;
+        emit(BarcodesProductLoadedState(listOfBarcodes: barcodeInventario));
+      } else {
+        emit(BarcodesProductLoadedState(listOfBarcodes: []));
+        return;
+      }
+    } catch (e, s) {
+      print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
+    }
+    emit(BarcodesProductLoadedState(listOfBarcodes: barcodeInventario));
+  }
+
+  void _onClearDataCreateTransferEvent(
+    ClearDataCreateTransferEvent event,
+    Emitter<CreateTransferState> emit,
+  ) {
+    try {
+      emit(ClearDataCreateTransferLoadingState());
+      // Limpiar todas las variables y listas relacionadas con la transferencia
+      loteIsOk = false;
+      isLocationOk = true;
+      isProductOk = true;
+      isLocationDestOk = true;
+      isQuantityOk = true;
+      isKeyboardVisible = false;
+      isLoteOk = true;
+
+      //*variables para validar
+      locationIsOk = false;
+      productIsOk = false;
+      locationDestIsOk = false;
+      quantityIsOk = false;
+      viewQuantity = false;
+      //*valores de scanvalueS
+
+      scannedValue1 = '';
+      scannedValue2 = '';
+      scannedValue3 = '';
+      scannedValue4 = '';
+      scannedValue5 = '';
+      scannedValue6 = '';
+
+      listOfBarcodes.clear();
+
+      listLotesProduct.clear();
+      listLotesProductFilters.clear();
+
+      quantitySelected = 0;
+      currentUbication = null;
+      currentProduct = null;
+      currentProductLote = null;
+
+      emit(ClearDataCreateTransferState());
+    } catch (e, s) {
+      print("❌ Error en _onClearDataCreateTransferEvent: $e, $s");
+    }
+  }
+
+  // //*evento para aumentar la cantidad
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<CreateTransferState> emit) async {
+    try {
+      quantitySelected = quantitySelected + event.quantity;
+
+      emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al aumentar cantidad'));
+      print("❌ Error en el AddQuantitySeparate $e ->$s");
+    }
+  }
+
+  void _onChangeQuantitySelectedEvent(
+      ChangeQuantitySeparate event, Emitter<CreateTransferState> emit) async {
+    try {
+      if (event.quantity > 0.0) {
+        quantitySelected = event.quantity;
+      }
+      emit(ChangeQuantitySeparateState(quantitySelected));
+    } catch (e, s) {
+      print('Error en _onChangeQuantitySelectedEvent: $e, $s');
+    }
+  }
+
+  //*evento para ver la cantidad
+  void _onShowQuantityEvent(
+      ShowQuantityEvent event, Emitter<CreateTransferState> emit) {
+    try {
+      viewQuantity = !viewQuantity;
+      emit(ShowQuantityState(viewQuantity));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
   }
 
   void _onChangeQuantityIsOkEvent(
@@ -228,6 +368,8 @@ class CreateTransferBloc
       ChangeProductIsOkEvent event, Emitter<CreateTransferState> emit) async {
     if (event.productIsOk) {
       currentProduct = event.productSelect;
+      //*traemos todos los codigos de barras por paquete del producto
+      add(FetchBarcodesProductEvent());
       //todo guardamos el producto en la lista de productos seleccionados
 
       //todo guardamos su tiempo de inicio del producto

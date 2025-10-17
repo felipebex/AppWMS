@@ -125,3 +125,43 @@ class ChangeIsOkState extends CreateTransferState {
   final bool isOk;
   ChangeIsOkState(this.isOk);
 }
+
+class ShowQuantityState extends CreateTransferState {
+  final bool showQuantity;
+  ShowQuantityState(this.showQuantity);
+}
+
+class ChangeQuantitySeparateState extends CreateTransferState {
+  final dynamic quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}
+
+class ClearDataCreateTransferState extends CreateTransferState {}
+
+class ClearDataCreateTransferLoadingState extends CreateTransferState {}
+
+//*estado para separar la cantidad
+class ChangeQuantitySeparateStateSuccess extends CreateTransferState {
+  final dynamic quantity;
+  ChangeQuantitySeparateStateSuccess(this.quantity);
+}
+
+class ChangeQuantitySeparateStateError extends CreateTransferState {
+  final String msg;
+  ChangeQuantitySeparateStateError(this.msg);
+}
+
+class BarcodesProductLoadedState extends CreateTransferState {
+  final List<BarcodeInventario> listOfBarcodes;
+  BarcodesProductLoadedState({required this.listOfBarcodes});
+}
+
+class FetchAllBarcodesSuccess extends CreateTransferState {
+  final List<BarcodeInventario> allBarcodes;
+  FetchAllBarcodesSuccess(this.allBarcodes);
+}
+
+class FetchAllBarcodesFailure extends CreateTransferState {
+  final String error;
+  FetchAllBarcodesFailure(this.error);
+}

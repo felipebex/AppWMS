@@ -241,6 +241,10 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                 controller: context
                                     .read<WmsPackingBloc>()
                                     .searchController,
+
+
+
+
                                 decoration: InputDecoration(
                                   prefixIcon:
                                       const Icon(Icons.search, color: grey),

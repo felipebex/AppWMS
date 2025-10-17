@@ -38,6 +38,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/detail_create_tranfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/scan_product_create_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
@@ -125,6 +126,8 @@ class AppRoutes {
       'search-product-create-transfer';
 
   static const String searchLoteCreateTransfer = 'search-lote-create-transfer';
+
+  static const String detailCreateTransfer = 'detail-create-transfer';
 
   //todo entrada de productos
   static const String entradaProductos = 'list-entrada-productos';
@@ -452,6 +455,11 @@ class AppRoutes {
           currentProduct: currentProduct,
         );
       },
+
+      detailCreateTransfer: (context) {
+        return DetailCreateTransferScreen();
+      },
+
 
       searchProductsCreateTransfer: (_) => SearchProductCreateTransferScreen(),
 

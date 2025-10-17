@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -13,6 +15,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
+import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class PakingListScreen extends StatefulWidget {
@@ -29,10 +32,109 @@ bool isSearch = false;
 
 class _PakingListScreenState extends State<PakingListScreen>
     with WidgetsBindingObserver {
+  FocusNode focusNodeBuscar = FocusNode();
+  final TextEditingController _controllerToDo = TextEditingController();
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<WmsPackingBloc>();
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
+
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (batch picking): $scan');
+
+    // 1. Obtener la lista original del BLoC (es una referencia)
+    final List<dynamic> rawPedidos = bloc.listOfPedidosFilters;
+// 2. Crear una copia modificable de la lista original
+    final List<dynamic> sortedListOfPedidos = List.from(rawPedidos);
+// 3. Aplicar el ordenamiento
+// La lógica: Los pedidos con isTerminate != 1 (o sea, 0 o null) deben ir primero.
+// El comparador hará que 0 vaya antes que 1.
+    sortedListOfPedidos.sort((a, b) {
+      // Converte a.isTerminate a un entero (0 si es null/0, 1 si es 1)
+      final aTerminate = a.isTerminate == 1 ? 1 : 0;
+      // Converte b.isTerminate a un entero (0 si es null/0, 1 si es 1)
+      final bTerminate = b.isTerminate == 1 ? 1 : 0;
+      // Compara: 0 (Pendiente/No Terminado) < 1 (Terminado)
+      return aTerminate.compareTo(bTerminate);
+    });
+
+// ✅ 4. La variable final a usar es la lista ordenada
+    final listOfPedidos = sortedListOfPedidos;
+
+    void processBatch(PedidoPacking pedido) {
+      bloc.add(ClearScannedValuePackEvent('toDo'));
+      print(pedido.toMap());
+      try {
+        _handlePedidoTap(context, pedido, context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al cargar los datos'),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+
+    // Buscar el producto usando el código de barras principal o el código de producto
+    final batchs = listOfPedidos.firstWhere(
+      (b) =>
+          b.name?.toLowerCase() == scan || b.zonaEntrega?.toLowerCase() == scan,
+      orElse: () => PedidoPacking(),
+    );
+
+    if (batchs.id != null) {
+      print(
+          '🔎 pedido encontrado : ${batchs.id} ${batchs.name} - ${batchs.zonaEntrega}');
+      processBatch(batchs);
+      return;
+    } else {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      bloc.add(ClearScannedValuePackEvent('toDo'));
+    }
+  }
+
+  void _handlePedidoTap(BuildContext context, PedidoPacking pedido,
+      BuildContext contextBuilder) async {
+    context.read<WmsPackingBloc>().add(ShowDetailvent(true));
+
+    // Limpiamos la lista de paquetes
+    context.read<WmsPackingBloc>().packages = [];
+    // Pedimos todos los productos de un pedido
+    context.read<WmsPackingBloc>().add(LoadAllProductsFromPedidoEvent(
+          pedido.id ?? 0,
+        ));
+
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // No permitir que el usuario cierre el diálogo manualmente
+      builder: (_) => const DialogLoading(
+        message: 'Cargando interfaz...',
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pop(context);
+
+    //cerramos el teclado focus
+    FocusScope.of(context).unfocus();
+
+    // Viajamos a la vista de detalle de un pedido
+    Navigator.pushReplacementNamed(context, 'packing-detail',
+        arguments: [pedido, widget.batchModel, 0]);
+    print('Pedido seleccionado: ${pedido.toMap()}');
   }
 
   @override
@@ -487,14 +589,19 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                             widget.batchModel
                                                                     ?.id ??
                                                                 0));
-
                                                     context
                                                         .read<WmsPackingBloc>()
                                                         .add(ShowKeyboardEvent(
                                                             false));
-
-                                                    FocusScope.of(context)
-                                                        .unfocus();
+                                                    //pasamos el foco a focusNodeBuscar
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            seconds: 1), () {
+                                                      // _handleDependencies();
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNodeBuscar);
+                                                    });
                                                   },
                                                   icon: const Icon(
                                                     Icons.close,
@@ -528,6 +635,22 @@ class _PakingListScreenState extends State<PakingListScreen>
                                     ],
                                   ),
                                 )),
+
+                            //*buscar por scan
+                            BarcodeScannerField(
+                              controller: _controllerToDo,
+                              focusNode: focusNodeBuscar,
+                              scannedValue5: "",
+                              onBarcodeScanned: (value, context) {
+                                return validateBarcode(value, context);
+                              },
+                              onKeyScanned: (keyLabel, type, context) {
+                                return context.read<WmsPackingBloc>().add(
+                                      UpdateScannedValuePackEvent(
+                                          keyLabel, type),
+                                    );
+                              },
+                            ),
 
                             //*listado de pedidos
                             BlocBuilder<WmsPackingBloc, WmsPackingState>(
@@ -603,35 +726,8 @@ class _PakingListScreenState extends State<PakingListScreen>
 
                                             return GestureDetector(
                                               onTap: () {
-                                                context
-                                                    .read<WmsPackingBloc>()
-                                                    .add(ShowDetailvent(true));
-
-                                                // Limpiamos la lista de paquetes
-                                                context
-                                                    .read<WmsPackingBloc>()
-                                                    .packages = [];
-                                                // Pedimos todos los productos de un pedido
-                                                context
-                                                    .read<WmsPackingBloc>()
-                                                    .add(
-                                                        LoadAllProductsFromPedidoEvent(
-                                                      packing.id ?? 0,
-                                                    ));
-                                                //cerramos el teclado focus
-                                                FocusScope.of(context)
-                                                    .unfocus();
-
-                                                // Viajamos a la vista de detalle de un pedido
-                                                Navigator.pushReplacementNamed(
-                                                    context, 'packing-detail',
-                                                    arguments: [
-                                                      packing,
-                                                      widget.batchModel,
-                                                      0
-                                                    ]);
-                                                print(
-                                                    'Pedido seleccionado: ${packing.toMap()}');
+                                                _handlePedidoTap(
+                                                    context, packing, context);
                                               },
                                               child: Card(
                                                 elevation: 5,
