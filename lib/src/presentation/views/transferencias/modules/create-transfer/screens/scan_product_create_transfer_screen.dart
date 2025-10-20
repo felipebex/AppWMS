@@ -20,7 +20,6 @@ import 'package:wms_app/src/presentation/views/transferencias/modules/create-tra
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/others/popup_menu_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/product/product_dropdown_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
@@ -217,9 +216,8 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
 
     if (matchedById.productId != null) {
       print('✅ Producto encontrado por ID: ${matchedById.name}');
-      bloc
-        ..add(ValidateFieldsEvent(field: "product", isOk: true))
-        ..add(ChangeProductIsOkEvent(matchedById, true));
+      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+      bloc.add(ChangeProductIsOkEvent(matchedById, true));
 
       return;
     } else {
@@ -290,10 +288,10 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     CreateTransferBloc bloc,
   ) {
     // Buscar el barcode que coincida con el valor escaneado
-    Barcodes? matchedBarcode = bloc.listOfBarcodes.firstWhere(
+    BarcodeInventario? matchedBarcode = bloc.listOfBarcodes.firstWhere(
         (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
         orElse: () =>
-            Barcodes() // Si no se encuentra ningún match, devuelve null
+            BarcodeInventario() // Si no se encuentra ningún match, devuelve null
         );
     if (matchedBarcode.barcode != null) {
       bloc.add(AddQuantitySeparate(
@@ -310,59 +308,104 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     final Size size = MediaQuery.sizeOf(context);
     return BlocConsumer<CreateTransferBloc, CreateTransferState>(
       listener: (context, state) {
-        //*estado cuando la ubicacion de origen es cambiada
-        if (state is ChangeLocationIsOkState) {
-          //cambiamos el foco
-          Future.delayed(const Duration(seconds: 1), () {
-            FocusScope.of(context).requestFocus(focusNode2);
-          });
-          _handleDependencies();
-        }
-        //*estado cuando el producto es leido ok
-        else if (state is ChangeProductOrderIsOkState) {
-          //validamos si el producto tiene lote, si es asi pasamos el foco al lote
-          if (context.read<CreateTransferBloc>().currentProduct?.tracking ==
-              "lot") {
-            Future.delayed(const Duration(seconds: 1), () {
-              FocusScope.of(context).requestFocus(focusNode5);
-            });
-          } else {
-            Future.delayed(const Duration(seconds: 1), () {
-              FocusScope.of(context).requestFocus(focusNode3);
-            });
-          }
+        print('🔔 Estado actual: $state');
 
-          _handleDependencies();
-        } else if (state is ChangeLoteIsOkState) {
-          //cambiamos el foco a cantidad cuando hemos seleccionado un lote
-          Future.delayed(const Duration(seconds: 1), () {
-            FocusScope.of(context).requestFocus(focusNode3);
-          });
-          _handleDependencies();
-        }
-        // else if (state is ChangeQuantitySeparateStateError) {
-        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        //     duration: const Duration(milliseconds: 1000),
-        //     content: Text(state.msg),
-        //     backgroundColor: Colors.red[200],
-        //   ));
-        // }
-
-        else if (state is ValidateFieldsStateError) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: const Duration(milliseconds: 1000),
-            content: Text(state.msg),
-            backgroundColor: Colors.red[200],
-          ));
-        } else if (state is ClearDataCreateTransferLoadingState) {
+        //estado para cuando estamos agregando un producto a la transferencia
+        if (state is ProductAddingToTransferLoadingState) {
           showDialog(
             context: context,
             builder: (context) =>
-                const DialogLoading(message: "Limpiando datos..."),
+                const DialogLoading(message: "Agregando producto..."),
           );
-          Future.delayed(const Duration(seconds: 1), () {
-            Navigator.pop(context);
-          });
+        } else
+        //estado para cuando agregamos un producto a la transferencia
+        if (state is ProductAddedToTransferState) {
+          Navigator.pop(context); //cerramos el dialog de carga
+          Get.snackbar(
+            '360 Software Informa',
+            'Producto agregado a la transferencia correctamente',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            duration: const Duration(milliseconds: 1000),
+            icon: Icon(Icons.check_circle, color: Colors.green),
+            snackPosition: SnackPosition.TOP,
+          );
+        } else if (state is GetProductsFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        } else {
+          //*estado cuando la ubicacion de origen es cambiada
+          if (state is ChangeLocationIsOkState) {
+            //cambiamos el foco
+            Future.delayed(const Duration(seconds: 1), () {
+              FocusScope.of(context).requestFocus(focusNode2);
+            });
+            _handleDependencies();
+          }
+          //*estado cuando el producto es leido ok
+          else if (state is ChangeProductOrderIsOkState) {
+            //validamos si el producto tiene lote, si es asi pasamos el foco al lote
+            if (context.read<CreateTransferBloc>().currentProduct?.tracking ==
+                "lot") {
+              Future.delayed(const Duration(seconds: 1), () {
+                FocusScope.of(context).requestFocus(focusNode5);
+              });
+            } else {
+              Future.delayed(const Duration(seconds: 1), () {
+                FocusScope.of(context).requestFocus(focusNode3);
+              });
+            }
+            _handleDependencies();
+          } else if (state is ChangeQuantityIsOkState) {
+            _handleDependencies();
+          } else if (state is ChangeLoteIsOkState) {
+            //cambiamos el foco a cantidad cuando hemos seleccionado un lote
+            Future.delayed(const Duration(seconds: 1), () {
+              FocusScope.of(context).requestFocus(focusNode3);
+            });
+            _handleDependencies();
+          } else if (state is ChangeQuantitySeparateStateError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: const Duration(milliseconds: 1000),
+              content: Text(state.msg),
+              backgroundColor: Colors.red[200],
+            ));
+          } else if (state is ValidateFieldsStateError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: const Duration(milliseconds: 1000),
+              content: Text(state.msg),
+              backgroundColor: Colors.red[200],
+            ));
+          } else if (state is ClearDataCreateTransferLoadingState) {
+            showDialog(
+              context: context,
+              builder: (context) =>
+                  const DialogLoading(message: "Limpiando datos..."),
+            );
+            Future.delayed(const Duration(seconds: 1), () {
+              Navigator.pop(context);
+            });
+          }
         }
       },
       builder: (context, state) {
@@ -684,14 +727,40 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
         double cantidad = double.parse(cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : cantidadController.text);
-        // bloc.add(SendProductConteoEvent(true, cantidad, bloc.currentProduct));
+        _validateQuantity(cantidad);
+        bloc.add(AddProductCreateTransferEvent(
+          cantidad,
+          bloc.currentProduct ?? Product(),
+        ));
       }
     } else {
       double cantidad = double.parse(cantidadController.text.isEmpty
           ? bloc.quantitySelected.toString()
           : cantidadController.text);
+      _validateQuantity(cantidad);
       print("cantidad: $cantidad");
-      // bloc.add(SendProductConteoEvent(true, cantidad, bloc.currentProduct));
+      bloc.add(AddProductCreateTransferEvent(
+        cantidad,
+        bloc.currentProduct ?? Product(),
+      ));
+    }
+  }
+
+  //funcion para validar que si la cantidad es 0 o nula muestre mensaje de error
+  void _validateQuantity(dynamic cantidad) {
+    if (cantidad <= 0) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      Get.snackbar(
+        'Error',
+        'La cantidad debe ser mayor que cero',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
     }
   }
 }

@@ -80,6 +80,15 @@ class Product {
   String? locationName;
   dynamic quantity;
 
+  ///valores para crear productos en una transferencia
+  dynamic time;
+  dynamic dateStart;
+  dynamic dateEnd;
+  dynamic quantityDone;
+  String? dateTransaction;
+
+
+
   Product({
     this.productId,
     this.name,
@@ -101,8 +110,12 @@ class Product {
     this.uom,
     this.locationId,
     this.locationName,
-    this.quantity 
-
+    this.quantity,
+    this.time,
+    this.dateStart,
+    this.dateEnd,
+    this.quantityDone,
+    this.dateTransaction
   });
 
   factory Product.fromMap(Map<String, dynamic> json) => Product(
@@ -133,6 +146,11 @@ class Product {
         locationId: json['location_id'],
         locationName: json['location_name'],
         quantity: json['quantity'],
+        time: json['time'],
+        dateStart: json['date_start'],
+        dateEnd: json['date_end'],
+        quantityDone: json['quantity_done'],
+        dateTransaction: json['date_transaction'],  
 
       );
 
@@ -162,6 +180,11 @@ class Product {
         "location_id": locationId,
         "location_name": locationName,
         "quantity": quantity,
+        "time": time,
+        "date_start": dateStart,
+        "date_end": dateEnd,
+        "quantity_done": quantityDone,
+        "date_transaction": dateTransaction,
       };
 }
 

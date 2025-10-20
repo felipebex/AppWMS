@@ -20,6 +20,10 @@ class PopupMenuCreateTransferWidget extends StatelessWidget {
             // Manejar la selección de opciones aquí
             if (value == '1') {
               //verficamos si tenemos permisos
+              Navigator.pushReplacementNamed(
+                context,
+                'detail-create-transfer',
+              );
 
               // Acción para opción 1
             } else if (value == '2') {

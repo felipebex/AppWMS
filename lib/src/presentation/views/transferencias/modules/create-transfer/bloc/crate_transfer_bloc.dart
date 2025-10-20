@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -7,7 +8,6 @@ import 'package:wms_app/src/presentation/views/inventario/data/inventario_reposi
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 part 'crate_transfer_event.dart';
 part 'crate_transfer_state.dart';
@@ -39,8 +39,13 @@ class CreateTransferBloc
   String scannedValue6 = '';
 
   String oldLocation = '';
+  //date de inicio y fin del producto
   String dateInicio = '';
-  String dateFin = "";
+  String dateFin = '';
+
+  //date de inicio y fin de la transferencia
+  String dateTransferInicio = '';
+  String dateTransferFin = '';
 
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
@@ -50,9 +55,11 @@ class CreateTransferBloc
   List<Product> productos = [];
   List<Product> productosFilters = [];
 
-  List<Barcodes> listOfBarcodes = [];
+  //lista de prodcutos ya agregados a la transferencia
+  List<Product> productosCreateTransfer = [];
 
-  List<BarcodeInventario> barcodeInventario = [];
+  List<BarcodeInventario> listOfBarcodes = [];
+
   List<BarcodeInventario> allBarcodeInventario = [];
 
   //lista de lotes de un producto
@@ -132,6 +139,87 @@ class CreateTransferBloc
     on<FetchBarcodesProductEvent>(_onFetchBarcodesProductEvent);
     //meotod para obtener todos los other barcodes y product_packing de inventario
     on<FetchAllBarcodesInventarioEvent>(_onFetchAllBarcodesInventarioEvent);
+
+    //*evento para agregar los productos a la lista de transferencia
+    on<AddProductCreateTransferEvent>(_onAddProductCreateTransferEvent);
+
+    //*evento para eliminar un producto ya agregado de la transferencia
+    on<RemoveProductFromTransferEvent>(_onRemoveProductFromTransferEvent);
+  }
+
+  void _onRemoveProductFromTransferEvent(RemoveProductFromTransferEvent event,
+      Emitter<CreateTransferState> emit) async {
+    try {
+      emit(ProductRemovingFromTransferLoadingState());
+      await db.productCreateTransferRepository
+          .deleteProductById(event.product.productId ?? 0);
+      //elimimamos el producto de la lista temporal
+      productosCreateTransfer
+          .removeWhere((prod) => prod.productId == event.product.productId);
+      emit(ProductRemovedFromTransferState());
+    } catch (e, s) {
+      print("❌ Error en _onRemoveProductFromTransferEvent: $e, $s");
+      emit(ProductRemoveFromTransferErrorState(
+          'Error al eliminar el producto de la transferencia'));
+    }
+  }
+
+  void _onAddProductCreateTransferEvent(AddProductCreateTransferEvent event,
+      Emitter<CreateTransferState> emit) async {
+    try {
+      //emitimos estado de carga
+      emit(ProductAddingToTransferLoadingState());
+      //todo procedemos a calcular el tiempo de separacion del producto
+
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(DateTime.now());
+
+      //calculamos la diferencia de tiempo
+      if (dateInicio == "" || dateInicio == null) {
+        dateInicio = DateTime.now().toString();
+      }
+      if (dateFin == "" || dateFin == null) {
+        dateFin = DateTime.now().toString();
+      }
+      DateTime dateStart = DateTime.parse(dateInicio);
+      DateTime dateEnd = DateTime.parse(dateFin);
+
+      var difference = dateEnd.difference(dateStart);
+      int time = difference.inSeconds;
+
+      //todo agregamos el producto a la lista de transferencia en la bd local
+      await db.productCreateTransferRepository.insertSingleProduct(Product(
+        productId: event.product.productId,
+        name: event.product.name,
+        barcode: event.product.barcode,
+        tracking: event.product.tracking,
+        weight: event.product.weight,
+        volume: event.product.volume,
+        volumeUomName: event.product.volumeUomName,
+        weightUomName: event.product.weightUomName,
+        useExpirationDate: event.product.useExpirationDate,
+        code: event.product.code,
+        time: time,
+        dateStart: dateInicio,
+        dateEnd: DateTime.now().toString(),
+        quantityDone: event.quantity,
+        dateTransaction: formattedDate,
+        uom: event.product.uom,
+        lotId: event.product.tracking == "lot" ? currentProductLote?.id : 0,
+        lotName:
+            event.product.tracking == "lot" ? currentProductLote?.name : '',
+      ));
+
+      //agregamos el producto a la lista temporal
+      productosCreateTransfer.add(event.product);
+      emit(ProductAddedToTransferState());
+      //todo limpiamos las variables
+      add(ClearDataCreateTransferEvent());
+    } catch (e, s) {
+      print("❌ Error en _onAddProductCreateTransferEvent: $e, $s");
+      emit(ProductAddToTransferErrorState(
+          'Error al agregar el producto a la transferencia'));
+    }
   }
 
   void _onFetchAllBarcodesInventarioEvent(FetchAllBarcodesInventarioEvent event,
@@ -156,15 +244,15 @@ class CreateTransferBloc
   void _onFetchBarcodesProductEvent(FetchBarcodesProductEvent event,
       Emitter<CreateTransferState> emit) async {
     try {
-      barcodeInventario.clear();
+      listOfBarcodes.clear();
 
       final response = await db.barcodesInventarioRepository.getBarcodesProduct(
         currentProduct?.productId ?? 0,
       );
 
       if (response.isNotEmpty) {
-        barcodeInventario = response;
-        emit(BarcodesProductLoadedState(listOfBarcodes: barcodeInventario));
+        listOfBarcodes = response;
+        emit(BarcodesProductLoadedState(listOfBarcodes: listOfBarcodes));
       } else {
         emit(BarcodesProductLoadedState(listOfBarcodes: []));
         return;
@@ -172,7 +260,7 @@ class CreateTransferBloc
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
     }
-    emit(BarcodesProductLoadedState(listOfBarcodes: barcodeInventario));
+    emit(BarcodesProductLoadedState(listOfBarcodes: listOfBarcodes));
   }
 
   void _onClearDataCreateTransferEvent(
@@ -260,19 +348,10 @@ class CreateTransferBloc
   void _onChangeQuantityIsOkEvent(
       ChangeIsOkQuantity event, Emitter<CreateTransferState> emit) async {
     if (event.isOk) {
-      //todo actualizamos el valor de la cantidad en el producto seleccionado
-      // await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
-      //   event.idOrder,
-      //   event.productId,
-      //   "is_quantity_is_ok",
-      //   1,
-      //   event.idMove.toString(),
-      //   currentProduct.locationId.toString(),
-      // );
+      quantityIsOk = true;
     }
-    quantityIsOk = event.isOk;
-    emit(ChangeIsOkState(
-      event.isOk,
+    emit(ChangeQuantityIsOkState(
+      quantityIsOk,
     ));
   }
 
@@ -370,9 +449,6 @@ class CreateTransferBloc
       currentProduct = event.productSelect;
       //*traemos todos los codigos de barras por paquete del producto
       add(FetchBarcodesProductEvent());
-      //todo guardamos el producto en la lista de productos seleccionados
-
-      //todo guardamos su tiempo de inicio del producto
       dateInicio = DateTime.now().toString();
 
       productIsOk = event.productIsOk;
@@ -382,13 +458,13 @@ class CreateTransferBloc
           idLote: currentProduct?.lotId ?? 0,
         ));
       } else {
-        //todo si el producto no tiene lote pasamos directo a la cantidad
+        // si el producto no tiene lote pasamos directo a la cantidad
         add(ChangeIsOkQuantity(
           true,
           event.productSelect.productId ?? 0,
         ));
       }
-      //todo emitimos el estado
+      // emitimos el estado
       emit(ChangeProductOrderIsOkState(
         productIsOk,
       ));
@@ -399,8 +475,8 @@ class CreateTransferBloc
       ChangeLocationIsOkEvent event, Emitter<CreateTransferState> emit) async {
     try {
       if (isLocationOk) {
-        //todo asignamos tiempo de inicio
-        dateInicio = DateTime.now().toString();
+        //todo asignamos tiempo de inicio de la transferencia
+        dateTransferInicio = DateTime.now().toString();
 
         //todo asignamos este tiempo para la transferencia
 

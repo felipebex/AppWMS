@@ -125,3 +125,17 @@ class FetchBarcodesProductEvent extends CreateTransferEvent {}
 class FetchAllBarcodesInventarioEvent extends CreateTransferEvent {
   FetchAllBarcodesInventarioEvent();
 }
+
+class AddProductCreateTransferEvent extends CreateTransferEvent {
+  final dynamic quantity;
+  final Product product;
+  AddProductCreateTransferEvent(
+    this.quantity,
+    this.product,
+  );
+}
+
+class RemoveProductFromTransferEvent extends CreateTransferEvent {
+  final Product product;
+  RemoveProductFromTransferEvent(this.product);
+}

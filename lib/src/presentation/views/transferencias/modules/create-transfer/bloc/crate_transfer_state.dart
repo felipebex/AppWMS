@@ -121,9 +121,9 @@ class ChangeLoteIsOkState extends CreateTransferState {
   ChangeLoteIsOkState(this.isOk);
 }
 
-class ChangeIsOkState extends CreateTransferState {
+class ChangeQuantityIsOkState extends CreateTransferState {
   final bool isOk;
-  ChangeIsOkState(this.isOk);
+  ChangeQuantityIsOkState(this.isOk);
 }
 
 class ShowQuantityState extends CreateTransferState {
@@ -164,4 +164,22 @@ class FetchAllBarcodesSuccess extends CreateTransferState {
 class FetchAllBarcodesFailure extends CreateTransferState {
   final String error;
   FetchAllBarcodesFailure(this.error);
+}
+
+
+class ProductAddingToTransferLoadingState extends CreateTransferState {}
+class ProductAddedToTransferState extends CreateTransferState {}
+
+class ProductAddToTransferErrorState extends CreateTransferState {
+  final String error;
+  ProductAddToTransferErrorState(this.error);
+}
+
+class ProductRemovingFromTransferLoadingState extends CreateTransferState {}
+
+class ProductRemovedFromTransferState extends CreateTransferState {}
+
+class ProductRemoveFromTransferErrorState extends CreateTransferState {
+  final String error;
+  ProductRemoveFromTransferErrorState(this.error);
 }

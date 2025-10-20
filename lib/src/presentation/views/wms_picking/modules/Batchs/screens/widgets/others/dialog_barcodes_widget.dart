@@ -9,7 +9,7 @@ class DialogBarcodes extends StatelessWidget {
     required this.listOfBarcodes,
   });
 
-  final List<Barcodes> listOfBarcodes;
+  final List<dynamic> listOfBarcodes;
 
   @override
   Widget build(BuildContext context) {

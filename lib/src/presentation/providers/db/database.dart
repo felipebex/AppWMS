@@ -54,6 +54,8 @@ import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_pro
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada/product_entrada_table.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada_batch/product_entrada_batch_table.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada_batch/product_entrada_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/transferencia/create_transfer/tbl_create_transfer_products/product_create_transfer_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/transferencia/create_transfer/tbl_create_transfer_products/product_create_transfer_table.dart';
 import 'package:wms_app/src/presentation/providers/db/transferencia/tbl_product_transferencia/product_transferencia_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/transferencia/tbl_product_transferencia/product_transferencia_table.dart';
 import 'package:wms_app/src/presentation/providers/db/transferencia/tbl_transferencias/transferencia_repository.dart';
@@ -62,7 +64,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProdu
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 import 'package:sqflite/sqflite.dart';
-
+ 
 class DataBaseSqlite {
   static final DataBaseSqlite _instance = DataBaseSqlite._internal();
   factory DataBaseSqlite() => _instance;
@@ -82,7 +84,7 @@ class DataBaseSqlite {
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 11,
+      version: 12,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -151,6 +153,9 @@ class DataBaseSqlite {
 
     //* tabla de ubicaciones de un conteo
     await db.execute(UbicacionesConteoTable.createTable());
+
+    //*tabla de los productos para crear una transferencia
+    await db.execute(ProductCreateTransferTable.createTable());
 
     //* tabla de productos de un batch picking
     await db.execute('''
@@ -244,7 +249,6 @@ class DataBaseSqlite {
       }
     }
 
-
     if (oldVersion < 11) {
       print('Migrando la base de datos a la versión 11...');
       try {
@@ -258,6 +262,21 @@ class DataBaseSqlite {
       } catch (e) {
         print(
             '❌ Error al añadir la columna ${PickProductsTable.columnProductTracking}, es posible que ya exista.');
+      }
+    }
+
+
+    if(oldVersion <12){
+      //solucion para cuando la version no tiene la tabla de productos para crear transferencia
+      print('Migrando la base de datos a la versión 12...');
+      try {
+        // Crear la tabla ProductCreateTransferTable si no existe
+        await db.execute(ProductCreateTransferTable.createTable());
+        print(
+            '✅ Tabla ${ProductCreateTransferTable.tableName} creada correctamente.');
+      } catch (e) {
+        print(
+            '❌ Error al crear la tabla ${ProductCreateTransferTable.tableName}, es posible que ya exista.');
       }
     }
   }
@@ -340,6 +359,10 @@ class DataBaseSqlite {
 
   CategoriasConteoRepository get categoriasConteoRepository =>
       CategoriasConteoRepository();
+
+  //repositorio de productos para crear transferencia
+  ProductCreateTransferRepository get productCreateTransferRepository =>
+      ProductCreateTransferRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
