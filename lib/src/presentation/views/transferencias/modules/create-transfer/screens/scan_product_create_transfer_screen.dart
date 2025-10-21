@@ -17,6 +17,7 @@ import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_produc
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/location/LocationCardButton_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/others/popup_menu_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/screens/widgets/product/product_dropdown_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -42,9 +43,12 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
   FocusNode focusNode5 = FocusNode(); // lote
+  FocusNode focusNode6 = FocusNode(); // ubicacion  de destino
 
   //controller
   final TextEditingController _controllerLocation = TextEditingController();
+  final TextEditingController _controllerLocationDestino =
+      TextEditingController();
   final TextEditingController _controllerProduct = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
   final TextEditingController _controllerLote = TextEditingController();
@@ -93,7 +97,8 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
       focusNode2,
       focusNode3,
       focusNode4,
-      focusNode5
+      focusNode5,
+      focusNode6,
     ]) {
       if (node != except) node.unfocus();
     }
@@ -103,24 +108,45 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     final bloc = context.read<CreateTransferBloc>();
     final hasLote = bloc.currentProduct?.tracking == "lot";
 
+    //mostramos todas las variables de foco y sus condiciones
+    print('---------------- Manejo de dependencias ---------------');
+    print("ubicación: ${bloc.locationIsOk}");
+    print("producto: ${bloc.productIsOk}");
+    print("lote: ${bloc.loteIsOk}");
+    print("cantidad: ${bloc.quantityIsOk}");
+    print("ubicación destino: ${bloc.locationDestIsOk}");
+
     final focusMap = {
       "location": () =>
-          !bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk,
+          !bloc.locationIsOk &&
+          !bloc.locationIsOk &&
+          !bloc.productIsOk &&
+          !bloc.quantityIsOk,
       "product": () =>
-          bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk,
+          bloc.locationIsOk &&
+          bloc.locationDestIsOk &&
+          !bloc.productIsOk &&
+          !bloc.quantityIsOk,
       "lote": () =>
           hasLote &&
           bloc.locationIsOk &&
+          bloc.locationDestIsOk &&
           bloc.productIsOk &&
           !bloc.loteIsOk &&
           !bloc.quantityIsOk &&
           !bloc.viewQuantity,
       "quantity": () =>
           bloc.locationIsOk &&
+          bloc.locationDestIsOk &&
           bloc.productIsOk &&
           (hasLote ? bloc.loteIsOk : true) &&
           bloc.quantityIsOk &&
           !bloc.viewQuantity,
+      "locationDest": () =>
+          bloc.locationIsOk &&
+          !bloc.locationDestIsOk &&
+          !bloc.productIsOk &&
+          !bloc.quantityIsOk,
     };
 
     final focusNodeByKey = {
@@ -128,6 +154,7 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
       "product": focusNode2,
       "lote": focusNode5,
       "quantity": focusNode3,
+      "locationDest": focusNode6,
     };
 
     for (final entry in focusMap.entries) {
@@ -158,7 +185,7 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     if (matchedUbicacion.barcode != null) {
       print('Ubicacion encontrada: ${matchedUbicacion.name}');
       bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
-      bloc.add(ChangeLocationIsOkEvent(matchedUbicacion));
+      bloc.add(ChangeLocationIsOkEvent(matchedUbicacion, false));
     } else {
       _vibrationService.vibrate();
       _audioService.playErrorSound();
@@ -167,6 +194,35 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     }
 
     bloc.add(ClearScannedValueTransferEvent('location'));
+  }
+
+  void validateLocationDest(String value) {
+    final bloc = context.read<CreateTransferBloc>();
+    final scan = bloc.scannedValue7.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue7.trim().toLowerCase();
+
+    print('scan location dest: $scan');
+    _controllerLocationDestino.clear();
+
+    ResultUbicaciones? matchedUbicacion = bloc.ubicacionesFilters.firstWhere(
+        (ubicacion) => ubicacion.barcode?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            ResultUbicaciones() // Si no se encuentra ningún match, devuelve null
+        );
+
+    if (matchedUbicacion.barcode != null) {
+      print('Ubicacion encontrada: ${matchedUbicacion.name}');
+      bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+      bloc.add(ChangeLocationIsOkEvent(matchedUbicacion, true));
+    } else {
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
+      print('Ubicacion no encontrada');
+      bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
+    }
+
+    bloc.add(ClearScannedValueTransferEvent('locationDest'));
   }
 
   void validateProduct(String value) {
@@ -231,19 +287,29 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     }
   }
 
+// Función auxiliar para eliminar caracteres especiales que causan problemas
+  String _normalizeLote(String? text) {
+    if (text == null) return '';
+    // Convertir a minúsculas y luego reemplazar guiones bajos y guiones por un string vacío
+    return text.toLowerCase().replaceAll(RegExp(r'[-_]'), '');
+  }
+
   void validateLote(String value) {
     final bloc = context.read<CreateTransferBloc>();
-    String scan = bloc.scannedValue4.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue4.trim().toLowerCase();
-    print('scan lote: $scan');
+
+    // Normalizamos el scan de entrada
+    final rawScan =
+        (bloc.scannedValue4.isEmpty ? value : bloc.scannedValue4).trim();
+    final scan = _normalizeLote(rawScan); // <-- Usamos la nueva función aquí
+
+    print('scan lote normalizado: $scan');
     _controllerLote.clear();
-    //tengo una lista de lotes el cual quiero validar si el scan es igual a alguno de los lotes
+
+    // Buscar el lote
     LotesProduct? matchedLote = bloc.listLotesProduct.firstWhere(
-        (lotes) => lotes.name?.toLowerCase() == scan.trim(),
-        orElse: () =>
-            LotesProduct() // Si no se encuentra ningún match, devuelve null
-        );
+        // ✅ Normalizamos el nombre del lote ANTES de la comparación
+        (lotes) => _normalizeLote(lotes.name) == scan,
+        orElse: () => LotesProduct());
 
     if (matchedLote.name != null) {
       print('lote encontrado: ${matchedLote.name}');
@@ -282,22 +348,42 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     }
   }
 
+  // Función auxiliar para eliminar caracteres especiales que causan problemas
+  String _normalizeScan(String? text) {
+    if (text == null) return '';
+    // Convertir a minúsculas y eliminar guiones bajos y guiones.
+    return text.toLowerCase().replaceAll(RegExp(r'[-_]'), '');
+  }
+
   bool validateScannedBarcode(
     String scannedBarcode,
     Product currentProduct,
     CreateTransferBloc bloc,
   ) {
-    // Buscar el barcode que coincida con el valor escaneado
+    // 1. Normalizar el barcode escaneado
+    final normalizedScan = _normalizeScan(scannedBarcode);
+
+    // Si el escaneo normalizado está vacío, no hacemos nada
+    if (normalizedScan.isEmpty) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      return false;
+    }
+
+    // 2. Buscar el barcode normalizado
     BarcodeInventario? matchedBarcode = bloc.listOfBarcodes.firstWhere(
-        (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
-        orElse: () =>
-            BarcodeInventario() // Si no se encuentra ningún match, devuelve null
-        );
+        // ✅ Normalizar el barcode de la lista antes de comparar
+        (barcode) => _normalizeScan(barcode.barcode) == normalizedScan,
+        orElse: () => BarcodeInventario());
+
     if (matchedBarcode.barcode != null) {
+      // Éxito
       bloc.add(AddQuantitySeparate(
           currentProduct.productId ?? 0, matchedBarcode.cantidad, false));
       return true;
     }
+
+    // Fallo
     _audioService.playErrorSound();
     _vibrationService.vibrate();
     return false;
@@ -354,13 +440,22 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
             ],
           );
         } else {
-          //*estado cuando la ubicacion de origen es cambiada
+          //*estado cuando la ubicacion de origen es cambiada, pasamos a ubicacion de destino
           if (state is ChangeLocationIsOkState) {
             //cambiamos el foco
-            Future.delayed(const Duration(seconds: 1), () {
-              FocusScope.of(context).requestFocus(focusNode2);
-            });
-            _handleDependencies();
+            if (state.isLocationDest == false) {
+              /// si es origien pasamos a destino
+              Future.delayed(const Duration(seconds: 1), () {
+                FocusScope.of(context).requestFocus(focusNode6);
+              });
+              _handleDependencies();
+            } else {
+              // si es destino pasamos a producto
+              Future.delayed(const Duration(seconds: 1), () {
+                FocusScope.of(context).requestFocus(focusNode2);
+              });
+              _handleDependencies();
+            }
           }
           //*estado cuando el producto es leido ok
           else if (state is ChangeProductOrderIsOkState) {
@@ -491,16 +586,57 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
                           },
                           focusNode: focusNode1,
                           controller: _controllerLocation,
-                          locationDropdown: LocationCardButtonConteo(
+                          locationDropdown: LocationCardButtonCreateTransfer(
                             bloc: context.read<
                                 CreateTransferBloc>(), // Tu instancia de BLoC/Controlador
                             cardColor:
                                 white, // Asegúrate que 'white' esté definido en tus colores
                             textAndIconColor:
                                 primaryColorApp, // Usa tu color primario
-                            title: 'Ubicación de existencias',
+                            title: 'Ubicación Origen',
                             routeName: 'search-location-create-transfer',
                             ubicacionFija: true,
+                            isLocationDest: false,
+                          ), // Pasamos el widget del dropdown como parámetro
+                        ),
+
+                        //todo ubicacion destino
+                        LocationScannerAll(
+                          isLocationOk: context
+                              .read<CreateTransferBloc>()
+                              .isLocationDestOk,
+                          locationIsOk: context
+                              .read<CreateTransferBloc>()
+                              .locationDestIsOk,
+                          productIsOk:
+                              context.read<CreateTransferBloc>().productIsOk,
+                          quantityIsOk:
+                              context.read<CreateTransferBloc>().quantityIsOk,
+                          currentLocationName: context
+                              .read<CreateTransferBloc>()
+                              .currentUbicationDest
+                              ?.name,
+                          onLocationScanned: (value) {
+                            validateLocationDest(value);
+                          },
+                          onKeyScanned: (keyLabel) {
+                            context.read<CreateTransferBloc>().add(
+                                UpdateScannedValueTransferEvent(
+                                    keyLabel, 'locationDest'));
+                          },
+                          focusNode: focusNode6,
+                          controller: _controllerLocationDestino,
+                          locationDropdown: LocationCardButtonCreateTransfer(
+                            bloc: context.read<
+                                CreateTransferBloc>(), // Tu instancia de BLoC/Controlador
+                            cardColor:
+                                white, // Asegúrate que 'white' esté definido en tus colores
+                            textAndIconColor:
+                                primaryColorApp, // Usa tu color primario
+                            title: 'Ubicación Destino',
+                            routeName: 'search-location-create-transfer',
+                            ubicacionFija: true,
+                            isLocationDest: true,
                           ), // Pasamos el widget del dropdown como parámetro
                         ),
 
@@ -711,6 +847,21 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
       return;
     }
 
+  if (cantidad <= 0.0 || cantidad <= 0) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      Get.snackbar(
+        'Error',
+        'La cantidad debe ser mayor que cero',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
     if (bloc.currentProduct?.tracking == 'lot') {
       if (bloc.currentProductLote?.id == null) {
         _audioService.playErrorSound();
@@ -727,7 +878,6 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
         double cantidad = double.parse(cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : cantidadController.text);
-        _validateQuantity(cantidad);
         bloc.add(AddProductCreateTransferEvent(
           cantidad,
           bloc.currentProduct ?? Product(),
@@ -737,7 +887,6 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
       double cantidad = double.parse(cantidadController.text.isEmpty
           ? bloc.quantitySelected.toString()
           : cantidadController.text);
-      _validateQuantity(cantidad);
       print("cantidad: $cantidad");
       bloc.add(AddProductCreateTransferEvent(
         cantidad,
@@ -746,21 +895,5 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
     }
   }
 
-  //funcion para validar que si la cantidad es 0 o nula muestre mensaje de error
-  void _validateQuantity(dynamic cantidad) {
-    if (cantidad <= 0) {
-      _audioService.playErrorSound();
-      _vibrationService.vibrate();
-      Get.snackbar(
-        'Error',
-        'La cantidad debe ser mayor que cero',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        duration: const Duration(milliseconds: 1000),
-        icon: Icon(Icons.error, color: Colors.amber),
-        snackPosition: SnackPosition.TOP,
-      );
-      return;
-    }
-  }
+
 }

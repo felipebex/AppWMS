@@ -220,6 +220,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                 context.read<CreateTransferBloc>()
                   ..add(GetLocationsEvent())
                   ..add(FetchAllBarcodesInventarioEvent())
+                  ..add(GetProductsCreateTransferEvent())
                   ..add(GetProductsFromDBEvent());
 
                 Navigator.pushReplacementNamed(context, 'create-transfer');

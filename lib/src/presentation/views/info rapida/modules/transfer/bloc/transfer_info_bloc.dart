@@ -143,7 +143,8 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
         //limpiamos los valores
         clearFields();
 
-        emit(SendTransferInfoSuccess(responseSend.result?.msg ?? ""));
+        emit(SendTransferInfoSuccess(responseSend.result?.msg ?? "",
+            responseSend.result?.idProducto ?? 0));
       } else {
         emit(SendTransferInfoFailureTransfer(responseSend.result?.msg ?? ""));
       }

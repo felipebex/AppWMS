@@ -52,7 +52,8 @@ class SearchProductEvent extends CreateTransferEvent {
 
 class ChangeLocationIsOkEvent extends CreateTransferEvent {
   final ResultUbicaciones locationSelect;
-  ChangeLocationIsOkEvent(this.locationSelect);
+  final bool isLocationDest;
+  ChangeLocationIsOkEvent(this.locationSelect, this.isLocationDest);
 }
 
 class ChangeProductIsOkEvent extends CreateTransferEvent {
@@ -111,7 +112,10 @@ class ChangeQuantitySeparate extends CreateTransferEvent {
   );
 }
 
-class ClearDataCreateTransferEvent extends CreateTransferEvent {}
+class ClearDataCreateTransferEvent extends CreateTransferEvent {
+  final bool isClearProduct;
+  ClearDataCreateTransferEvent({required this.isClearProduct});
+}
 
 class AddQuantitySeparate extends CreateTransferEvent {
   final int productId;
@@ -139,3 +143,7 @@ class RemoveProductFromTransferEvent extends CreateTransferEvent {
   final Product product;
   RemoveProductFromTransferEvent(this.product);
 }
+
+
+
+class GetProductsCreateTransferEvent extends CreateTransferEvent {}

@@ -444,8 +444,15 @@ class AppRoutes {
       },
 
       createTransfer: (_) => const CreateTransferScreen(),
-      searchLocationCreateTransfer: (_) =>
-          const SearchLocationCreateTransfercreen(),
+      searchLocationCreateTransfer: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final isLocationDest = arguments[0] as bool?;
+        return SearchLocationCreateTransfercreen(
+          isLocationDest: isLocationDest ?? false,
+        );
+      },
 
       searchLoteCreateTransfer: (context) {
         final arguments =
@@ -459,7 +466,6 @@ class AppRoutes {
       detailCreateTransfer: (context) {
         return DetailCreateTransferScreen();
       },
-
 
       searchProductsCreateTransfer: (_) => SearchProductCreateTransferScreen(),
 

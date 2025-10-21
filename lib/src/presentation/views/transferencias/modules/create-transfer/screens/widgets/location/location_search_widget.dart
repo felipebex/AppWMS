@@ -11,7 +11,9 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class SearchLocationCreateTransfercreen extends StatefulWidget {
-  const SearchLocationCreateTransfercreen({super.key});
+  const SearchLocationCreateTransfercreen(
+      {super.key, required this.isLocationDest});
+  final bool isLocationDest;
 
   @override
   State<SearchLocationCreateTransfercreen> createState() =>
@@ -222,8 +224,12 @@ class _SearchLocationScreenState
 
                             //seleccionamos la ubicacion
                             bloc.add(ValidateFieldsEvent(
-                                field: "location", isOk: true));
-                            bloc.add(ChangeLocationIsOkEvent(selectedLocation));
+                                field: widget.isLocationDest
+                                    ? "locationDest"
+                                    : "location",
+                                isOk: true));
+                            bloc.add(ChangeLocationIsOkEvent(
+                                selectedLocation, widget.isLocationDest));
 
                             bloc.add(ShowKeyboardCreateTransferEvent(false));
                             FocusScope.of(context).unfocus();
@@ -278,7 +284,6 @@ class _SearchLocationScreenState
 
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
-    super.key,
     required this.size,
   });
 

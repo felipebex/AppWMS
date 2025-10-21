@@ -35,8 +35,7 @@ class CreateTransferBloc
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
-  String scannedValue5 = '';
-  String scannedValue6 = '';
+  String scannedValue7 = '';
 
   String oldLocation = '';
   //date de inicio y fin del producto
@@ -79,6 +78,8 @@ class CreateTransferBloc
 
   //*variables de modelos actuales
   ResultUbicaciones? currentUbication;
+  ResultUbicaciones? currentUbicationDest;
+
   Product? currentProduct;
   LotesProduct? currentProductLote;
 
@@ -145,6 +146,30 @@ class CreateTransferBloc
 
     //*evento para eliminar un producto ya agregado de la transferencia
     on<RemoveProductFromTransferEvent>(_onRemoveProductFromTransferEvent);
+
+    //*evento para obtener los productos de la bd local de crear transferencia
+    on<GetProductsCreateTransferEvent>(_onGetProductsCreateTransferEvent);
+  }
+
+  void _onGetProductsCreateTransferEvent(GetProductsCreateTransferEvent event,
+      Emitter<CreateTransferState> emit) async {
+    try {
+      emit(GetProductsLoadingBD());
+      final response = await db.productCreateTransferRepository
+          .getAllProductsCreateTransfer();
+      productosCreateTransfer.clear();
+      if (response.isNotEmpty) {
+        productosCreateTransfer = response;
+        print(
+            'productos de la bd de crear transferencia::::: ${productosCreateTransfer.length}');
+        emit(GetProductsSuccessBD(response));
+      } else {
+        emit(GetProductsFailure('No se encontraron productos'));
+      }
+    } catch (e, s) {
+      emit(GetProductsFailure('Error al cargar los productos'));
+      print('Error en el fetch de productos: $e=>$s');
+    }
   }
 
   void _onRemoveProductFromTransferEvent(RemoveProductFromTransferEvent event,
@@ -174,6 +199,11 @@ class CreateTransferBloc
       DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
       String formattedDate = formatter.format(DateTime.now());
 
+      //mostramos el tiempo de inicio y fin
+      print('Fecha de inicio: $dateInicio');
+      dateFin = DateTime.now().toString();
+      print('Fecha de fin: $dateFin');
+
       //calculamos la diferencia de tiempo
       if (dateInicio == "" || dateInicio == null) {
         dateInicio = DateTime.now().toString();
@@ -188,7 +218,8 @@ class CreateTransferBloc
       int time = difference.inSeconds;
 
       //todo agregamos el producto a la lista de transferencia en la bd local
-      await db.productCreateTransferRepository.insertSingleProduct(Product(
+
+      final productAdd = Product(
         productId: event.product.productId,
         name: event.product.name,
         barcode: event.product.barcode,
@@ -208,13 +239,18 @@ class CreateTransferBloc
         lotId: event.product.tracking == "lot" ? currentProductLote?.id : 0,
         lotName:
             event.product.tracking == "lot" ? currentProductLote?.name : '',
-      ));
+        expirationDateLote: event.product.tracking == "lot"
+            ? currentProductLote?.expirationDate
+            : null,
+      );
+
+      await db.productCreateTransferRepository.insertSingleProduct(productAdd);
 
       //agregamos el producto a la lista temporal
-      productosCreateTransfer.add(event.product);
+      productosCreateTransfer.add(productAdd);
       emit(ProductAddedToTransferState());
       //todo limpiamos las variables
-      add(ClearDataCreateTransferEvent());
+      add(ClearDataCreateTransferEvent(isClearProduct: true));
     } catch (e, s) {
       print("❌ Error en _onAddProductCreateTransferEvent: $e, $s");
       emit(ProductAddToTransferErrorState(
@@ -269,39 +305,77 @@ class CreateTransferBloc
   ) {
     try {
       emit(ClearDataCreateTransferLoadingState());
-      // Limpiar todas las variables y listas relacionadas con la transferencia
-      loteIsOk = false;
-      isLocationOk = true;
-      isProductOk = true;
-      isLocationDestOk = true;
-      isQuantityOk = true;
-      isKeyboardVisible = false;
-      isLoteOk = true;
 
-      //*variables para validar
-      locationIsOk = false;
-      productIsOk = false;
-      locationDestIsOk = false;
-      quantityIsOk = false;
-      viewQuantity = false;
-      //*valores de scanvalueS
+      if (event.isClearProduct) {
+        // Limpiar solo las variables relacionadas con las ubicaciones
+        loteIsOk = false;
+        isProductOk = true;
+        isQuantityOk = true;
+        isKeyboardVisible = false;
+        isLoteOk = true;
 
-      scannedValue1 = '';
-      scannedValue2 = '';
-      scannedValue3 = '';
-      scannedValue4 = '';
-      scannedValue5 = '';
-      scannedValue6 = '';
+        //*variables para validar
+        productIsOk = false;
+        quantityIsOk = false;
+        viewQuantity = false;
+        //*valores de scanvalueS
 
-      listOfBarcodes.clear();
+        scannedValue1 = '';
+        scannedValue2 = '';
+        scannedValue3 = '';
+        scannedValue4 = '';
+        scannedValue7 = '';
 
-      listLotesProduct.clear();
-      listLotesProductFilters.clear();
+        listOfBarcodes.clear();
 
-      quantitySelected = 0;
-      currentUbication = null;
-      currentProduct = null;
-      currentProductLote = null;
+        listLotesProduct.clear();
+        listLotesProductFilters.clear();
+
+        quantitySelected = 0;
+        currentProduct = null;
+        currentProductLote = null;
+
+        dateInicio = '';
+        dateFin = '';
+      } else {
+        //limpiamos todo, producto, ubicacion y cantidad
+        currentUbication = null;
+        currentUbicationDest = null;
+        isLocationOk = true;
+        isLocationDestOk = true;
+        locationIsOk = false;
+        locationDestIsOk = false;
+
+        loteIsOk = false;
+        isProductOk = true;
+        isQuantityOk = true;
+        isKeyboardVisible = false;
+        isLoteOk = true;
+
+        //*variables para validar
+        productIsOk = false;
+        quantityIsOk = false;
+        viewQuantity = false;
+        //*valores de scanvalueS
+
+        scannedValue1 = '';
+        scannedValue2 = '';
+        scannedValue3 = '';
+        scannedValue4 = '';
+        scannedValue7 = '';
+
+        listOfBarcodes.clear();
+
+        listLotesProduct.clear();
+        listLotesProductFilters.clear();
+
+        quantitySelected = 0;
+        currentProduct = null;
+        currentProductLote = null;
+
+        dateInicio = '';
+        dateFin = '';
+      }
 
       emit(ClearDataCreateTransferState());
     } catch (e, s) {
@@ -475,19 +549,22 @@ class CreateTransferBloc
       ChangeLocationIsOkEvent event, Emitter<CreateTransferState> emit) async {
     try {
       if (isLocationOk) {
-        //todo asignamos tiempo de inicio de la transferencia
-        dateTransferInicio = DateTime.now().toString();
-
-        //todo asignamos este tiempo para la transferencia
-
-        //todo guardamos en la bd la ubicacion de origen de la transferencia
-
-        //*cambiamos la variable de la ubicacion actual
-        currentUbication = event.locationSelect;
-        locationIsOk = true;
-        emit(ChangeLocationIsOkState(
-          locationIsOk,
-        ));
+        //valdiamos si es la ubicacion de destino
+        if (event.isLocationDest) {
+          dateTransferFin = DateTime.now().toString();
+          currentUbicationDest = event.locationSelect;
+          locationDestIsOk = true;
+          emit(ChangeLocationIsOkState(
+            locationIsOk,
+            true,
+          ));
+        } else {
+          dateTransferInicio = DateTime.now().toString();
+          //*cambiamos la variable de la ubicacion actual
+          currentUbication = event.locationSelect;
+          locationIsOk = true;
+          emit(ChangeLocationIsOkState(locationIsOk, false));
+        }
       }
     } catch (e, s) {
       print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
@@ -661,12 +738,13 @@ class CreateTransferBloc
           emit(ClearScannedValueState());
           break;
 
-        case 'toProduct':
-          scannedValue5 = '';
+        case 'locationDest':
+          scannedValue7 = '';
           emit(ClearScannedValueState());
           break;
-        case 'toLocation':
-          scannedValue6 = '';
+
+        case 'lote':
+          scannedValue4 = '';
           emit(ClearScannedValueState());
           break;
 
@@ -699,20 +777,15 @@ class CreateTransferBloc
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
 
-        // case 'toProduct':
-        //   scannedValue5 += event.scannedValue.trim();
-        //   emit(UpdateScannedValueState(scannedValue5, event.scan));
-        //   break;
-
-        // case 'toLocation':
-        //   scannedValue6 += event.scannedValue.trim();
-        //   emit(UpdateScannedValueState(scannedValue6, event.scan));
-        //   break;
-
         case 'lote':
           scannedValue4 += event.scannedValue.trim();
           print('scannedValue4: $scannedValue4');
           emit(UpdateScannedValueState(scannedValue4, event.scan));
+          break;
+
+        case 'locationDest':
+          scannedValue7 += event.scannedValue.trim();
+          emit(UpdateScannedValueState(scannedValue7, event.scan));
           break;
 
         default:

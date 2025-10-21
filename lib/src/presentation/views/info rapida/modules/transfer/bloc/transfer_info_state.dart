@@ -59,7 +59,8 @@ class SendTransferInfoFailureTransfer extends TransferInfoState {
 
 class SendTransferInfoSuccess extends TransferInfoState {
   final String msg;
-  SendTransferInfoSuccess(this.msg);
+  final int productId;
+  SendTransferInfoSuccess(this.msg, this.productId);
 }
 
 class ShowKeyboardState extends TransferInfoState {

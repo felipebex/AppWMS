@@ -257,9 +257,9 @@ class _SearchLocationScreenState extends State<SearchLocationConteoScreen> {
                         isLogin: false,
                         controller: bloc.searchControllerLocation,
                         onchanged: () {
-                          // bloc.add(SearchLocationEvent(
-                          //   bloc.searchControllerLocation.text,
-                          // ));
+                          bloc.add(SearchLocationEvent(
+                            bloc.searchControllerLocation.text,
+                          ));
                         },
                       ),
                     )

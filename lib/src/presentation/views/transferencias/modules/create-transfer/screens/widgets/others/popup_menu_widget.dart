@@ -29,7 +29,16 @@ class PopupMenuCreateTransferWidget extends StatelessWidget {
             } else if (value == '2') {
               context
                   .read<CreateTransferBloc>()
-                  .add(ClearDataCreateTransferEvent());
+                  .add(ClearDataCreateTransferEvent(
+                      isClearProduct: false
+                  ));
+            } else if (value == '3') {
+              context
+                  .read<CreateTransferBloc>()
+                  .add(ClearDataCreateTransferEvent(
+                      isClearProduct: true
+                  ));
+              // Acción para opción 3
             }
           },
           itemBuilder: (BuildContext context) {
@@ -49,9 +58,20 @@ class PopupMenuCreateTransferWidget extends StatelessWidget {
                 value: '2',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, color: primaryColorApp, size: 20),
+                    Icon(Icons.delete, color: red, size: 20),
                     const SizedBox(width: 10),
-                    const Text('Limpiar datos',
+                    const Text('Todo',
+                        style: TextStyle(color: black, fontSize: 14)),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: '3',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: red, size: 20),
+                    const SizedBox(width: 10),
+                    const Text('Producto',
                         style: TextStyle(color: black, fontSize: 14)),
                   ],
                 ),

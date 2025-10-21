@@ -86,6 +86,7 @@ class Product {
   dynamic dateEnd;
   dynamic quantityDone;
   String? dateTransaction;
+  String? expirationDateLote;
 
 
 
@@ -115,7 +116,9 @@ class Product {
     this.dateStart,
     this.dateEnd,
     this.quantityDone,
-    this.dateTransaction
+    this.dateTransaction,
+    this.expirationDateLote,
+
   });
 
   factory Product.fromMap(Map<String, dynamic> json) => Product(
@@ -151,6 +154,7 @@ class Product {
         dateEnd: json['date_end'],
         quantityDone: json['quantity_done'],
         dateTransaction: json['date_transaction'],  
+        expirationDateLote: json['expiration_date'],
 
       );
 
@@ -185,6 +189,7 @@ class Product {
         "date_end": dateEnd,
         "quantity_done": quantityDone,
         "date_transaction": dateTransaction,
+        "expiration_date_lote": expirationDateLote,
       };
 }
 

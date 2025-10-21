@@ -82,7 +82,8 @@ class SearchProductSuccess extends CreateTransferState {
 
 class ChangeLocationIsOkState extends CreateTransferState {
   final bool isOk;
-  ChangeLocationIsOkState(this.isOk);
+  final bool isLocationDest;
+  ChangeLocationIsOkState(this.isOk, this.isLocationDest);
 }
 
 class ChangeProductOrderIsOkState extends CreateTransferState {

@@ -265,96 +265,101 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                     ),
                   ),
                   width: double.infinity,
-                  child: BlocConsumer<TransferInfoBloc, TransferInfoState>(
-                      listener: (context, state) {
-                    if (state is SendTransferInfoSuccess) {
-                      //acutalizamos la informacion del producto volviendo a llamar su info
-                      context.read<InfoRapidaBloc>().add((GetInfoRapida(
-                          widget.infoRapidaResult?.codigoBarras ?? "",
-                          false,
-                          false,
-                          true)));
-                      //mostramos dialog de cargando
-                      showDialog(
-                        context: context,
-                        builder: (context) => const DialogLoading(
-                            message: "Cargando información..."),
-                      );
+                  child: MultiBlocListener(
+                    listeners: [
+// 1. ESCUCHA DE TRANSFERENCIA (DISPARADOR)
+                      BlocListener<TransferInfoBloc, TransferInfoState>(
+                        // Solo escuchamos el evento de ÉXITO del envío de la transferencia
+                        listenWhen: (prev, current) =>
+                            current is SendTransferInfoSuccess,
+                        listener: (listenerContext, state) {
+                          if (state is SendTransferInfoSuccess) {
+                            // 💥 Paso 1: DISPARAR la carga de datos en el BLoC de destino
+                            listenerContext.read<InfoRapidaBloc>().add(
+                                GetInfoRapida(state.productId.toString(), true,
+                                    true, false));
 
-                      //esperamos un segundo cerramos el dialogo y navegamos a product info
-                      Future.delayed(const Duration(seconds: 1), () {
-                        Navigator.pop(context);
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'product-info',
-                        );
-                      });
-                    } else if (state is SendTransferInfoFailureTransfer) {
-                      Get.defaultDialog(
-                        title: '360 Software Informa',
-                        titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                        middleText: state.error,
-                        middleTextStyle: TextStyle(color: black, fontSize: 14),
-                        backgroundColor: Colors.white,
-                        radius: 10,
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColorApp,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                            // Opcional: Mostrar diálogo de carga AQUI
+                            showDialog(
+                              context: listenerContext,
+                              barrierDismissible: false,
+                              builder: (_) => const DialogLoading(
+                                  message: "Actualizando información..."),
+                            );
+                          }
+                        },
+                      ),
+
+                      // 2. ESCUCHA DE INFORMACIÓN RÁPIDA (PUNTO DE SINCRONIZACIÓN)
+                      BlocListener<InfoRapidaBloc, InfoRapidaState>(
+                        // Solo escuchamos el estado final de carga (éxito o error)
+                        listenWhen: (prev, current) =>
+                            current is InfoRapidaLoaded ||
+                            current is InfoRapidaError,
+                        listener: (listenerContext, state) {
+                          // Cerramos el diálogo de carga antes de cualquier otra acción
+                          Navigator.pop(listenerContext);
+
+                          if (state is InfoRapidaLoaded) {
+                            // ✅ Paso 2: La carga fue exitosa. La navegación es segura.
+                            print(
+                                'Datos de Info Rápida cargados. Navegando...');
+                            Navigator.pushReplacementNamed(
+                              listenerContext,
+                              'product-info',
+                            );
+                          } else if (state is InfoRapidaError) {
+                            // Manejo del error de carga de Info Rápida
+                            Get.snackbar('Error',
+                                state.error ?? 'Fallo al cargar información.');
+                          }
+                        },
+                      ),
+                    ],
+                    child: BlocBuilder<TransferInfoBloc, TransferInfoState>(
+                        builder: (context, status) {
+                      return Column(
+                        children: [
+                          const WarningWidgetCubit(),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                // bottom: 5,
+                                top:
+                                    status != ConnectionStatus.online ? 0 : 35),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: white),
+                                  onPressed: () {
+                                    context
+                                        .read<TransferInfoBloc>()
+                                        .clearFields();
+
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      'product-info',
+                                    );
+                                  },
+                                ),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(left: size.width * 0.2),
+                                  child: Text('TRANSFERENCIA',
+                                      style: TextStyle(
+                                          color: white, fontSize: 18)),
+                                ),
+                                const Spacer(),
+                              ],
                             ),
-                            child:
-                                Text('Aceptar', style: TextStyle(color: white)),
+
+                            //
                           ),
                         ],
                       );
-                    }
-                  }, builder: (context, status) {
-                    return Column(
-                      children: [
-                        const WarningWidgetCubit(),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              // bottom: 5,
-                              top: status != ConnectionStatus.online ? 0 : 35),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.arrow_back, color: white),
-                                onPressed: () {
-                                  context
-                                      .read<TransferInfoBloc>()
-                                      .clearFields();
-
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    'product-info',
-                                  );
-                                },
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: size.width * 0.2),
-                                child: Text('TRANSFERENCIA',
-                                    style:
-                                        TextStyle(color: white, fontSize: 18)),
-                              ),
-                              const Spacer(),
-                            ],
-                          ),
-
-                          //
-                        ),
-                      ],
-                    );
-                  }),
+                    }),
+                  ),
                 ),
                 Expanded(
                   child: Container(

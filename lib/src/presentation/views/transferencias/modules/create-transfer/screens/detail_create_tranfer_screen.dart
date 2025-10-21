@@ -36,9 +36,9 @@ class DetailCreateTransferScreen extends StatelessWidget {
           Get.snackbar(
             '360 Software Informa',
             'Producto eliminado de la transferencia',
-            backgroundColor: Colors.green,
-            colorText: white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.check, color: Colors.green),
           );
         } else if (state is ProductRemoveFromTransferErrorState) {
           //ocultar loading
@@ -139,9 +139,26 @@ class DetailCreateTransferScreen extends StatelessWidget {
                                 color: primaryColorApp,
                               ),
                             ),
-                            Text("location",
-                                style: const TextStyle(
-                                    fontSize: 14, color: black)),
+                            Text(
+                                context
+                                        .read<CreateTransferBloc>()
+                                        .currentUbication
+                                        ?.name ??
+                                    "Sin ubicación",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: context
+                                                    .read<CreateTransferBloc>()
+                                                    .currentUbication
+                                                    ?.name ==
+                                                null ||
+                                            context
+                                                    .read<CreateTransferBloc>()
+                                                    .currentUbication
+                                                    ?.name ==
+                                                ""
+                                        ? red
+                                        : black)),
                           ],
                         ),
                         Row(
@@ -153,9 +170,26 @@ class DetailCreateTransferScreen extends StatelessWidget {
                                 color: primaryColorApp,
                               ),
                             ),
-                            Text("location",
-                                style: const TextStyle(
-                                    fontSize: 14, color: black)),
+                            Text(
+                                context
+                                        .read<CreateTransferBloc>()
+                                        .currentUbicationDest
+                                        ?.name ??
+                                    "Sin ubicación",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: context
+                                                    .read<CreateTransferBloc>()
+                                                    .currentUbicationDest
+                                                    ?.name ==
+                                                null ||
+                                            context
+                                                    .read<CreateTransferBloc>()
+                                                    .currentUbicationDest
+                                                    ?.name ==
+                                                ""
+                                        ? red
+                                        : black)),
                           ],
                         ),
                       ],
@@ -183,9 +217,10 @@ class DetailCreateTransferScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            const Text('No hay transferencias',
+                            const Text('No hay productos agregados',
                                 style: TextStyle(fontSize: 14, color: grey)),
-                            const Text('Intente buscar otra transferencia',
+                            const Text(
+                                'Intente agregar productos a la transferencia',
                                 style: TextStyle(fontSize: 12, color: grey)),
                             Visibility(
                               visible: context
@@ -209,255 +244,355 @@ class DetailCreateTransferScreen extends StatelessWidget {
                           return Padding(
                               padding: const EdgeInsets.only(
                                   left: 10, right: 10, top: 5),
-                              child: Card(
-                                  elevation: 3,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "Producto:",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp,
-                                                ),
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                            GestureDetector(
-                                              onTap: () {
-                                                //dialogo de confirmcion de eliminar
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      title: Center(
-                                                        child: const Text(
-                                                          'Eliminar producto',
-                                                          style: TextStyle(
-                                                            color: Colors.red,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      content: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          const Text(
-                                                            '¿Está seguro de que desea eliminar este producto?',
-                                                            style: TextStyle(
-                                                                color: black),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      actions: <Widget>[
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                            backgroundColor:
-                                                                grey,
-                                                            shape:
-                                                                RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                            ),
-                                                          ),
-                                                          child: Text(
-                                                            'Cancelar',
-                                                            style: TextStyle(
-                                                                color: white),
-                                                          ),
-                                                        ),
-                                                        ElevatedButton(
-                                                          onPressed: () {
-                                                            context
-                                                                .read<
-                                                                    CreateTransferBloc>()
-                                                                .add(
-                                                                  RemoveProductFromTransferEvent(
-                                                              
-                                                                          product),
-                                                                );
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                            backgroundColor:
-                                                                primaryColorApp,
-                                                            shape:
-                                                                RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                            ),
-                                                          ),
-                                                          child: Text(
-                                                            'Eliminar',
-                                                            style: TextStyle(
-                                                                color: white),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              child: const Icon(
-                                                Icons.delete,
-                                                size: 20,
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "${product.name}",
-                                            style: const TextStyle(
-                                                fontSize: 12, color: black),
-                                          ),
-                                        ),
-                                        Visibility(
-                                          visible: product.tracking == 'lot',
-                                          child: Row(
+                              child: GestureDetector(
+                                onTap: () {
+                                  print(
+                                      "Producto seleccionado: ${product.toMap()}");
+                                },
+                                child: Card(
+                                    elevation: 3,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: [
+                                          Row(
                                             children: [
-                                              Text(
-                                                "Lote: ",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp,
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  "Producto:",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
                                                 ),
                                               ),
-                                              Text("${product.lotName}",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black)),
-                                              // Text("/${product.loteDate}",
-                                              //     style: const TextStyle(
-                                              //         fontSize: 12,
-                                              //         color: black)),
+                                              const Spacer(),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  //dialogo de confirmcion de eliminar
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        title: Center(
+                                                          child: const Text(
+                                                            'Eliminar producto',
+                                                            style: TextStyle(
+                                                              color: Colors.red,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        content: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            const Text(
+                                                              '¿Está seguro de que desea eliminar este producto?',
+                                                              style: TextStyle(
+                                                                  color: black),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        actions: <Widget>[
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  grey,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                            ),
+                                                            child: Text(
+                                                              'Cancelar',
+                                                              style: TextStyle(
+                                                                  color: white),
+                                                            ),
+                                                          ),
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              context
+                                                                  .read<
+                                                                      CreateTransferBloc>()
+                                                                  .add(
+                                                                    RemoveProductFromTransferEvent(
+                                                                        product),
+                                                                  );
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  primaryColorApp,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                            ),
+                                                            child: Text(
+                                                              'Eliminar',
+                                                              style: TextStyle(
+                                                                  color: white),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: const Icon(
+                                                  Icons.delete,
+                                                  size: 20,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
                                             ],
                                           ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Barcode: ",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "${product.barcode}",
-                                                style: const TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Código: ",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "${product.code}",
-                                                style: const TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Cantidad: ",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                product.quantityDone == null
-                                                    ? "0.0"
-                                                    : "${product.quantityDone}",
-                                                style: const TextStyle(
-                                                    fontSize: 12, color: black),
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                            //unidad
-                                            Text(
-                                              "${product.uom}",
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "${product.name}",
                                               style: const TextStyle(
                                                   fontSize: 12, color: black),
                                             ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Tiempo: ",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
-                                              ),
-                                            ),
-                                            Text(
-                                                convertirTiempo(
-                                                    product.time.toString()),
-                                                style: const TextStyle(
+                                          ),
+                                          Visibility(
+                                            visible: product.tracking == 'lot',
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Lote: ",
+                                                  style: TextStyle(
                                                     fontSize: 12,
-                                                    color: black)),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )));
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text("${product.lotName}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                               
+                                              ],
+                                            ),
+                                          ),
+                                          Visibility(
+                                            visible: product.tracking == 'lot' && product.useExpirationDate ==1,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Fecha de caducidad: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text("${product.expirationDateLote}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                               
+                                              ],
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Barcode: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  product.barcode == null ||
+                                                          product.barcode == ""
+                                                      ? "Sin barcode"
+                                                      : "${product.barcode}",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: product.barcode ==
+                                                                  null ||
+                                                              product.barcode ==
+                                                                  ""
+                                                          ? red
+                                                          : black),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Código: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  product.code == null ||
+                                                          product.code == ""
+                                                      ? "Sin código"
+                                                      : "${product.code}",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: product.code ==
+                                                                  null ||
+                                                              product.code == ""
+                                                          ? red
+                                                          : black),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Cantidad: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  product.quantityDone == null
+                                                      ? "0.0"
+                                                      : "${product.quantityDone}",
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              //unidad
+                                              Text(
+                                                "Unidad: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                              Text(
+                                                product.uom == null
+                                                    ? "Sin unidad"
+                                                    : "${product.uom}",
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: product.uom ==
+                                                                null ||
+                                                            product.uom == ""
+                                                        ? red
+                                                        : black),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Tiempo: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                              Text(
+                                                  convertirTiempo(
+                                                      product.time.toString()),
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black)),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                              ));
                         },
                         itemCount: context
                             .read<CreateTransferBloc>()
                             .productosCreateTransfer
                             .length,
                       )),
-                ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(size.width * 0.8, 40),
-                      backgroundColor: primaryColorApp,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+
+                if (context
+                    .read<CreateTransferBloc>()
+                    .productosCreateTransfer
+                    .isNotEmpty) ...[
+                  ElevatedButton(
+                      onPressed: () {
+                        //validamos que tenga ubicacion de origen y destino
+                        if (context
+                                    .read<CreateTransferBloc>()
+                                    .currentUbication ==
+                                null ||
+                            context
+                                    .read<CreateTransferBloc>()
+                                    .currentUbication
+                                    ?.name ==
+                                "") {
+                          Get.snackbar(
+                            '360 Software Informa',
+                            'Debe seleccionar una ubicación de origen',
+                            backgroundColor: Colors.white,
+                            colorText: primaryColorApp,
+                            icon: Icon(Icons.warning, color: Colors.orange),
+                          );
+                          return;
+                        }
+
+                        if (context
+                                    .read<CreateTransferBloc>()
+                                    .currentUbicationDest ==
+                                null ||
+                            context
+                                    .read<CreateTransferBloc>()
+                                    .currentUbicationDest
+                                    ?.name ==
+                                "") {
+                          Get.snackbar(
+                            '360 Software Informa',
+                            'Debe seleccionar una ubicación destino',
+                            backgroundColor: Colors.white,
+                            colorText: primaryColorApp,
+                            icon: Icon(Icons.warning, color: Colors.orange),
+                          );
+                          return;
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(size.width * 0.8, 40),
+                        backgroundColor: primaryColorApp,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                    child: Text('CREAR TRANSFERENCIA',
-                        style: TextStyle(color: white))),
-                const SizedBox(height: 10),
+                      child: Text('CREAR TRANSFERENCIA',
+                          style: TextStyle(color: white))),
+                  const SizedBox(height: 10),
+                ],
               ],
             ),
           ),
