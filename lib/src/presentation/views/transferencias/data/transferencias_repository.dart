@@ -14,6 +14,8 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_ch
 import 'package:wms_app/src/presentation/views/transferencias/models/response_delete_line_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transfer_send_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/request_create_trasnfer_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/response_create_transfer_mode.dart';
 
 class TransferenciasRepository {
   Future<ResponseTransferenciasResult> fetAllTransferencias(
@@ -826,5 +828,89 @@ class TransferenciasRepository {
       return ResponseDeleteLine(); // Retornamos un objeto vacío en caso de error de red
     }
     return ResponseDeleteLine(); // Retornamos un objeto vacío en caso de error de red
+  }
+
+//endpoint para crear una transferencia
+
+  Future<RespondeCreateTransfer> createTransfer(
+    CreateTransferRequest request,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return RespondeCreateTransfer(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'transferencias/create_trasferencia', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_almacen": request.idAlmacen,
+            "id_ubicacion_origen": request.idUbicacionOrigen,
+            "id_ubicacion_destino": request.idUbicacionDestino,
+            "id_operario": request.idOperario,
+            "fecha_transaccion": request.fechaTransaccion,
+            "list_items":
+                request.listItems.map((item) => item.toMap()).toList(),
+          }
+        },
+        isLoadinDialog: isLoadingDialog,
+      );
+      if (response.statusCode <= 500) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          return RespondeCreateTransfer(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: jsonResponse['result'] != null
+                ? Result.fromMap(jsonResponse['result'])
+                : null,
+          );
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return RespondeCreateTransfer();
+          }
+        }
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return RespondeCreateTransfer(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en checkAvailability: $e, $s');
+      return RespondeCreateTransfer(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return RespondeCreateTransfer();
   }
 }

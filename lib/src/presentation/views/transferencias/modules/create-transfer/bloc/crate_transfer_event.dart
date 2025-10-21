@@ -147,3 +147,8 @@ class RemoveProductFromTransferEvent extends CreateTransferEvent {
 
 
 class GetProductsCreateTransferEvent extends CreateTransferEvent {}
+
+
+class  CreateNewTransferEvent extends CreateTransferEvent {
+  CreateNewTransferEvent();
+}

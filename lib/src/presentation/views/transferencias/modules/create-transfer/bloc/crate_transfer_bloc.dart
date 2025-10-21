@@ -7,6 +7,9 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/request_create_trasnfer_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/response_create_transfer_mode.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 
 part 'crate_transfer_event.dart';
@@ -89,9 +92,11 @@ class CreateTransferBloc
   //repositorios
   final InventarioRepository _inventarioRepository = InventarioRepository();
 
-  CreateTransferBloc() : super(CrateTransferInitial()) {
-    on<CreateTransferEvent>((event, emit) {});
+  //*repositorio
+  final TransferenciasRepository _transferenciasRepository =
+      TransferenciasRepository();
 
+  CreateTransferBloc() : super(CrateTransferInitial()) {
     //*evento para actualizar el valor del scan
     on<UpdateScannedValueTransferEvent>(_onUpdateScannedValueEvent);
     on<ClearScannedValueTransferEvent>(_onClearScannedValueEvent);
@@ -149,6 +154,55 @@ class CreateTransferBloc
 
     //*evento para obtener los productos de la bd local de crear transferencia
     on<GetProductsCreateTransferEvent>(_onGetProductsCreateTransferEvent);
+
+    //*evento para enviar y crear la transferencia
+    on<CreateNewTransferEvent>(_onCreateTransferEvent);
+  }
+
+  void _onCreateTransferEvent(
+      CreateTransferEvent event, Emitter<CreateTransferState> emit) async {
+    try {
+      emit(CreateTransferLoading());
+
+      //obtenemos el id del operario
+      final userid = await PrefUtils.getUserId();
+
+      final request = CreateTransferRequest(
+        idAlmacen: currentUbication?.idWarehouse ?? 0,
+        idUbicacionOrigen: currentUbication?.id ?? 0,
+        idUbicacionDestino: currentUbicationDest?.id ?? 0,
+        idOperario: userid,
+        fechaTransaccion:
+            DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+        listItems: productosCreateTransfer
+            .map((product) => ListItem(
+                  idProducto: product.productId ?? 0,
+                  cantidadEnviada: product.quantityDone ?? 0,
+                  idLote: product.tracking == "lot" ? product.lotId ?? 0 : 0,
+                  timeLine: product.time ?? 0,
+                ))
+            .toList(),
+      );
+
+      final response =
+          await _transferenciasRepository.createTransfer(request, true);
+      if (response.result?.code == 200) {
+        //borramos todos los productos de la bd local de crear transferencia
+        await db.productCreateTransferRepository
+            .deleteAllProductsCreateTransfer();
+        //limpiamos la lista temporal
+        productosCreateTransfer.clear();
+
+        emit(CreateTransferSuccess(response));
+        add(ClearDataCreateTransferEvent(isClearProduct: false));
+
+      } else {
+        emit(CreateTransferFailure(response.result?.msg ?? ""));
+      }
+    } catch (e, s) {
+      print("❌ Error en el CreateTransferEvent $e ->$s");
+      emit(CreateTransferFailure(e.toString()));
+    }
   }
 
   void _onGetProductsCreateTransferEvent(GetProductsCreateTransferEvent event,

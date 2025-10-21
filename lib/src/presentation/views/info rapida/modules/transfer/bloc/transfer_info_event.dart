@@ -61,3 +61,6 @@ class FilterUbicacionesEvent extends TransferInfoEvent {
   final String almacen;
   FilterUbicacionesEvent(this.almacen);
 }
+
+class CreateTransferEvent extends TransferInfoEvent {
+}

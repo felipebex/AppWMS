@@ -184,3 +184,16 @@ class ProductRemoveFromTransferErrorState extends CreateTransferState {
   final String error;
   ProductRemoveFromTransferErrorState(this.error);
 }
+
+
+class CreateTransferLoading extends CreateTransferState {}
+
+class CreateTransferFailure extends CreateTransferState {
+  final String error;
+  CreateTransferFailure(this.error);
+}
+
+class CreateTransferSuccess extends CreateTransferState {
+  final RespondeCreateTransfer response;
+  CreateTransferSuccess(this.response);
+}

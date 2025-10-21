@@ -49,7 +49,6 @@ class ChangeQuantitySeparateStateSuccessTransfer extends TransferInfoState {
   ChangeQuantitySeparateStateSuccessTransfer(this.quantity);
 }
 
-
 class SendTransferInfoLoadingTransfer extends TransferInfoState {}
 
 class SendTransferInfoFailureTransfer extends TransferInfoState {
@@ -68,16 +67,12 @@ class ShowKeyboardState extends TransferInfoState {
   ShowKeyboardState({required this.showKeyboard});
 }
 
-
 class SearchLoading extends TransferInfoState {}
-
 
 class SearchFailure extends TransferInfoState {
   final String error;
   SearchFailure(this.error);
 }
-
-
 
 class SearchLocationSuccess extends TransferInfoState {
   final List<ResultUbicaciones> locations;
@@ -95,3 +90,4 @@ class FilterUbicacionesSuccess extends TransferInfoState {
   final List<ResultUbicaciones> locations;
   FilterUbicacionesSuccess(this.locations);
 }
+

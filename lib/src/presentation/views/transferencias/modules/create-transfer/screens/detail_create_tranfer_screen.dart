@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -49,6 +51,112 @@ class DetailCreateTransferScreen extends StatelessWidget {
               content: Text(state.error),
               backgroundColor: Colors.red,
             ),
+          );
+        } else if (state is CreateTransferSuccess) {
+          //mostramos un dialogo con la informacion de la transferencia creada
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: AlertDialog(
+                  backgroundColor: Colors.white,
+                  title: Center(
+                    child: Text(
+                      '360 Software Informa',
+                      style: TextStyle(color: primaryColorApp, fontSize: 20),
+                    ),
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        state.response.result?.msg ?? "Transferencia creada",
+                        style: TextStyle(color: green),
+                      ),
+                      const SizedBox(height: 5),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Nombre de transferencia: ",
+                          style: TextStyle(color: black),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          state.response.result?.nombreTransferencia ?? "",
+                          style: TextStyle(
+                              color: primaryColorApp,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      //total de items
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            "Total de items: ",
+                            style: TextStyle(color: black),
+                          ),
+                          Text(
+                            "${state.response.result?.totalItems ?? 0}",
+                            style: TextStyle(
+                                color: primaryColorApp,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacementNamed(
+                              context, 'create-transfer');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColorApp,
+                          minimumSize: Size(size.width * 0.6, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          'ACEPTAR',
+                          style: TextStyle(color: white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[],
+                ),
+              );
+            },
+          );
+        } else if (state is CreateTransferFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
           );
         }
       },
@@ -388,12 +496,13 @@ class DetailCreateTransferScreen extends StatelessWidget {
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),
-                                               
                                               ],
                                             ),
                                           ),
                                           Visibility(
-                                            visible: product.tracking == 'lot' && product.useExpirationDate ==1,
+                                            visible: product.tracking ==
+                                                    'lot' &&
+                                                product.useExpirationDate == 1,
                                             child: Row(
                                               children: [
                                                 Text(
@@ -403,11 +512,11 @@ class DetailCreateTransferScreen extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Text("${product.expirationDateLote}",
+                                                Text(
+                                                    "${product.expirationDateLote}",
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),
-                                               
                                               ],
                                             ),
                                           ),
@@ -581,6 +690,51 @@ class DetailCreateTransferScreen extends StatelessWidget {
                           );
                           return;
                         }
+
+                        //dialogo de confirmacion
+
+                        Get.defaultDialog(
+                          title: '360 Software Informa',
+                          titleStyle:
+                              TextStyle(color: primaryColorApp, fontSize: 18),
+                          middleText:
+                              '¿Está seguro de que desea crear la transferencia?',
+                          middleTextStyle:
+                              TextStyle(color: black, fontSize: 14),
+                          backgroundColor: Colors.white,
+                          radius: 10,
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: grey,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('Cancelar',
+                                  style: TextStyle(color: white)),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                context
+                                    .read<CreateTransferBloc>()
+                                    .add(CreateNewTransferEvent());
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child:
+                                  Text('Crear', style: TextStyle(color: white)),
+                            ),
+                          ],
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(size.width * 0.8, 40),
