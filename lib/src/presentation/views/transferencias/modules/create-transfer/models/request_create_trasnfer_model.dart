@@ -2,6 +2,8 @@ import 'dart:convert';
 
 // Clase para la petición principal
 class CreateTransferRequest {
+  final String dateStart;
+  final String dateEnd;
   final int idAlmacen;
   final int idUbicacionOrigen;
   final int idUbicacionDestino;
@@ -10,6 +12,8 @@ class CreateTransferRequest {
   final List<ListItem> listItems;
 
   CreateTransferRequest({
+    required this.dateStart,
+    required this.dateEnd,
     required this.idAlmacen,
     required this.idUbicacionOrigen,
     required this.idUbicacionDestino,
@@ -20,6 +24,8 @@ class CreateTransferRequest {
 
   // Método para convertir el objeto a un Map (estructura JSON)
   Map<String, dynamic> toMap() => {
+        "date_start": dateStart,
+        "date_end": dateEnd,
         "id_almacen": idAlmacen,
         "id_ubicacion_origen": idUbicacionOrigen,
         "id_ubicacion_destino": idUbicacionDestino,

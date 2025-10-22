@@ -850,6 +850,8 @@ class TransferenciasRepository {
             'transferencias/create_trasferencia', // Cambiado para que sea el endpoint correspondiente
         body: {
           "params": {
+            "date_start": request.dateStart,
+            "date_end": request.dateEnd,
             "id_almacen": request.idAlmacen,
             "id_ubicacion_origen": request.idUbicacionOrigen,
             "id_ubicacion_destino": request.idUbicacionDestino,

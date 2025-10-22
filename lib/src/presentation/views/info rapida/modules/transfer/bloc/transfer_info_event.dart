@@ -64,3 +64,6 @@ class FilterUbicacionesEvent extends TransferInfoEvent {
 
 class CreateTransferEvent extends TransferInfoEvent {
 }
+
+class SetDateStartEventTransfer extends TransferInfoEvent {
+}

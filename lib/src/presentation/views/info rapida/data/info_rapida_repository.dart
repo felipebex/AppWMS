@@ -290,6 +290,8 @@ class InfoRapidaRepository {
             "time_line": transferInfoRequest.timeLine,
             "fecha_transaccion": transferInfoRequest.fechaTransaccion,
             "observacion": transferInfoRequest.observacion,
+            'date_start': transferInfoRequest.dateStart,
+            'date_end': transferInfoRequest.dateEnd,
           },
         },
         isLoadinDialog: true,

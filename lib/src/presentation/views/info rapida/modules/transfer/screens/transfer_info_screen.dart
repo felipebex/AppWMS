@@ -208,12 +208,12 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
       return;
     }
 
-    final dateStar = bloc.dateStart;
+    final dateStarProduct = bloc.dateStartProduct;
     final dateEnd = DateTime.now().toString();
 
 //sacamos la diferencia en segundos
     final differenceInSeconds =
-        DateTime.parse(dateEnd).difference(DateTime.parse(dateStar)).inSeconds;
+        DateTime.parse(dateEnd).difference(DateTime.parse(dateStarProduct)).inSeconds;
     print("diferencia en segundos $differenceInSeconds");
 
     bloc.add(SendTransferInfo(
@@ -225,6 +225,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
           idUbicacionOrigen: widget.ubicacion?.idUbicacion ?? 0,
           timeLine: differenceInSeconds,
           observacion: "Sin novedad",
+          
         ),
         cantidad));
 

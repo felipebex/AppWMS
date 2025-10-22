@@ -147,14 +147,7 @@ class ProductInfoScreen extends StatelessWidget {
                               title: 'Unidad: ',
                               isEditMode: false,
                               isNumber: false,
-                              onTap: () {
-                                // context
-                                //     .read<InfoRapidaBloc>()
-                                //     .add(ShowKeyboardInfoEvent(
-                                //         true,
-                                //         referenceController,
-                                //         isNumeric: true));
-                              },
+                              onTap: () {},
                               controller: uomController,
                               isExpanded:
                                   context.read<InfoRapidaBloc>().isExpanded,
@@ -430,6 +423,11 @@ class ProductInfoScreen extends StatelessWidget {
                                   context
                                       .read<TransferInfoBloc>()
                                       .add(LoadLocationsTransfer());
+
+                                  context
+                                      .read<TransferInfoBloc>()
+                                      .add(SetDateStartEventTransfer());
+
                                   showDialog(
                                     context: context,
                                     builder: (context) {

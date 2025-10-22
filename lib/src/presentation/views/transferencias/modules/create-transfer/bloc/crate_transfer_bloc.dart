@@ -47,7 +47,6 @@ class CreateTransferBloc
 
   //date de inicio y fin de la transferencia
   String dateTransferInicio = '';
-  String dateTransferFin = '';
 
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
@@ -168,6 +167,8 @@ class CreateTransferBloc
       final userid = await PrefUtils.getUserId();
 
       final request = CreateTransferRequest(
+        dateStart: dateTransferInicio,
+        dateEnd: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
         idAlmacen: currentUbication?.idWarehouse ?? 0,
         idUbicacionOrigen: currentUbication?.id ?? 0,
         idUbicacionDestino: currentUbicationDest?.id ?? 0,
@@ -195,7 +196,7 @@ class CreateTransferBloc
 
         emit(CreateTransferSuccess(response));
         add(ClearDataCreateTransferEvent(isClearProduct: false));
-
+        dateTransferInicio = '';
       } else {
         emit(CreateTransferFailure(response.result?.msg ?? ""));
       }
@@ -252,6 +253,11 @@ class CreateTransferBloc
 
       DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
       String formattedDate = formatter.format(DateTime.now());
+
+      if (dateTransferInicio.isEmpty) {
+        dateTransferInicio =
+            DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      }
 
       //mostramos el tiempo de inicio y fin
       print('Fecha de inicio: $dateInicio');
@@ -605,7 +611,6 @@ class CreateTransferBloc
       if (isLocationOk) {
         //valdiamos si es la ubicacion de destino
         if (event.isLocationDest) {
-          dateTransferFin = DateTime.now().toString();
           currentUbicationDest = event.locationSelect;
           locationDestIsOk = true;
           emit(ChangeLocationIsOkState(
@@ -613,7 +618,11 @@ class CreateTransferBloc
             true,
           ));
         } else {
-          dateTransferInicio = DateTime.now().toString();
+          //validamos si dateTransferInicio esta vacio para asignarle la fecha de inicio
+          if (dateTransferInicio.isEmpty) {
+            dateTransferInicio =
+                DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+          }
           //*cambiamos la variable de la ubicacion actual
           currentUbication = event.locationSelect;
           locationIsOk = true;

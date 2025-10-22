@@ -19,6 +19,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
   String scannedValue1 = '';
   String selectedAlmacen = '';
 
+  String dateStartProduct = '';
   String dateStart = '';
 
   ResultUbicaciones selectedLocationDest = ResultUbicaciones();
@@ -38,7 +39,6 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
 
   TransferInfoBloc() : super(TransferInfoInitial()) {
     on<TransferInfoEvent>((event, emit) {
-      // TODO: implement event handler
     });
 
     //*evento para actualizar el valor del scan
@@ -57,6 +57,22 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     on<SearchLocationEvent>(_onSearchLocationEvent);
     //metodo para filtrar las ubicaciones por almacen
     on<FilterUbicacionesEvent>(_onFilterUbicacionesEvent);
+    //evento para asignar el timepo de inicio de la transferencia
+    on<SetDateStartEventTransfer>(_onSetDateStartEventTransfer);
+  }
+
+  void _onSetDateStartEventTransfer(
+      SetDateStartEventTransfer event, Emitter<TransferInfoState> emit) {
+    try {
+      //actualizamos la fecha de inicio
+      DateTime fechaActual = DateTime.now();
+      //la convertimos en el formato  yyyy-MM-dd HH:mm:ss
+
+      dateStart = formatoFecha(fechaActual);
+      emit(SetDateStartStateTransfer(dateStart));
+    } catch (e, s) {
+      print("❌ Error en el SetDateStartEventTransfer $e ->$s");
+    }
   }
 
   void _onFilterUbicacionesEvent(
@@ -136,6 +152,10 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
             timeLine: event.request.timeLine,
             fechaTransaccion: fechaFormateada,
             observacion: event.request.observacion,
+            dateStart: dateStart,
+            dateEnd:
+                //'yyyy-MM-dd HH:mm:ss'
+                formatoFecha(DateTime.now()),
           ),
           true);
 
@@ -158,6 +178,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     quantitySelected = 0;
     selectedLocationDest = ResultUbicaciones();
     locationDestIsOk = false;
+    dateStartProduct = '';
     dateStart = '';
   }
 
@@ -169,7 +190,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
 
       //actualizamos la fecha de inicio
       DateTime fechaActual = DateTime.now();
-      dateStart = fechaActual.toString();
+      dateStartProduct = fechaActual.toString();
 
       emit(ChangeLocationDestIsOkStateTransfer(
         locationDestIsOk,
