@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -171,7 +172,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 context.read<HomeBloc>().add(AppVersionEvent());
               },
               child: Scaffold(
-               
+              
                 backgroundColor: white,
                 body: Container(
                   color: white,

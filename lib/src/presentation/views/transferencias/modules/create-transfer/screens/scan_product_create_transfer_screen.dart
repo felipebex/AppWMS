@@ -10,7 +10,6 @@ import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart'
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationCardButton_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/location/LocationScanner_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/lote/lote_scannear_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/new_product/product/ProductScanner_widget.dart';
@@ -416,30 +415,10 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
             icon: Icon(Icons.check_circle, color: Colors.green),
             snackPosition: SnackPosition.TOP,
           );
-        } else if (state is GetProductsFailure) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
-        } else {
+        }
+        
+       
+        else {
           //*estado cuando la ubicacion de origen es cambiada, pasamos a ubicacion de destino
           if (state is ChangeLocationIsOkState) {
             //cambiamos el foco

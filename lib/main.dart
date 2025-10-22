@@ -2,7 +2,9 @@
 
 import 'dart:io';
 import 'package:cron/cron.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:wms_app/firebase_options.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/routes/app_router.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
@@ -42,6 +44,9 @@ import 'src/presentation/views/home/index.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart'; // <--- NUEVA IMPORTACIÓN
+import 'dart:async';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final ApiRequestService apiRequestService = ApiRequestService();
 
@@ -49,47 +54,87 @@ final ApiRequestService apiRequestService = ApiRequestService();
 final internetChecker = CheckInternetConnection();
 final connectionStatusCubit =
     ConnectionStatusCubit(internetChecker: internetChecker);
-
 void main() async {
+  // 1. **SIEMPRE LO PRIMERO:** Inicializar los bindings
   WidgetsFlutterBinding.ensureInitialized();
 
-  ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
-        title: 'Algo salió mal',
-        message: 'No se pudo cargar la información...',
-        buttonText: 'Cerrar la app',
-        onPressed: () {
-          exit(0);
-        },
-      );
-  await Preferences.init();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // 2. **ATRAPAR ERRORES:** Envolvemos la inicialización en runZonedGuarded
+  await runZonedGuarded<Future<void>>(() async {
+    // 3. **CONFIGURACIONES CRÍTICAS DEL FRAMEWORK DENTRO DE LA ZONA**
 
-  var cron = Cron();
-  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin && navigatorKey.currentContext != null) {
-          searchProductsNoSendOdoo(navigatorKey.currentContext!);
-        }
-      }
-    } on SocketException catch (_) {}
-  });
+    // Configuración de ErrorWidget.builder (estaba causando el desajuste)
+    ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
+          title: 'Algo salió mal',
+          message: 'No se pudo cargar la información...',
+          buttonText: 'Cerrar la app',
+          onPressed: () {
+            exit(0);
+          },
+        );
 
-  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin && navigatorKey.currentContext != null) {
-          searchProductsPickNoSendOdoo(navigatorKey.currentContext!);
+    // Inicializa las preferencias
+    await Preferences.init();
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+    // Inicializa Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // 4. **CONFIGURACIÓN CLAVE DE CRASHLYTICS:**
+    // Dirige todos los errores de Flutter (errores de UI, builds, etc.)
+    // al reportero de Crashlytics.
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+    // 5. Lógica de Cron
+    var cron = Cron();
+
+    // Primer Cron Job
+    cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+      try {
+        final result = await InternetAddress.lookup('example.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          final isLogin = await PrefUtils.getIsLoggedIn();
+          if (isLogin && navigatorKey.currentContext != null) {
+            searchProductsNoSendOdoo(navigatorKey.currentContext!);
+          }
         }
+      } on SocketException catch (e, s) {
+        // Registra errores de conexión (no fatales)
+        FirebaseCrashlytics.instance.recordError(e, s, fatal: false);
+      } catch (e, s) {
+        // Registra cualquier otro error asíncrono en este cron
+        FirebaseCrashlytics.instance.recordError(e, s, fatal: false);
       }
-    } on SocketException catch (_) {}
+    });
+
+    // Segundo Cron Job
+    cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+      try {
+        final result = await InternetAddress.lookup('example.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          final isLogin = await PrefUtils.getIsLoggedIn();
+          if (isLogin && navigatorKey.currentContext != null) {
+            searchProductsPickNoSendOdoo(navigatorKey.currentContext!);
+          }
+        }
+      } on SocketException catch (e, s) {
+        // Registra errores de conexión (no fatales)
+        FirebaseCrashlytics.instance.recordError(e, s, fatal: false);
+      } catch (e, s) {
+        // Registra cualquier otro error asíncrono en este cron
+        FirebaseCrashlytics.instance.recordError(e, s, fatal: false);
+      }
+    });
+    // WebSocketService().connect(); // Si lo necesitas
+
+    // 6. Ejecuta la aplicación
+    runApp(const MyApp());
+  }, (error, stack) {
+    // 7. **CALLBACK DE runZonedGuarded:** Captura errores asíncronos que
+    // no fueron manejados por FlutterError.onError (ej. futures, isolates).
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
   });
-  // WebSocketService().connect();
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -9,6 +9,7 @@
 import 'package:audio_session/audio_session_web.dart';
 import 'package:connectivity_plus/src/connectivity_plus_web.dart';
 import 'package:device_info_plus/src/device_info_plus_web.dart';
+import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:flutter_image_compress_web/flutter_image_compress_web.dart';
 import 'package:flutter_keyboard_visibility_web/flutter_keyboard_visibility_web.dart';
 import 'package:flutter_localization/flutter_localization_web.dart';
@@ -28,6 +29,7 @@ void registerPlugins([final Registrar? pluginRegistrar]) {
   AudioSessionWeb.registerWith(registrar);
   ConnectivityPlusWebPlugin.registerWith(registrar);
   DeviceInfoPlusWebPlugin.registerWith(registrar);
+  FirebaseCoreWeb.registerWith(registrar);
   FlutterImageCompressWeb.registerWith(registrar);
   FlutterKeyboardVisibilityPlugin.registerWith(registrar);
   FlutterLocalizationWeb.registerWith(registrar);
