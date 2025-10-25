@@ -43,11 +43,39 @@ class ShowKeyboardState extends PackingConsolidateState {
   ShowKeyboardState({required this.showKeyboard});
 }
 
-
 class ClearScannedValuePackState extends PackingConsolidateState {}
 
 class UpdateScannedValuePackState extends PackingConsolidateState {
   final String scannedValue;
   final String scan;
   UpdateScannedValuePackState(this.scannedValue, this.scan);
+}
+
+class BatchsPackingLoadingState extends PackingConsolidateState {}
+
+final class WmsPackingLoadedBD extends PackingConsolidateState {}
+
+
+//*tiempo de separacion
+class TimeSeparatePackSuccess extends PackingConsolidateState {
+  final String time;
+  TimeSeparatePackSuccess(this.time);
+}
+
+class TimeSeparatePackError extends PackingConsolidateState {
+  final String msg;
+  TimeSeparatePackError(this.msg);
+}
+
+
+class LoadAllPedidosFromBatchLoaded extends PackingConsolidateState {
+  final List<PedidoPacking> listOfPedidos;
+
+  LoadAllPedidosFromBatchLoaded({required this.listOfPedidos});
+}
+
+
+class LoadDocOriginsState extends PackingConsolidateState {
+  final List<Origin> listOfOrigins;
+  LoadDocOriginsState({required this.listOfOrigins});
 }

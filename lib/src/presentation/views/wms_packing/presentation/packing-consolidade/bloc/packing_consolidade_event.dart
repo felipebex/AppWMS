@@ -24,15 +24,42 @@ class ShowKeyboardEvent extends PackingConsolidateEvent {
   ShowKeyboardEvent(this.showKeyboard);
 }
 
-
 class ClearScannedValuePackEvent extends PackingConsolidateEvent {
   final String scan;
   ClearScannedValuePackEvent(this.scan);
 }
 
-
 class UpdateScannedValuePackEvent extends PackingConsolidateEvent {
   final String scannedValue;
   final String scan;
   UpdateScannedValuePackEvent(this.scannedValue, this.scan);
+}
+
+class LoadBatchPackingFromDBEvent extends PackingConsolidateEvent {
+  LoadBatchPackingFromDBEvent();
+}
+
+//*empezar el tiempo de separacion
+class StartTimePack extends PackingConsolidateEvent {
+  final int batchId;
+  final DateTime time;
+  StartTimePack(this.batchId, this.time);
+}
+
+class EndTimePack extends PackingConsolidateEvent {
+  final int batchId;
+  final DateTime time;
+  EndTimePack(this.batchId, this.time);
+}
+
+class LoadAllPedidosFromBatchEvent extends PackingConsolidateEvent {
+  final int batchId;
+  LoadAllPedidosFromBatchEvent(
+    this.batchId,
+  );
+}
+
+class LoadDocOriginsEvent extends PackingConsolidateEvent {
+  final int idBatch;
+  LoadDocOriginsEvent(this.idBatch);
 }

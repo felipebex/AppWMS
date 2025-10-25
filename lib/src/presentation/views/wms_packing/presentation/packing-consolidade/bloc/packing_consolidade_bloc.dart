@@ -1,12 +1,15 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 part 'packing_consolidade_event.dart';
 part 'packing_consolidade_state.dart';
@@ -46,6 +49,10 @@ class PackingConsolidateBloc
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
 
+  //*listad de pedido de un batch
+  List<PedidoPacking> listOfPedidos = [];
+  List<PedidoPacking> listOfPedidosFilters = [];
+
   //*isSticker
   bool isSticker = false;
   // //*validaciones de campos del estado de la vista
@@ -62,6 +69,8 @@ class PackingConsolidateBloc
   bool isSearch = false;
   bool viewQuantity = false;
   bool viewDetail = true;
+
+  List<Origin> listOfOrigins = [];
 
   PackingConsolidateBloc() : super(PackingConsolidateInitial()) {
     on<PackingConsolidateEvent>((event, emit) {});
@@ -80,6 +89,109 @@ class PackingConsolidateBloc
     //*evento para actualizar el valor del scan
     on<UpdateScannedValuePackEvent>(_onUpdateScannedValueEvent);
     on<ClearScannedValuePackEvent>(_onClearScannedValueEvent);
+
+    //*obtener todos los batchs para packing de la base de datos
+    on<LoadBatchPackingFromDBEvent>(_onLoadBatchsFromDBEvent);
+
+    //* empezar el tiempo de separacion
+    on<StartTimePack>(_onStartTimePickEvent);
+
+    //*obtener todos los pedidos de un batch
+    on<LoadAllPedidosFromBatchEvent>(_onLoadAllPedidosFromBatchEvent);
+
+    on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
+  }
+
+  void _onLoadDocOriginsEvent(
+      LoadDocOriginsEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      final batchsFromDB = await db.docOriginRepository
+          .getAllOriginsByIdBatch(event.idBatch, 'packing');
+
+      listOfOrigins.clear();
+
+      listOfOrigins = batchsFromDB;
+      print('listOfOrigins: ${listOfOrigins.length}');
+
+      emit(LoadDocOriginsState(listOfOrigins: listOfOrigins));
+    } catch (e, s) {
+      print('Error LoadDocOriginsEvent: $e, $s');
+    }
+  }
+
+  void _onLoadAllPedidosFromBatchEvent(LoadAllPedidosFromBatchEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(PackingConsolidateLoading());
+      final response = await DataBaseSqlite()
+          .pedidosPackingRepository
+          .getAllPedidosBatch(event.batchId);
+      if (response != null && response is List) {
+        print('response pedidos: ${response.length}');
+        listOfPedidos.clear();
+        listOfPedidosFilters.clear();
+        listOfPedidosFilters = response;
+        listOfPedidos = response;
+        print('pedidosToInsert: ${response.length}');
+        emit(LoadAllPedidosFromBatchLoaded(
+          listOfPedidos: listOfPedidos,
+        ));
+      } else {
+        print('Error resPedidos: response is null');
+      }
+    } catch (e, s) {
+      print('Error en el  _onLoadAllPedidosFromBatchEvent: $e, $s');
+      emit(PackingConsolidateError(e.toString()));
+    }
+  }
+
+  //*evento para empezar el tiempo de separacion
+  void _onStartTimePickEvent(
+      StartTimePack event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(event.time);
+      final userid = await PrefUtils.getUserId();
+
+      // await wmsPackingRepository.timePackingUser(
+      //   event.batchId,
+      //   formattedDate,
+      //   'start_time_batch_user',
+      //   'start_time',
+      //   userid,
+      // );
+      // final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
+      //     event.batchId,
+      //     formattedDate,
+      //     'update_start_time',
+      //     'start_time_pack',
+      //     'start_time');
+
+      // if (responseTimeBatch) {
+      //   await db.batchPackingRepository
+      //       .startStopwatchBatch(event.batchId, formattedDate);
+      emit(TimeSeparatePackSuccess(formattedDate));
+      // } else {
+      //   emit(TimeSeparatePackError('Error al iniciar el tiempo de separacion'));
+      // }
+    } catch (e, s) {
+      print("❌ Error en _onStartTimePickEvent: $e, $s");
+    }
+  }
+
+  void _onLoadBatchsFromDBEvent(LoadBatchPackingFromDBEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(BatchsPackingLoadingState());
+      final batchsFromDB =
+          await db.batchPackingRepository.getAllBatchsPacking();
+      listOfBatchsDB.clear();
+      listOfBatchsDB = batchsFromDB;
+      emit(WmsPackingLoadedBD());
+    } catch (e, s) {
+      print('Error en el  _onLoadBatchsFromDBEvent: $e, $s');
+      emit(PackingConsolidateError(e.toString()));
+    }
   }
 
   //*evento para actualizar el valor del scan
@@ -221,85 +333,89 @@ class PackingConsolidateBloc
         }
 
         if (listOfBatchs.isNotEmpty) {
+          // Guardar los batchs consolidate en la base de datos local
           await DataBaseSqlite()
-              .batchPackingRepository
+              .batchPackingConsolidateRepository
               .insertAllBatchPacking(listOfBatchs);
-          //   // Convertir el mapa en una lista de pedido unicos del batch para packing
-          //   List<PedidoPacking> pedidosToInsert =
-          //       listOfBatchs.expand((batch) => batch.listaPedidos!).toList();
+          // Convertir el mapa en una lista de pedido unicos del batch para packing
+          List<PedidoPacking> pedidosToInsert =
+              listOfBatchs.expand((batch) => batch.listaPedidos!).toList();
 
-          //   //convertir el mapa en una lista de productos unicos del pedido para packing
-          //   List<ProductoPedido> productsToInsert = pedidosToInsert
-          //       .expand((pedido) => pedido.listaProductos!)
-          //       .toList();
+          //convertir el mapa en una lista de productos unicos del pedido para packing
+          List<ProductoPedido> productsToInsert = pedidosToInsert
+              .expand((pedido) => pedido.listaProductos!)
+              .toList();
 
-          //   //Convertir el mapa en una lista los barcodes unicos de cada producto
-          //   List<Barcodes> barcodesToInsert = productsToInsert
-          //       .expand((product) => product.productPacking!)
-          //       .toList();
+          //Convertir el mapa en una lista los barcodes unicos de cada producto
+          List<Barcodes> barcodesToInsert = productsToInsert
+              .expand((product) => product.productPacking!)
+              .toList();
 
-          //   //convertir el mapap en una lsita de los otros barcodes de cada producto
-          //   List<Barcodes> otherBarcodesToInsert = productsToInsert
-          //       .expand((product) => product.otherBarcode!)
-          //       .toList();
+          //convertir el mapap en una lsita de los otros barcodes de cada producto
+          List<Barcodes> otherBarcodesToInsert = productsToInsert
+              .expand((product) => product.otherBarcode!)
+              .toList();
 
-          //   //convertir el mapap en una lista de productos unicos de paquetes que se encuentra en un pedido dentro de listado de paquetes y listado de productos
-          //   List<ProductoPedido> productsPackagesToInsert = pedidosToInsert
-          //       .expand((pedido) => pedido.listaPaquetes!)
-          //       .expand((paquete) => paquete.listaProductosInPacking!)
-          //       .toList();
+          //convertir el mapap en una lista de productos unicos de paquetes que se encuentra en un pedido dentro de listado de paquetes y listado de productos
+          List<ProductoPedido> productsPackagesToInsert = pedidosToInsert
+              .expand((pedido) => pedido.listaPaquetes!)
+              .expand((paquete) => paquete.listaProductosInPacking!)
+              .toList();
 
-          //   //covertir el mapa en una lista de los paquetes de un pedido
-          //   List<Paquete> packagesToInsert = pedidosToInsert
-          //       .expand((pedido) => pedido.listaPaquetes!)
-          //       .toList();
+          //covertir el mapa en una lista de los paquetes de un pedido
+          List<Paquete> packagesToInsert = pedidosToInsert
+              .expand((pedido) => pedido.listaPaquetes!)
+              .toList();
 
-          //   final originsIterable =
-          //       _extractAllOrigins(listOfBatchs).toList(growable: false);
-          //   print(
-          //       'productsPackagesToInsert Packing : ${productsPackagesToInsert.length}');
+          final originsIterable =
+              _extractAllOrigins(listOfBatchs).toList(growable: false);
+          print(
+              'productsPackagesToInsert Packing : ${productsPackagesToInsert.length}');
 
-          //   print('pedidosToInsert Packing : ${pedidosToInsert.length}');
-          //   print('productsToInsert Packing : ${productsToInsert.length}');
-          //   print('barcode product Packing : ${barcodesToInsert.length}');
-          //   print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
-          //   print('packagesToInsert Packing : ${packagesToInsert.length}');
-          //   print('listOfBatchs origin : ${originsIterable.length}');
+          print('pedidosToInsert Packing : ${pedidosToInsert.length}');
+          print('productsToInsert Packing : ${productsToInsert.length}');
+          print('barcode product Packing : ${barcodesToInsert.length}');
+          print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
+          print('packagesToInsert Packing : ${packagesToInsert.length}');
+          print('listOfBatchs origin : ${originsIterable.length}');
 
-          //   // Enviar la lista agrupada de productos de un batch para packing
-          //   await DataBaseSqlite()
-          //       .pedidosPackingRepository
-          //       .insertPedidosBatchPacking(pedidosToInsert, 'packing-batch');
-          //   // Enviar la lista agrupada de productos de un pedido para packing
-          //   await DataBaseSqlite()
-          //       .productosPedidosRepository
-          //       .insertProductosPedidos(productsToInsert, 'packing-batch');
-          //   // Enviar la lista agrupada de barcodes de un producto para packing
-          //   await DataBaseSqlite()
-          //       .barcodesPackagesRepository
-          //       .insertOrUpdateBarcodes(barcodesToInsert, 'packing-batch');
-          //   // Enviar la lista agrupada de otros barcodes de un producto para packing
-          //   await DataBaseSqlite()
-          //       .barcodesPackagesRepository
-          //       .insertOrUpdateBarcodes(otherBarcodesToInsert, 'packing-batch');
-          //   //guardamos los productos de los paquetes que ya fueron empaquetados
-          //   await DataBaseSqlite()
-          //       .productosPedidosRepository
-          //       .insertProductosOnPackage(
-          //           productsPackagesToInsert, 'packing-batch');
-          //   //enviamos la lista agrupada de los paquetes de un pedido para packing
-          //   await DataBaseSqlite()
-          //       .packagesRepository
-          //       .insertPackages(packagesToInsert, 'packing-batch');
+          // Enviar la lista agrupada de productos de un batch para packing
+          await DataBaseSqlite()
+              .pedidosPackingConsolidateRepository
+              .insertPedidosBatchPacking(
+                  pedidosToInsert, 'packing-batch-consolidate');
+          // Enviar la lista agrupada de productos de un pedido para packing
+          await DataBaseSqlite()
+              .productosPedidosRepository
+              .insertProductosPedidos(
+                  productsToInsert, 'packing-batch-consolidate');
+          // Enviar la lista agrupada de barcodes de un producto para packing
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(
+                  barcodesToInsert, 'packing-batch-consolidate');
+          // Enviar la lista agrupada de otros barcodes de un producto para packing
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(
+                  otherBarcodesToInsert, 'packing-batch-consolidate');
+          //guardamos los productos de los paquetes que ya fueron empaquetados
+          await DataBaseSqlite()
+              .productosPedidosRepository
+              .insertProductosOnPackage(
+                  productsPackagesToInsert, 'packing-batch-consolidate');
+          //enviamos la lista agrupada de los paquetes de un pedido para packing
+          await DataBaseSqlite()
+              .packagesRepository
+              .insertPackages(packagesToInsert, 'packing-batch-consolidate');
 
-          //   await DataBaseSqlite()
-          //       .docOriginRepository
-          //       .insertAllDocsOrigins(originsIterable, 'packing');
+          await DataBaseSqlite().docOriginRepository.insertAllDocsOrigins(
+              originsIterable, 'packing-batch-consolidate');
 
-          //   //creamos las cajas que ya estan creadas
+          //creamos las cajas que ya estan creadas
 
-          //   // //* Carga los batches desde la base de datos
-          //   add(LoadBatchPackingFromDBEvent());
+          // //* Carga los batches desde la base de datos
+          add(LoadBatchPackingFromDBEvent());
         }
 
         emit(PackingConsolidateLoaded(
@@ -314,14 +430,14 @@ class PackingConsolidateBloc
     }
   }
 
-  // Iterable<Origin> _extractAllOrigins(List<BatchPackingModel> batches) {
-  //   return batches.expand((batch) {
-  //     final origins = batch.origin ?? [];
-  //     return origins.where((p) => p.id != null && p.name != null).map((p) {
-  //       return Origin(id: p.id!, name: p.name!, idBatch: batch.id);
-  //     });
-  //   });
-  // }
+  Iterable<Origin> _extractAllOrigins(List<BatchPackingModel> batches) {
+    return batches.expand((batch) {
+      final origins = batch.origin ?? [];
+      return origins.where((p) => p.id != null && p.name != null).map((p) {
+        return Origin(id: p.id!, name: p.name!, idBatch: batch.id);
+      });
+    });
+  }
 
 //*metodo para cargar la configuracion del usuario
   void _onLoadConfigurationsUserEvent(

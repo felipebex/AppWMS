@@ -1341,8 +1341,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         listOfPedidosFilters = response;
         listOfPedidos = response;
         print('pedidosToInsert: ${response.length}');
-        emit(WmsPackingLoaded(
-          listOfBatchs: listOfBatchsDB,
+        emit(LoadAllPedidosFromBatchLoaded(
+          listOfPedidos: listOfPedidos,
         ));
       } else {
         print('Error resPedidos: response is null');

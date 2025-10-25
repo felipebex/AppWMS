@@ -228,3 +228,10 @@ class DeleteProductFromTemporaryPackageOkState extends WmsPackingState {}
 
 
 class NeedUpdateVersionState extends WmsPackingState {}
+
+
+class LoadAllPedidosFromBatchLoaded extends WmsPackingState {
+  final List<PedidoPacking> listOfPedidos;
+
+  LoadAllPedidosFromBatchLoaded({required this.listOfPedidos});
+}

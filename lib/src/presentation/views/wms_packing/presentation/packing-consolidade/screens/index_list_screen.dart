@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:ui';
+
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +13,9 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_start_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 
@@ -80,7 +84,72 @@ class _ListPackingConsolidadeScreenState
   }
 
   void _handleBatchTap(
-      BuildContext context, dynamic batch, BuildContext contextBuilder) async {}
+      BuildContext context, dynamic batch, BuildContext contextBuilder) async {
+    print('Batch seleccionado: ${batch.toMap()}');
+    context
+        .read<PackingConsolidateBloc>()
+        .add(LoadConfigurationsUserPackConsolidate());
+
+    if (batch.startTimePack != "") {
+      context.read<PackingConsolidateBloc>().add(LoadAllPedidosFromBatchEvent(
+            batch.id ?? 0,
+          ));
+      context.read<PackingConsolidateBloc>().add(ShowKeyboardEvent(false));
+      goBatchInfo(
+          contextBuilder, context.read<PackingConsolidateBloc>(), batch);
+    } else {
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (context) => DialogStartPackingWidget(
+          onAccepted: () async {
+            // Disparar eventos de BatchBloc
+            context
+                .read<PackingConsolidateBloc>()
+                .add(LoadAllPedidosFromBatchEvent(
+                  batch.id ?? 0,
+                ));
+            context
+                .read<PackingConsolidateBloc>()
+                .add(ShowKeyboardEvent(false));
+            // viajamos a la vista de detalles del batch con sus pedidos
+
+            context
+                .read<PackingConsolidateBloc>()
+                .add(StartTimePack(batch.id ?? 0, DateTime.now()));
+
+            Navigator.pop(context);
+
+            goBatchInfo(
+                contextBuilder, context.read<PackingConsolidateBloc>(), batch);
+          },
+        ),
+      );
+    }
+  }
+
+  void goBatchInfo(BuildContext context, PackingConsolidateBloc batchBloc,
+      BatchPackingModel batch) async {
+    // mostramos un dialogo de carga y despues
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // No permitir que el usuario cierre el diálogo manualmente
+      builder: (_) => const DialogLoading(
+        message: 'Cargando interfaz...',
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pop(context);
+
+    Navigator.pushReplacementNamed(
+      context,
+      'packing-list-consolidate',
+      arguments: [batch],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -296,89 +365,88 @@ class _ListPackingConsolidadeScreenState
                                       ),
                                       leading: GestureDetector(
                                         onTap: () {
-
                                           //todo
-                                          // context
-                                          //     .read<PackingConsolidadeBloc>()
-                                          //     .add(LoadDocOriginsEvent(
-                                          //       batch.id ?? 0,
-                                          //     ));
-                                          // showDialog(
-                                          //     context: context,
-                                          //     builder: (context) =>
-                                          //         BackdropFilter(
-                                          //           filter: ImageFilter.blur(
-                                          //               sigmaX: 5, sigmaY: 5),
-                                          //           child: AlertDialog(
-                                          //             actionsAlignment:
-                                          //                 MainAxisAlignment
-                                          //                     .center,
-                                          //             title: Center(
-                                          //                 child: Text(
-                                          //               "Documentos de origen",
-                                          //               textAlign:
-                                          //                   TextAlign.center,
-                                          //               style: TextStyle(
-                                          //                   color:
-                                          //                       primaryColorApp,
-                                          //                   fontSize: 20),
-                                          //             )),
-                                          //             content:
-                                          //                 //lista de documentos
-                                          //                 SizedBox(
-                                          //               height: 300,
-                                          //               width: size.width * 0.9,
-                                          //               child: ListView.builder(
-                                          //                 itemCount: context
-                                          //                     .read<
-                                          //                         WmsPackingBloc>()
-                                          //                     .listOfOrigins
-                                          //                     .length,
-                                          //                 itemBuilder:
-                                          //                     (context, index) {
-                                          //                   return Card(
-                                          //                     color: white,
-                                          //                     elevation: 2,
-                                          //                     child: ListTile(
-                                          //                       title: Text(
-                                          //                           context
-                                          //                                   .read<
-                                          //                                       WmsPackingBloc>()
-                                          //                                   .listOfOrigins[
-                                          //                                       index]
-                                          //                                   .name ??
-                                          //                               'Sin nombre',
-                                          //                           style: const TextStyle(
-                                          //                               fontSize:
-                                          //                                   12,
-                                          //                               color:
-                                          //                                   black)),
-                                          //                     ),
-                                          //                   );
-                                          //                 },
-                                          //               ),
-                                          //             ),
-                                          //             actions: [
-                                          //               ElevatedButton(
-                                          //                   onPressed: () {
-                                          //                     Navigator.pop(
-                                          //                         context);
-                                          //                   },
-                                          //                   style: ElevatedButton.styleFrom(
-                                          //                       backgroundColor:
-                                          //                           primaryColorApp,
-                                          //                       shape: RoundedRectangleBorder(
-                                          //                           borderRadius:
-                                          //                               BorderRadius.circular(
-                                          //                                   10))),
-                                          //                   child: const Text(
-                                          //                     'Aceptar',
-                                          //                     style: TextStyle(
-                                          //                         color: white),
-                                          //                   ))
-                                          //             ],
-                                          //           ),
-                                          //         ));
+                                          context
+                                              .read<PackingConsolidateBloc>()
+                                              .add(LoadDocOriginsEvent(
+                                                batch.id ?? 0,
+                                              ));
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) =>
+                                                  BackdropFilter(
+                                                    filter: ImageFilter.blur(
+                                                        sigmaX: 5, sigmaY: 5),
+                                                    child: AlertDialog(
+                                                      actionsAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      title: Center(
+                                                          child: Text(
+                                                        "Documentos de origen",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                            color:
+                                                                primaryColorApp,
+                                                            fontSize: 20),
+                                                      )),
+                                                      content:
+                                                          //lista de documentos
+                                                          SizedBox(
+                                                        height: 300,
+                                                        width: size.width * 0.9,
+                                                        child: ListView.builder(
+                                                          itemCount: context
+                                                              .read<
+                                                                  PackingConsolidateBloc>()
+                                                              .listOfOrigins
+                                                              .length,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            return Card(
+                                                              color: white,
+                                                              elevation: 2,
+                                                              child: ListTile(
+                                                                title: Text(
+                                                                    context
+                                                                            .read<
+                                                                                PackingConsolidateBloc>()
+                                                                            .listOfOrigins[
+                                                                                index]
+                                                                            .name ??
+                                                                        'Sin nombre',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color:
+                                                                            black)),
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            style: ElevatedButton.styleFrom(
+                                                                backgroundColor:
+                                                                    primaryColorApp,
+                                                                shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10))),
+                                                            child: const Text(
+                                                              'Aceptar',
+                                                              style: TextStyle(
+                                                                  color: white),
+                                                            ))
+                                                      ],
+                                                    ),
+                                                  ));
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.all(5),

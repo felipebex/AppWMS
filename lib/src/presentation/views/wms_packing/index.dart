@@ -14,7 +14,6 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
@@ -213,89 +212,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
 
                 //*barra de buscar
 
-                // Container(
-                //     margin: const EdgeInsets.only(top: 10),
-                //     height: 60,
-                //     width: size.width * 1,
-                //     child: Padding(
-                //       padding: const EdgeInsets.only(
-                //         left: 10,
-                //         right: 10,
-                //       ),
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         children: [
-                //           SizedBox(
-                //             width: size.width * 0.9,
-                //             child: Card(
-                //               color: Colors.white,
-                //               elevation: 3,
-                //               child: TextFormField(
-                //                 readOnly: context
-                //                         .read<UserBloc>()
-                //                         .fabricante
-                //                         .contains("Zebra")
-                //                     ? true
-                //                     : false,
-                //                 showCursor: true,
-                //                 textAlignVertical: TextAlignVertical.center,
-                //                 controller: context
-                //                     .read<WmsPackingBloc>()
-                //                     .searchController,
-                //                 decoration: InputDecoration(
-                //                   prefixIcon:
-                //                       const Icon(Icons.search, color: grey),
-                //                   suffixIcon: IconButton(
-                //                       onPressed: () {
-                //                         context
-                //                             .read<WmsPackingBloc>()
-                //                             .searchController
-                //                             .clear();
-
-                //                         context.read<WmsPackingBloc>().add(
-                //                             SearchBatchPackingEvent(
-                //                                 '', controller.index));
-                //                         context
-                //                             .read<WmsPackingBloc>()
-                //                             .add(ShowKeyboardEvent(false));
-
-                //                         //pasamos el foco a focusNodeBuscar
-                //                         Future.delayed(
-                //                             const Duration(seconds: 1), () {
-                //                           // _handleDependencies();
-                //                           FocusScope.of(context)
-                //                               .requestFocus(focusNodeBuscar);
-                //                         });
-                //                       },
-                //                       icon:
-                //                           const Icon(Icons.close, color: grey)),
-                //                   disabledBorder: const OutlineInputBorder(),
-                //                   hintText: "Buscar batch",
-                //                   hintStyle: const TextStyle(
-                //                       color: Colors.grey, fontSize: 14),
-                //                   border: InputBorder.none,
-                //                 ),
-                //                 onChanged: (value) {
-                //                   context.read<WmsPackingBloc>().add(
-                //                       SearchBatchPackingEvent(
-                //                           value, controller.index));
-                //                 },
-                //                 onTap: !context
-                //                         .read<UserBloc>()
-                //                         .fabricante
-                //                         .contains("Zebra")
-                //                     ? null
-                //                     : () {
-                //                         context
-                //                             .read<WmsPackingBloc>()
-                //                             .add(ShowKeyboardEvent(true));
-                //                       },
-                //               ),
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     )),
 
                 DynamicSearchBar(
                   // 1. CONTROLADOR Y FOCO
