@@ -261,7 +261,7 @@
     },
     {
       "name": "flutter",
-      "rootUri": "file:///Users/estebanrodriguezmarles/Documents/flutter/packages/flutter",
+      "rootUri": "file:///Volumes/Baneste/fvm/versions/3.24.4/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -399,7 +399,7 @@
     },
     {
       "name": "flutter_localizations",
-      "rootUri": "file:///Users/estebanrodriguezmarles/Documents/flutter/packages/flutter_localizations",
+      "rootUri": "file:///Volumes/Baneste/fvm/versions/3.24.4/packages/flutter_localizations",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -453,13 +453,13 @@
     },
     {
       "name": "flutter_test",
-      "rootUri": "file:///Users/estebanrodriguezmarles/Documents/flutter/packages/flutter_test",
+      "rootUri": "file:///Volumes/Baneste/fvm/versions/3.24.4/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
     {
       "name": "flutter_web_plugins",
-      "rootUri": "file:///Users/estebanrodriguezmarles/Documents/flutter/packages/flutter_web_plugins",
+      "rootUri": "file:///Volumes/Baneste/fvm/versions/3.24.4/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -891,7 +891,7 @@
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///Users/estebanrodriguezmarles/Documents/flutter/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///Volumes/Baneste/fvm/versions/3.24.4/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -1166,10 +1166,10 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-10-22T19:41:22.732280Z",
+  "generated": "2025-10-24T15:07:18.012559Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
-  "flutterRoot": "file:///Users/estebanrodriguezmarles/Documents/flutter",
+  "flutterRoot": "file:///Volumes/Baneste/fvm/versions/3.24.4",
   "flutterVersion": "3.24.4",
   "pubCache": "file:///Users/estebanrodriguezmarles/.pub-cache"
 }

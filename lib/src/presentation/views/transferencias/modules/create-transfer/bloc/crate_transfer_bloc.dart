@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_p
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/request_create_trasnfer_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/response_create_transfer_mode.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/response_validate_stock_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 
 part 'crate_transfer_event.dart';
@@ -156,6 +157,38 @@ class CreateTransferBloc
 
     //*evento para enviar y crear la transferencia
     on<CreateNewTransferEvent>(_onCreateTransferEvent);
+
+    //evento para validar el stock de un producto antes de agregar a la transferencia
+    on<ValidateStockProductEvent>(_onValidateStockProductEvent);
+  }
+
+  void _onValidateStockProductEvent(ValidateStockProductEvent event,
+      Emitter<CreateTransferState> emit) async {
+    try {
+      emit(ValidateStockLoading());
+
+      // Lógica para validar el stock del producto
+      final response = await _transferenciasRepository.validateStockTransfer(
+        currentProduct?.productId ?? 0,
+        currentUbication?.id ?? 0,
+        currentProduct?.tracking == "lot" ? currentProductLote?.id ?? 0 : 0,
+        event.quantity,
+        true,
+      );
+
+      if (response.result?.code == 200 && response.result?.resumenStock?.esSuficiente == true) {
+        emit(ValidateStockSuccess(response));
+        add(AddProductCreateTransferEvent(
+          event.quantity,
+          currentProduct ?? Product(),
+        ));
+      } else {
+        emit(ValidateStockFailure(response.result?.msg ?? ""));
+      }
+    } catch (e, s) {
+      print("❌ Error en el ValidateStockProductEvent $e ->$s");
+      emit(ValidateStockFailure('Error al validar el stock del producto'));
+    }
   }
 
   void _onCreateTransferEvent(
@@ -613,6 +646,8 @@ class CreateTransferBloc
         if (event.isLocationDest) {
           currentUbicationDest = event.locationSelect;
           locationDestIsOk = true;
+          add(SearchLocationEvent(''));
+          searchControllerLocation.clear();
           emit(ChangeLocationIsOkState(
             locationIsOk,
             true,
@@ -626,6 +661,8 @@ class CreateTransferBloc
           //*cambiamos la variable de la ubicacion actual
           currentUbication = event.locationSelect;
           locationIsOk = true;
+          add(SearchLocationEvent(''));
+          searchControllerLocation.clear();
           emit(ChangeLocationIsOkState(locationIsOk, false));
         }
       }

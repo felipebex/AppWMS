@@ -832,7 +832,7 @@ class ApiRequestService {
           }
 
           print("--------------------------------------------");
-          print('Petición POST a $endpoint');
+          print('Petición GET a $endpoint');
           print('url: $url');
           print('Cuerpo de la solicitud: ${jsonDecode(request.body)}');
           print('headers: $headers');
@@ -1061,7 +1061,7 @@ class ApiRequestService {
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
-            Get.dialog(
+            Get.dialog( 
               DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo

@@ -197,3 +197,16 @@ class CreateTransferSuccess extends CreateTransferState {
   final RespondeCreateTransfer response;
   CreateTransferSuccess(this.response);
 }
+
+
+class ValidateStockLoading extends CreateTransferState {}
+
+class ValidateStockSuccess extends CreateTransferState {
+  final RespondeValidateStock responseValidateStock;
+  ValidateStockSuccess(this.responseValidateStock);
+}
+
+class ValidateStockFailure extends CreateTransferState {
+  final String error;
+  ValidateStockFailure(this.error);
+}

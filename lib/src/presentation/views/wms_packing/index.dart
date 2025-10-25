@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_start_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class WmsPackingScreen extends StatefulWidget {
@@ -98,7 +99,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
       if (state is NeedUpdateVersionState) {
         Get.snackbar(
           '360 Software Informa',
-        'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+          'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
           backgroundColor: white,
           colorText: primaryColorApp,
           icon: Icon(Icons.error, color: Colors.amber),
@@ -212,93 +213,127 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
 
                 //*barra de buscar
 
-                Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    height: 60,
-                    width: size.width * 1,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: size.width * 0.9,
-                            child: Card(
-                              color: Colors.white,
-                              elevation: 3,
-                              child: TextFormField(
-                                readOnly: context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra")
-                                    ? true
-                                    : false,
-                                showCursor: true,
-                                textAlignVertical: TextAlignVertical.center,
-                                controller: context
-                                    .read<WmsPackingBloc>()
-                                    .searchController,
+                // Container(
+                //     margin: const EdgeInsets.only(top: 10),
+                //     height: 60,
+                //     width: size.width * 1,
+                //     child: Padding(
+                //       padding: const EdgeInsets.only(
+                //         left: 10,
+                //         right: 10,
+                //       ),
+                //       child: Row(
+                //         mainAxisAlignment: MainAxisAlignment.center,
+                //         children: [
+                //           SizedBox(
+                //             width: size.width * 0.9,
+                //             child: Card(
+                //               color: Colors.white,
+                //               elevation: 3,
+                //               child: TextFormField(
+                //                 readOnly: context
+                //                         .read<UserBloc>()
+                //                         .fabricante
+                //                         .contains("Zebra")
+                //                     ? true
+                //                     : false,
+                //                 showCursor: true,
+                //                 textAlignVertical: TextAlignVertical.center,
+                //                 controller: context
+                //                     .read<WmsPackingBloc>()
+                //                     .searchController,
+                //                 decoration: InputDecoration(
+                //                   prefixIcon:
+                //                       const Icon(Icons.search, color: grey),
+                //                   suffixIcon: IconButton(
+                //                       onPressed: () {
+                //                         context
+                //                             .read<WmsPackingBloc>()
+                //                             .searchController
+                //                             .clear();
 
+                //                         context.read<WmsPackingBloc>().add(
+                //                             SearchBatchPackingEvent(
+                //                                 '', controller.index));
+                //                         context
+                //                             .read<WmsPackingBloc>()
+                //                             .add(ShowKeyboardEvent(false));
 
+                //                         //pasamos el foco a focusNodeBuscar
+                //                         Future.delayed(
+                //                             const Duration(seconds: 1), () {
+                //                           // _handleDependencies();
+                //                           FocusScope.of(context)
+                //                               .requestFocus(focusNodeBuscar);
+                //                         });
+                //                       },
+                //                       icon:
+                //                           const Icon(Icons.close, color: grey)),
+                //                   disabledBorder: const OutlineInputBorder(),
+                //                   hintText: "Buscar batch",
+                //                   hintStyle: const TextStyle(
+                //                       color: Colors.grey, fontSize: 14),
+                //                   border: InputBorder.none,
+                //                 ),
+                //                 onChanged: (value) {
+                //                   context.read<WmsPackingBloc>().add(
+                //                       SearchBatchPackingEvent(
+                //                           value, controller.index));
+                //                 },
+                //                 onTap: !context
+                //                         .read<UserBloc>()
+                //                         .fabricante
+                //                         .contains("Zebra")
+                //                     ? null
+                //                     : () {
+                //                         context
+                //                             .read<WmsPackingBloc>()
+                //                             .add(ShowKeyboardEvent(true));
+                //                       },
+                //               ),
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     )),
 
+                DynamicSearchBar(
+                  // 1. CONTROLADOR Y FOCO
+                  controller: context.read<WmsPackingBloc>().searchController,
+                  hintText: "Buscar batch",
 
-                                decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.search, color: grey),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .searchController
-                                            .clear();
+                  // 2. LÓGICA DE BÚSQUEDA (onChanged)
+                  onSearchChanged: (value) {
+                    // Integra directamente la lógica del BLoC
+                    context
+                        .read<WmsPackingBloc>()
+                        .add(SearchBatchPackingEvent(value, controller.index));
+                  },
 
-                                        context.read<WmsPackingBloc>().add(
-                                            SearchBatchPackingEvent(
-                                                '', controller.index));
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .add(ShowKeyboardEvent(false));
+                  // 3. LÓGICA DE LIMPIEZA (onSearchCleared)
+                  onSearchCleared: () {
+                    final packingBloc = context.read<WmsPackingBloc>();
 
-                                        //pasamos el foco a focusNodeBuscar
-                                        Future.delayed(
-                                            const Duration(seconds: 1), () {
-                                          // _handleDependencies();
-                                          FocusScope.of(context)
-                                              .requestFocus(focusNodeBuscar);
-                                        });
-                                      },
-                                      icon:
-                                          const Icon(Icons.close, color: grey)),
-                                  disabledBorder: const OutlineInputBorder(),
-                                  hintText: "Buscar batch",
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey, fontSize: 14),
-                                  border: InputBorder.none,
-                                ),
-                                onChanged: (value) {
-                                  context.read<WmsPackingBloc>().add(
-                                      SearchBatchPackingEvent(
-                                          value, controller.index));
-                                },
-                                onTap: !context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra")
-                                    ? null
-                                    : () {
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .add(ShowKeyboardEvent(true));
-                                      },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
+                    // 1. Disparar el evento de búsqueda vacía y apagar el teclado
+                    packingBloc
+                        .add(SearchBatchPackingEvent('', controller.index));
+                    packingBloc.add(ShowKeyboardEvent(false));
+
+                    // 2. Restaurar el foco después de un breve retraso (para asegurar la UI)
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      if (mounted) {
+                        // Usamos mounted si estamos en un StatefulWidget
+                        FocusScope.of(context).requestFocus(focusNodeBuscar);
+                      }
+                    });
+                  },
+
+                  // 4. LÓGICA DE ACTIVACIÓN DEL TECLADO (onTap)
+                  onTap: () {
+                    // El widget DynamicSearchBar internamente verifica si es Zebra.
+                    context.read<WmsPackingBloc>().add(ShowKeyboardEvent(true));
+                  },
+                ),
 
                 //*buscar por scan
                 BarcodeScannerField(

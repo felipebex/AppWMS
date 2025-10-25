@@ -81,6 +81,25 @@ class DialogPacking extends StatelessWidget {
                 onPressed: () {
                   //cerramos el dialogo
                   Navigator.pop(context);
+                  Navigator.pushReplacementNamed(
+                      contextHome, 'list-packing-consolidade');
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(200, 40),
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('PACKING CONSOLIDADO',
+                    style: TextStyle(
+                      color: white,
+                      fontSize: 12,
+                    ))),
+            ElevatedButton(
+                onPressed: () {
+                  //cerramos el dialogo
+                  Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: grey,

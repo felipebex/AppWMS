@@ -395,6 +395,32 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
       listener: (context, state) {
         print('🔔 Estado actual: $state');
 
+        if (state is ValidateStockFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        } else
+
         //estado para cuando estamos agregando un producto a la transferencia
         if (state is ProductAddingToTransferLoadingState) {
           showDialog(
@@ -415,10 +441,7 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
             icon: Icon(Icons.check_circle, color: Colors.green),
             snackPosition: SnackPosition.TOP,
           );
-        }
-        
-       
-        else {
+        } else {
           //*estado cuando la ubicacion de origen es cambiada, pasamos a ubicacion de destino
           if (state is ChangeLocationIsOkState) {
             //cambiamos el foco
@@ -826,7 +849,7 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
       return;
     }
 
-  if (cantidad <= 0.0 || cantidad <= 0) {
+    if (cantidad <= 0.0 || cantidad <= 0) {
       _audioService.playErrorSound();
       _vibrationService.vibrate();
       Get.snackbar(
@@ -857,22 +880,15 @@ class _CreateTransferScreenState extends State<CreateTransferScreen>
         double cantidad = double.parse(cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : cantidadController.text);
-        bloc.add(AddProductCreateTransferEvent(
-          cantidad,
-          bloc.currentProduct ?? Product(),
-        ));
+        //validamos el stock del producto con lote antes de agregar a la transferencia
+        bloc.add(ValidateStockProductEvent(cantidad));
       }
     } else {
       double cantidad = double.parse(cantidadController.text.isEmpty
           ? bloc.quantitySelected.toString()
           : cantidadController.text);
       print("cantidad: $cantidad");
-      bloc.add(AddProductCreateTransferEvent(
-        cantidad,
-        bloc.currentProduct ?? Product(),
-      ));
+      bloc.add(ValidateStockProductEvent(cantidad));
     }
   }
-
-
 }

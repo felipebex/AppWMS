@@ -20,6 +20,10 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubi
 import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_warehouses/tbl_warehouse_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_warehouses/warehouse_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/packing_consolidade/tbl_batchs_packing_consolidate/batch_packing_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/packing_consolidade/tbl_batchs_packing_consolidate/batch_table.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/packing_consolidade/tbl_pedidos_pack_consolidate/pedidos_pack_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/packing_consolidade/tbl_pedidos_pack_consolidate/pedidos_pack_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/packing_pedido/tbl_packing_pedido/packing_pedido_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/packing_pedido/tbl_packing_pedido/packing_pedido_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_packing_repository.dart';
@@ -84,7 +88,7 @@ class DataBaseSqlite {
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 12,
+      version: 13,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -156,6 +160,11 @@ class DataBaseSqlite {
 
     //*tabla de los productos para crear una transferencia
     await db.execute(ProductCreateTransferTable.createTable());
+
+    //* tabla de productos de un batch packing consolidade
+    await db.execute(BatchPackingConsolidateTable.createTable());
+
+    await db.execute(PedidosPackingConsolidateTable.createTable());
 
     //* tabla de productos de un batch picking
     await db.execute('''
@@ -279,6 +288,24 @@ class DataBaseSqlite {
             '❌ Error al crear la tabla ${ProductCreateTransferTable.tableName}, es posible que ya exista.');
       }
     }
+
+    if(oldVersion <13){
+      //solucion para cuando la version no tiene la tabla de batch packing consolidade
+      print('Migrando la base de datos a la versión 13...');
+      try {
+        // Crear la tabla BatchPackingConsolidateTable si no existe
+        await db.execute(BatchPackingConsolidateTable.createTable());
+        //crear la tabla de pedidos de packing consolidade
+        await db.execute(PedidosPackingConsolidateTable.createTable());
+        print(
+            '✅ Tabla ${BatchPackingConsolidateTable.tableName} creada correctamente.');
+        print(
+            '✅ Tabla ${PedidosPackingConsolidateTable.tableName} creada correctamente.');
+      } catch (e) {
+        print(
+            '❌ Error al crear la tabla ${BatchPackingConsolidateTable.tableName}, es posible que ya exista.');
+      }
+    }
   }
 
   //todo repositorios de las tablas
@@ -363,6 +390,14 @@ class DataBaseSqlite {
   //repositorio de productos para crear transferencia
   ProductCreateTransferRepository get productCreateTransferRepository =>
       ProductCreateTransferRepository();
+
+  //repositorio de pedidos de packing consolidade
+  PedidosPackingConsolidateRepository get pedidosPackingConsolidateRepository =>
+      PedidosPackingConsolidateRepository();
+
+  //repositorio de batchs de packing consolidade
+  BatchPackingConsolidateRepository get batchPackingConsolidateRepository =>
+      BatchPackingConsolidateRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {

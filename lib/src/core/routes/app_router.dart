@@ -54,6 +54,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_list.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/index_list_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/index.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/sacn_screen.dart';
@@ -97,6 +98,9 @@ class AppRoutes {
   static const String packingList = 'packing-list';
   static const String packing = 'Packing';
   static const String packingDetail = 'packing-detail';
+
+  //todo packing consolidade
+  static const String listPackingConsolidade = 'list-packing-consolidade';
 
   //todo packing por pedido
   static const String listPacking = 'list-packing';
@@ -275,6 +279,9 @@ class AppRoutes {
           initialTabIndex: initialTabIndex,
         );
       },
+
+      //todo packing consolidade
+      listPackingConsolidade: (_) => ListPackingConsolidadeScreen(),
 
       //todo packign por pedido
       listPacking: (_) => ListPackingScreen(),

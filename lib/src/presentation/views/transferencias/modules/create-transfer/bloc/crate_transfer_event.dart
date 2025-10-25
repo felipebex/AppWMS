@@ -152,3 +152,9 @@ class GetProductsCreateTransferEvent extends CreateTransferEvent {}
 class  CreateNewTransferEvent extends CreateTransferEvent {
   CreateNewTransferEvent();
 }
+
+class ValidateStockProductEvent extends CreateTransferEvent {
+  final dynamic quantity;
+
+  ValidateStockProductEvent(this.quantity);
+}

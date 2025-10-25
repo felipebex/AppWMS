@@ -16,6 +16,7 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_tr
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/request_create_trasnfer_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/response_create_transfer_mode.dart';
+import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/models/response_validate_stock_model.dart';
 
 class TransferenciasRepository {
   Future<ResponseTransferenciasResult> fetAllTransferencias(
@@ -914,5 +915,86 @@ class TransferenciasRepository {
       return RespondeCreateTransfer(); // Retornamos un objeto vacío en caso de error de red
     }
     return RespondeCreateTransfer();
+  }
+
+  //metodo para validar si unproducto tiene stock suficiente en la transferencia
+  Future<RespondeValidateStock> validateStockTransfer(
+    int idProducto,
+    int idUbicacion,
+    int idLote,
+    dynamic cantidad,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return RespondeValidateStock(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().getInfo(
+        endpoint:
+            'validar_stock', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_producto": idProducto,
+            "id_ubicacion": idUbicacion,
+            "id_lote": idLote,
+            "cantidad_requerida": cantidad,
+          }
+        },
+        isLoadinDialog: isLoadingDialog,
+      );
+      if (response.statusCode <= 500) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 200) {
+            return RespondeValidateStock.fromMap(jsonResponse);
+          } else {
+            return RespondeValidateStock.fromMap(jsonResponse);
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return RespondeValidateStock();
+          }
+        }
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return RespondeValidateStock(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en validateStockTransfer: $e, $s');
+      return RespondeValidateStock(); // Retornamos un objeto vacío en caso de error de
+    }
+    return RespondeValidateStock(); // Retornamos un objeto vacío en caso de error de
   }
 }

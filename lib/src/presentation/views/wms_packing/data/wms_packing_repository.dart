@@ -33,7 +33,10 @@ class WmsPackingRepository {
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
       return PackingModelResponseResult(
-          code: 500, result: [], msg: 'No hay conexión a Internet', updateVersion: false);
+          code: 500,
+          result: [],
+          msg: 'No hay conexión a Internet',
+          updateVersion: false);
     }
 
     try {
@@ -64,9 +67,128 @@ class WmsPackingRepository {
                 msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
                 updateVersion:
                     jsonResponse['result']['update_version'] ?? false);
+          } else if (jsonResponse['result']['code'] == 200) {
+            List<dynamic> batches = jsonResponse['result']['result'];
+            // Mapea los datos decodificados a una lista de BatchsModel
+            List<BatchPackingModel> batchs =
+                batches.map((data) => BatchPackingModel.fromMap(data)).toList();
 
+            return PackingModelResponseResult(
+              code: 200,
+              result: batchs,
+              msg: 'Batches obtenidos correctamente',
+              updateVersion: jsonResponse['result']['update_version'] ?? false,
+            );
+          } else if (jsonResponse['result']['code'] == 403) {
+            Get.defaultDialog(
+              title: 'Dispositivo no autorizado',
+              titleStyle: TextStyle(
+                  color: primaryColorApp,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+              middleText:
+                  'Este dispositivo no está autorizado para usar la aplicación. su suscripción ha expirado o no está activa, por favor contacte con el administrador.',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              barrierDismissible:
+                  false, // Evita que se cierre al tocar fuera del diálogo
+              onWillPop: () async => false,
+            );
 
+            return PackingModelResponseResult(
+                code: 403,
+                result: [],
+                msg: 'Dispositivo no autorizado',
+                updateVersion: false);
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+            return PackingModelResponseResult(
+                code: 100,
+                result: [],
+                msg: 'Sesion expirada, por favor inicie sesión nuevamente',
+                updateVersion: false);
+          }
+        }
+      } else {}
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return PackingModelResponseResult(
+          code: 500, result: [], msg: 'Error de red: $e', updateVersion: false);
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error resBatchsPacking: $e, $s');
+    }
+    return PackingModelResponseResult(
+        code: 500, result: [], msg: 'Error desconocido', updateVersion: false);
+  }
 
+  Future<PackingModelResponseResult> resBatchsPackingConsolidate(
+    bool isLoadinDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return PackingModelResponseResult(
+          code: 500,
+          result: [],
+          msg: 'No hay conexión a Internet',
+          updateVersion: false);
+    }
+
+    try {
+      var response = await ApiRequestService().getValidation(
+        endpoint: 'batch_packing_unificado',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 400) {
+            Get.snackbar(
+              'Error',
+              'Error : ${jsonResponse['result']['msg']}',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
+            return PackingModelResponseResult(
+                code: 400,
+                result: [],
+                msg: jsonResponse['result']['msg'] ?? 'Error desconocido',
+                updateVersion:
+                    jsonResponse['result']['update_version'] ?? false);
           } else if (jsonResponse['result']['code'] == 200) {
             List<dynamic> batches = jsonResponse['result']['result'];
             // Mapea los datos decodificados a una lista de BatchsModel
@@ -215,10 +337,10 @@ class WmsPackingRepository {
               onWillPop: () async => false,
             );
           }
-            return PackingPedidoResult(
-                code: 403,
-                msg: 'Dispositivo no autorizado',
-                updateVersion: false);
+          return PackingPedidoResult(
+              code: 403,
+              msg: 'Dispositivo no autorizado',
+              updateVersion: false);
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
