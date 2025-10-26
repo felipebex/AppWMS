@@ -248,7 +248,7 @@ class _PackingScreenState extends State<PackingScreen> {
       },
       child: BlocBuilder<WmsPackingBloc, WmsPackingState>(
         builder: (context, state) {
-          final packinghBloc = context.read<WmsPackingBloc>();
+          final packingBloc = context.read<WmsPackingBloc>();
 
           return Scaffold(
               backgroundColor: Colors.white,
@@ -266,7 +266,7 @@ class _PackingScreenState extends State<PackingScreen> {
 
                             if (state is ChangeQuantitySeparateState) {
                               if (state.quantity ==
-                                  packinghBloc.currentProduct.quantity) {
+                                  packingBloc.currentProduct.quantity) {
                                 _finichPackingProduct(context);
                               }
                             }
@@ -286,13 +286,13 @@ class _PackingScreenState extends State<PackingScreen> {
                               }
 
                               //validamos si el producto maneja temperatura
-                              if (packinghBloc
+                              if (packingBloc
                                           .currentProduct.manejaTemperatura ==
                                       1 ||
-                                  packinghBloc
+                                  packingBloc
                                           .currentProduct.manejaTemperatura ==
                                       true) {
-                                if (packinghBloc.configurations.result?.result
+                                if (packingBloc.configurations.result?.result
                                         ?.showPhotoTemperature ==
                                     true) {
                                   showDialog(
@@ -303,9 +303,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                       onWillPop: () async =>
                                           false, // Evita que se cierre con la flecha de atrás
                                       child: DialogCapturaTemperatura(
-                                        moveLineId: packinghBloc
-                                                .currentProduct.idMove ??
-                                            0,
+                                        moveLineId:
+                                            packingBloc.currentProduct.idMove ??
+                                                0,
                                       ),
                                     ),
                                   );
@@ -320,9 +320,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                       onWillPop: () async =>
                                           false, // Evita que se cierre con la flecha de atrás
                                       child: DialogTemperaturaManualPacking(
-                                        moveLineId: packinghBloc
-                                                .currentProduct.idMove ??
-                                            0,
+                                        moveLineId:
+                                            packingBloc.currentProduct.idMove ??
+                                                0,
                                       ),
                                     ),
                                   );
@@ -386,11 +386,11 @@ class _PackingScreenState extends State<PackingScreen> {
                             }
 
                             if (state is SendImageNovedadSuccess) {
-                              packinghBloc.add(ChangeQuantitySeparate(
+                              packingBloc.add(ChangeQuantitySeparate(
                                   state.cantidad,
-                                  packinghBloc.currentProduct.idProduct ?? 0,
-                                  packinghBloc.currentProduct.pedidoId ?? 0,
-                                  packinghBloc.currentProduct.idMove ?? 0));
+                                  packingBloc.currentProduct.idProduct ?? 0,
+                                  packingBloc.currentProduct.pedidoId ?? 0,
+                                  packingBloc.currentProduct.idMove ?? 0));
                               cantidadController.clear();
                               _finichPackingProduct(context);
                             }
@@ -419,13 +419,13 @@ class _PackingScreenState extends State<PackingScreen> {
                                     children: [
                                       IconButton(
                                         onPressed: () {
-                                          packinghBloc.quantitySelected = 0;
+                                          packingBloc.quantitySelected = 0;
                                           cantidadController.clear();
-                                          packinghBloc.oldLocation = "";
+                                          packingBloc.oldLocation = "";
 
                                           context.read<WmsPackingBloc>().add(
                                                   LoadAllProductsFromPedidoEvent(
-                                                packinghBloc.currentProduct
+                                                packingBloc.currentProduct
                                                         .pedidoId ??
                                                     0,
                                               ));
@@ -480,7 +480,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                       width: 10,
                                       height: 10,
                                       decoration: BoxDecoration(
-                                        color: packinghBloc.locationIsOk
+                                        color: packingBloc.locationIsOk
                                             ? green
                                             : yellow,
                                         shape: BoxShape.circle,
@@ -488,8 +488,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                     ),
                                   ),
                                   Card(
-                                    color: packinghBloc.isLocationOk
-                                        ? packinghBloc.locationIsOk
+                                    color: packingBloc.isLocationOk
+                                        ? packingBloc.locationIsOk
                                             ? Colors.green[100]
                                             : Colors.grey[300]
                                         : Colors.red[200],
@@ -508,16 +508,14 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   isPDA: false,
                                                   selectedLocation:
                                                       selectedLocation,
-                                                  positionsOrigen: packinghBloc
+                                                  positionsOrigen: packingBloc
                                                       .currentProduct
                                                       .locationId,
-                                                  currentLocationId:
-                                                      packinghBloc
-                                                          .currentProduct
-                                                          .locationId
-                                                          .toString(),
-                                                  batchBloc: packinghBloc,
-                                                  currentProduct: packinghBloc
+                                                  currentLocationId: packingBloc
+                                                      .currentProduct.locationId
+                                                      .toString(),
+                                                  batchBloc: packingBloc,
+                                                  currentProduct: packingBloc
                                                       .currentProduct,
                                                 ),
                                                 Container(
@@ -528,13 +526,13 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     showCursor: false,
                                                     controller:
                                                         _controllerLocation, // Asignamos el controlador
-                                                    enabled: !packinghBloc
+                                                    enabled: !packingBloc
                                                             .locationIsOk && // false
-                                                        !packinghBloc
+                                                        !packingBloc
                                                             .productIsOk && // false
-                                                        !packinghBloc
+                                                        !packingBloc
                                                             .quantityIsOk && // false
-                                                        !packinghBloc
+                                                        !packingBloc
                                                             .locationDestIsOk,
 
                                                     focusNode: focusNode1,
@@ -545,7 +543,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                               .text);
                                                     },
                                                     decoration: InputDecoration(
-                                                      hintText: packinghBloc
+                                                      hintText: packingBloc
                                                           .currentProduct
                                                           .locationId
                                                           .toString(),
@@ -569,13 +567,12 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   if (event.logicalKey ==
                                                       LogicalKeyboardKey
                                                           .enter) {
-                                                    validateLocation(
-                                                        packinghBloc
-                                                            .scannedValue1);
+                                                    validateLocation(packingBloc
+                                                        .scannedValue1);
                                                     return KeyEventResult
                                                         .handled;
                                                   } else {
-                                                    packinghBloc.add(
+                                                    packingBloc.add(
                                                         UpdateScannedValuePackEvent(
                                                             event.data.keyLabel,
                                                             'location'));
@@ -590,16 +587,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 isPDA: true,
                                                 selectedLocation:
                                                     selectedLocation,
-                                                positionsOrigen: packinghBloc
+                                                positionsOrigen: packingBloc
                                                         .currentProduct
                                                         .locationId ??
                                                     "",
-                                                currentLocationId: packinghBloc
+                                                currentLocationId: packingBloc
                                                     .currentProduct.locationId
                                                     .toString(),
-                                                batchBloc: packinghBloc,
+                                                batchBloc: packingBloc,
                                                 currentProduct:
-                                                    packinghBloc.currentProduct,
+                                                    packingBloc.currentProduct,
                                               ),
                                             ),
                                     ),
@@ -618,7 +615,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                       width: 10,
                                       height: 10,
                                       decoration: BoxDecoration(
-                                        color: packinghBloc.productIsOk
+                                        color: packingBloc.productIsOk
                                             ? green
                                             : yellow,
                                         shape: BoxShape.circle,
@@ -626,8 +623,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                     ),
                                   ),
                                   Card(
-                                    color: packinghBloc.isProductOk
-                                        ? packinghBloc.productIsOk
+                                    color: packingBloc.isProductOk
+                                        ? packingBloc.productIsOk
                                             ? Colors.green[100]
                                             : Colors.grey[300]
                                         : Colors.red[200],
@@ -646,24 +643,23 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   selectedProduct:
                                                       selectedLocation,
                                                   listOfProductsName:
-                                                      packinghBloc
+                                                      packingBloc
                                                           .listOfProductsName,
-                                                  currentProductId: packinghBloc
+                                                  currentProductId: packingBloc
                                                       .currentProduct.idProduct
                                                       .toString(),
-                                                  batchBloc: packinghBloc,
-                                                  currentProduct: packinghBloc
+                                                  batchBloc: packingBloc,
+                                                  currentProduct: packingBloc
                                                       .currentProduct,
                                                   isPDA: false,
                                                 ),
                                                 TextFormField(
                                                   showCursor: false,
-                                                  enabled: packinghBloc
+                                                  enabled: packingBloc
                                                           .locationIsOk && //true
-                                                      !packinghBloc
+                                                      !packingBloc
                                                           .productIsOk && //false
-                                                      !packinghBloc
-                                                          .quantityIsOk,
+                                                      !packingBloc.quantityIsOk,
 
                                                   controller:
                                                       _controllerProduct, // Controlador que maneja el texto
@@ -672,7 +668,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     validateProduct(value);
                                                   },
                                                   decoration: InputDecoration(
-                                                    hintText: packinghBloc
+                                                    hintText: packingBloc
                                                         .currentProduct
                                                         .productId
                                                         .toString(),
@@ -698,34 +694,34 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       ),
                                                       const SizedBox(width: 10),
                                                       Text(
-                                                        packinghBloc
+                                                        packingBloc
                                                                         .currentProduct
                                                                         .barcode ==
                                                                     false ||
-                                                                packinghBloc
+                                                                packingBloc
                                                                         .currentProduct
                                                                         .barcode ==
                                                                     null ||
-                                                                packinghBloc
+                                                                packingBloc
                                                                         .currentProduct
                                                                         .barcode ==
                                                                     ""
                                                             ? "Sin codigo de barras"
-                                                            : packinghBloc
+                                                            : packingBloc
                                                                 .currentProduct
                                                                 .barcode,
                                                         textAlign:
                                                             TextAlign.start,
                                                         style: TextStyle(
                                                             fontSize: 12,
-                                                            color: packinghBloc.currentProduct
+                                                            color: packingBloc.currentProduct
                                                                             .barcode ==
                                                                         false ||
-                                                                    packinghBloc
+                                                                    packingBloc
                                                                             .currentProduct
                                                                             .barcode ==
                                                                         null ||
-                                                                    packinghBloc
+                                                                    packingBloc
                                                                             .currentProduct
                                                                             .barcode ==
                                                                         ""
@@ -738,24 +734,24 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 Column(
                                                   children: [
                                                     ExpiryDateWidget(
-                                                        expireDate: packinghBloc
+                                                        expireDate: packingBloc
                                                                     .currentProduct
                                                                     .expireDate ==
                                                                 ""
                                                             ? DateTime.now()
                                                             : DateTime.parse(
-                                                                packinghBloc
+                                                                packingBloc
                                                                     .currentProduct
                                                                     .expireDate),
                                                         size: size,
                                                         isDetaild: false,
-                                                        isNoExpireDate: packinghBloc
+                                                        isNoExpireDate: packingBloc
                                                                     .currentProduct
                                                                     .expireDate ==
                                                                 ""
                                                             ? true
                                                             : false),
-                                                    if (packinghBloc
+                                                    if (packingBloc
                                                             .currentProduct
                                                             .loteId ==
                                                         null)
@@ -778,7 +774,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                             alignment: Alignment
                                                                 .centerLeft,
                                                             child: Text(
-                                                              packinghBloc
+                                                              packingBloc
                                                                       .currentProduct
                                                                       .lotId ??
                                                                   '',
@@ -800,11 +796,11 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                       (context) {
                                                                     return DialogBarcodes(
                                                                         listOfBarcodes:
-                                                                            packinghBloc.listOfBarcodes);
+                                                                            packingBloc.listOfBarcodes);
                                                                   });
                                                             },
                                                             child: Visibility(
-                                                              visible: packinghBloc
+                                                              visible: packingBloc
                                                                   .listOfBarcodes
                                                                   .isNotEmpty,
                                                               child: Image.asset(
@@ -828,12 +824,12 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   if (event.logicalKey ==
                                                       LogicalKeyboardKey
                                                           .enter) {
-                                                    validateProduct(packinghBloc
+                                                    validateProduct(packingBloc
                                                         .scannedValue2);
                                                     return KeyEventResult
                                                         .handled;
                                                   } else {
-                                                    packinghBloc.add(
+                                                    packingBloc.add(
                                                         UpdateScannedValuePackEvent(
                                                             event.data.keyLabel,
                                                             'product'));
@@ -852,16 +848,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       selectedProduct:
                                                           selectedLocation,
                                                       listOfProductsName:
-                                                          packinghBloc
+                                                          packingBloc
                                                               .listOfProductsName,
                                                       currentProductId:
-                                                          packinghBloc
+                                                          packingBloc
                                                               .currentProduct
                                                               .idProduct
                                                               .toString(),
-                                                      batchBloc: packinghBloc,
+                                                      batchBloc: packingBloc,
                                                       currentProduct:
-                                                          packinghBloc
+                                                          packingBloc
                                                               .currentProduct,
                                                       isPDA: false,
                                                     ),
@@ -875,7 +871,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 .start, //alineamos el texto a la izquierda
                                                         children: [
                                                           Text(
-                                                            packinghBloc
+                                                            packingBloc
                                                                 .currentProduct
                                                                 .productId
                                                                 .toString(),
@@ -887,15 +883,15 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                         black),
                                                           ),
                                                           Visibility(
-                                                            visible: packinghBloc
+                                                            visible: packingBloc
                                                                         .currentProduct
                                                                         .barcode ==
                                                                     false ||
-                                                                packinghBloc
+                                                                packingBloc
                                                                         .currentProduct
                                                                         .barcode ==
                                                                     null ||
-                                                                packinghBloc
+                                                                packingBloc
                                                                         .currentProduct
                                                                         .barcode ==
                                                                     "",
@@ -915,7 +911,7 @@ class _PackingScreenState extends State<PackingScreen> {
 
                                                     const SizedBox(height: 10),
                                                     //informacion del lote:
-                                                    if (packinghBloc
+                                                    if (packingBloc
                                                             .currentProduct
                                                             .loteId !=
                                                         null)
@@ -938,20 +934,20 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 alignment: Alignment
                                                                     .centerLeft,
                                                                 child: Text(
-                                                                  packinghBloc.currentProduct.lotId ==
+                                                                  packingBloc.currentProduct.lotId ==
                                                                               "" ||
-                                                                          packinghBloc.currentProduct.lotId ==
+                                                                          packingBloc.currentProduct.lotId ==
                                                                               null
                                                                       ? 'Sin lote/serie'
-                                                                      : packinghBloc
+                                                                      : packingBloc
                                                                               .currentProduct
                                                                               .lotId ??
                                                                           '',
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           14,
-                                                                      color: packinghBloc.currentProduct.lotId == "" ||
-                                                                              packinghBloc.currentProduct.lotId == null
+                                                                      color: packingBloc.currentProduct.lotId == "" ||
+                                                                              packingBloc.currentProduct.lotId == null
                                                                           ? red
                                                                           : black),
                                                                 ),
@@ -966,12 +962,12 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                           (context) {
                                                                         return DialogBarcodes(
                                                                             listOfBarcodes:
-                                                                                packinghBloc.listOfBarcodes);
+                                                                                packingBloc.listOfBarcodes);
                                                                       });
                                                                 },
                                                                 child:
                                                                     Visibility(
-                                                                  visible: packinghBloc
+                                                                  visible: packingBloc
                                                                       .listOfBarcodes
                                                                       .isNotEmpty,
                                                                   child: Image.asset(
@@ -987,20 +983,20 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         ],
                                                       ),
                                                     ExpiryDateWidget(
-                                                        expireDate: packinghBloc
+                                                        expireDate: packingBloc
                                                                     .currentProduct
                                                                     .expireDate ==
                                                                 ""
                                                             ? DateTime.now()
                                                             : DateTime.parse(
-                                                                packinghBloc
+                                                                packingBloc
                                                                         .currentProduct
                                                                         .expireDate ??
                                                                     '',
                                                               ),
                                                         size: size,
                                                         isDetaild: false,
-                                                        isNoExpireDate: packinghBloc
+                                                        isNoExpireDate: packingBloc
                                                                     .currentProduct
                                                                     .expireDate ==
                                                                 ""
@@ -1024,13 +1020,13 @@ class _PackingScreenState extends State<PackingScreen> {
                   //todo: cantidad
                   SizedBox(
                     width: size.width,
-                    height: packinghBloc.viewQuantity == true &&
+                    height: packingBloc.viewQuantity == true &&
                             context
                                 .read<UserBloc>()
                                 .fabricante
                                 .contains("Zebra")
                         ? 345
-                        : !packinghBloc.viewQuantity
+                        : !packingBloc.viewQuantity
                             ? 110
                             : 150,
                     child: Column(
@@ -1040,8 +1036,8 @@ class _PackingScreenState extends State<PackingScreen> {
                             horizontal: 10,
                           ),
                           child: Card(
-                            color: packinghBloc.isQuantityOk
-                                ? packinghBloc.quantityIsOk
+                            color: packingBloc.isQuantityOk
+                                ? packingBloc.quantityIsOk
                                     ? white
                                     : Colors.grey[300]
                                 : Colors.red[200],
@@ -1060,7 +1056,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Text(
-                                          packinghBloc.currentProduct.quantity
+                                          packingBloc.currentProduct.quantity
                                                   .toStringAsFixed(2) ??
                                               "",
                                           style: TextStyle(
@@ -1069,7 +1065,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                           ),
                                         )),
                                     Text(
-                                        packinghBloc.currentProduct.unidades ??
+                                        packingBloc.currentProduct.unidades ??
                                             "",
                                         style: const TextStyle(
                                             color: Colors.black, fontSize: 14)),
@@ -1086,14 +1082,14 @@ class _PackingScreenState extends State<PackingScreen> {
                                               ? TextFormField(
                                                   showCursor: false,
                                                   textAlign: TextAlign.center,
-                                                  enabled: packinghBloc
+                                                  enabled: packingBloc
                                                           .locationIsOk && //true
-                                                      packinghBloc
+                                                      packingBloc
                                                           .productIsOk && //true
-                                                      packinghBloc
+                                                      packingBloc
                                                           .quantityIsOk && //true
 
-                                                      !packinghBloc
+                                                      !packingBloc
                                                           .locationDestIsOk,
                                                   // showCursor: false,
                                                   controller:
@@ -1103,7 +1099,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     validateQuantity(value);
                                                   },
                                                   decoration: InputDecoration(
-                                                    hintText: packinghBloc
+                                                    hintText: packingBloc
                                                         .quantitySelected
                                                         .toString(),
                                                     disabledBorder:
@@ -1124,13 +1120,13 @@ class _PackingScreenState extends State<PackingScreen> {
                                                           LogicalKeyboardKey
                                                               .enter) {
                                                         validateQuantity(
-                                                            packinghBloc
+                                                            packingBloc
                                                                 .scannedValue3);
 
                                                         return KeyEventResult
                                                             .handled;
                                                       } else {
-                                                        packinghBloc.add(
+                                                        packingBloc.add(
                                                             UpdateScannedValuePackEvent(
                                                                 event.data
                                                                     .keyLabel,
@@ -1143,7 +1139,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         .ignored;
                                                   },
                                                   child: Text(
-                                                      packinghBloc
+                                                      packingBloc
                                                           .quantitySelected
                                                           .toString(),
                                                       style: const TextStyle(
@@ -1152,21 +1148,21 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 )),
                                     ),
                                     IconButton(
-                                        onPressed: packinghBloc
+                                        onPressed: packingBloc
                                                     .configurations
                                                     .result
                                                     ?.result
                                                     ?.manualQuantityPack ==
                                                 false
                                             ? null
-                                            : packinghBloc.quantityIsOk &&
-                                                    packinghBloc
+                                            : packingBloc.quantityIsOk &&
+                                                    packingBloc
                                                             .quantitySelected >=
                                                         0
                                                 ? () {
-                                                    packinghBloc.add(
+                                                    packingBloc.add(
                                                         ShowQuantityPackEvent(
-                                                            !packinghBloc
+                                                            !packingBloc
                                                                 .viewQuantity));
                                                     Future.delayed(
                                                         const Duration(
@@ -1187,7 +1183,7 @@ class _PackingScreenState extends State<PackingScreen> {
                           ),
                         ),
                         Visibility(
-                          visible: packinghBloc.viewQuantity,
+                          visible: packingBloc.viewQuantity,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 2),
@@ -1206,7 +1202,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                   // Verifica si el valor no está vacío y si es un número válido
                                   if (value.isNotEmpty) {
                                     try {
-                                      packinghBloc.quantitySelected =
+                                      packingBloc.quantitySelected =
                                           double.parse(value);
                                     } catch (e) {
                                       // Manejo de errores si la conversión falla
@@ -1215,7 +1211,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                     }
                                   } else {
                                     // Si el valor está vacío, puedes establecer un valor por defecto
-                                    packinghBloc.quantitySelected =
+                                    packingBloc.quantitySelected =
                                         0; // O cualquier valor que consideres adecuado
                                   }
                                 },
@@ -1233,8 +1229,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                   labelText: 'Cantidad',
                                   suffixIconButton: IconButton(
                                     onPressed: () {
-                                      packinghBloc.add(ShowQuantityPackEvent(
-                                          !packinghBloc.viewQuantity));
+                                      packingBloc.add(ShowQuantityPackEvent(
+                                          !packingBloc.viewQuantity));
                                       cantidadController.clear();
                                       //cambiamos el foco pa leer por pda la cantidad
                                       Future.delayed(
@@ -1256,8 +1252,8 @@ class _PackingScreenState extends State<PackingScreen> {
                               horizontal: 10,
                             ),
                             child: ElevatedButton(
-                              onPressed: packinghBloc.quantityIsOk &&
-                                      packinghBloc.quantitySelected >= 0
+                              onPressed: packingBloc.quantityIsOk &&
+                                      packingBloc.quantitySelected >= 0
                                   ? () {
                                       //cerramos el teclado
                                       FocusScope.of(context).unfocus();
@@ -1278,7 +1274,7 @@ class _PackingScreenState extends State<PackingScreen> {
                               ),
                             )),
                         Visibility(
-                          visible: packinghBloc.viewQuantity &&
+                          visible: packingBloc.viewQuantity &&
                               context
                                   .read<UserBloc>()
                                   .fabricante

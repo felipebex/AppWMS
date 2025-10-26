@@ -10,6 +10,8 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/un_packing_request.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_unPacking.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
 
 class Tab1Screen extends StatelessWidget {
@@ -85,13 +87,13 @@ class Tab1Screen extends StatelessWidget {
         builder: (context, state) {
           return BlocListener<PackingConsolidateBloc, PackingConsolidateState>(
             listener: (context, state) {
-              // if (state is UnPackignSuccess) {
-              //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              //     duration: const Duration(milliseconds: 1000),
-              //     content: Text(state.message),
-              //     backgroundColor: Colors.green[200],
-              //   ));
-              // }
+              if (state is UnPackignSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  duration: const Duration(milliseconds: 1000),
+                  content: Text(state.message),
+                  backgroundColor: Colors.green[200],
+                ));
+              }
             },
             child: Scaffold(
               backgroundColor: white,
@@ -748,45 +750,45 @@ class Tab1Screen extends StatelessWidget {
                                                                     return;
                                                                   }
 //todo
-                                                                  // showDialog(
-                                                                  //   context:
-                                                                  //       context,
-                                                                  //   builder: (_) =>
-                                                                  //       DialogUnPacking(
-                                                                  //     product:
-                                                                  //         product,
-                                                                  //     package:
-                                                                  //         package,
-                                                                  //     onConfirm:
-                                                                  //         () async {
-                                                                  //       final idOperario =
-                                                                  //           await PrefUtils
-                                                                  //               .getUserId();
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder: (_) =>
+                                                                        DialogUnPacking(
+                                                                      product:
+                                                                          product,
+                                                                      package:
+                                                                          package,
+                                                                      onConfirm:
+                                                                          () async {
+                                                                        final idOperario =
+                                                                            await PrefUtils
+                                                                                .getUserId();
 
-                                                                  //       context
-                                                                  //           .read<
-                                                                  //               PackingConsolidateBloc>()
-                                                                  //           .add(UnPackingEvent(
-                                                                  //               UnPackingRequest(
-                                                                  //                 idBatch: package.batchId ?? 0,
-                                                                  //                 idPaquete: package.id ?? 0,
-                                                                  //                 listItem: [
-                                                                  //                   ListItemUnpack(
-                                                                  //                     idMove: product.idMove ?? 0,
-                                                                  //                     productId: product.idProduct ?? 0,
-                                                                  //                     lote: product.loteId,
-                                                                  //                     locationId: product.idLocation ?? 0,
-                                                                  //                     cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
-                                                                  //                     observacion: "Desempacado",
-                                                                  //                     idOperario: idOperario,
-                                                                  //                   )
-                                                                  //                 ],
-                                                                  //               ),
-                                                                  //               product.pedidoId ?? 0,
-                                                                  //               package.consecutivo ?? 0));
-                                                                  //     },
-                                                                  //   ),
-                                                                  // );
+                                                                        context
+                                                                            .read<
+                                                                                PackingConsolidateBloc>()
+                                                                            .add(UnPackingEvent(
+                                                                                UnPackingRequest(
+                                                                                  idBatch: package.batchId ?? 0,
+                                                                                  idPaquete: package.id ?? 0,
+                                                                                  listItem: [
+                                                                                    ListItemUnpack(
+                                                                                      idMove: product.idMove ?? 0,
+                                                                                      productId: product.idProduct ?? 0,
+                                                                                      lote: product.loteId,
+                                                                                      locationId: product.idLocation ?? 0,
+                                                                                      cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
+                                                                                      observacion: "Desempacado",
+                                                                                      idOperario: idOperario,
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                                product.pedidoId ?? 0,
+                                                                                package.consecutivo ?? 0));
+                                                                      },
+                                                                    ),
+                                                                  );
                                                                 },
                                                                 child:
                                                                     const Icon(

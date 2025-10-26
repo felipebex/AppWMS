@@ -3,13 +3,13 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
 
 class LocationPackingDropdownWidget extends StatelessWidget {
   final String? selectedLocation;
   final String positionsOrigen;
   final String currentLocationId;
-  final WmsPackingBloc batchBloc;
+  final PackingConsolidateBloc batchBloc;
   final ProductoPedido currentProduct;
   final bool isPDA;
 

@@ -705,7 +705,6 @@ class ProductosPedidosRepository {
     required List<ProductoPedido> productos,
     required Map<String, dynamic> fieldsToUpdate,
     required bool isCertificate,
-    required String type,
   }) async {
     if (productos.isEmpty) return 0;
 
@@ -736,7 +735,6 @@ class ProductosPedidosRepository {
         WHERE ${ProductosPedidosTable.columnIdProduct} = ?
         AND ${ProductosPedidosTable.columnPedidoId} = ?
         AND ${ProductosPedidosTable.columnIdMove} = ? 
-        AND ${ProductosPedidosTable.columnType} = '$type'
         $condition
       ''';
 
@@ -745,7 +743,6 @@ class ProductosPedidosRepository {
           producto.idProduct,
           producto.pedidoId,
           producto.idMove,
-          type
         ]);
 
         totalUpdated += result;

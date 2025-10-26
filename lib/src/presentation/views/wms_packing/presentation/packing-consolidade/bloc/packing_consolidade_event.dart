@@ -76,8 +76,6 @@ class LoadAllProductsFromPedidoEvent extends PackingConsolidateEvent {
   );
 }
 
-
-
 class SearchPedidoPackingEvent extends PackingConsolidateEvent {
   final String query;
   final int idBatch;
@@ -85,15 +83,12 @@ class SearchPedidoPackingEvent extends PackingConsolidateEvent {
   SearchPedidoPackingEvent(this.query, this.idBatch);
 }
 
-
 class FetchProductEvent extends PackingConsolidateEvent {
   final ProductoPedido pedido;
   FetchProductEvent(
     this.pedido,
   );
 }
-
-
 
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends PackingConsolidateEvent {
@@ -147,7 +142,6 @@ class SetPackingsEvent extends PackingConsolidateEvent {
   );
 }
 
-
 class SetPickingsEvent extends PackingConsolidateEvent {
   final int productId;
   final int pedidoId;
@@ -161,8 +155,6 @@ class ChangeStickerEvent extends PackingConsolidateEvent {
   ChangeStickerEvent(this.isSticker);
 }
 
-
-
 class SelectProductPackingEvent extends PackingConsolidateEvent {
   final ProductoPedido producto;
   SelectProductPackingEvent(this.producto);
@@ -173,7 +165,6 @@ class UnSelectProductPackingEvent extends PackingConsolidateEvent {
   UnSelectProductPackingEvent(this.producto);
 }
 
-
 class DeleteProductFromTemporaryPackageEvent extends PackingConsolidateEvent {
   final ProductoPedido product;
 
@@ -181,3 +172,84 @@ class DeleteProductFromTemporaryPackageEvent extends PackingConsolidateEvent {
     required this.product,
   });
 }
+
+class ValidateFieldsPackingEvent extends PackingConsolidateEvent {
+  final String field;
+  final bool isOk;
+  ValidateFieldsPackingEvent({required this.field, required this.isOk});
+}
+
+class ChangeQuantitySeparate extends PackingConsolidateEvent {
+  final dynamic quantity;
+  final int productId;
+  final int pedidoId;
+  final int idMove;
+  ChangeQuantitySeparate(
+      this.quantity, this.productId, this.pedidoId, this.idMove);
+}
+
+class SendImageNovedad extends PackingConsolidateEvent {
+  final dynamic cantidad;
+  final File file;
+  final int moveLineId;
+  final int pedidoId;
+  final int productId;
+
+  SendImageNovedad({
+    required this.cantidad,
+    required this.file,
+    required this.moveLineId,
+    required this.pedidoId,
+    required this.productId,
+  });
+}
+
+class ShowQuantityPackEvent extends PackingConsolidateEvent {
+  final bool showQuantity;
+  ShowQuantityPackEvent(this.showQuantity);
+}
+
+class SetPickingSplitEvent extends PackingConsolidateEvent {
+  final ProductoPedido producto;
+  final int idMove;
+  final dynamic quantity;
+  final int productId;
+  final int pedidoId;
+  SetPickingSplitEvent(
+      this.producto, this.idMove, this.quantity, this.productId, this.pedidoId);
+}
+
+class GetTemperatureEvent extends PackingConsolidateEvent {
+  final File file;
+
+  GetTemperatureEvent({
+    required this.file,
+  });
+}
+
+class SendTemperatureEvent extends PackingConsolidateEvent {
+  final File file;
+  final int moveLineId;
+  SendTemperatureEvent({
+    required this.file,
+    required this.moveLineId,
+  });
+}
+
+class SendTemperaturePackingEvent extends PackingConsolidateEvent {
+  final int moveLineId;
+  SendTemperaturePackingEvent({
+    required this.moveLineId,
+  });
+}
+
+class UnPackingEvent extends PackingConsolidateEvent {
+  final UnPackingRequest request;
+  final int pedidoId;
+  final dynamic consecutivoPackage;
+
+  UnPackingEvent(this.request, this.pedidoId, this.consecutivoPackage);
+}
+
+
+class LoadAllNovedadesPackingConsolidateEvent extends PackingConsolidateEvent {}

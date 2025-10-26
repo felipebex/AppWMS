@@ -82,7 +82,6 @@ class ShowDetailState extends PackingConsolidateState {
   ShowDetailState(this.show);
 }
 
-
 class LoadingLoadAllProductsFromPedido extends PackingConsolidateState {}
 
 class LoadAllProductsFromPedidoLoaded extends PackingConsolidateState {
@@ -109,7 +108,6 @@ class SearchPedidoPackingLoadedState extends PackingConsolidateState {
   SearchPedidoPackingLoadedState({required this.listOfPedidos});
 }
 
-
 class ProductInfoLoading extends PackingConsolidateState {}
 
 class ProductInfoLoaded extends PackingConsolidateState {}
@@ -124,6 +122,7 @@ class ChangeLocationPackingIsOkState extends PackingConsolidateState {
   final bool isOk;
   ChangeLocationPackingIsOkState(this.isOk);
 }
+
 class ChangeStickerState extends PackingConsolidateState {
   final bool isSticker;
   ChangeStickerState(this.isSticker);
@@ -141,7 +140,6 @@ class SelectProductPackingErrorState extends PackingConsolidateState {
   SelectProductPackingErrorState(this.error);
 }
 
-
 class SelectProductPackingLoadedState extends PackingConsolidateState {
   final List<ProductoPedido> listOfProductsForPacking;
 
@@ -154,21 +152,23 @@ class UnSelectProductPackingLoadedState extends PackingConsolidateState {
   UnSelectProductPackingLoadedState({required this.listOfProductsForPacking});
 }
 
-
-
-
-class DeleteProductFromTemporaryPackageLoading extends PackingConsolidateState {}
-
+class DeleteProductFromTemporaryPackageLoading
+    extends PackingConsolidateState {}
 
 class DeleteProductFromTemporaryPackageError extends PackingConsolidateState {
   final String message;
   DeleteProductFromTemporaryPackageError(this.message);
 }
 
-class DeleteProductFromTemporaryPackageOkState extends PackingConsolidateState {}
-
+class DeleteProductFromTemporaryPackageOkState
+    extends PackingConsolidateState {}
 
 class SetPickingPackingOkState extends PackingConsolidateState {}
+
+class SplitProductError extends PackingConsolidateState {
+  final String message;
+  SplitProductError(this.message);
+}
 
 class SetPickingPackingErrorState extends PackingConsolidateState {
   final String message;
@@ -176,7 +176,6 @@ class SetPickingPackingErrorState extends PackingConsolidateState {
 }
 
 class SetPickingPackingLoadingState extends PackingConsolidateState {}
-
 
 class SetPackingsErrorState extends PackingConsolidateState {
   final String message;
@@ -189,3 +188,91 @@ class SetPackingsOkState extends PackingConsolidateState {
 }
 
 class SetPackingsLoadingState extends PackingConsolidateState {}
+
+class ValidateFieldsPackingState extends PackingConsolidateState {
+  final bool isOk;
+  ValidateFieldsPackingState(this.isOk);
+}
+
+class GetTemperatureLoading extends PackingConsolidateState {}
+
+class GetTemperatureSuccess extends PackingConsolidateState {
+  final TemperatureIa temperature;
+  GetTemperatureSuccess(this.temperature);
+}
+
+class GetTemperatureFailure extends PackingConsolidateState {
+  final String error;
+  GetTemperatureFailure(this.error);
+}
+
+class ChangeQuantitySeparateState extends PackingConsolidateState {
+  final dynamic quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}
+
+class ChangeProductPackingIsOkState extends PackingConsolidateState {
+  final bool isOk;
+  ChangeProductPackingIsOkState(this.isOk);
+}
+
+class SendImageNovedadLoading extends PackingConsolidateState {}
+
+class SendImageNovedadSuccess extends PackingConsolidateState {
+  final dynamic cantidad;
+  final ImageSendNovedad response;
+  SendImageNovedadSuccess(this.response, this.cantidad);
+}
+
+class SendImageNovedadFailure extends PackingConsolidateState {
+  final String error;
+  SendImageNovedadFailure(this.error);
+}
+
+class ShowQuantityPackState extends PackingConsolidateState {
+  final bool showQuantity;
+  ShowQuantityPackState(this.showQuantity);
+}
+
+//*estados para cargar las novedades
+class NovedadesPackingLoadedState extends PackingConsolidateState {
+  final List<Novedad> listOfNovedades;
+  NovedadesPackingLoadedState({required this.listOfNovedades});
+}
+
+class NovedadesPackingLoadingState extends PackingConsolidateState {}
+
+class NovedadesPackingErrorState extends PackingConsolidateState {
+  final String message;
+  NovedadesPackingErrorState(this.message);
+}
+
+class SendTemperatureLoading extends PackingConsolidateState {}
+
+class SendTemperatureFailure extends PackingConsolidateState {
+  final String error;
+  SendTemperatureFailure(this.error);
+}
+
+class SendTemperatureSuccess extends PackingConsolidateState {
+  final String message;
+  SendTemperatureSuccess(this.message);
+}
+
+//*estados para desempacar
+class UnPackignSuccess extends PackingConsolidateState {
+  final String message;
+  UnPackignSuccess(this.message);
+}
+
+class UnPackignError extends PackingConsolidateState {
+  final String message;
+  UnPackignError(this.message);
+}
+
+class UnPackingLoading extends PackingConsolidateState {}
+
+class ChangeIsOkState extends PackingConsolidateState {
+  final bool isOk;
+  ChangeIsOkState(this.isOk);
+}

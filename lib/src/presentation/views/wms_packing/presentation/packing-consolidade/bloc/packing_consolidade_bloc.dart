@@ -1,5 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,11 +9,14 @@ import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/sen_packing_request.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
@@ -101,8 +106,13 @@ class PackingConsolidateBloc
   int completedProducts = 0;
   double quantitySelected = 0;
 
+  //* ultima ubicacion
+  String oldLocation = '';
+
   //*producto actual
   ProductoPedido currentProduct = ProductoPedido();
+
+  TemperatureIa resultTemperature = TemperatureIa();
 
   List<Origin> listOfOrigins = [];
 
@@ -145,9 +155,6 @@ class PackingConsolidateBloc
     //*cargamos el producto a certificar
     on<FetchProductEvent>(_onFetchProductEvent);
 
-    //*cambiar el estado de las variables
-    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
-
     //*confirmar el sticker
     on<ChangeStickerEvent>(_onChangeStickerEvent);
 
@@ -165,6 +172,624 @@ class PackingConsolidateBloc
 
     //*packing
     on<SetPackingsEvent>(_onSetPackingsEvent);
+
+    //*evento para validar los campos de la vista
+    on<ValidateFieldsPackingEvent>(_onValidateFieldsPacking);
+
+    //*evento para cambiar la cantidad seleccionada
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+
+    //*cambiar el estado de las variables
+    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
+    on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
+    on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
+
+    on<SendImageNovedad>(_onSendImageNovedad);
+
+    //*evento para ver la cantidad
+    on<ShowQuantityPackEvent>(_onShowQuantityEvent);
+
+    //*metodo para dividir el producto en varios paquetes
+    on<SetPickingSplitEvent>(_onSetPickingsSplitEvent);
+
+    //enviar temperatura
+    on<GetTemperatureEvent>(_onGetTemperatureEvent);
+    on<SendTemperatureEvent>(_onSendTemperatureEvent);
+    on<SendTemperaturePackingEvent>(_onSendTemperaturePackingEvent);
+
+    //*metodo para desempacar productos
+    on<UnPackingEvent>(_onUnPackingEvent);
+
+    //*cantidad
+    on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+
+    //*evento para obtener las novedades
+    on<LoadAllNovedadesPackingConsolidateEvent>(_onLoadAllNovedadesEvent);
+    add(LoadAllNovedadesPackingConsolidateEvent());
+  }
+
+
+  //*meotod para cargar todas las novedades
+  void _onLoadAllNovedadesEvent(
+      LoadAllNovedadesPackingConsolidateEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(NovedadesPackingLoadingState());
+      final response = await db.novedadesRepository.getAllNovedades();
+      if (response != null) {
+        novedades.clear();
+        novedades = response;
+        print("novedades: ${novedades.length}");
+        emit(NovedadesPackingLoadedState(listOfNovedades: novedades));
+      }
+    } catch (e, s) {
+      print("Error en __onLoadAllNovedadesEvent: $e, $s");
+      emit(NovedadesPackingErrorState(e.toString()));
+    }
+  }
+
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<PackingConsolidateState> emit) async {
+    quantitySelected = quantitySelected + event.quantity;
+    await db.productosPedidosRepository.incremenQtytProductSeparatePacking(
+        event.pedidoId,
+        event.productId,
+        event.idMove,
+        event.quantity,
+        'packing-batch');
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
+
+  void _onChangeQuantityIsOkEvent(
+      ChangeIsOkQuantity event, Emitter<PackingConsolidateState> emit) async {
+    if (event.isOk) {
+      //actualizamos la cantidad del producto a true
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "is_quantity_is_ok",
+          1,
+          event.idMove,
+          'packing-batch');
+    }
+    quantityIsOk = event.isOk;
+    emit(ChangeIsOkState(
+      quantityIsOk,
+    ));
+  }
+
+  void _onChangeLocationDestIsOkEvent(ChangeLocationDestIsOkEvent event,
+      Emitter<PackingConsolidateState> emit) {
+    locationDestIsOk = event.locationDestIsOk;
+    emit(ChangeIsOkState(
+      locationDestIsOk,
+    ));
+  }
+
+  //metodo para desempacar productos
+  void _onUnPackingEvent(
+      UnPackingEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(UnPackingLoading());
+
+      final responseUnPacking = await wmsPackingRepository.unPackingConsolidate(
+        event.request,
+      );
+
+      if (responseUnPacking.result?.code == 200) {
+        //si es exitoso procedemos a desemapcar los productos
+        //recorremos todo los productos del request
+        for (var product in event.request.listItem) {
+          //actualizamos el estado del producto como no separado
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_separate",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+          //actualizamso el estado del producto como no empaquetado
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_package",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualizamos el estado del producto como no dividido
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_product_split",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch');
+          //actualizamos el estado del producto como no certificado
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_certificate",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualizamos el valor de is_location
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_location_is_ok",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualizamos el valor de quantity_separate
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "quantity_separate",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualizamos el valor de is_selected
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_selected",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualizamos el valor de product_is_ok
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "product_is_ok",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualzamos el valor de is_quantity_is_ok
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "is_quantity_is_ok",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //actualizamos el valor de package_name
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "package_name",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+
+          //acrtualizamos el valor del id_paquete en el producto
+          await db.productosPedidosRepository
+              .setFieldTableProductosPedidosUnPacking(
+                  event.pedidoId,
+                  product.productId,
+                  "id_package",
+                  null,
+                  product.idMove,
+                  event.request.idPaquete,
+                  'packing-batch-consolidate');
+        }
+
+        //restamos la cantidad de productos desempacados a un paquete
+        await db.packagesRepository.updatePackageCantidad(
+          event.request.idPaquete,
+          event.request.listItem.length,
+        );
+
+        //VERIFICAMOS CUANTOS PRODUCTOS TIENE EL PAQUETE
+        final response =
+            await db.packagesRepository.getPackageById(event.request.idPaquete);
+        if (response != null) {
+          if (response.cantidadProductos == 0) {
+            await updateConsecutivePackages(
+              consecutivoReferencia: response.consecutivo ?? '',
+              packages: packages,
+            );
+
+            //si la cantidad de productos es 0 eliminamos el paquete
+            await db.packagesRepository
+                .deletePackageById(event.request.idPaquete);
+          }
+        }
+
+        //actualizamos la lista de productos
+        add(LoadAllProductsFromPedidoEvent(
+          event.pedidoId,
+        ));
+        emit(UnPackignSuccess("Desempaquetado del producto exitoso"));
+      } else {
+        emit(UnPackignError('Error al desempacar los productos'));
+      }
+    } catch (e, s) {
+      print('Error en el  _onUnPackingEvent: $e, $s');
+      emit(UnPackignError(e.toString()));
+    }
+  }
+
+  Future<void> updateConsecutivePackages({
+    required String consecutivoReferencia,
+    required List<Paquete> packages,
+  }) async {
+    final refNum = _extraerNumeroConsecutivo(consecutivoReferencia);
+    if (refNum == null) return;
+
+    for (final paquete in packages) {
+      final paqueteNum =
+          _extraerNumeroConsecutivo(paquete.consecutivo?.toString());
+
+      if (paqueteNum != null && paqueteNum > refNum) {
+        final nuevoConsecutivo = 'Caja${paqueteNum - 1}';
+        final paqueteActualizado = Paquete(
+          id: paquete.id,
+          name: paquete.name,
+          batchId: paquete.batchId,
+          pedidoId: paquete.pedidoId,
+          cantidadProductos: paquete.cantidadProductos,
+          listaProductosInPacking: paquete.listaProductosInPacking,
+          isSticker: paquete.isSticker,
+          isCertificate: paquete.isCertificate,
+          type: paquete.type,
+          consecutivo: nuevoConsecutivo,
+        );
+
+        await db.packagesRepository.updatePackageById(paqueteActualizado);
+      }
+    }
+  }
+
+  int? _extraerNumeroConsecutivo(String? consecutivo) {
+    if (consecutivo == null) return null;
+    final match = RegExp(r'(\d+)$').firstMatch(consecutivo);
+    return match != null ? int.parse(match.group(1)!) : null;
+  }
+
+  void _onSendTemperaturePackingEvent(
+    SendTemperaturePackingEvent event,
+    Emitter<PackingConsolidateState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      //validamso que tengamos imagen y temperatura
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await wmsPackingRepository.sendTemperatureManual(
+        temperatureController.text ?? 0.0,
+        event.moveLineId,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'temperatura',
+          temperatureController.text ?? 0.0,
+          event.moveLineId,
+          'packing-batch-consolidate',
+        );
+
+        //limpiamos el dato de temperatura
+        temperatureController.clear();
+        resultTemperature = TemperatureIa();
+
+        add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  void _onSendTemperatureEvent(
+    SendTemperatureEvent event,
+    Emitter<PackingConsolidateState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      //validamso que tengamos imagen y temperatura
+
+      if (event.file.path == null || event.file.path.isEmpty) {
+        emit(SendTemperatureFailure('No se ha seleccionado una imagen'));
+        return;
+      }
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await wmsPackingRepository.sendTemperature(
+        resultTemperature.temperature ?? 0.0,
+        event.moveLineId,
+        event.file,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'temperatura',
+          resultTemperature.temperature ?? 0.0,
+          event.moveLineId,
+          'packing-batch-consolidate',
+        );
+
+        //agregamos la imagen de temperatura del producto a la bd
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'image',
+          response.imageUrl ?? "",
+          event.moveLineId,
+          'packing-batch-consolidate',
+        );
+
+        //limpiamos el dato de temperatura
+        resultTemperature = TemperatureIa();
+
+        add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  void _onGetTemperatureEvent(
+    GetTemperatureEvent event,
+    Emitter<PackingConsolidateState> emit,
+  ) async {
+    try {
+      emit(GetTemperatureLoading());
+      // 1. Llamar al método que analiza la imagen y devuelve la temperatura
+      final result =
+          await wmsPackingRepository.getTemperatureWithImage(event.file);
+
+      resultTemperature = TemperatureIa();
+      if (result.temperature != null) {
+        resultTemperature = result;
+        emit(GetTemperatureSuccess(resultTemperature));
+      } else {
+        emit(GetTemperatureFailure(
+            result.detail ?? 'Error al obtener la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onGetTemperatureEvent: $e, $s');
+      emit(GetTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  //*metdo para dividir el producto
+  void _onSetPickingsSplitEvent(
+      SetPickingSplitEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(SetPickingPackingLoadingState());
+      //actualizamos el estado del producto como separado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "is_separate",
+          1,
+          event.idMove,
+          'packing-batch-consolidate');
+
+      //marcamos el producto como producto split
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "is_product_split",
+          1,
+          event.idMove,
+          'packing-batch-consolidate');
+
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "is_package",
+          0,
+          event.idMove,
+          'packing-batch-consolidate');
+      // actualizamos el estado del producto como certificado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "is_certificate",
+          1,
+          event.idMove,
+          'packing-batch-consolidate');
+
+//calculamos la cantidad pendiente del producto
+      var pendingQuantity = (event.producto.quantity - event.quantity);
+      //creamos un nuevo producto (duplicado) con la cantidad separada
+      await db.productosPedidosRepository.insertDuplicateProductoPedido(
+          event.producto, pendingQuantity, event.producto.type ?? "");
+
+      //actualizamos la cantidad separada
+      quantitySelected = 0;
+      viewQuantity = false;
+      //actualizamos la lista de productos
+      add(LoadAllProductsFromPedidoEvent(
+        event.pedidoId,
+      ));
+      emit(SetPickingPackingOkState());
+    } catch (e, s) {
+      print('Error en el  _onSetPickingsSplitEvent: $e, $s');
+      emit(SplitProductError(e.toString()));
+    }
+  }
+
+  //*evento para ver la cantidad
+  void _onShowQuantityEvent(
+      ShowQuantityPackEvent event, Emitter<PackingConsolidateState> emit) {
+    try {
+      viewQuantity = !viewQuantity;
+      emit(ShowQuantityPackState(viewQuantity));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
+  }
+
+//metodo para enviar una imagen de novedad
+  void _onSendImageNovedad(
+      SendImageNovedad event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      print('------ Enviando imagen de novedad ---');
+      print(
+          'pedidoId: ${event.pedidoId} moveLineId: ${event.moveLineId} productId: ${event.productId}');
+      emit(SendImageNovedadLoading());
+      final response = await wmsPackingRepository.sendImageNoved(
+        event.moveLineId,
+        event.file,
+      );
+      if (response.code == 200) {
+        //actualizamos la imagen de novedad en la bd
+        await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "image_novedad",
+          response.imageUrl ?? "",
+          event.moveLineId,
+          'packing-batch-consolidate',
+        );
+
+        emit(SendImageNovedadSuccess(response, event.cantidad));
+        //  add(GetPorductsToEntrada(event.idRecepcion));
+      } else {
+        emit(SendImageNovedadFailure(
+            response.msg ?? 'Error al enviar la imagen'));
+      }
+    } catch (e, s) {
+      print('Error en el _onSendImageNovedad: $e, $s');
+      emit(SendImageNovedadFailure('Ocurrió un error al enviar la imagen'));
+    }
+  }
+
+  void _onChangeProductIsOkEvent(ChangeProductIsOkEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    if (event.productIsOk) {
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "time_separate_start",
+          DateTime.now().toString(),
+          event.idMove,
+          'packing-batch-consolidate');
+      //actualizamos el producto a true
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "product_is_ok",
+          1,
+          event.idMove,
+          'packing-batch-consolidate');
+      //actualizamos la cantidad separada
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "quantity_separate",
+          event.quantity,
+          event.idMove,
+          'packing-batch-consolidate');
+    }
+    productIsOk = event.productIsOk;
+    emit(ChangeProductPackingIsOkState(
+      productIsOk,
+    ));
+  }
+
+  //*metodo para cambiar la cantidad seleccionada
+  void _onChangeQuantitySelectedEvent(ChangeQuantitySeparate event,
+      Emitter<PackingConsolidateState> emit) async {
+    print('event.quantity: ${event.quantity}');
+    if (event.quantity > 0) {
+      quantitySelected = event.quantity;
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "quantity_separate",
+          event.quantity,
+          event.idMove,
+          'packing-batch-consolidate');
+    }
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
+
+  void _onValidateFieldsPacking(
+      ValidateFieldsPackingEvent event, Emitter<PackingConsolidateState> emit) {
+    switch (event.field) {
+      case 'location':
+        isLocationOk = event.isOk;
+        break;
+      case 'product':
+        isProductOk = event.isOk;
+        break;
+      case 'locationDest':
+        isLocationDestOk = event.isOk;
+        break;
+      case 'quantity':
+        isQuantityOk = event.isOk;
+        break;
+    }
+    print(
+        'Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
+    emit(ValidateFieldsPackingState(event.isOk));
   }
 
   void _onSetPackingsEvent(
@@ -203,7 +828,8 @@ class PackingConsolidateBloc
         listItem: listItems,
       );
 
-      final responsePacking = await wmsPackingRepository.sendPackingRequest(
+      final responsePacking =
+          await wmsPackingRepository.sendPackingConsolidateRequest(
         packingRequest,
         true,
       );
@@ -225,7 +851,8 @@ class PackingConsolidateBloc
       );
 
       packages.add(paquete);
-      await db.packagesRepository.insertPackage(paquete, 'packing-batch-consolidate');
+      await db.packagesRepository
+          .insertPackage(paquete, 'packing-batch-consolidate');
 
       await db.pedidosPackingConsolidateRepository.setFieldTablePedidosPacking(
         event.productos[0].batchId ?? 0,
@@ -240,10 +867,6 @@ class PackingConsolidateBloc
         1,
       );
 
-      // Paralelizamos los updates para mejorar rendimiento
-      // await Future.wait(event.productos.map((product) =>
-      //   _actualizarProducto(db, product, paquete, event.isCertificate)
-      // ));
       await _actualizarProductoBatch(
         db,
         event.productos,
@@ -261,7 +884,6 @@ class PackingConsolidateBloc
       emit(SetPackingsErrorState('Ocurrió un error inesperado'));
     }
   }
-
 
   Future<void> _actualizarProductoBatch(
     DataBaseSqlite db,
@@ -291,12 +913,8 @@ class PackingConsolidateBloc
       productos: productos,
       fieldsToUpdate: fieldsToUpdate,
       isCertificate: isCertificate,
-      type: 'packing-batch-consolidate',
     );
   }
-
-
-
 
   //*metodo que se encarga de hacer el picking
   void _onSetPickingsEvent(
@@ -311,10 +929,12 @@ class PackingConsolidateBloc
           event.productId,
           "time_separate_end",
           dateTimeNow.toString(),
-          event.idMove, 'packing-batch-consolidate');
+          event.idMove,
+          'packing-batch-consolidate');
 
       final productUpdate = await db.productosPedidosRepository
-          .getProductoPedidoById(event.pedidoId, event.idMove, 'packing-batch-consolidate');
+          .getProductoPedidoById(
+              event.pedidoId, event.idMove, 'packing-batch-consolidate');
 
       print('productUpdate :${productUpdate.toMap()}');
 
@@ -333,15 +953,31 @@ class PackingConsolidateBloc
           event.productId,
           "time_separate",
           secondsDifferenceProduct,
-          event.idMove, 'packing-batch-consolidate');
+          event.idMove,
+          'packing-batch-consolidate');
 
       //actualizamos el estado del producto como separado
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
-          event.pedidoId, event.productId, "is_separate", 1, event.idMove, 'packing-batch-consolidate');
+          event.pedidoId,
+          event.productId,
+          "is_separate",
+          1,
+          event.idMove,
+          'packing-batch-consolidate');
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
-          event.pedidoId, event.productId, "is_package", 0, event.idMove, 'packing-batch-consolidate');
+          event.pedidoId,
+          event.productId,
+          "is_package",
+          0,
+          event.idMove,
+          'packing-batch-consolidate');
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
-          event.pedidoId, event.productId, "is_certificate", 1, event.idMove, 'packing-batch-consolidate');
+          event.pedidoId,
+          event.productId,
+          "is_certificate",
+          1,
+          event.idMove,
+          'packing-batch-consolidate');
 
       //actualizamos la cantidad se mparada
       quantitySelected = 0;
@@ -375,7 +1011,8 @@ class PackingConsolidateBloc
       await db.productosPedidosRepository.revertProductFields(
           event.product.pedidoId ?? 0,
           event.product.idProduct ?? 0,
-          event.product.idMove ?? 0, 'packing-batch-consolidate');
+          event.product.idMove ?? 0,
+          'packing-batch-consolidate');
 
       //actualizamos todas las listas
       add(LoadAllProductsFromPedidoEvent(event.product.pedidoId ?? 0));
@@ -597,7 +1234,8 @@ class PackingConsolidateBloc
         if (listOfProductosProgress.isNotEmpty) {
           final responseBarcodes = await db.barcodesPackagesRepository
               .getBarcodesByBatchIdAndType(
-                  listOfProductosProgress[0].batchId ?? 0, 'packing-batch-consolidate');
+                  listOfProductosProgress[0].batchId ?? 0,
+                  'packing-batch-consolidate');
 
           if (responseBarcodes != null) {
             listAllOfBarcodes = responseBarcodes;

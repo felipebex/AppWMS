@@ -1,14 +1,13 @@
 class PackingRequest {
   final int idBatch;
-  // final int idPaquete;
   final bool isSticker;
   final bool isCertificate;
   final double pesoTotalPaquete;
   final List<ListItem> listItem;
+  
 
   PackingRequest({
     required this.idBatch,
-    // required this.idPaquete,
     required this.isSticker,
     required this.isCertificate,
     required this.pesoTotalPaquete,
@@ -18,7 +17,6 @@ class PackingRequest {
   Map<String, dynamic> toMap() {
     return {
       "id_batch": idBatch,
-      // "id_paquete": idPaquete,
       "is_sticker": isSticker,
       "is_certificate": isCertificate,
       "peso_total_paquete": pesoTotalPaquete,
@@ -30,14 +28,15 @@ class PackingRequest {
 class ListItem {
   final int idMove;
   final int productId;
-  final String lote;
   final int locationId;
+  final String lote;
   final dynamic cantidadSeparada;
   final String observacion;
   final String unidadMedida;
   final int idOperario;
   final String fechaTransaccion;
   final dynamic timeLine;
+  final bool dividir;
 
   ListItem({
     required this.idMove,
@@ -50,6 +49,7 @@ class ListItem {
     required this.idOperario,
     required this.fechaTransaccion,
     required this.timeLine,
+    this.dividir = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -64,6 +64,7 @@ class ListItem {
       "id_operario": idOperario,
       "fecha_transaccion": fechaTransaccion,
       "time_line": timeLine,
+      "dividir": dividir,
     };
   }
 }

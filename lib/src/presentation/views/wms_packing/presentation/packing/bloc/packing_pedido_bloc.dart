@@ -715,7 +715,6 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       productos: productos,
       fieldsToUpdate: fieldsToUpdate,
       isCertificate: isCertificate,
-      type: 'packing-pack',
     );
   }
 

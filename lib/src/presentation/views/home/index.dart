@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/dialog_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -502,6 +503,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     .read<PackingPedidoBloc>()
                                                     .add(
                                                         LoadAllNovedadesPackEvent());
+                                                context
+                                                    .read<PackingConsolidateBloc>()
+                                                    .add(
+                                                        LoadAllNovedadesPackingConsolidateEvent());
 
                                                 showDialog(
                                                   context: context,

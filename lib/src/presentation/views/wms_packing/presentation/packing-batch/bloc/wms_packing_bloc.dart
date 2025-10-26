@@ -193,8 +193,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ShowDetailvent>(_onShowDetailEvent);
 
     //enviar temperatura
-    on<GetTemperatureEvent>(_onGetTemperatureEvent);
     on<SendImageNovedad>(_onSendImageNovedad);
+    on<GetTemperatureEvent>(_onGetTemperatureEvent);
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
     on<SendTemperaturePackingEvent>(_onSendTemperaturePackingEvent);
 
@@ -795,7 +795,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       //actualizamos la lista de productos
       add(LoadAllProductsFromPedidoEvent(
         event.pedidoId,
-      ));
+      )); 
       emit(SetPickingPackingOkState());
     } catch (e, s) {
       print('Error en el  _onSetPickingsSplitEvent: $e, $s');
@@ -1110,12 +1110,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             "is_package": 1,
             "is_certificate": 0,
           };
-
     await db.productosPedidosRepository.updateProductosBatch(
       productos: productos,
       fieldsToUpdate: fieldsToUpdate,
       isCertificate: isCertificate,
-      type: 'packing-batch',
     );
   }
 

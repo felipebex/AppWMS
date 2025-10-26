@@ -57,6 +57,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/index_list_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/packing_consolidade_detail_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/packing_consolidate_list_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/index.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/sacn_screen.dart';
@@ -104,7 +105,9 @@ class AppRoutes {
   //todo packing consolidade
   static const String listPackingConsolidade = 'list-packing-consolidade'; // lista de batchs de packing consolidados
   static const String packingConsolidateList = 'pedido-packing-consolidate-list'; // lista de pedidos consolidados por batch packing
-  static const String packingConsolidateDetail = 'packing-consolidate-detail';
+  static const String packingConsolidateDetail = 'packing-consolidate-detail'; // detalles ya del pedido consolidado a separar
+  static const String scanProductConsolidate =
+      'scan-product-consolidate'; // pantalla de escaneo de productos para consolidar
 
   //todo packing por pedido
   static const String listPacking = 'list-packing';
@@ -308,6 +311,19 @@ class AppRoutes {
           packingModel: packingModel,
           batchModel: batchModel,
           initialTabIndex: initialTabIndex,
+        );
+      },
+
+     
+
+      scanProductConsolidate: (context) {
+         final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final packingModel = arguments[0] as PedidoPacking?;
+        final batchModel = arguments[1] as BatchPackingModel?;
+        return ScanProductPackingConsolidateScreen(
+          packingModel: packingModel,
+          batchModel: batchModel,
         );
       },
 

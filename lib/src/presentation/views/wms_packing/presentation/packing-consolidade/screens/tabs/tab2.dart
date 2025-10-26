@@ -92,7 +92,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
         Navigator.of(context, rootNavigator: true).pop();
         Navigator.pushReplacementNamed(
           context,
-          'Packing',
+          'scan-product-consolidate',
           arguments: [widget.packingModel, widget.batchModel],
         );
       });
@@ -449,7 +449,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                     Navigator
                                                         .pushReplacementNamed(
                                                       context,
-                                                      'Packing',
+                                                      'scan-product-consolidate',
                                                       arguments: [
                                                         widget.packingModel,
                                                         widget.batchModel,
