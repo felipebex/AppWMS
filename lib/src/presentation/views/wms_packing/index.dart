@@ -124,9 +124,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             width: size.width * 1,
             child:
-
                 ///*listado de bacths
-
                 Column(
               children: [
                 Container(

@@ -55,7 +55,6 @@ class BatchsPackingLoadingState extends PackingConsolidateState {}
 
 final class WmsPackingLoadedBD extends PackingConsolidateState {}
 
-
 //*tiempo de separacion
 class TimeSeparatePackSuccess extends PackingConsolidateState {
   final String time;
@@ -67,15 +66,45 @@ class TimeSeparatePackError extends PackingConsolidateState {
   TimeSeparatePackError(this.msg);
 }
 
-
 class LoadAllPedidosFromBatchLoaded extends PackingConsolidateState {
   final List<PedidoPacking> listOfPedidos;
 
   LoadAllPedidosFromBatchLoaded({required this.listOfPedidos});
 }
 
-
 class LoadDocOriginsState extends PackingConsolidateState {
   final List<Origin> listOfOrigins;
   LoadDocOriginsState({required this.listOfOrigins});
+}
+
+class ShowDetailState extends PackingConsolidateState {
+  final bool show;
+  ShowDetailState(this.show);
+}
+
+
+class LoadingLoadAllProductsFromPedido extends PackingConsolidateState {}
+
+class LoadAllProductsFromPedidoLoaded extends PackingConsolidateState {
+  final List<ProductoPedido> listOfProducts;
+
+  LoadAllProductsFromPedidoLoaded({required this.listOfProducts});
+}
+
+class ErrorLoadAllProductsFromPedido extends PackingConsolidateState {
+  final String error;
+
+  ErrorLoadAllProductsFromPedido(this.error);
+}
+
+class SearPedidoPackingErrorState extends PackingConsolidateState {
+  final String error;
+
+  SearPedidoPackingErrorState(this.error);
+}
+
+class SearchPedidoPackingLoadedState extends PackingConsolidateState {
+  final List<PedidoPacking> listOfPedidos;
+
+  SearchPedidoPackingLoadedState({required this.listOfPedidos});
 }

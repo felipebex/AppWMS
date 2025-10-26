@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -53,6 +55,30 @@ class PackingConsolidateBloc
   List<PedidoPacking> listOfPedidos = [];
   List<PedidoPacking> listOfPedidosFilters = [];
 
+  //*lista de productos de un pedido
+  List<ProductoPedido> listOfProductos = []; //lista de productos de un pedido
+  List<ProductoPedido> listOfProductosProgress =
+      []; //lista de productos sin certificar
+  List<ProductoPedido> productsDone = []; //lista de productos ya certificados
+  List<ProductoPedido> productsDonePacking =
+      []; //lista de productos ya certificados
+  List<ProductoPedido> listOfProductsForPacking =
+      []; //lista de productos sin certificar seleccionados para empacar
+  //*lista de todas las pocisiones de los productos del batchs
+  List<String> positions = [];
+
+  //*lista de todos los productos a empacar
+  List<ProductoPedido> productsPacking = [];
+  //*lista de productos de un pedido
+  List<ProductoPedido> listOfProductsName = [];
+
+  //*lista de paquetes
+  List<Paquete> packages = [];
+
+  //*lista de barcodes
+  List<Barcodes> listOfBarcodes = [];
+  List<Barcodes> listAllOfBarcodes = [];
+
   //*isSticker
   bool isSticker = false;
   // //*validaciones de campos del estado de la vista
@@ -83,6 +109,8 @@ class PackingConsolidateBloc
 
     //*buscar un batch
     on<SearchBatchPackingEvent>(_onSearchBacthEvent);
+    //*buscar un pedido
+    on<SearchPedidoPackingEvent>(_onSearchPedidoEvent);
     //evento para mostrar el teclado
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
 
@@ -100,6 +128,153 @@ class PackingConsolidateBloc
     on<LoadAllPedidosFromBatchEvent>(_onLoadAllPedidosFromBatchEvent);
 
     on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
+
+    on<ShowDetailvent>(_onShowDetailEvent);
+
+    //*obtener todos los productos de un pedido
+    on<LoadAllProductsFromPedidoEvent>(_onLoadAllProductsFromPedidoEvent);
+  }
+
+  void _onSearchPedidoEvent(SearchPedidoPackingEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      final query = event.query.trim();
+
+      if (query.isEmpty) {
+        listOfPedidosFilters = listOfPedidos;
+      } else {
+        final normalizedQuery = normalizeText(query);
+
+        listOfPedidosFilters = listOfPedidos.where((pedido) {
+          final name = normalizeText(pedido.name ?? '');
+          final referencia = normalizeText(pedido.referencia ?? '');
+          final contactoName = normalizeText(pedido.contactoName ?? '');
+          final zonaName = normalizeText(pedido.zonaEntrega ?? '');
+
+          return name.contains(normalizedQuery) ||
+              referencia.contains(normalizedQuery) ||
+              contactoName.contains(normalizedQuery) ||
+              zonaName.contains(normalizedQuery);
+        }).toList();
+      }
+
+      emit(SearchPedidoPackingLoadedState(
+        listOfPedidos: listOfPedidosFilters,
+      ));
+    } catch (e, s) {
+      print('Error en el _onSearchPedidoEvent: $e, $s');
+      emit(SearPedidoPackingErrorState(e.toString()));
+    }
+  }
+
+  void _onLoadAllProductsFromPedidoEvent(LoadAllProductsFromPedidoEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(LoadingLoadAllProductsFromPedido());
+
+      add(LoadConfigurationsUserPackConsolidate());
+
+      final response = await DataBaseSqlite()
+          .productosPedidosRepository
+          .getProductosPedido(event.pedidoId, 'packing-batch-consolidate');
+
+      if (response != null) {
+        print('response lista de productos: ${response.length}');
+        listOfProductos.clear();
+        listOfProductos.addAll(response);
+        productsDonePacking.clear();
+
+        //filtramos y creamos la lista de productos listo a empacar
+        productsDone = listOfProductos
+            .where((product) =>
+                (product.isSeparate == true || product.isSeparate == 1) &&
+                (product.isCertificate == true || product.isCertificate == 1) &&
+                (product.isPackage == false || product.isPackage == 0))
+            .toList();
+
+        print('productsDone: ${productsDone.length}');
+
+        productsDonePacking = listOfProductos
+            .where(
+                (product) => product.isSeparate == 1 && product.isPackage == 1)
+            .toList();
+
+        print('productsDonePacking: ${productsDonePacking.length}');
+
+        //filtramos y creamos la lista de productos listo a separar para empaque
+        listOfProductosProgress = listOfProductos.where((product) {
+          return product.isSeparate == null || product.isSeparate == 0;
+        }).toList();
+
+        print(listOfProductosProgress);
+
+        ordenarProducts();
+
+        //despues de obtener los productos vamos a obtener todos los codigos de barras de este pedido
+        listAllOfBarcodes.clear();
+        if (listOfProductosProgress.isNotEmpty) {
+          final responseBarcodes = await db.barcodesPackagesRepository
+              .getBarcodesByBatchIdAndType(
+                  listOfProductosProgress[0].batchId ?? 0, 'packing-batch');
+
+          if (responseBarcodes != null) {
+            listAllOfBarcodes = responseBarcodes;
+          }
+        }
+
+        print('listAllOfBarcodes: ${listAllOfBarcodes.length}');
+
+        //traemos todos los paquetes de la base de datos del pedido en cuesiton
+        final packagesDB =
+            await db.packagesRepository.getPackagesPedido(event.pedidoId);
+        packages.clear();
+        packages.addAll(packagesDB);
+        print('packagesDB: ${packagesDB.length}');
+
+        //obtenemos las posiciones de los productos
+        getPosicions();
+
+        emit(LoadAllProductsFromPedidoLoaded(
+          listOfProducts: listOfProductos,
+        ));
+      } else {
+        print('Error _onLoadAllProductsFromPedidoEvent: response is null');
+      }
+    } catch (e, s) {
+      print('Error en el  _onLoadAllProductsFromPedidoEvent: $e, $s');
+      emit(ErrorLoadAllProductsFromPedido(e.toString()));
+    }
+  }
+
+  void getPosicions() {
+    positions.clear(); // Limpia la lista antes de agregar nuevas posiciones
+    for (var product in listOfProductos) {
+      if (product.locationId != null) {
+        // Verifica si la posición ya existe en la lista
+        if (!positions.contains(product.locationId!)) {
+          positions
+              .add(product.locationId!); // Solo agrega si no está en la lista
+        }
+      }
+    }
+    print('positions: ${positions.length}');
+  }
+
+  void ordenarProducts() {
+    listOfProductosProgress.sort((a, b) {
+      return a.locationId!.compareTo(b.locationId!);
+    });
+  }
+
+  //*evento para ver el detalle
+  void _onShowDetailEvent(
+      ShowDetailvent event, Emitter<PackingConsolidateState> emit) {
+    try {
+      viewDetail = !viewDetail;
+      emit(ShowDetailState(viewDetail));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
   }
 
   void _onLoadDocOriginsEvent(
@@ -126,7 +301,7 @@ class PackingConsolidateBloc
       final response = await DataBaseSqlite()
           .pedidosPackingRepository
           .getAllPedidosBatch(event.batchId);
-      if (response != null && response is List) {
+      if (response != null) {
         print('response pedidos: ${response.length}');
         listOfPedidos.clear();
         listOfPedidosFilters.clear();
@@ -184,7 +359,7 @@ class PackingConsolidateBloc
     try {
       emit(BatchsPackingLoadingState());
       final batchsFromDB =
-          await db.batchPackingRepository.getAllBatchsPacking();
+          await db.batchPackingConsolidateRepository.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB = batchsFromDB;
       emit(WmsPackingLoadedBD());
@@ -319,6 +494,8 @@ class PackingConsolidateBloc
       Emitter<PackingConsolidateState> emit) async {
     emit(PackingConsolidateLoading());
     try {
+      await DataBaseSqlite().delePacking('packing-batch-consolidate');
+
       final response =
           await wmsPackingRepository.resBatchsPackingConsolidate(true);
 

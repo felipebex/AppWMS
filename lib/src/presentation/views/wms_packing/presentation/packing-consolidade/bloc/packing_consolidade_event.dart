@@ -63,3 +63,24 @@ class LoadDocOriginsEvent extends PackingConsolidateEvent {
   final int idBatch;
   LoadDocOriginsEvent(this.idBatch);
 }
+
+class ShowDetailvent extends PackingConsolidateEvent {
+  final bool show;
+  ShowDetailvent(this.show);
+}
+
+class LoadAllProductsFromPedidoEvent extends PackingConsolidateEvent {
+  final int pedidoId;
+  LoadAllProductsFromPedidoEvent(
+    this.pedidoId,
+  );
+}
+
+
+
+class SearchPedidoPackingEvent extends PackingConsolidateEvent {
+  final String query;
+  final int idBatch;
+
+  SearchPedidoPackingEvent(this.query, this.idBatch);
+}

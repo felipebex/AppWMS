@@ -5,10 +5,12 @@ import 'dart:ui';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/vibrate_utils.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
@@ -18,6 +20,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import '../../../../../providers/network/cubit/connection_status_cubit.dart';
 
@@ -146,7 +149,7 @@ class _ListPackingConsolidadeScreenState
 
     Navigator.pushReplacementNamed(
       context,
-      'packing-list-consolidate',
+      'pedido-packing-consolidate-list',
       arguments: [batch],
     );
   }
@@ -155,10 +158,40 @@ class _ListPackingConsolidadeScreenState
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<PackingConsolidateBloc, PackingConsolidateState>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state is NeedUpdateVersionState) {
+          Get.snackbar(
+            '360 Software Informa',
+            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.amber),
+            showProgressIndicator: true,
+            duration: Duration(seconds: 5),
+          );
+        }
+      },
       builder: (context, state) {
         return Scaffold(
             backgroundColor: white,
+            bottomNavigationBar: context
+                    .read<PackingConsolidateBloc>()
+                    .isKeyboardVisible
+                ? CustomKeyboard(
+                    isLogin: false,
+                    controller:
+                        context.read<PackingConsolidateBloc>().searchController,
+                    onchanged: () {
+                      context.read<PackingConsolidateBloc>().add(
+                          SearchBatchPackingEvent(
+                              context
+                                  .read<PackingConsolidateBloc>()
+                                  .searchController
+                                  .text,
+                              controller.index));
+                    },
+                  )
+                : null,
             body: Container(
               margin: const EdgeInsets.only(bottom: 10),
               width: size.width * 1,
@@ -207,8 +240,7 @@ class _ListPackingConsolidadeScreenState
                                           left: size.width * 0.05),
                                       child: GestureDetector(
                                         onTap: () async {
-                                          // await DataBaseSqlite()
-                                          //     .delePacking('packing-batch');
+                                         
                                           context
                                               .read<PackingConsolidateBloc>()
                                               .add(

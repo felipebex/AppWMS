@@ -349,13 +349,13 @@ class ProductosPedidosRepository {
   }
 
   // Obtener productos de un pedido
-  Future<List<ProductoPedido>> getProductosPedido(int pedidoId) async {
+  Future<List<ProductoPedido>> getProductosPedido(int pedidoId, String type) async {
     print('idPedido: $pedidoId');
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db.query(
       ProductosPedidosTable.tableName,
-      where: '${ProductosPedidosTable.columnPedidoId} = ?',
-      whereArgs: [pedidoId],
+      where: '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnType} = ?',
+      whereArgs: [pedidoId, type],
     );
     return maps.map((map) => ProductoPedido.fromMap(map)).toList();
   }

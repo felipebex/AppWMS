@@ -8,14 +8,10 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab1.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab3.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab2.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab4.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
 
-class PackingDetailScreen extends StatefulWidget {
-  const PackingDetailScreen({
+class PackingConsolidateDetailScreen extends StatefulWidget {
+  const PackingConsolidateDetailScreen({
     super.key,
     required this.packingModel,
     this.batchModel,
@@ -27,10 +23,10 @@ class PackingDetailScreen extends StatefulWidget {
   final int initialTabIndex; // Nueva propiedad para la posición inicial
 
   @override
-  State<PackingDetailScreen> createState() => _PackingDetailScreenState();
+  State<PackingConsolidateDetailScreen> createState() => _PackingDetailScreenState();
 }
 
-class _PackingDetailScreenState extends State<PackingDetailScreen>
+class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -54,13 +50,13 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
-    return BlocConsumer<WmsPackingBloc, WmsPackingState>(
+    return BlocConsumer<PackingConsolidateBloc, PackingConsolidateState>(
       listener: (context, state) {
-        if (state is WmsPackingErrorState) {
+        if (state is PackingConsolidateError) {
           Get.defaultDialog(
             title: '360 Software Informa',
             titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.message,
+            middleText: state.error,
             middleTextStyle: TextStyle(color: black, fontSize: 14),
             backgroundColor: Colors.white,
             radius: 10,
@@ -80,15 +76,15 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
             ],
           );
         }
-        if (state is WmsPackingSuccessState) {
-          Get.snackbar(
-            '360 Software Informa',
-            state.message,
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.green),
-          );
-        }
+        // if (state is WmsPackingSuccessState) {
+        //   Get.snackbar(
+        //     '360 Software Informa',
+        //     state.message,
+        //     backgroundColor: white,
+        //     colorText: primaryColorApp,
+        //     icon: Icon(Icons.error, color: Colors.green),
+        //   );
+        // }
       },
       builder: (context, state) {
         return WillPopScope(
@@ -103,23 +99,23 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   context
-                      .read<WmsPackingBloc>()
+                      .read<PackingConsolidateBloc>()
                       .listOfProductsForPacking
                       .clear();
-                  context.read<WmsPackingBloc>().add(
+                  context.read<PackingConsolidateBloc>().add(
                         LoadAllPedidosFromBatchEvent(
                           widget.packingModel?.batchId ?? 0,
                         ),
                       );
                   Navigator.pushReplacementNamed(
                     context,
-                    'packing-list',
+                    'pedido-packing-consolidate-list',
                     arguments: [widget.batchModel],
                   );
                 },
               ),
               title: const Text(
-                'PACKING - DETALLE',
+                'PACKING CONSOLIDADO - DETALLE',
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
               bottom: TabBar(
@@ -180,24 +176,24 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
             body: Column(
               children: [
                 const WarningWidgetCubit(isTop: false),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController, // Asignar el TabController
-                    children: [
-                      Tab1Screen(
-                        size: size,
-                        packingModel: widget.packingModel ?? PedidoPacking(),
-                        batchModel: widget.batchModel ?? BatchPackingModel(),
-                      ),
-                      Tab2Screen(
-                        packingModel: widget.packingModel ?? PedidoPacking(),
-                        batchModel: widget.batchModel ?? BatchPackingModel(),
-                      ),
-                      const Tab3Screen(),
-                      const Tab4Screen(),
-                    ],
-                  ),
-                ),
+                // Expanded(
+                //   child: TabBarView(
+                //     controller: _tabController, // Asignar el TabController
+                //     children: [
+                //       Tab1Screen(
+                //         size: size,
+                //         packingModel: widget.packingModel ?? PedidoPacking(),
+                //         batchModel: widget.batchModel ?? BatchPackingModel(),
+                //       ),
+                //       Tab2Screen(
+                //         packingModel: widget.packingModel ?? PedidoPacking(),
+                //         batchModel: widget.batchModel ?? BatchPackingModel(),
+                //       ),
+                //       const Tab3Screen(),
+                //       const Tab4Screen(),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),

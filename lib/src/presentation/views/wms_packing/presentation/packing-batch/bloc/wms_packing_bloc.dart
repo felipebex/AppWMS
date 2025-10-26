@@ -960,10 +960,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           final name = normalizeText(pedido.name ?? '');
           final referencia = normalizeText(pedido.referencia ?? '');
           final contactoName = normalizeText(pedido.contactoName ?? '');
+          final zonaName = normalizeText(pedido.zonaEntrega ?? '');
 
           return name.contains(normalizedQuery) ||
               referencia.contains(normalizedQuery) ||
-              contactoName.contains(normalizedQuery);
+              contactoName.contains(normalizedQuery) ||
+              zonaName.contains(normalizedQuery);
         }).toList();
       }
 
@@ -1245,7 +1247,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       final response = await DataBaseSqlite()
           .productosPedidosRepository
-          .getProductosPedido(event.pedidoId);
+          .getProductosPedido(event.pedidoId, 'packing-batch');
 
       if (response != null && response is List) {
         print('response lista de productos: ${response.length}');

@@ -1,11 +1,7 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 
 class ProgressIndicatorWidget extends StatelessWidget {
+  // ✅ PROPIEDADES REQUERIDAS (Independientes de cualquier BLoC)
   final double progress; // Valor de progreso (0.0 a 1.0)
   final int completed; // Cantidad completada
   final int total; // Cantidad total
@@ -19,31 +15,29 @@ class ProgressIndicatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BatchBloc, BatchState>(
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Línea de progreso
-            LinearProgressIndicator(
-              value: progress, // Progreso entre 0.0 y 1.0
-              minHeight: 5, // Altura de la barra
-              backgroundColor: Colors.grey[300], // Color de fondo
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                  green), // Color de la barra
-            ),
-            const SizedBox(height: 5), // Espaciado entre la barra y el texto
-            // Texto de progreso
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                'Hecho $completed / Total $total',
-                style: const TextStyle(fontSize: 12, color: Colors.white),
-              ),
-            ),
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Línea de progreso
+        LinearProgressIndicator(
+          // ✅ Usamos la propiedad `progress` pasada
+          value: progress.clamp(0.0, 1.0), // Asegura que el valor esté entre 0 y 1
+          minHeight: 5, 
+          backgroundColor:  Colors.grey[300], // Fondo (ajustado para ser más seguro)
+          valueColor: AlwaysStoppedAnimation<Color>(
+              Colors.green), // Color de la barra
+        ),
+        const SizedBox(height: 5), // Espaciado entre la barra y el texto
+        // Texto de progreso
+        Align(
+          alignment: Alignment.center,
+          child: Text(
+            // ✅ Usamos las propiedades `completed` y `total`
+            'Hecho $completed / Total $total',
+            style: TextStyle(fontSize: 12, color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }

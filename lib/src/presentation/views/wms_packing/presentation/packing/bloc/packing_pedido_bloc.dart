@@ -1330,7 +1330,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
 
       //obtenemos todos los productos de un pedido
       final responseProducts = await db.productosPedidosRepository
-          .getProductosPedido(event.idPedido);
+          .getProductosPedido(event.idPedido, 'packing-pack');
 
       if (response != null) {
         currentPedidoPack = response;
