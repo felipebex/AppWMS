@@ -39,7 +39,6 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-   
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -208,7 +207,8 @@ class _DialogAdvetenciaCantidadScreenState
                                     .updateNovedadPacking(
                                         widget.currentProduct.pedidoId ?? 0,
                                         widget.currentProduct.idProduct ?? 0,
-                                        selectedNovedad ?? '');
+                                        selectedNovedad ?? '',
+                                        'packing-pack');
                                 // Cierra el diálogo y ejecuta el callback después de actualizar
                                 if (Navigator.canPop(context)) {
                                   Navigator.pop(context);
@@ -221,7 +221,8 @@ class _DialogAdvetenciaCantidadScreenState
                                       .updateNovedadPacking(
                                           widget.currentProduct.pedidoId ?? 0,
                                           widget.currentProduct.idProduct ?? 0,
-                                          selectedNovedad ?? '');
+                                          selectedNovedad ?? '',
+                                          'packing-pack');
                                   // Cierra el diálogo y ejecuta el callback después de actualizar
                                   if (Navigator.canPop(context)) {
                                     Navigator.pop(context);

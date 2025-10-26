@@ -9,6 +9,10 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab1.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab2.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab3.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab4.dart';
 
 class PackingConsolidateDetailScreen extends StatefulWidget {
   const PackingConsolidateDetailScreen({
@@ -23,7 +27,8 @@ class PackingConsolidateDetailScreen extends StatefulWidget {
   final int initialTabIndex; // Nueva propiedad para la posición inicial
 
   @override
-  State<PackingConsolidateDetailScreen> createState() => _PackingDetailScreenState();
+  State<PackingConsolidateDetailScreen> createState() =>
+      _PackingDetailScreenState();
 }
 
 class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
@@ -76,15 +81,15 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
             ],
           );
         }
-        // if (state is WmsPackingSuccessState) {
-        //   Get.snackbar(
-        //     '360 Software Informa',
-        //     state.message,
-        //     backgroundColor: white,
-        //     colorText: primaryColorApp,
-        //     icon: Icon(Icons.error, color: Colors.green),
-        //   );
-        // }
+        if (state is SetPackingsOkState) {
+          Get.snackbar(
+            '360 Software Informa',
+            state.message,
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+        }
       },
       builder: (context, state) {
         return WillPopScope(
@@ -176,24 +181,24 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
             body: Column(
               children: [
                 const WarningWidgetCubit(isTop: false),
-                // Expanded(
-                //   child: TabBarView(
-                //     controller: _tabController, // Asignar el TabController
-                //     children: [
-                //       Tab1Screen(
-                //         size: size,
-                //         packingModel: widget.packingModel ?? PedidoPacking(),
-                //         batchModel: widget.batchModel ?? BatchPackingModel(),
-                //       ),
-                //       Tab2Screen(
-                //         packingModel: widget.packingModel ?? PedidoPacking(),
-                //         batchModel: widget.batchModel ?? BatchPackingModel(),
-                //       ),
-                //       const Tab3Screen(),
-                //       const Tab4Screen(),
-                //     ],
-                //   ),
-                // ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController, // Asignar el TabController
+                    children: [
+                      Tab1Screen(
+                        size: size,
+                        packingModel: widget.packingModel ?? PedidoPacking(),
+                        batchModel: widget.batchModel ?? BatchPackingModel(),
+                      ),
+                      Tab2Screen(
+                        packingModel: widget.packingModel ?? PedidoPacking(),
+                        batchModel: widget.batchModel ?? BatchPackingModel(),
+                      ),
+                      Tab3Screen(),
+                      Tab4Screen(),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

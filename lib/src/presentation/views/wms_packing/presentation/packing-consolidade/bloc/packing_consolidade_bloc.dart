@@ -3,6 +3,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -10,6 +11,7 @@ import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/sen_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
@@ -96,6 +98,12 @@ class PackingConsolidateBloc
   bool viewQuantity = false;
   bool viewDetail = true;
 
+  int completedProducts = 0;
+  double quantitySelected = 0;
+
+  //*producto actual
+  ProductoPedido currentProduct = ProductoPedido();
+
   List<Origin> listOfOrigins = [];
 
   PackingConsolidateBloc() : super(PackingConsolidateInitial()) {
@@ -133,6 +141,380 @@ class PackingConsolidateBloc
 
     //*obtener todos los productos de un pedido
     on<LoadAllProductsFromPedidoEvent>(_onLoadAllProductsFromPedidoEvent);
+
+    //*cargamos el producto a certificar
+    on<FetchProductEvent>(_onFetchProductEvent);
+
+    //*cambiar el estado de las variables
+    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
+
+    //*confirmar el sticker
+    on<ChangeStickerEvent>(_onChangeStickerEvent);
+
+    //*evento para seleccionar productos sin certificar
+    on<SelectProductPackingEvent>(_onSelectProductPackingEvent);
+    //*evento para desseleccionar productos sin certificar
+    on<UnSelectProductPackingEvent>(_onUnSelectProductPackingEvent);
+
+    //evento para eliminar un producto del paquete temporal
+    on<DeleteProductFromTemporaryPackageEvent>(
+        _onDeleteProductFromTemporaryPackageEvent);
+
+    //*Picking
+    on<SetPickingsEvent>(_onSetPickingsEvent);
+
+    //*packing
+    on<SetPackingsEvent>(_onSetPackingsEvent);
+  }
+
+  void _onSetPackingsEvent(
+      SetPackingsEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      if (event.productos.isEmpty) return;
+
+      emit(SetPackingsLoadingState());
+
+      final idOperario = await PrefUtils.getUserId();
+      final fechaTransaccion = DateTime.now();
+      final fechaFormateada = formatoFecha(fechaTransaccion);
+
+      List<ListItem> listItems = event.productos.map((producto) {
+        return ListItem(
+          idMove: producto.idMove ?? 0,
+          productId: producto.idProduct,
+          lote: producto.loteId.toString(),
+          locationId: (producto.idLocation is int) ? producto.idLocation : 0,
+          cantidadSeparada: event.isCertificate
+              ? producto.quantitySeparate ?? 0
+              : producto.quantity ?? 0,
+          observacion: producto.observation ?? 'Sin novedad',
+          unidadMedida: producto.unidades ?? '',
+          idOperario: idOperario,
+          fechaTransaccion: fechaFormateada,
+          timeLine: producto.timeSeparate ?? 1,
+        );
+      }).toList();
+
+      final packingRequest = PackingRequest(
+        idBatch: event.productos[0].batchId ?? 0,
+        isSticker: event.isSticker,
+        isCertificate: event.isCertificate,
+        pesoTotalPaquete: 34.0, // Considera calcular esto dinámicamente
+        listItem: listItems,
+      );
+
+      final responsePacking = await wmsPackingRepository.sendPackingRequest(
+        packingRequest,
+        true,
+      );
+
+      if (responsePacking.result?.code != 200) {
+        emit(SetPackingsErrorState(responsePacking.result?.msg ?? ""));
+        return;
+      }
+
+      final paquete = Paquete(
+        id: responsePacking.result?.result?[0].idPaquete ?? 0,
+        name: responsePacking.result?.result?[0].namePaquete ?? '',
+        batchId: event.productos[0].batchId,
+        pedidoId: event.productos[0].pedidoId,
+        cantidadProductos: event.productos.length,
+        listaProductosInPacking: event.productos,
+        isSticker: event.isSticker,
+        consecutivo: responsePacking.result?.result?[0].consecutivo ?? '',
+      );
+
+      packages.add(paquete);
+      await db.packagesRepository.insertPackage(paquete, 'packing-batch-consolidate');
+
+      await db.pedidosPackingConsolidateRepository.setFieldTablePedidosPacking(
+        event.productos[0].batchId ?? 0,
+        event.productos[0].pedidoId ?? 0,
+        "is_selected",
+        1,
+      );
+
+      await db.batchPackingConsolidateRepository.setFieldTableBatchPacking(
+        event.productos[0].batchId ?? 0,
+        "is_selected",
+        1,
+      );
+
+      // Paralelizamos los updates para mejorar rendimiento
+      // await Future.wait(event.productos.map((product) =>
+      //   _actualizarProducto(db, product, paquete, event.isCertificate)
+      // ));
+      await _actualizarProductoBatch(
+        db,
+        event.productos,
+        paquete,
+        event.isCertificate,
+      );
+
+      listOfProductsForPacking = [];
+
+      add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
+
+      emit(SetPackingsOkState('Empaquetado exitoso'));
+    } catch (e, s) {
+      print('Error en _onSetPackingsEvent: $e\n$s');
+      emit(SetPackingsErrorState('Ocurrió un error inesperado'));
+    }
+  }
+
+
+  Future<void> _actualizarProductoBatch(
+    DataBaseSqlite db,
+    List<ProductoPedido> productos,
+    Paquete paquete,
+    bool isCertificate,
+  ) async {
+    final idPaquete = paquete.id;
+    final nombrePaquete = paquete.name;
+
+    final fieldsToUpdate = isCertificate
+        ? {
+            "package_name": nombrePaquete,
+            "is_separate": 1,
+            "id_package": idPaquete,
+            "is_package": 1,
+          }
+        : {
+            "package_name": nombrePaquete,
+            "is_separate": 1,
+            "id_package": idPaquete,
+            "is_package": 1,
+            "is_certificate": 0,
+          };
+
+    await db.productosPedidosRepository.updateProductosBatch(
+      productos: productos,
+      fieldsToUpdate: fieldsToUpdate,
+      isCertificate: isCertificate,
+      type: 'packing-batch-consolidate',
+    );
+  }
+
+
+
+
+  //*metodo que se encarga de hacer el picking
+  void _onSetPickingsEvent(
+      SetPickingsEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(SetPickingPackingLoadingState());
+
+      final DateTime dateTimeNow = DateTime.now();
+
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate_end",
+          dateTimeNow.toString(),
+          event.idMove, 'packing-batch-consolidate');
+
+      final productUpdate = await db.productosPedidosRepository
+          .getProductoPedidoById(event.pedidoId, event.idMove, 'packing-batch-consolidate');
+
+      print('productUpdate :${productUpdate.toMap()}');
+
+      // Calcular la diferencia del producto ya separado
+      Duration differenceProduct = dateTimeNow
+          .difference(DateTime.parse(productUpdate.timeSeparatStart));
+
+      // Obtener la diferencia en segundos
+      double secondsDifferenceProduct =
+          differenceProduct.inMilliseconds / 1000.0;
+
+      print('secondsDifferenceProduct: $secondsDifferenceProduct');
+      //actualizamos el dato de tiempoSeparado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate",
+          secondsDifferenceProduct,
+          event.idMove, 'packing-batch-consolidate');
+
+      //actualizamos el estado del producto como separado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId, event.productId, "is_separate", 1, event.idMove, 'packing-batch-consolidate');
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId, event.productId, "is_package", 0, event.idMove, 'packing-batch-consolidate');
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId, event.productId, "is_certificate", 1, event.idMove, 'packing-batch-consolidate');
+
+      //actualizamos la cantidad se mparada
+      quantitySelected = 0;
+      viewQuantity = false;
+      add(LoadAllProductsFromPedidoEvent(event.pedidoId));
+      emit(SetPickingPackingOkState());
+    } catch (e, s) {
+      print('Error en el  _onSetPickingsEvent: $e, $s');
+      emit(SetPickingPackingErrorState(e.toString()));
+    }
+  }
+
+  void _onDeleteProductFromTemporaryPackageEvent(
+      DeleteProductFromTemporaryPackageEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      emit(DeleteProductFromTemporaryPackageLoading());
+
+      //tenemos que revertir los valores de is_ok
+
+      //validamos que el producto no este en la lista de producto de por hacer
+
+      if (listOfProductosProgress
+          .any((prod) => prod.idMove == event.product.idMove)) {
+        emit(DeleteProductFromTemporaryPackageError(
+            "No se puede eliminar el producto porque ya está en la lista de por hacer"));
+        return;
+      }
+
+      //is_package
+      await db.productosPedidosRepository.revertProductFields(
+          event.product.pedidoId ?? 0,
+          event.product.idProduct ?? 0,
+          event.product.idMove ?? 0, 'packing-batch-consolidate');
+
+      //actualizamos todas las listas
+      add(LoadAllProductsFromPedidoEvent(event.product.pedidoId ?? 0));
+
+      emit(DeleteProductFromTemporaryPackageOkState());
+    } catch (e, s) {
+      print('Error en el  _onDeleteProductFromTemporaryPackageEvent: $e, $s');
+      emit(DeleteProductFromTemporaryPackageError(e.toString()));
+    }
+  }
+
+  //*metodo para seleccionar un producto sin certificar
+  void _onSelectProductPackingEvent(SelectProductPackingEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      // Verificar si el producto ya está en la lista de productos seleccionados
+      if (!listOfProductsForPacking.contains(event.producto)) {
+        // Agregar el producto a la lista si no está ya presente
+        listOfProductsForPacking.add(event.producto);
+        // Emitir un nuevo estado con la lista actualizada
+        emit(SelectProductPackingLoadedState(
+            listOfProductsForPacking: listOfProductsForPacking));
+      }
+    } catch (e, s) {
+      print('Error en el _onSelectProductPackingEvent: $e, $s');
+      emit(SelectProductPackingErrorState(e.toString()));
+    }
+  }
+
+  //*metodo para deseleccionar un producto sin certificar
+  void _onUnSelectProductPackingEvent(UnSelectProductPackingEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      // Verificar si el producto está en la lista antes de intentar eliminarlo
+      if (listOfProductsForPacking.contains(event.producto)) {
+        // Eliminar el producto de la lista
+        listOfProductsForPacking.remove(event.producto);
+        // Emitir un nuevo estado con la lista actualizada
+        emit(UnSelectProductPackingLoadedState(
+            listOfProductsForPacking: listOfProductsForPacking));
+      }
+    } catch (e, s) {
+      print('Error en el _onUnSelectProductPackingEvent: $e, $s');
+      emit(UnSelectProductPackingErrorState(e.toString()));
+    }
+  }
+
+  ///*metodo para cambiar el estado del sticker
+  void _onChangeStickerEvent(
+      ChangeStickerEvent event, Emitter<PackingConsolidateState> emit) {
+    isSticker = event.isSticker;
+    emit(ChangeStickerState(isSticker));
+  }
+
+  void _onChangeLocationIsOkEvent(ChangeLocationIsOkEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    if (isLocationOk) {
+      //*actualizamos la seleccion del batch, pedido y producto
+      //actualizamos el estado de seleccion de un batch
+      await db.batchPackingConsolidateRepository.setFieldTableBatchPacking(
+          currentProduct.batchId ?? 0, "is_selected", 1);
+      //actualizamos el estado del pedido como seleccionado
+      await db.pedidosPackingConsolidateRepository.setFieldTablePedidosPacking(
+          currentProduct.batchId ?? 0, event.pedidoId, "is_selected", 1);
+      // actualizamo el valor de que he seleccionado el producto
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "is_selected",
+          1,
+          currentProduct.idMove ?? 0,
+          'packing-batch-consolidate');
+      //*actualizamos la ubicacion del producto a true
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "is_location_is_ok",
+          1,
+          currentProduct.idMove ?? 0,
+          'packing-batch-consolidate');
+
+      locationIsOk = true;
+      emit(ChangeLocationPackingIsOkState(
+        locationIsOk,
+      ));
+    }
+  }
+
+  void _onFetchProductEvent(
+      FetchProductEvent event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      isLocationOk = true;
+      isProductOk = true;
+      isLocationDestOk = true;
+      isQuantityOk = true;
+
+      emit(ProductInfoLoading());
+      listOfBarcodes.clear();
+      currentProduct = ProductoPedido();
+      currentProduct = event.pedido;
+      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+          currentProduct.batchId ?? 0,
+          currentProduct.idProduct,
+          currentProduct.idMove ?? 0,
+          'packing-batch-consolidate');
+      print('listOfBarcodes: ${listOfBarcodes.length}');
+      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      productIsOk = currentProduct.productIsOk == 1 ? true : false;
+      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      quantitySelected = currentProduct.isProductSplit == 1
+          ? 0
+          : currentProduct.quantitySeparate ?? 0;
+      products();
+
+      emit(ProductInfoLoaded());
+    } catch (e, s) {
+      print('Error en el  _onFetchProductEvent: $e, $s');
+      emit(ProductInfoError(e.toString()));
+    }
+  }
+
+  void products() {
+    // Limpiamos la lista 'listOfProductsName' para asegurarnos que no haya duplicados de iteraciones anteriores
+    listOfProductsName.clear();
+
+    // Recorremos los productos del batch
+    for (var i = 0; i < listOfProductosProgress.length; i++) {
+      var product = listOfProductosProgress[i];
+
+      // Aseguramos que productId no sea nulo antes de intentar agregarlo
+      if (product != null && product != null) {
+        // Validamos si el productId ya existe en la lista 'positions'
+        if (!listOfProductsName.contains(product.idMove)) {
+          listOfProductsName.add(
+              product); // Agregamos el productId a la lista 'listOfProductsName'
+        }
+      }
+    }
   }
 
   void _onSearchPedidoEvent(SearchPedidoPackingEvent event,
@@ -215,7 +597,7 @@ class PackingConsolidateBloc
         if (listOfProductosProgress.isNotEmpty) {
           final responseBarcodes = await db.barcodesPackagesRepository
               .getBarcodesByBatchIdAndType(
-                  listOfProductosProgress[0].batchId ?? 0, 'packing-batch');
+                  listOfProductosProgress[0].batchId ?? 0, 'packing-batch-consolidate');
 
           if (responseBarcodes != null) {
             listAllOfBarcodes = responseBarcodes;
@@ -299,7 +681,7 @@ class PackingConsolidateBloc
     try {
       emit(PackingConsolidateLoading());
       final response = await DataBaseSqlite()
-          .pedidosPackingRepository
+          .pedidosPackingConsolidateRepository
           .getAllPedidosBatch(event.batchId);
       if (response != null) {
         print('response pedidos: ${response.length}');
@@ -328,27 +710,27 @@ class PackingConsolidateBloc
       String formattedDate = formatter.format(event.time);
       final userid = await PrefUtils.getUserId();
 
-      // await wmsPackingRepository.timePackingUser(
-      //   event.batchId,
-      //   formattedDate,
-      //   'start_time_batch_user',
-      //   'start_time',
-      //   userid,
-      // );
-      // final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
-      //     event.batchId,
-      //     formattedDate,
-      //     'update_start_time',
-      //     'start_time_pack',
-      //     'start_time');
+      await wmsPackingRepository.timePackingUser(
+        event.batchId,
+        formattedDate,
+        'start_time_batch_user',
+        'start_time',
+        userid,
+      );
+      final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
+          event.batchId,
+          formattedDate,
+          'update_start_time',
+          'start_time_pack',
+          'start_time');
 
-      // if (responseTimeBatch) {
-      //   await db.batchPackingRepository
-      //       .startStopwatchBatch(event.batchId, formattedDate);
-      emit(TimeSeparatePackSuccess(formattedDate));
-      // } else {
-      //   emit(TimeSeparatePackError('Error al iniciar el tiempo de separacion'));
-      // }
+      if (responseTimeBatch) {
+        await db.batchPackingConsolidateRepository
+            .startStopwatchBatch(event.batchId, formattedDate);
+        emit(TimeSeparatePackSuccess(formattedDate));
+      } else {
+        emit(TimeSeparatePackError('Error al iniciar el tiempo de separacion'));
+      }
     } catch (e, s) {
       print("❌ Error en _onStartTimePickEvent: $e, $s");
     }
@@ -635,6 +1017,28 @@ class PackingConsolidateBloc
     } catch (e, s) {
       emit(ConfigurationErrorPack(e.toString()));
       print('Error en LoadConfigurationsUserPack.dart: $e =>$s');
+    }
+  }
+
+  String formatSecondsToHHMMSS(double secondsDecimal) {
+    try {
+      // Redondear a los segundos más cercanos
+      int totalSeconds = secondsDecimal.round();
+
+      // Calcular horas, minutos y segundos
+      int hours = totalSeconds ~/ 3600;
+      int minutes = (totalSeconds % 3600) ~/ 60;
+      int seconds = totalSeconds % 60;
+
+      // Formatear en 00:00:00
+      String formattedTime = '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+
+      return formattedTime;
+    } catch (e, s) {
+      print("❌ Error en el formatSecondsToHHMMSS $e ->$s");
+      return "";
     }
   }
 }

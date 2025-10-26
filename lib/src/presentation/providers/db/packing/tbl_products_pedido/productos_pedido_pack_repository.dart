@@ -349,26 +349,29 @@ class ProductosPedidosRepository {
   }
 
   // Obtener productos de un pedido
-  Future<List<ProductoPedido>> getProductosPedido(int pedidoId, String type) async {
+  Future<List<ProductoPedido>> getProductosPedido(
+      int pedidoId, String type) async {
     print('idPedido: $pedidoId');
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db.query(
       ProductosPedidosTable.tableName,
-      where: '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnType} = ?',
+      where:
+          '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnType} = ?',
       whereArgs: [pedidoId, type],
     );
     return maps.map((map) => ProductoPedido.fromMap(map)).toList();
   }
 
-  Future<ProductoPedido> getProductoPedidoById(int pedidoId, int idMove) async {
+  Future<ProductoPedido> getProductoPedidoById(
+      int pedidoId, int idMove, String type) async {
     print('idPedido: $pedidoId   idMove: $idMove');
     final db = await DataBaseSqlite().getDatabaseInstance();
 
     final List<Map<String, dynamic>> maps = await db.query(
       ProductosPedidosTable.tableName,
       where:
-          '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
-      whereArgs: [pedidoId, idMove],
+          '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnType} = ?',
+      whereArgs: [pedidoId, idMove, type],
     );
 
     if (maps.isNotEmpty) {
@@ -409,11 +412,12 @@ class ProductosPedidosRepository {
       String field,
       dynamic setValue,
       int idMove,
-      int idPackage) async {
+      int idPackage,
+      String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-      'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIdPackage} = ?',
-      [setValue, productId, pedidoId, idMove, idPackage],
+      'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIdPackage} = ? AND ${ProductosPedidosTable.columnType} = ?',
+      [setValue, productId, pedidoId, idMove, idPackage, type],
     );
     print("update unpacking tblproductos_pedidos: $resUpdate");
     return resUpdate;
@@ -421,23 +425,23 @@ class ProductosPedidosRepository {
 
   // Actualizar la tabla de productos de un pedido (separados)
   Future<int?> setFieldTableProductosPedidos3(int pedidoId, int productId,
-      String field, dynamic setValue, int idMove) async {
+      String field, dynamic setValue, int idMove, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-      'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} IS NULL',
-      [setValue, productId, pedidoId, idMove],
+      'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} IS NULL AND ${ProductosPedidosTable.columnType} = ?',
+      [setValue, productId, pedidoId, idMove, type],
     );
     print("☢️3 update separated tblproductos_pedidos: ($field): $resUpdate");
     return resUpdate;
   }
 
-  Future<String> getFieldTableProductsPedidos(
-      int pedidoId, int productId, String field, int idMove) async {
+  Future<String> getFieldTableProductsPedidos(int pedidoId, int productId,
+      String field, int idMove, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       final res = await db.rawQuery('''
-      SELECT $field FROM  ${ProductosPedidosTable.tableName}  WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} IS NULL
-    ''');
+      SELECT $field FROM  ${ProductosPedidosTable.tableName}  WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} IS NULL AND ${ProductosPedidosTable.columnType} = ?
+    ''', [productId, pedidoId, idMove, type]);
       if (res.isNotEmpty) {
         String responsefield = res[0]['$field'].toString();
         return responsefield;
@@ -451,11 +455,11 @@ class ProductosPedidosRepository {
 
   // Actualizar la tabla de productos de un pedido (con certificado y sin paquete)
   Future<int?> setFieldTableProductosPedidos2(int pedidoId, int productId,
-      String field, dynamic setValue, int idMove) async {
+      String field, dynamic setValue, int idMove, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-      'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 1 AND ${ProductosPedidosTable.columnIsPackage} = 0',
-      [setValue, productId, pedidoId, idMove],
+      'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 1 AND ${ProductosPedidosTable.columnIsPackage} = 0 AND ${ProductosPedidosTable.columnType} = ?',
+      [setValue, productId, pedidoId, idMove, type],
     );
     print(
         "☢️2 update tblproductos_pedidos (certificate and no package): ($field): $resUpdate");
@@ -464,7 +468,7 @@ class ProductosPedidosRepository {
 
   // Revertir varios campos de un producto en productos_pedidos a sus valores predeterminados
   Future<int?> revertProductFields(
-      int pedidoId, int productId, int idMove) async {
+      int pedidoId, int productId, int idMove, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     // El mapa de valores que se van a actualizar
@@ -492,8 +496,9 @@ class ProductosPedidosRepository {
       updatedValues,
       where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
           '${ProductosPedidosTable.columnPedidoId} = ? AND '
-          '${ProductosPedidosTable.columnIdMove} = ?',
-      whereArgs: [productId, pedidoId, idMove],
+          '${ProductosPedidosTable.columnIdMove} = ? AND '
+          '${ProductosPedidosTable.columnType} = ?',
+      whereArgs: [productId, pedidoId, idMove, type],
     );
 
     print("✅ Producto revertido en la BD. Filas afectadas: $resUpdate");
@@ -504,6 +509,7 @@ class ProductosPedidosRepository {
     int pedidoId,
     int productId,
     int idMove,
+    String type,
   ) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -532,22 +538,17 @@ class ProductosPedidosRepository {
       updatedValues,
       where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
           '${ProductosPedidosTable.columnPedidoId} = ? AND '
-          '${ProductosPedidosTable.columnIdMove} = ?',
-      whereArgs: [productId, pedidoId, idMove],
+          '${ProductosPedidosTable.columnIdMove} = ?'
+          ' AND ${ProductosPedidosTable.columnType} = ?',
+      whereArgs: [productId, pedidoId, idMove, type],
     );
 
     print("✅ Producto revertido en la BD. Filas afectadas: $resUpdate");
     return resUpdate;
   }
 
-
-
-
-
-
-
-  Future<int?> findAndAddQuantityAndDelete(int productId, int idMove,
-      dynamic quantityToAdd, int idPedido ) async {
+  Future<int?> findAndAddQuantityAndDelete(
+      int productId, int idMove, dynamic quantityToAdd, int idPedido, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     int? rowsAffected;
 
@@ -562,8 +563,9 @@ class ProductosPedidosRepository {
             '${ProductosPedidosTable.columnIsSeparate} IS NULL AND '
             '${ProductosPedidosTable.columnIsProductSplit} = 1 AND '
             '${ProductosPedidosTable.columnIsSelected} = 0 AND '
-            '${ProductosPedidosTable.columnIsPackage} IS NULL',
-        whereArgs: [productId, idMove, idPedido],
+            '${ProductosPedidosTable.columnIsPackage} IS NULL AND '
+            '${ProductosPedidosTable.columnType} = ?',
+        whereArgs: [productId, idMove, idPedido, type],
         limit: 1,
       );
 
@@ -578,8 +580,9 @@ class ProductosPedidosRepository {
           ProductosPedidosTable.tableName,
           {ProductosPedidosTable.columnQuantity: newQuantity},
           where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
-              '${ProductosPedidosTable.columnIdMove} = ?',
-          whereArgs: [productId, idMove],
+              '${ProductosPedidosTable.columnIdMove} = ? AND '
+              '${ProductosPedidosTable.columnType} = ? AND ',
+          whereArgs: [productId, idMove, type],
         );
 
         // 3️⃣ Eliminar el producto que ya fue procesado
@@ -592,8 +595,9 @@ class ProductosPedidosRepository {
               '${ProductosPedidosTable.columnIsSelected} = 1 AND '
               '${ProductosPedidosTable.columnIsPackage} = 0 AND '
               '${ProductosPedidosTable.columnIsCertificate} = 1 AND '
-              '${ProductosPedidosTable.columnIsProductSplit} = 1',
-          whereArgs: [productId, idMove, idPedido],
+              '${ProductosPedidosTable.columnIsProductSplit} = 1'
+              ' AND ${ProductosPedidosTable.columnType} = ?',
+          whereArgs: [productId, idMove, idPedido, type],
         );
 
         print(
@@ -611,11 +615,11 @@ class ProductosPedidosRepository {
 
   // Actualizar la tabla de productos de un pedido (con certificado y paquete)
   Future<int?> setFieldTableProductosPedidos2String(int pedidoId, int productId,
-      String field, dynamic setValue, int idMove) async {
+      String field, dynamic setValue, int idMove, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-      "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 1 AND ${ProductosPedidosTable.columnIsPackage} = 0",
-      [productId, pedidoId, idMove],
+      "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 1 AND ${ProductosPedidosTable.columnIsPackage} = 0 AND ${ProductosPedidosTable.columnType} = ?",
+      [productId, pedidoId, idMove, type],
     );
     print(
         "☢️2String update tblproductos_pedidos (certificate and no package) String: ($field): $resUpdate");
@@ -624,11 +628,11 @@ class ProductosPedidosRepository {
 
   // Actualizar la tabla de productos de un pedido (separados, sin certificado)
   Future<int?> setFieldTableProductosPedidos3String(int pedidoId, int productId,
-      String field, dynamic setValue, int idMove) async {
+      String field, dynamic setValue, int idMove, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-      "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 0 AND ${ProductosPedidosTable.columnIsPackage} = 1",
-      [productId, pedidoId, idMove],
+      "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 0 AND ${ProductosPedidosTable.columnIsPackage} = 1 AND ${ProductosPedidosTable.columnType} = ?",
+      [productId, pedidoId, idMove, type],
     );
     print(
         "☢️3String update separated tblproductos_pedidos ($field): $resUpdate");
@@ -639,29 +643,29 @@ class ProductosPedidosRepository {
 
   // Método: Actualizar un campo específico en la tabla productos_pedidos
   Future<int?> setFieldTableProductosPedidos(int pedidoId, int productId,
-      String field, dynamic setValue, int idMove) async {
+      String field, dynamic setValue, int idMove, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-        'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
-        [setValue, productId, pedidoId, idMove]);
+        'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnType} = ?',
+        [setValue, productId, pedidoId, idMove, type]);
 
     print(
-        "☢️ update tblproductos_pedidos (idProduct ----($productId)) -------($field): $resUpdate");
+        "☢️ update tblproductos_pedidos type: $type (idProduct ----($productId)) -------($field): $resUpdate");
 
     return resUpdate;
   }
 
   // Incrementar cantidad de producto separado para empaque
-  Future<int?> incremenQtytProductSeparatePacking(
-      int pedidoId, int productId, int idMove, dynamic quantity) async {
+  Future<int?> incremenQtytProductSeparatePacking(int pedidoId, int productId,
+      int idMove, dynamic quantity, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     return await db.transaction((txn) async {
       final result = await txn.query(
         ProductosPedidosTable.tableName,
         columns: ['${ProductosPedidosTable.columnQuantitySeparate}'],
         where:
-            '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
-        whereArgs: [pedidoId, productId, idMove],
+            '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnType} = ?',
+        whereArgs: [pedidoId, productId, idMove, type],
       );
 
       if (result.isNotEmpty) {
@@ -673,8 +677,8 @@ class ProductosPedidosRepository {
           ProductosPedidosTable.tableName,
           {ProductosPedidosTable.columnQuantitySeparate: newQty},
           where:
-              '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
-          whereArgs: [pedidoId, productId, idMove],
+              '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnType} = ?',
+          whereArgs: [pedidoId, productId, idMove, type],
         );
       }
       return null; // No encontrado
@@ -686,11 +690,12 @@ class ProductosPedidosRepository {
     int pedidoId,
     int productId,
     String novedad,
+    String type,
   ) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-        "UPDATE ${ProductosPedidosTable.tableName} SET ${ProductosPedidosTable.columnObservation} = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ?",
-        [novedad, productId, pedidoId]);
+        "UPDATE ${ProductosPedidosTable.tableName} SET ${ProductosPedidosTable.columnObservation} = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnType} = ?",
+        [novedad, productId, pedidoId, type]);
 
     print("updateNovedad: $resUpdate");
     return resUpdate;
@@ -700,6 +705,7 @@ class ProductosPedidosRepository {
     required List<ProductoPedido> productos,
     required Map<String, dynamic> fieldsToUpdate,
     required bool isCertificate,
+    required String type,
   }) async {
     if (productos.isEmpty) return 0;
 
@@ -729,7 +735,8 @@ class ProductosPedidosRepository {
         SET $setClauses
         WHERE ${ProductosPedidosTable.columnIdProduct} = ?
         AND ${ProductosPedidosTable.columnPedidoId} = ?
-        AND ${ProductosPedidosTable.columnIdMove} = ?
+        AND ${ProductosPedidosTable.columnIdMove} = ? 
+        AND ${ProductosPedidosTable.columnType} = '$type'
         $condition
       ''';
 
@@ -737,7 +744,8 @@ class ProductosPedidosRepository {
           ...setValues,
           producto.idProduct,
           producto.pedidoId,
-          producto.idMove
+          producto.idMove,
+          type
         ]);
 
         totalUpdated += result;

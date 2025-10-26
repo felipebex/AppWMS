@@ -108,3 +108,84 @@ class SearchPedidoPackingLoadedState extends PackingConsolidateState {
 
   SearchPedidoPackingLoadedState({required this.listOfPedidos});
 }
+
+
+class ProductInfoLoading extends PackingConsolidateState {}
+
+class ProductInfoLoaded extends PackingConsolidateState {}
+
+class ProductInfoError extends PackingConsolidateState {
+  final String error;
+
+  ProductInfoError(this.error);
+}
+
+class ChangeLocationPackingIsOkState extends PackingConsolidateState {
+  final bool isOk;
+  ChangeLocationPackingIsOkState(this.isOk);
+}
+class ChangeStickerState extends PackingConsolidateState {
+  final bool isSticker;
+  ChangeStickerState(this.isSticker);
+}
+
+class UnSelectProductPackingErrorState extends PackingConsolidateState {
+  final String error;
+
+  UnSelectProductPackingErrorState(this.error);
+}
+
+class SelectProductPackingErrorState extends PackingConsolidateState {
+  final String error;
+
+  SelectProductPackingErrorState(this.error);
+}
+
+
+class SelectProductPackingLoadedState extends PackingConsolidateState {
+  final List<ProductoPedido> listOfProductsForPacking;
+
+  SelectProductPackingLoadedState({required this.listOfProductsForPacking});
+}
+
+class UnSelectProductPackingLoadedState extends PackingConsolidateState {
+  final List<ProductoPedido> listOfProductsForPacking;
+
+  UnSelectProductPackingLoadedState({required this.listOfProductsForPacking});
+}
+
+
+
+
+class DeleteProductFromTemporaryPackageLoading extends PackingConsolidateState {}
+
+
+class DeleteProductFromTemporaryPackageError extends PackingConsolidateState {
+  final String message;
+  DeleteProductFromTemporaryPackageError(this.message);
+}
+
+class DeleteProductFromTemporaryPackageOkState extends PackingConsolidateState {}
+
+
+class SetPickingPackingOkState extends PackingConsolidateState {}
+
+class SetPickingPackingErrorState extends PackingConsolidateState {
+  final String message;
+  SetPickingPackingErrorState(this.message);
+}
+
+class SetPickingPackingLoadingState extends PackingConsolidateState {}
+
+
+class SetPackingsErrorState extends PackingConsolidateState {
+  final String message;
+  SetPackingsErrorState(this.message);
+}
+
+class SetPackingsOkState extends PackingConsolidateState {
+  final String message;
+  SetPackingsOkState(this.message);
+}
+
+class SetPackingsLoadingState extends PackingConsolidateState {}
