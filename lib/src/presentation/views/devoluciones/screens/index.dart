@@ -395,14 +395,6 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             ],
           );
         } else if (state is SendDevolucionSuccess) {
-          // Get.snackbar(
-          //   '360 Software Informa',
-          //   '${state.response.result?.msg}',
-          //   backgroundColor: white,
-          //   colorText: primaryColorApp,
-          //   icon: const Icon(Icons.error, color: Colors.green),
-          // );
-
 //dialogo para mostrar la devolucion creada
           showDialog(
               context: context,

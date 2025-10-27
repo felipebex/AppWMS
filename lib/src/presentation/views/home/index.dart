@@ -1,8 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
-import 'dart:ui';
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -39,12 +37,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  final AudioService _audioService = AudioService();
   @override
   void initState() {
     super.initState();
     _onDataUser();
-
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
@@ -91,7 +87,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             listener: (context, state) {
               if (state is RegisterDeviceIdError) {
                 //mostramos un dialogo que no se pueda cerrar y que diga que esta pda esta deshabilitada
-
                 //cerrar el dialogo de loading
                 Navigator.pop(context);
 

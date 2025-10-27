@@ -20,6 +20,11 @@ class PedidosPackingConsolidateTable {
   static const String columnIsZonaEntregaTms = 'zona_entrega_tms';
   static const String columnType = 'type'; // si es de type batch o pedido
 
+  //pedidos
+  static const String columnPedidos = 'pedidos';
+
+
+
 
 
   // Método para crear la tabla
@@ -41,6 +46,7 @@ class PedidosPackingConsolidateTable {
         $columnIsZonaEntrega TEXT,
         $columnIsZonaEntregaTms TEXT,
         $columnType TEXT,
+        $columnPedidos TEXT,
         FOREIGN KEY ($columnBatchId) REFERENCES tblbatchs_packing (id)
       )
     ''';

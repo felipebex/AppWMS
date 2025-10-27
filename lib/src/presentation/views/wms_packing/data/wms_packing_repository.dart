@@ -262,7 +262,7 @@ class WmsPackingRepository {
           code: 500, result: [], msg: 'Error de red: $e', updateVersion: false);
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error resBatchsPacking: $e, $s');
+      print('Error resBatchsPacking consolidate: $e, $s');
     }
     return PackingModelResponseResult(
         code: 500, result: [], msg: 'Error desconocido', updateVersion: false);

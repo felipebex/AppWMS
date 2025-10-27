@@ -32,7 +32,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 class ScanProductPickScreen extends StatefulWidget {
-  const ScanProductPickScreen({Key? key}) : super(key: key);
+  const ScanProductPickScreen({super.key});
 
   @override
   State<ScanProductPickScreen> createState() => _ScanProductPickScreenState();
@@ -812,7 +812,6 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                   IconButton(
                                     onPressed: () {
                                       cantidadController.clear();
-
                                       // batchBloc.add(ResetValuesEvent());
                                       batchBloc.add(ShowKeyboard(false));
                                       batchBloc.searchPickController.clear();

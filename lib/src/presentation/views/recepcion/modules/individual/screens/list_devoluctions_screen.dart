@@ -16,6 +16,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListDevolutionsScreen extends StatelessWidget {
@@ -38,7 +39,7 @@ class ListDevolutionsScreen extends StatelessWidget {
         } else if (state is NeedUpdateVersionState) {
           Get.snackbar(
             '360 Software Informa',
-          'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.amber),
@@ -165,96 +166,32 @@ class ListDevolutionsScreen extends StatelessWidget {
                     //* appbar
                     AppBar(size: size),
                     //*barra buscar
-                    Container(
-                        margin: const EdgeInsets.only(top: 5, bottom: 5),
-                        height: 55,
-                        width: size.width * 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.9,
-                                child: Card(
-                                  color: Colors.white,
-                                  elevation: 3,
-                                  child: TextFormField(
-                                    showCursor: true,
-                                    readOnly: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? true
-                                        : false,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    controller: context
-                                        .read<RecepcionBloc>()
-                                        .searchControllerDev,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(
-                                        Icons.search,
-                                        color: grey,
-                                        size: 20,
-                                      ),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .searchControllerDev
-                                                .clear();
-
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(SearchDevolucionEvent(
-                                                  '',
-                                                ));
-
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(ShowKeyboardEvent(false));
-
-                                            FocusScope.of(context).unfocus();
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: grey,
-                                            size: 20,
-                                          )),
-                                      disabledBorder:
-                                          const OutlineInputBorder(),
-                                      hintText: "Buscar devolucion",
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      context
-                                          .read<RecepcionBloc>()
-                                          .add(SearchDevolucionEvent(
-                                            value,
-                                          ));
-                                    },
-                                    onTap: !context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? null
-                                        : () {
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(ShowKeyboardEvent(true));
-                                          },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-
+                    DynamicSearchBar(
+                      controller:
+                          context.read<RecepcionBloc>().searchControllerDev,
+                      hintText: "Buscar devolucion",
+                      onSearchChanged: (value) {
+                        context
+                            .read<RecepcionBloc>()
+                            .add(SearchDevolucionEvent(value));
+                      },
+                      onSearchCleared: () {
+                        final recepcionBloc = context.read<RecepcionBloc>();
+                        recepcionBloc.searchControllerDev
+                            .clear(); // Limpiamos el controlador
+                        recepcionBloc.add(SearchDevolucionEvent(''));
+                        recepcionBloc.add(ShowKeyboardEvent(false));
+                        Future.microtask(() {
+                          FocusScope.of(context)
+                              .unfocus(); // Desenfocamos primero
+                        });
+                      },
+                      onTap: () {
+                        context
+                            .read<RecepcionBloc>()
+                            .add(ShowKeyboardEvent(true));
+                      },
+                    ),
                     (ordenCompra.isEmpty)
                         ? Expanded(
                             child: Column(

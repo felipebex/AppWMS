@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class IndexListPickComponentsScreen extends StatelessWidget {
@@ -97,7 +98,7 @@ class IndexListPickComponentsScreen extends StatelessWidget {
           if (state is NeedUpdateVersionState) {
             Get.snackbar(
               '360 Software Informa',
-            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+              'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
               backgroundColor: white,
               colorText: primaryColorApp,
               icon: Icon(Icons.error, color: Colors.amber),
@@ -225,80 +226,26 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                       );
                     }),
                   ),
-
-                  SizedBox(
-                      height: 60, //120
-                      width: size.width * 1,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 10,
-                              right: 10,
-                            ),
-                            child: SizedBox(
-                              width: size.width * 0.95,
-                              height: 55,
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 3,
-                                child: TextFormField(
-                                    textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchPickController,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(Icons.search,
-                                          color: grey, size: 20),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            bloc.searchPickController.clear();
-                                            bloc.add(SearchPickEvent('', true));
-                                            FocusScope.of(context).unfocus();
-                                          },
-                                          icon: IconButton(
-                                            onPressed: () {
-                                              bloc.add(ShowKeyboard(false));
-                                              bloc.add(
-                                                  SearchPickEvent('', true));
-                                              bloc.searchPickController.clear();
-
-                                              //pasamos el foco a focusNodeBuscar
-                                              Future.delayed(
-                                                  const Duration(seconds: 1),
-                                                  () {
-                                                // _handleDependencies();
-                                                FocusScope.of(context)
-                                                    .requestFocus(
-                                                        focusNodeBuscar);
-                                              });
-                                            },
-                                            icon: const Icon(Icons.close,
-                                                color: grey, size: 20),
-                                          )),
-                                      disabledBorder:
-                                          const OutlineInputBorder(),
-                                      hintText: "Buscar pick",
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 12),
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      bloc.add(SearchPickEvent(value, true));
-                                    },
-                                    style: const TextStyle(
-                                        color: Colors.black, fontSize: 14),
-                                    onTap: !context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? null
-                                        : () {
-                                            bloc.add(ShowKeyboard(true));
-                                          }),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )),
+                  //*barra de buscar
+                  DynamicSearchBar(
+                    controller: bloc.searchPickController,
+                    hintText: "Buscar pick",
+                    onSearchChanged: (value) {
+                      bloc.add(SearchPickEvent(value, true));
+                    },
+                    onSearchCleared: () {
+                      bloc.searchPickController.clear();
+                      bloc.add(SearchPickEvent('', true));
+                      bloc.add(ShowKeyboard(
+                          false)); // Asumo que ShowKeyboard es el evento de tu BLoC
+                      Future.microtask(() {
+                        FocusScope.of(context).requestFocus(focusNodeBuscar);
+                      });
+                    },
+                    onTap: () {
+                      bloc.add(ShowKeyboard(true));
+                    },
+                  ),
 
                   //*buscar por scan
                   BarcodeScannerField(

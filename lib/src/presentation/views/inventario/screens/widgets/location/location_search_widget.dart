@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class SearchLocationScreen extends StatefulWidget {
@@ -39,79 +40,28 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                 child: Column(
                   children: [
                     _AppBarInfo(size: size),
-                    SizedBox(
-                        height: 55,
-                        width: size.width * 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.9,
-                                child: Card(
-                                  color: Colors.white,
-                                  elevation: 3,
-                                  child: TextFormField(
-                                    showCursor: true,
-                                    readOnly: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? true
-                                        : false,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchControllerLocation,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(
-                                        Icons.search,
-                                        color: grey,
-                                        size: 20,
-                                      ),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            bloc.searchControllerLocation
-                                                .clear();
-                                            bloc.add(SearchLocationEvent(
-                                              '',
-                                            ));
-                                            bloc.add(ShowKeyboardEvent(false));
-                                            FocusScope.of(context).unfocus();
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: grey,
-                                            size: 20,
-                                          )),
-                                      disabledBorder:
-                                          const OutlineInputBorder(),
-                                      hintText: "Buscar ubicación",
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      bloc.add(SearchLocationEvent(
-                                        value,
-                                      ));
-                                    },
-                                    onTap: !context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? null
-                                        : () {
-                                            bloc.add(ShowKeyboardEvent(true));
-                                          },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
+                    //*barra de buscar
+                    DynamicSearchBar(
+                      controller: bloc.searchControllerLocation,
+                      hintText: "Buscar ubicación",
+                      onSearchChanged: (value) {
+                        bloc.add(SearchLocationEvent(value));
+                      },
+                      onSearchCleared: () {
+                        bloc.searchControllerLocation.clear();
+                        bloc.add(SearchLocationEvent(''));
+                        bloc.add(ShowKeyboardEvent(false));
+                        Future.microtask(() {
+                          if (mounted) {
+                            FocusScope.of(context).unfocus();
+                          }
+                        });
+                      },
+                      onTap: () {
+                        bloc.add(ShowKeyboardEvent(true));
+                      },
+                    ),
+
                     Expanded(
                         child: ListView.builder(
                             itemCount: bloc.ubicacionesFilters.length,
@@ -270,6 +220,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
     );
   }
 }
+
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
     super.key,
@@ -285,7 +236,6 @@ class _AppBarInfo extends StatelessWidget {
         return BlocBuilder<InventarioBloc, InventarioState>(
           builder: (context, state) {
             return Container(
-              padding: const EdgeInsets.only(top: 20),
               decoration: BoxDecoration(
                 color: primaryColorApp,
                 borderRadius: const BorderRadius.only(
@@ -343,7 +293,7 @@ class _AppBarInfo extends StatelessWidget {
                                 value: tipo.name,
                                 child: Row(
                                   children: [
-                                     Icon(
+                                    Icon(
                                       Icons.file_upload_outlined,
                                       color: primaryColorApp,
                                       size: 20,

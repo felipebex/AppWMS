@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListTransferenciasScreen extends StatefulWidget {
@@ -369,95 +370,38 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                       );
                     }),
                   ),
-                  //*buscar
-                  Container(
-                      margin: const EdgeInsets.only(top: 5, bottom: 5),
-                      height: 55,
-                      width: size.width * 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: size.width * 0.9,
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 3,
-                                child: TextFormField(
-                                  readOnly: context
-                                          .read<UserBloc>()
-                                          .fabricante
-                                          .contains("Zebra")
-                                      ? true
-                                      : false,
-                                  showCursor: true,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  controller: context
-                                      .read<TransferenciaBloc>()
-                                      .searchControllerTransfer,
-                                  decoration: InputDecoration(
-                                    prefixIcon: const Icon(
-                                      Icons.search,
-                                      color: grey,
-                                      size: 20,
-                                    ),
-                                    suffixIcon: IconButton(
-                                        onPressed: () {
-                                          context
-                                              .read<TransferenciaBloc>()
-                                              .searchControllerTransfer
-                                              .clear();
+                  //*barra debuscar
+                  DynamicSearchBar(
+                    controller: context
+                        .read<TransferenciaBloc>()
+                        .searchControllerTransfer,
+                    hintText: "Buscar transferencia",
+                    onSearchChanged: (value) {
+                      context.read<TransferenciaBloc>().add(SearchTransferEvent(
+                          value,
+                          'transfer')); // 'transfer' es el tipo de búsqueda
+                    },
+                    onSearchCleared: () {
+                      final transferenciaBloc =
+                          context.read<TransferenciaBloc>();
+                      transferenciaBloc.searchControllerTransfer.clear();
+                      transferenciaBloc
+                          .add(SearchTransferEvent('', 'transfer'));
+                      transferenciaBloc
+                          .add(ShowKeyboardEvent(showKeyboard: false));
+                      Future.microtask(() {
+                        if (mounted) {
+                          FocusScope.of(context).requestFocus(focusNodeBuscar);
+                        }
+                      });
+                    },
 
-                                          context.read<TransferenciaBloc>().add(
-                                              SearchTransferEvent(
-                                                  "", 'transfer'));
-
-                                          context.read<TransferenciaBloc>().add(
-                                              ShowKeyboardEvent(
-                                                  showKeyboard: false));
-//pasamos el foco a focusNodeBuscar
-                                          Future.delayed(
-                                              const Duration(seconds: 1), () {
-                                            // _handleDependencies();
-                                            FocusScope.of(context)
-                                                .requestFocus(focusNodeBuscar);
-                                          });
-                                        },
-                                        icon: const Icon(
-                                          Icons.close,
-                                          color: grey,
-                                          size: 20,
-                                        )),
-                                    disabledBorder: const OutlineInputBorder(),
-                                    hintText: "Buscar transferencia",
-                                    hintStyle: const TextStyle(
-                                        color: Colors.grey, fontSize: 14),
-                                    border: InputBorder.none,
-                                  ),
-                                  onChanged: (value) {
-                                    context.read<TransferenciaBloc>().add(
-                                        SearchTransferEvent(value, 'transfer'));
-                                  },
-                                  onTap: !context
-                                          .read<UserBloc>()
-                                          .fabricante
-                                          .contains("Zebra")
-                                      ? null
-                                      : () {
-                                          context.read<TransferenciaBloc>().add(
-                                              ShowKeyboardEvent(
-                                                  showKeyboard: true));
-                                        },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
+                    onTap: () {
+                      context
+                          .read<TransferenciaBloc>()
+                          .add(ShowKeyboardEvent(showKeyboard: true));
+                    },
+                  ),
 
                   //*buscar por scan
                   BarcodeScannerField(

@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListLocationsScreen extends StatefulWidget {
@@ -121,82 +122,30 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                             color: black,
                             fontSize: 14,
                             fontWeight: FontWeight.w500)),
-                    SizedBox(
-                        height: 55,
-                        width: size.width * 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.9,
-                                child: Card(
-                                  color: Colors.white,
-                                  elevation: 3,
-                                  child: TextFormField(
-                                    showCursor: true,
-                                    readOnly: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? true
-                                        : false,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchControllerLocation,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(
-                                        Icons.search,
-                                        color: grey,
-                                        size: 20,
-                                      ),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            bloc.searchControllerLocation
-                                                .clear();
-                                            bloc.add(SearchLocationEvent(
-                                              '',
-                                            ));
-                                            bloc.add(ShowKeyboardInfoEvent(
-                                                false,
-                                                TextEditingController()));
-                                            FocusScope.of(context).unfocus();
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: grey,
-                                            size: 20,
-                                          )),
-                                      disabledBorder:
-                                          const OutlineInputBorder(),
-                                      hintText: "Buscar ubicación",
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      bloc.add(SearchLocationEvent(
-                                        value,
-                                      ));
-                                    },
-                                    onTap: !context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? null
-                                        : () {
-                                            bloc.add(ShowKeyboardInfoEvent(
-                                                true, TextEditingController()));
-                                          },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
+                    //*barra de buscar
+                    DynamicSearchBar(
+                      controller: bloc.searchControllerLocation,
+                      hintText: "Buscar ubicación",
+                      onSearchChanged: (value) {
+                        bloc.add(SearchLocationEvent(value));
+                      },
+                      onSearchCleared: () {
+                        bloc.searchControllerLocation.clear();
+                        bloc.add(SearchLocationEvent(''));
+                        bloc.add(ShowKeyboardInfoEvent(
+                            false, TextEditingController()));
+                        Future.microtask(() {
+                          if (mounted) {
+                            FocusScope.of(context).unfocus();
+                          }
+                        });
+                      },
+                      onTap: () {
+                        bloc.add(ShowKeyboardInfoEvent(
+                            true, TextEditingController()));
+                      },
+                    ),
+
                     Expanded(
                         child: ListView.builder(
                             itemCount: bloc.ubicacionesFilters.length,

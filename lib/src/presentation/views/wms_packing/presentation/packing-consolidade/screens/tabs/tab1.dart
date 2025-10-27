@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/models/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_unPacking.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 
 class Tab1Screen extends StatelessWidget {
   const Tab1Screen({
@@ -267,6 +268,7 @@ class Tab1Screen extends StatelessWidget {
                                             ),
                                           ],
                                         ),
+                                       
                                         Visibility(
                                           visible:
                                               packingModel?.isTerminate != 1,
@@ -762,30 +764,26 @@ class Tab1Screen extends StatelessWidget {
                                                                       onConfirm:
                                                                           () async {
                                                                         final idOperario =
-                                                                            await PrefUtils
-                                                                                .getUserId();
+                                                                            await PrefUtils.getUserId();
 
-                                                                        context
-                                                                            .read<
-                                                                                PackingConsolidateBloc>()
-                                                                            .add(UnPackingEvent(
-                                                                                UnPackingRequest(
-                                                                                  idBatch: package.batchId ?? 0,
-                                                                                  idPaquete: package.id ?? 0,
-                                                                                  listItem: [
-                                                                                    ListItemUnpack(
-                                                                                      idMove: product.idMove ?? 0,
-                                                                                      productId: product.idProduct ?? 0,
-                                                                                      lote: product.loteId,
-                                                                                      locationId: product.idLocation ?? 0,
-                                                                                      cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
-                                                                                      observacion: "Desempacado",
-                                                                                      idOperario: idOperario,
-                                                                                    )
-                                                                                  ],
-                                                                                ),
-                                                                                product.pedidoId ?? 0,
-                                                                                package.consecutivo ?? 0));
+                                                                        context.read<PackingConsolidateBloc>().add(UnPackingEvent(
+                                                                            UnPackingRequest(
+                                                                              idBatch: package.batchId ?? 0,
+                                                                              idPaquete: package.id ?? 0,
+                                                                              listItem: [
+                                                                                ListItemUnpack(
+                                                                                  idMove: product.idMove ?? 0,
+                                                                                  productId: product.idProduct ?? 0,
+                                                                                  lote: product.loteId,
+                                                                                  locationId: product.idLocation ?? 0,
+                                                                                  cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
+                                                                                  observacion: "Desempacado",
+                                                                                  idOperario: idOperario,
+                                                                                )
+                                                                              ],
+                                                                            ),
+                                                                            product.pedidoId ?? 0,
+                                                                            package.consecutivo ?? 0));
                                                                       },
                                                                     ),
                                                                   );

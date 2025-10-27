@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListOrdenesCompraScreen extends StatelessWidget {
@@ -95,7 +96,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         } else if (state is NeedUpdateVersionState) {
           Get.snackbar(
             '360 Software Informa',
-           'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.amber),
@@ -222,103 +223,32 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                   children: [
                     //* appbar
                     AppBar(size: size),
-                    //*barra buscar
-                    Container(
-                        margin: const EdgeInsets.only(top: 5, bottom: 5),
-                        height: 55,
-                        width: size.width * 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.9,
-                                child: Card(
-                                  color: Colors.white,
-                                  elevation: 3,
-                                  child: TextFormField(
-                                    showCursor: true,
-                                    readOnly: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? true
-                                        : false,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    controller: context
-                                        .read<RecepcionBloc>()
-                                        .searchControllerOrderC,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(
-                                        Icons.search,
-                                        color: grey,
-                                        size: 20,
-                                      ),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .searchControllerOrderC
-                                                .clear();
-
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(SearchOrdenCompraEvent(
-                                                  '',
-                                                ));
-
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(ShowKeyboardEvent(false));
-
-                                            //pasamos el foco a focusNodeBuscar
-                                            Future.delayed(
-                                                const Duration(seconds: 1), () {
-                                              // _handleDependencies();
-                                              FocusScope.of(context)
-                                                  .requestFocus(
-                                                      focusNodeBuscar);
-                                            });
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: grey,
-                                            size: 20,
-                                          )),
-                                      disabledBorder:
-                                          const OutlineInputBorder(),
-                                      hintText: "Buscar",
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      context
-                                          .read<RecepcionBloc>()
-                                          .add(SearchOrdenCompraEvent(
-                                            value,
-                                          ));
-                                    },
-                                    onTap: !context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? null
-                                        : () {
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(ShowKeyboardEvent(true));
-                                          },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
+                    //*barra de buscar
+                    DynamicSearchBar(
+                      controller:
+                          context.read<RecepcionBloc>().searchControllerOrderC,
+                      hintText:
+                          "Buscar orden de compra", // Usamos un hintText más claro
+                      onSearchChanged: (value) {
+                        context
+                            .read<RecepcionBloc>()
+                            .add(SearchOrdenCompraEvent(value));
+                      },
+                      onSearchCleared: () {
+                        final recepcionBloc = context.read<RecepcionBloc>();
+                        recepcionBloc.searchControllerOrderC.clear();
+                        recepcionBloc.add(SearchOrdenCompraEvent(''));
+                        recepcionBloc.add(ShowKeyboardEvent(false));
+                        Future.microtask(() {
+                          FocusScope.of(context).requestFocus(focusNodeBuscar);
+                        });
+                      },
+                      onTap: () {
+                        context
+                            .read<RecepcionBloc>()
+                            .add(ShowKeyboardEvent(true));
+                      },
+                    ),
 
                     //*buscar por scan
                     BarcodeScannerField(

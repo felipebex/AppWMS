@@ -297,6 +297,7 @@ class DataBaseSqlite {
         await db.execute(BatchPackingConsolidateTable.createTable());
         //crear la tabla de pedidos de packing consolidade
         await db.execute(PedidosPackingConsolidateTable.createTable());
+       
         print(
             '✅ Tabla ${BatchPackingConsolidateTable.tableName} creada correctamente.');
         print(
@@ -306,6 +307,11 @@ class DataBaseSqlite {
             '❌ Error al crear la tabla ${BatchPackingConsolidateTable.tableName}, es posible que ya exista.');
       }
     }
+
+   
+
+    
+
   }
 
   //todo repositorios de las tablas
@@ -622,6 +628,12 @@ class DataBaseSqlite {
     if (type == "packing-pack") {
       await db.delete(PedidoPackTable.tableName);
     }
+    if (type == "packing-batch-consolidate-") {
+      await db.delete(BatchPackingConsolidateTable.tableName);
+      await db.delete(PedidosPackingConsolidateTable.tableName);
+    }
+
+
 
     await db.delete(PedidosPackingTable.tableName,
         where: '${PedidosPackingTable.columnType} = ?', whereArgs: [type]);

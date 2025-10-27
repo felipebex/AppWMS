@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class ListProductsScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
         } else if (state is NeedUpdateVersionState) {
           Get.snackbar(
             '360 Software Informa',
-        'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.amber),
@@ -103,7 +104,29 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
             body: Column(
               children: [
                 _AppBarInfo(size: size),
-                _SearchBar(size: size),
+                //*barra de buscar
+                DynamicSearchBar(
+                  controller: bloc.searchControllerProducts,
+                  hintText: "Buscar producto",
+                  onSearchChanged: (value) {
+                    bloc.add(SearchProductEvent(value));
+                  },
+                  onSearchCleared: () {
+                    bloc.searchControllerProducts.clear();
+                    bloc.add(SearchProductEvent(''));
+                    bloc.add(
+                        ShowKeyboardInfoEvent(false, TextEditingController()));
+                    Future.microtask(() {
+                      if (mounted) {
+                        FocusScope.of(context).unfocus();
+                      }
+                    });
+                  },
+                  onTap: () {
+                    bloc.add(
+                        ShowKeyboardInfoEvent(true, TextEditingController()));
+                  },
+                ),
                 Expanded(
                   child: bloc.productosFilters.isEmpty
                       ? const _NoProductsMessage()
@@ -280,52 +303,6 @@ class _AppBarInfo extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SearchBar extends StatelessWidget {
-  const _SearchBar({super.key, required this.size});
-
-  final Size size;
-
-  @override
-  Widget build(BuildContext context) {
-    final bloc = context.read<InfoRapidaBloc>();
-    final isZebra = context.read<UserBloc>().fabricante.contains("Zebra");
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Card(
-        elevation: 3,
-        child: TextFormField(
-          readOnly: isZebra,
-          controller: bloc.searchControllerProducts,
-          textAlignVertical: TextAlignVertical.center,
-          showCursor: true,
-          style: const TextStyle(color: black, fontSize: 14),
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search, color: grey, size: 20),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.close, color: grey, size: 20),
-              onPressed: () {
-                bloc.searchControllerProducts.clear();
-                bloc.add(SearchProductEvent(''));
-                bloc.add(ShowKeyboardInfoEvent(false, TextEditingController()));
-                FocusScope.of(context).unfocus();
-              },
-            ),
-            hintText: "Buscar producto",
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-            border: InputBorder.none,
-          ),
-          onChanged: (value) => bloc.add(SearchProductEvent(value)),
-          onTap: isZebra
-              ? () =>
-                  bloc.add(ShowKeyboardInfoEvent(true, TextEditingController()))
-              : null,
         ),
       ),
     );

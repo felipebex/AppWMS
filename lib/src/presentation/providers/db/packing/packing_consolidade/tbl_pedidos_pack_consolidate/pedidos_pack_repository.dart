@@ -45,6 +45,8 @@ class PedidosPackingConsolidateRepository {
                     pedido.zonaEntregaTms,
                 PedidosPackingConsolidateTable.columnIsTerminate: 0,
                 PedidosPackingConsolidateTable.columnType: type,
+                //pedidos
+                PedidosPackingConsolidateTable.columnPedidos: pedido.pedidos,
               },
               where: '${PedidosPackingConsolidateTable.columnId} = ?',
               whereArgs: [pedido.id],
@@ -71,6 +73,8 @@ class PedidosPackingConsolidateRepository {
                     pedido.zonaEntregaTms,
                 PedidosPackingConsolidateTable.columnIsTerminate: 0,
                 PedidosPackingConsolidateTable.columnType: type,
+                //pedidos
+                PedidosPackingConsolidateTable.columnPedidos: pedido.pedidos,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );

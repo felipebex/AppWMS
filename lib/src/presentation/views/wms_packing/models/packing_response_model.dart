@@ -214,6 +214,7 @@ class PedidoPacking {
   final String? zonaEntregaTms;
   final String? orderTms;
   final String? type;
+  final String? pedidos;
 
   PedidoPacking({
     this.id,
@@ -235,6 +236,7 @@ class PedidoPacking {
     this.zonaEntregaTms,
     this.orderTms,
     this.type,
+    this.pedidos,
   });
 
   factory PedidoPacking.fromJson(String str) =>
@@ -269,6 +271,7 @@ class PedidoPacking {
         zonaEntregaTms: json["zona_entrega_tms"],
         orderTms: json["order_tms"],
         type: json["type"],
+        pedidos: json["pedidos"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -294,6 +297,7 @@ class PedidoPacking {
         "zona_entrega_tms": zonaEntrega,
         "order_tms": orderTms,
         "type": type,
+        "pedidos": pedidos,
       };
 }
 

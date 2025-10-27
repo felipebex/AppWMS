@@ -240,7 +240,9 @@ class _ListPackingConsolidadeScreenState
                                           left: size.width * 0.05),
                                       child: GestureDetector(
                                         onTap: () async {
-                                         
+                                          await DataBaseSqlite().delePacking(
+                                              'packing-batch-consolidate');
+
                                           context
                                               .read<PackingConsolidateBloc>()
                                               .add(
@@ -587,40 +589,7 @@ class _ListPackingConsolidadeScreenState
                                               ],
                                             ),
                                           ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.add,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                const Text(
-                                                  "Cantidad pedidos: ",
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Expanded(
-                                                  child: Text(
-                                                    batch.cantidadPedidos
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                         
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(

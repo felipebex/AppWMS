@@ -59,8 +59,6 @@ class PackingConsolidateBloc
   List<BatchPackingModel> listOfBatchsDB = [];
 
   //*listad de pedido de un batch
-  List<PedidoPacking> listOfPedidos = [];
-  List<PedidoPacking> listOfPedidosFilters = [];
 
   //*lista de productos de un pedido
   List<ProductoPedido> listOfProductos = []; //lista de productos de un pedido
@@ -103,6 +101,9 @@ class PackingConsolidateBloc
   bool viewQuantity = false;
   bool viewDetail = true;
 
+  PedidoPacking pedido = PedidoPacking();
+  List<String> listOfPedidos = [];
+
   int completedProducts = 0;
   double quantitySelected = 0;
 
@@ -127,8 +128,7 @@ class PackingConsolidateBloc
 
     //*buscar un batch
     on<SearchBatchPackingEvent>(_onSearchBacthEvent);
-    //*buscar un pedido
-    on<SearchPedidoPackingEvent>(_onSearchPedidoEvent);
+
     //evento para mostrar el teclado
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
 
@@ -209,10 +209,9 @@ class PackingConsolidateBloc
     add(LoadAllNovedadesPackingConsolidateEvent());
   }
 
-
   //*meotod para cargar todas las novedades
-  void _onLoadAllNovedadesEvent(
-      LoadAllNovedadesPackingConsolidateEvent event, Emitter<PackingConsolidateState> emit) async {
+  void _onLoadAllNovedadesEvent(LoadAllNovedadesPackingConsolidateEvent event,
+      Emitter<PackingConsolidateState> emit) async {
     try {
       emit(NovedadesPackingLoadingState());
       final response = await db.novedadesRepository.getAllNovedades();
@@ -1154,38 +1153,6 @@ class PackingConsolidateBloc
     }
   }
 
-  void _onSearchPedidoEvent(SearchPedidoPackingEvent event,
-      Emitter<PackingConsolidateState> emit) async {
-    try {
-      final query = event.query.trim();
-
-      if (query.isEmpty) {
-        listOfPedidosFilters = listOfPedidos;
-      } else {
-        final normalizedQuery = normalizeText(query);
-
-        listOfPedidosFilters = listOfPedidos.where((pedido) {
-          final name = normalizeText(pedido.name ?? '');
-          final referencia = normalizeText(pedido.referencia ?? '');
-          final contactoName = normalizeText(pedido.contactoName ?? '');
-          final zonaName = normalizeText(pedido.zonaEntrega ?? '');
-
-          return name.contains(normalizedQuery) ||
-              referencia.contains(normalizedQuery) ||
-              contactoName.contains(normalizedQuery) ||
-              zonaName.contains(normalizedQuery);
-        }).toList();
-      }
-
-      emit(SearchPedidoPackingLoadedState(
-        listOfPedidos: listOfPedidosFilters,
-      ));
-    } catch (e, s) {
-      print('Error en el _onSearchPedidoEvent: $e, $s');
-      emit(SearPedidoPackingErrorState(e.toString()));
-    }
-  }
-
   void _onLoadAllProductsFromPedidoEvent(LoadAllProductsFromPedidoEvent event,
       Emitter<PackingConsolidateState> emit) async {
     try {
@@ -1321,16 +1288,14 @@ class PackingConsolidateBloc
       final response = await DataBaseSqlite()
           .pedidosPackingConsolidateRepository
           .getAllPedidosBatch(event.batchId);
-      if (response != null) {
+      if (response.isNotEmpty != null) {
         print('response pedidos: ${response.length}');
-        listOfPedidos.clear();
-        listOfPedidosFilters.clear();
-        listOfPedidosFilters = response;
-        listOfPedidos = response;
-        print('pedidosToInsert: ${response.length}');
-        emit(LoadAllPedidosFromBatchLoaded(
-          listOfPedidos: listOfPedidos,
-        ));
+        pedido = PedidoPacking();
+        pedido = response[0];
+
+        listOfPedidos = _parsePedidos() ?? [];
+
+        emit(LoadAllPedidosFromBatchLoaded(listOfPedidos: response));
       } else {
         print('Error resPedidos: response is null');
       }
@@ -1338,6 +1303,18 @@ class PackingConsolidateBloc
       print('Error en el  _onLoadAllPedidosFromBatchEvent: $e, $s');
       emit(PackingConsolidateError(e.toString()));
     }
+  }
+
+  // Método auxiliar para transformar la cadena en una lista de pedidos
+  List<String>? _parsePedidos() {
+    // 1. Obtener la cadena de pedidos del BLoC
+    final String? pedidosString = pedido.pedidos;
+
+    // 2. Separar la cadena por el delimitador (', ')
+    return pedidosString
+        ?.split(', ')
+        .map((s) => s.trim()) // Limpiar espacios si los hubiera
+        .toList();
   }
 
   //*evento para empezar el tiempo de separacion
@@ -1514,8 +1491,6 @@ class PackingConsolidateBloc
       Emitter<PackingConsolidateState> emit) async {
     emit(PackingConsolidateLoading());
     try {
-      await DataBaseSqlite().delePacking('packing-batch-consolidate');
-
       final response =
           await wmsPackingRepository.resBatchsPackingConsolidate(true);
 

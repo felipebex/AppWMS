@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class SearchProductScreen extends StatefulWidget {
@@ -34,7 +35,28 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
             body: Column(
               children: [
                 _AppBarInfo(size: size),
-                _buildSearchBar(context, bloc, size),
+                //*barra de buscar
+                DynamicSearchBar(
+                  controller: bloc.searchControllerProducts,
+                  hintText: "Buscar producto",
+                  onSearchChanged: (value) {
+                    bloc.add(SearchProductEvent(value));
+                  },
+                  onSearchCleared: () {
+                    final searchBloc = bloc; // Usa la instancia del BLoC actual
+                    searchBloc.searchControllerProducts.clear();
+                    searchBloc.add(SearchProductEvent(''));
+                    searchBloc.add(ShowKeyboardEvent(false));
+                    Future.microtask(() {
+                      if (mounted) {
+                        FocusScope.of(context).unfocus();
+                      }
+                    });
+                  },
+                  onTap: () {
+                    bloc.add(ShowKeyboardEvent(true));
+                  },
+                ),
                 Expanded(child: _buildProductList(context, bloc)),
                 const SizedBox(height: 20),
                 _buildSelectButton(bloc, size),
@@ -54,47 +76,6 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildSearchBar(BuildContext context, InventarioBloc bloc, Size size) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        height: 55,
-        width: size.width,
-        child: Card(
-          color: Colors.white,
-          elevation: 3,
-          child: TextFormField(
-            readOnly: context.read<UserBloc>().fabricante.contains("Zebra"),
-            showCursor: true,
-            textAlignVertical: TextAlignVertical.center,
-            controller: bloc.searchControllerProducts,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search, color: grey, size: 20),
-              suffixIcon: IconButton(
-                onPressed: () {
-                  bloc.searchControllerProducts.clear();
-                  bloc.add(SearchProductEvent(''));
-                  bloc.add(ShowKeyboardEvent(false));
-                  FocusScope.of(context).unfocus();
-                },
-                icon: const Icon(Icons.close, color: grey, size: 20),
-              ),
-              hintText: "Buscar producto",
-              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-              border: InputBorder.none,
-            ),
-            onChanged: (value) {
-              bloc.add(SearchProductEvent(value));
-            },
-            onTap: context.read<UserBloc>().fabricante.contains("Zebra")
-                ? () => bloc.add(ShowKeyboardEvent(true))
-                : null,
-          ),
-        ),
-      ),
     );
   }
 

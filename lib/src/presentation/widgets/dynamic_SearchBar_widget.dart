@@ -1,3 +1,5 @@
+// ignore_for_file: sized_box_for_whitespace
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -13,6 +15,7 @@ class DynamicSearchBar extends StatefulWidget {
   final ClearCallback onSearchCleared;
   final VoidCallback? onTap; 
   final String hintText;
+  final double width;
   
   // Si la lógica de tu BLoC necesita un índice para saber qué lista filtrar (controller.index)
   final dynamic filterIndex; 
@@ -25,6 +28,7 @@ class DynamicSearchBar extends StatefulWidget {
     this.onTap,
     this.hintText = "Buscar...",
     this.filterIndex,
+    this.width = double.infinity,
   });
 
   @override
@@ -48,9 +52,8 @@ class _DynamicSearchBarState extends State<DynamicSearchBar> {
     final isZebra = context.select((UserBloc bloc) => bloc.fabricante).contains("Zebra");
 
     return Container(
-      margin: const EdgeInsets.only(top: 10),
-      height: 60,
-      width: MediaQuery.of(context).size.width,
+      height: 55,
+      width: widget.width,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
