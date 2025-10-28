@@ -26,7 +26,9 @@ class BatchPackingConsolidateTable {
   //maneja_temperatura
   static const String columnManejaTemperatura = 'maneja_temperatura';
   //temperatura
+  
   static const String columnTemperatura = 'temperatura';
+  static const String columnOrigins = 'origins';
 
   // Método para crear la tabla
   static String createTable() {
@@ -52,6 +54,7 @@ class BatchPackingConsolidateTable {
         $columnEndTimePack VARCHAR(255),
         $columnManejaTemperatura INTEGER,
         $columnTemperatura REAL,
+        $columnOrigins TEXT,
         $columnTimeSeparateEnd VARCHAR(255)
       )
     ''';

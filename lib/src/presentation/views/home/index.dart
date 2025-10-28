@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -9,6 +8,7 @@ import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/widgets/dialog_dispositivo_no_autorizado_widget.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/background.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_inventario_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
@@ -168,27 +168,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 context.read<HomeBloc>().add(AppVersionEvent());
               },
               child: Scaffold(
-              
                 backgroundColor: white,
                 body: Container(
-                  color: white,
+                  color: primaryColorApp,
                   width: size.width,
                   height: size.height,
                   child: Stack(
                     children: [
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0, // Posicionar en la parte inferior
-                        child: ClipPath(
-                          clipper: HalfCircleClipper(),
-                          child: Container(
-                            height:
-                                size.height * 0.3, // Altura del medio círculo
-                            color: primaryColorApp, // Color azul
-                          ),
-                        ),
-                      ),
+                      // Background
+                      Background(),
+
                       SizedBox(
                         width: size.width,
                         height: size.height,
@@ -200,15 +189,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             children: [
                               const WarningWidgetCubit(),
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.only(
+                                    left: 10, right: 10, top: 40, bottom: 10),
                                 child: Card(
-                                  color: white,
+                                  color: const Color.fromARGB(236, 255, 255, 255),
                                   elevation: 2,
                                   child: Container(
                                       padding: const EdgeInsets.only(
-                                          left: 10, top: 40),
+                                          left: 10, top: 20),
                                       width: size.width,
-                                      height: 170,
+                                      height: 150,
                                       child: Row(
                                         children: [
                                           Column(
@@ -407,18 +397,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 ),
                               ),
 
-                              //todo informativo para los modulos
-                              Center(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 0),
-                                  child: Text("Mis módulos",
-                                      style: TextStyle(
-                                          color: primaryColorApp,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                              ),
+                              const SizedBox(height: 20),
                               Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
@@ -499,7 +478,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     .add(
                                                         LoadAllNovedadesPackEvent());
                                                 context
-                                                    .read<PackingConsolidateBloc>()
+                                                    .read<
+                                                        PackingConsolidateBloc>()
                                                     .add(
                                                         LoadAllNovedadesPackingConsolidateEvent());
 

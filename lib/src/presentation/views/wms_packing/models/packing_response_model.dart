@@ -99,6 +99,7 @@ class BatchPackingModel {
   final dynamic startTimePack;
   final dynamic endTimePack;
   final List<Origin>? origin;
+  final String? origins;
 
   dynamic? manejaTemperatura;
   dynamic temperatura;
@@ -127,6 +128,7 @@ class BatchPackingModel {
     this.manejaTemperatura,
     this.temperatura,
     this.origin,
+    this.origins,
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -160,6 +162,7 @@ class BatchPackingModel {
         endTimePack: json["end_time_pack"],
         manejaTemperatura: json["maneja_temperatura"],
         temperatura: json["temperatura"],
+        origins: json["origins"],
         origin: json["origin"] == null
             ? []
             : List<Origin>.from(json["origin"]!.map((x) => Origin.fromMap(x))),
@@ -188,6 +191,7 @@ class BatchPackingModel {
         'end_time_pack': endTimePack,
         "maneja_temperatura": manejaTemperatura,
         "temperatura": temperatura,
+        "origins": origins,
         "origin": origin == null
             ? []
             : List<dynamic>.from(origin!.map((x) => x.toMap())),

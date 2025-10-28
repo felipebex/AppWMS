@@ -36,6 +36,7 @@ class BatchPackingConsolidateRepository {
                 batchItem.manejaTemperatura,
             //temperatura
             BatchPackingConsolidateTable.columnTemperatura: batchItem.temperatura,
+            BatchPackingConsolidateTable.columnOrigins: batchItem.origins,
           };
 
           // Elimina si ya existe el registro con ese ID
@@ -90,9 +91,45 @@ class BatchPackingConsolidateRepository {
           'UPDATE ${BatchPackingConsolidateTable.tableName} SET $field = ? WHERE ${BatchPackingConsolidateTable.columnId} = ?',
           [setValue, batchId]);
 
+      print(
+          "setFieldTableBatchPacking: $resUpdate, batchId: $batchId, field: $field, setValue: $setValue");
       return resUpdate;
     } catch (e) {
       print("Error al actualizar el campo $field en tblbatchs_packing: $e");
+      return null;
+    }
+  }
+
+
+
+  //*metodo para eliminar un batch de packing por id
+  Future<int?> deleteBatchPackingById(int batchId) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();  
+      final resDelete = await db.delete(
+        BatchPackingConsolidateTable.tableName,
+        where: '${BatchPackingConsolidateTable.columnId} = ?',
+        whereArgs: [batchId],
+      );
+      print("deleteBatchPackingById: $resDelete, batchId: $batchId");
+      return resDelete;
+    } catch (e) {
+      print("Error al eliminar el batch de packing con id $batchId: $e");
+      return null;
+    }
+  }
+
+  //metodo para eliminar todos los batchs de packing
+  Future<int?> deleteAllBatchPacking() async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();  
+      final resDelete = await db.delete(
+        BatchPackingConsolidateTable.tableName,
+      );
+      print("deleteAllBatchPacking: $resDelete");
+      return resDelete;
+    } catch (e) {
+      print("Error al eliminar todos los batchs de packing: $e");
       return null;
     }
   }

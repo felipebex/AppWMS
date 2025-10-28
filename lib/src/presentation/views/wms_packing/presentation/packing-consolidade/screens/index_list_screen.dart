@@ -173,6 +173,7 @@ class _ListPackingConsolidadeScreenState
       },
       builder: (context, state) {
         return Scaffold(
+          
             backgroundColor: white,
             bottomNavigationBar: context
                     .read<PackingConsolidateBloc>()
@@ -399,12 +400,21 @@ class _ListPackingConsolidadeScreenState
                                       ),
                                       leading: GestureDetector(
                                         onTap: () {
-                                          //todo
+
+
                                           context
                                               .read<PackingConsolidateBloc>()
-                                              .add(LoadDocOriginsEvent(
-                                                batch.id ?? 0,
-                                              ));
+                                              .batch = batch;
+
+                                            context
+                                              .read<PackingConsolidateBloc>()
+                                              .listOfOrigins = context
+                                              .read<PackingConsolidateBloc>()
+                                              .parseOrigins() ?? [];
+
+                                          
+                                          //todo
+                                          
                                           showDialog(
                                               context: context,
                                               builder: (context) =>
@@ -444,11 +454,9 @@ class _ListPackingConsolidadeScreenState
                                                               child: ListTile(
                                                                 title: Text(
                                                                     context
-                                                                            .read<
-                                                                                PackingConsolidateBloc>()
-                                                                            .listOfOrigins[
-                                                                                index]
-                                                                            .name ??
+                                                                        .read<
+                                                                            PackingConsolidateBloc>()
+                                                                        .listOfOrigins[index] ??
                                                                         'Sin nombre',
                                                                     style: const TextStyle(
                                                                         fontSize:
@@ -589,7 +597,6 @@ class _ListPackingConsolidadeScreenState
                                               ],
                                             ),
                                           ),
-                                         
                                           Align(
                                             alignment: Alignment.centerLeft,
                                             child: Row(

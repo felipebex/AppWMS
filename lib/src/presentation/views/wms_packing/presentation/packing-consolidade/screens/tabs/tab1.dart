@@ -268,13 +268,50 @@ class Tab1Screen extends StatelessWidget {
                                             ),
                                           ],
                                         ),
-                                       
                                         Visibility(
                                           visible:
                                               packingModel?.isTerminate != 1,
                                           child: ElevatedButton(
                                               onPressed: () {
                                                 if (context
+                                                    .read<
+                                                        PackingConsolidateBloc>()
+                                                    .productsDone
+                                                    .isNotEmpty) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: const Text(
+                                                        'No se puede confirmar un consolidado con productos en estado preparado',
+                                                        style: TextStyle(
+                                                            color: white),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.red[200],
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+
+                                                if (context
+                                                    .read<
+                                                        PackingConsolidateBloc>()
+                                                    .listOfProductosProgress
+                                                    .isNotEmpty) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: const Text(
+                                                        'No se puede confirmar un consolidado con productos en estado por hacer',
+                                                        style: TextStyle(
+                                                            color: white),
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.red[200],
+                                                    ),
+                                                  );
+                                                  return;
+                                                } else if (context
                                                     .read<
                                                         PackingConsolidateBloc>()
                                                     .packages
@@ -327,7 +364,7 @@ class Tab1Screen extends StatelessWidget {
                                                               MainAxisAlignment
                                                                   .center,
                                                           title: Text(
-                                                            'Confirmar pedido',
+                                                            'Confirmar  consolidado',
                                                             style: TextStyle(
                                                                 color:
                                                                     primaryColorApp,
@@ -355,7 +392,7 @@ class Tab1Screen extends StatelessWidget {
                                                                     Alignment
                                                                         .center,
                                                                 child: Text(
-                                                                  '¿Estás seguro de confirmar el pedido y dejarlo listo para ser enviado?',
+                                                                  '¿Estás seguro de confirmar el consolidado y dejarlo listo para ser enviado?',
                                                                   style: TextStyle(
                                                                       color:
                                                                           black,
@@ -397,34 +434,27 @@ class Tab1Screen extends StatelessWidget {
                                                             ElevatedButton(
                                                               onPressed:
                                                                   () async {
+//verificamos que no tenga producto en estado por hacer o preparado
+
                                                                 await DataBaseSqlite()
-                                                                    .pedidosPackingRepository
-                                                                    .setFieldTablePedidosPacking(
+                                                                    .batchPackingConsolidateRepository
+                                                                    .deleteBatchPackingById(
                                                                       packingModel
                                                                               ?.batchId ??
                                                                           0,
-                                                                      packingModel
-                                                                              ?.id ??
-                                                                          0,
-                                                                      "is_terminate",
-                                                                      1,
                                                                     );
                                                                 context
                                                                     .read<
                                                                         PackingConsolidateBloc>()
                                                                     .add(
-                                                                        LoadAllPedidosFromBatchEvent(
-                                                                      packingModel
-                                                                              ?.batchId ??
-                                                                          0,
-                                                                    ));
+                                                                        LoadAllPackingConsolidateEvent());
 
                                                                 Navigator.of(
                                                                         context)
                                                                     .pop();
                                                                 Navigator.pushReplacementNamed(
                                                                     context,
-                                                                    'packing-list',
+                                                                    'list-packing-consolidade',
                                                                     arguments: [
                                                                       batchModel
                                                                     ]);
@@ -467,7 +497,7 @@ class Tab1Screen extends StatelessWidget {
                                                 ),
                                               ),
                                               child: const Text(
-                                                'Confirmar pedido',
+                                                'Confirmar consolidado',
                                                 style: TextStyle(
                                                     color: white, fontSize: 12),
                                               )),

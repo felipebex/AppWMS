@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/background.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -21,24 +22,14 @@ class UserScreen extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
 
     return Scaffold(
+      backgroundColor: white,
       body: Container(
           width: size.width,
           height: size.height,
-          color: white, // Color de fondo blanco
+          color: primaryColorApp, // Color de fondo blanco
           child: Stack(
             children: [
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0, // Posicionar en la parte inferior
-                child: ClipPath(
-                  clipper: HalfCircleClipper(),
-                  child: Container(
-                    height: size.height * 0.3, // Altura del medio círculo
-                    color: primaryColorAppLigth, // Color azul
-                  ),
-                ),
-              ),
+              Background(),
               MultiBlocListener(
                 listeners: [
                   BlocListener<HomeBloc, HomeState>(
@@ -295,7 +286,7 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
                                           // Text('WMS',
-                                          Text('10',
+                                          Text('13',
                                               style: const TextStyle(
                                                   fontSize: 14, color: black))
                                         ],

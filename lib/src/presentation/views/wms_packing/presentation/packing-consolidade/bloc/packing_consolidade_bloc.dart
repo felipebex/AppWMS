@@ -103,6 +103,7 @@ class PackingConsolidateBloc
 
   PedidoPacking pedido = PedidoPacking();
   List<String> listOfPedidos = [];
+  List<String> listOfOrigins = [];
 
   int completedProducts = 0;
   double quantitySelected = 0;
@@ -113,9 +114,9 @@ class PackingConsolidateBloc
   //*producto actual
   ProductoPedido currentProduct = ProductoPedido();
 
-  TemperatureIa resultTemperature = TemperatureIa();
+  BatchPackingModel? batch = BatchPackingModel();
 
-  List<Origin> listOfOrigins = [];
+  TemperatureIa resultTemperature = TemperatureIa();
 
   PackingConsolidateBloc() : super(PackingConsolidateInitial()) {
     on<PackingConsolidateEvent>((event, emit) {});
@@ -144,8 +145,6 @@ class PackingConsolidateBloc
 
     //*obtener todos los pedidos de un batch
     on<LoadAllPedidosFromBatchEvent>(_onLoadAllPedidosFromBatchEvent);
-
-    on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
 
     on<ShowDetailvent>(_onShowDetailEvent);
 
@@ -620,6 +619,40 @@ class PackingConsolidateBloc
       SetPickingSplitEvent event, Emitter<PackingConsolidateState> emit) async {
     try {
       emit(SetPickingPackingLoadingState());
+
+      final DateTime dateTimeNow = DateTime.now();
+
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate_end",
+          dateTimeNow.toString(),
+          event.idMove,
+          'packing-batch-consolidate');
+
+      final productUpdate = await db.productosPedidosRepository
+          .getProductoPedidoById(
+              event.pedidoId, event.idMove, 'packing-batch-consolidate');
+
+      // Calcular la diferencia del producto ya separado
+      Duration differenceProduct = dateTimeNow
+          .difference(DateTime.parse(productUpdate.timeSeparatStart));
+
+      // Obtener la diferencia en segundos
+      double secondsDifferenceProduct =
+          differenceProduct.inMilliseconds / 1000.0;
+
+      print('secondsDifferenceProduct: $secondsDifferenceProduct');
+
+      //actualizamos el dato de tiempoSeparado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate",
+          secondsDifferenceProduct,
+          event.idMove,
+          'packing-batch-consolidate');
+
       //actualizamos el estado del producto como separado
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
           event.pedidoId,
@@ -816,6 +849,7 @@ class PackingConsolidateBloc
           idOperario: idOperario,
           fechaTransaccion: fechaFormateada,
           timeLine: producto.timeSeparate ?? 1,
+          dividir: producto.isProductSplit == 1 ? true : false,
         );
       }).toList();
 
@@ -1264,23 +1298,6 @@ class PackingConsolidateBloc
     }
   }
 
-  void _onLoadDocOriginsEvent(
-      LoadDocOriginsEvent event, Emitter<PackingConsolidateState> emit) async {
-    try {
-      final batchsFromDB = await db.docOriginRepository
-          .getAllOriginsByIdBatch(event.idBatch, 'packing');
-
-      listOfOrigins.clear();
-
-      listOfOrigins = batchsFromDB;
-      print('listOfOrigins: ${listOfOrigins.length}');
-
-      emit(LoadDocOriginsState(listOfOrigins: listOfOrigins));
-    } catch (e, s) {
-      print('Error LoadDocOriginsEvent: $e, $s');
-    }
-  }
-
   void _onLoadAllPedidosFromBatchEvent(LoadAllPedidosFromBatchEvent event,
       Emitter<PackingConsolidateState> emit) async {
     try {
@@ -1312,6 +1329,17 @@ class PackingConsolidateBloc
 
     // 2. Separar la cadena por el delimitador (', ')
     return pedidosString
+        ?.split(', ')
+        .map((s) => s.trim()) // Limpiar espacios si los hubiera
+        .toList();
+  }
+
+  List<String>? parseOrigins() {
+    // 1. Obtener la cadena de orígenes del BLoC
+    final String? originsString = batch?.origins;
+
+    // 2. Separar la cadena por el delimitador (', ')
+    return originsString
         ?.split(', ')
         .map((s) => s.trim()) // Limpiar espacios si los hubiera
         .toList();
@@ -1359,6 +1387,7 @@ class PackingConsolidateBloc
           await db.batchPackingConsolidateRepository.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB = batchsFromDB;
+      print('listOfBatchsDB: ${listOfBatchsDB.length}');
       emit(WmsPackingLoadedBD());
     } catch (e, s) {
       print('Error en el  _onLoadBatchsFromDBEvent: $e, $s');
@@ -1491,6 +1520,19 @@ class PackingConsolidateBloc
       Emitter<PackingConsolidateState> emit) async {
     emit(PackingConsolidateLoading());
     try {
+      await DataBaseSqlite()
+          .batchPackingConsolidateRepository
+          .deleteAllBatchPacking();
+
+      await DataBaseSqlite()
+          .pedidosPackingConsolidateRepository
+          .deleteAllPedidosPacking();
+
+      //borramos los productos de los pedidos
+      await DataBaseSqlite()
+          .productosPedidosRepository
+          .deleteAllProductosByType('packing-batch-consolidate');
+
       final response =
           await wmsPackingRepository.resBatchsPackingConsolidate(true);
 
@@ -1539,8 +1581,6 @@ class PackingConsolidateBloc
               .expand((pedido) => pedido.listaPaquetes!)
               .toList();
 
-          final originsIterable =
-              _extractAllOrigins(listOfBatchs).toList(growable: false);
           print(
               'productsPackagesToInsert Packing : ${productsPackagesToInsert.length}');
 
@@ -1549,7 +1589,6 @@ class PackingConsolidateBloc
           print('barcode product Packing : ${barcodesToInsert.length}');
           print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
           print('packagesToInsert Packing : ${packagesToInsert.length}');
-          print('listOfBatchs origin : ${originsIterable.length}');
 
           // Enviar la lista agrupada de productos de un batch para packing
           await DataBaseSqlite()
@@ -1580,9 +1619,6 @@ class PackingConsolidateBloc
           await DataBaseSqlite()
               .packagesRepository
               .insertPackages(packagesToInsert, 'packing-batch-consolidate');
-
-          await DataBaseSqlite().docOriginRepository.insertAllDocsOrigins(
-              originsIterable, 'packing-batch-consolidate');
 
           //creamos las cajas que ya estan creadas
 

@@ -4,14 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/core/utils/sounds_utils.dart';
-import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/bloc/packing_consolidade_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import '../../../../../providers/network/check_internet_connection.dart';
@@ -177,193 +174,169 @@ class _PackingConsolidateListScreenState
 
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      _handlePedidoTap(context, packing, context);
-                    },
-                    child: Card(
-                      elevation: 5,
-                      color: packing.isTerminate == 1
-                          ? Colors.green[100]
-                          : packing.isSelected == 1
-                              ? primaryColorAppLigth
-                              : Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 15),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text("Nombre:",
+                  child: Card(
+                    elevation: 5,
+                    color: white,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 15),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(packing.name ?? " ",
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    color: primaryColorApp,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          Row(
+                            children: [
+                              const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Responsable: ',
+                                    style:
+                                        TextStyle(fontSize: 12, color: black),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    widget.batchModel?.userName == false ||
+                                            widget.batchModel?.userName == ""
+                                        ? 'Sin responsable'
+                                        : "${widget.batchModel?.userName}",
                                     style: TextStyle(
-                                        fontSize: 12, color: primaryColorApp)),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  child: Text(packing.name ?? " ",
-                                      style: const TextStyle(
-                                          fontSize: 12, color: black)),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Responsable: ',
-                                      style:
-                                          TextStyle(fontSize: 12, color: black),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      widget.batchModel?.userName == false ||
-                                              widget.batchModel?.userName == ""
-                                          ? 'Sin responsable'
-                                          : "${widget.batchModel?.userName}",
-                                      style: TextStyle(
-                                          fontSize: 12, color: primaryColorApp),
-                                    )),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text("Zona:",
-                                    style:
-                                        TextStyle(fontSize: 12, color: black)),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  child: Text(packing.zonaEntrega ?? "",
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: primaryColorApp)),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text("Zona TMS:",
-                                    style:
-                                        TextStyle(fontSize: 12, color: black)),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  child: Text(packing.zonaEntregaTms ?? " ",
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: primaryColorApp)),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text("Cantidad de productos:",
-                                    style:
-                                        TextStyle(fontSize: 12, color: black)),
-                                const SizedBox(width: 10),
-                                Text(packing.cantidadProductos.toString(),
+                                        fontSize: 12, color: primaryColorApp),
+                                  )),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text("Zona:",
+                                  style: TextStyle(fontSize: 12, color: black)),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Text(packing.zonaEntrega ?? "",
                                     style: const TextStyle(
                                         fontSize: 12, color: primaryColorApp)),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text('Referencia:',
-                                    style:
-                                        TextStyle(color: black, fontSize: 12)),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(packing.referencia ?? '',
-                                      style: const TextStyle(
-                                          color: primaryColorApp,
-                                          fontSize: 12)),
-                                ),
-                              ],
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Tipo de operación:",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text("Zona TMS:",
                                   style: TextStyle(fontSize: 12, color: black)),
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: size.width * 0.9,
-                              child: Text(packing.tipoOperacion ?? " ",
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Text(packing.zonaEntregaTms ?? " ",
+                                    style: const TextStyle(
+                                        fontSize: 12, color: primaryColorApp)),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text("Cantidad de productos:",
+                                  style: TextStyle(fontSize: 12, color: black)),
+                              const SizedBox(width: 10),
+                              Text(packing.cantidadProductos.toString(),
                                   style: const TextStyle(
                                       fontSize: 12, color: primaryColorApp)),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Align(
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text('Referencia:',
+                                  style: TextStyle(color: black, fontSize: 12)),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(packing.referencia ?? '',
+                                    style: const TextStyle(
+                                        color: primaryColorApp, fontSize: 12)),
+                              ),
+                            ],
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Tipo de operación:",
+                                style: TextStyle(fontSize: 12, color: black)),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: size.width * 0.9,
+                            child: Text(packing.tipoOperacion ?? " ",
+                                style: const TextStyle(
+                                    fontSize: 12, color: primaryColorApp)),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Fecha programada:",
+                                    style:
+                                        TextStyle(fontSize: 12, color: black),
+                                  )),
+                              const SizedBox(width: 10),
+                              Builder(
+                                builder: (context) {
+                                  // Verifica si `scheduledDate` es false o null
+                                  String displayDate;
+                                  if (widget.batchModel?.scheduleddate ==
+                                          false ||
+                                      widget.batchModel?.scheduleddate ==
+                                          null) {
+                                    displayDate = 'sin fecha';
+                                  } else {
+                                    try {
+                                      DateTime dateTime = DateTime.parse(widget
+                                              .batchModel?.scheduleddate
+                                              .toString() ??
+                                          ""); // Parsear la fecha
+                                      // Formatear la fecha usando Intl
+                                      displayDate =
+                                          DateFormat('dd MMMM yyyy', 'es_ES')
+                                              .format(dateTime);
+                                    } catch (e) {
+                                      displayDate =
+                                          'sin fecha'; // Si ocurre un error al parsear
+                                    }
+                                  }
+
+                                  return Container(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      "Fecha programada:",
-                                      style:
-                                          TextStyle(fontSize: 12, color: black),
-                                    )),
-                                const SizedBox(width: 10),
-                                Builder(
-                                  builder: (context) {
-                                    // Verifica si `scheduledDate` es false o null
-                                    String displayDate;
-                                    if (widget.batchModel?.scheduleddate ==
-                                            false ||
-                                        widget.batchModel?.scheduleddate ==
-                                            null) {
-                                      displayDate = 'sin fecha';
-                                    } else {
-                                      try {
-                                        DateTime dateTime = DateTime.parse(
-                                            widget.batchModel?.scheduleddate
-                                                    .toString() ??
-                                                ""); // Parsear la fecha
-                                        // Formatear la fecha usando Intl
-                                        displayDate =
-                                            DateFormat('dd MMMM yyyy', 'es_ES')
-                                                .format(dateTime);
-                                      } catch (e) {
-                                        displayDate =
-                                            'sin fecha'; // Si ocurre un error al parsear
-                                      }
-                                    }
-
-                                    return Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        displayDate,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: primaryColorApp),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Contacto:",
-                                  style: TextStyle(fontSize: 12, color: black)),
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: size.width * 0.9,
-                              child: Text(packing.contactoName ?? " ",
-                                  style: const TextStyle(
-                                      fontSize: 12, color: primaryColorApp)),
-                            ),
-                          ],
-                        ),
+                                      displayDate,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 12, color: primaryColorApp),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text("Contacto:",
+                                style: TextStyle(fontSize: 12, color: black)),
+                          ),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: size.width * 0.9,
+                            child: Text(packing.contactoName ?? " ",
+                                style: const TextStyle(
+                                    fontSize: 12, color: primaryColorApp)),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-
-               
 
                 Center(
                   child: Text('Pedidos consolidados',
@@ -400,6 +373,27 @@ class _PackingConsolidateListScreenState
                     },
                   ),
                 ),
+
+                ElevatedButton(
+                    onPressed: () {
+                      _handlePedidoTap(context, packing, context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColorApp,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      minimumSize: Size(size.width * 0.8, 40),
+                    ),
+                    child: Text(
+                      'PACKING',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                const SizedBox(height: 10),
               ],
             ),
           ),

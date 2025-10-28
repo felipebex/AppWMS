@@ -59,10 +59,7 @@ class LoadAllPedidosFromBatchEvent extends PackingConsolidateEvent {
   );
 }
 
-class LoadDocOriginsEvent extends PackingConsolidateEvent {
-  final int idBatch;
-  LoadDocOriginsEvent(this.idBatch);
-}
+
 
 class ShowDetailvent extends PackingConsolidateEvent {
   final bool show;

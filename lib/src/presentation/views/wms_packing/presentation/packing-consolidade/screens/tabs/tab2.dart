@@ -503,26 +503,26 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         color: black,
                                                       ),
                                                     ),
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          "Pedido: ",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                            "${product.pedidoId}",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                      ],
-                                                    ),
+                                                    // Row(
+                                                    //   children: [
+                                                    //     Text(
+                                                    //       "Pedido: ",
+                                                    //       style: TextStyle(
+                                                    //         fontSize: 12,
+                                                    //         color:
+                                                    //             primaryColorApp,
+                                                    //       ),
+                                                    //     ),
+                                                    //     Text(
+                                                    //         "${product.pedidoId}",
+                                                    //         style:
+                                                    //             const TextStyle(
+                                                    //                 fontSize:
+                                                    //                     12,
+                                                    //                 color:
+                                                    //                     black)),
+                                                    //   ],
+                                                    // ),
                                                     Row(
                                                       children: [
                                                         Text(

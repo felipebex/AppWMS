@@ -547,8 +547,8 @@ class ProductosPedidosRepository {
     return resUpdate;
   }
 
-  Future<int?> findAndAddQuantityAndDelete(
-      int productId, int idMove, dynamic quantityToAdd, int idPedido, String type) async {
+  Future<int?> findAndAddQuantityAndDelete(int productId, int idMove,
+      dynamic quantityToAdd, int idPedido, String type) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     int? rowsAffected;
 
@@ -750,5 +750,23 @@ class ProductosPedidosRepository {
     });
 
     return totalUpdated;
+  }
+
+  //metodo para eliminar todos los productos de un  typo de pedido
+  Future<int> deleteAllProductosByType(String type) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final int result = await db.delete(
+        ProductosPedidosTable.tableName,
+        where: '${ProductosPedidosTable.columnType} = ?',
+        whereArgs: [type],
+      );
+      print("Productos eliminados del tipo $type: $result");
+      return result;
+    } catch (e, s) {
+      print("Error al eliminar productos del tipo $type: $e ==> $s");
+      return 0;
+      ;
+    }
   }
 }

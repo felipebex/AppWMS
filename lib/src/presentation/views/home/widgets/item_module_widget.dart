@@ -16,8 +16,8 @@ class ImteModule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
-      elevation: 2,
+      color: const Color.fromARGB(215, 255, 255, 255),
+      elevation: 5,
       child: SizedBox(
         width: 100,
         height: 100,

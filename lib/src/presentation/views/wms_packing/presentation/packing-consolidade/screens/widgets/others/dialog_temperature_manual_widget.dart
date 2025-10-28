@@ -48,46 +48,48 @@ class _DialogCapturaTemperaturaState
             ),
             content: SizedBox(
               width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Debes ingresar la temperatura del producto para continuar.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: black),
-                  ),
-                  const SizedBox(height: 15),
-                  //tamaño en 5mb
-
-                  TextFormField(
-                    showCursor: false,
-                    readOnly: true,
-                    controller: bloc.temperatureController,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: black,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Debes ingresar la temperatura del producto para continuar.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: black),
                     ),
-                    decoration: InputDecorations.authInputDecoration(
-                      hintText: 'Temperatura',
-                      labelText: 'Temperatura',
-                      suffixIconButton: IconButton(
-                        onPressed: () {
-                          bloc.temperatureController.clear();
-                        },
-                        icon: Icon(
-                          Icons.clear,
-                          color: primaryColorApp,
-                          size: 20,
+                    const SizedBox(height: 15),
+                    //tamaño en 5mb
+                
+                    TextFormField(
+                      showCursor: false,
+                      readOnly: true,
+                      controller: bloc.temperatureController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: black,
+                      ),
+                      decoration: InputDecorations.authInputDecoration(
+                        hintText: 'Temperatura',
+                        labelText: 'Temperatura',
+                        suffixIconButton: IconButton(
+                          onPressed: () {
+                            bloc.temperatureController.clear();
+                          },
+                          icon: Icon(
+                            Icons.clear,
+                            color: primaryColorApp,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 5),
-
-                  _buildTemperatureResult(bloc),
-                ],
+                
+                    const SizedBox(height: 5),
+                
+                    _buildTemperatureResult(bloc),
+                  ],
+                ),
               ),
             ),
           ),

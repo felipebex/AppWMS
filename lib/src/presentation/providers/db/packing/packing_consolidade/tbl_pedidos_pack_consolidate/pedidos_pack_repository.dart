@@ -31,16 +31,21 @@ class PedidosPackingConsolidateRepository {
                 PedidosPackingConsolidateTable.columnId: pedido.id,
                 PedidosPackingConsolidateTable.columnBatchId: pedido.batchId,
                 PedidosPackingConsolidateTable.columnName: pedido.name,
-                PedidosPackingConsolidateTable.columnReferencia: pedido.referencia ?? '',
-                PedidosPackingConsolidateTable.columnFecha: pedido.fecha.toString(),
+                PedidosPackingConsolidateTable.columnReferencia:
+                    pedido.referencia ?? '',
+                PedidosPackingConsolidateTable.columnFecha:
+                    pedido.fecha.toString(),
                 PedidosPackingConsolidateTable.columnContacto: pedido.contacto,
                 PedidosPackingConsolidateTable.columnTipoOperacion:
                     pedido.tipoOperacion.toString(),
                 PedidosPackingConsolidateTable.columnCantidadProductos:
                     pedido.cantidadProductos,
-                PedidosPackingConsolidateTable.columnNumeroPaquetes: pedido.numeroPaquetes,
-                PedidosPackingConsolidateTable.columnContactoName: pedido.contactoName,
-                PedidosPackingConsolidateTable.columnIsZonaEntrega: pedido.zonaEntrega,
+                PedidosPackingConsolidateTable.columnNumeroPaquetes:
+                    pedido.numeroPaquetes,
+                PedidosPackingConsolidateTable.columnContactoName:
+                    pedido.contactoName,
+                PedidosPackingConsolidateTable.columnIsZonaEntrega:
+                    pedido.zonaEntrega,
                 PedidosPackingConsolidateTable.columnIsZonaEntregaTms:
                     pedido.zonaEntregaTms,
                 PedidosPackingConsolidateTable.columnIsTerminate: 0,
@@ -59,16 +64,21 @@ class PedidosPackingConsolidateRepository {
                 PedidosPackingConsolidateTable.columnId: pedido.id,
                 PedidosPackingConsolidateTable.columnBatchId: pedido.batchId,
                 PedidosPackingConsolidateTable.columnName: pedido.name,
-                PedidosPackingConsolidateTable.columnReferencia: pedido.referencia ?? '',
-                PedidosPackingConsolidateTable.columnFecha: pedido.fecha.toString(),
+                PedidosPackingConsolidateTable.columnReferencia:
+                    pedido.referencia ?? '',
+                PedidosPackingConsolidateTable.columnFecha:
+                    pedido.fecha.toString(),
                 PedidosPackingConsolidateTable.columnContacto: pedido.contacto,
                 PedidosPackingConsolidateTable.columnTipoOperacion:
                     pedido.tipoOperacion.toString(),
                 PedidosPackingConsolidateTable.columnCantidadProductos:
                     pedido.cantidadProductos,
-                PedidosPackingConsolidateTable.columnNumeroPaquetes: pedido.numeroPaquetes,
-                PedidosPackingConsolidateTable.columnContactoName: pedido.contactoName,
-                PedidosPackingConsolidateTable.columnIsZonaEntrega: pedido.zonaEntrega,
+                PedidosPackingConsolidateTable.columnNumeroPaquetes:
+                    pedido.numeroPaquetes,
+                PedidosPackingConsolidateTable.columnContactoName:
+                    pedido.contactoName,
+                PedidosPackingConsolidateTable.columnIsZonaEntrega:
+                    pedido.zonaEntrega,
                 PedidosPackingConsolidateTable.columnIsZonaEntregaTms:
                     pedido.zonaEntregaTms,
                 PedidosPackingConsolidateTable.columnIsTerminate: 0,
@@ -147,6 +157,21 @@ class PedidosPackingConsolidateRepository {
       return resUpdate;
     } catch (e) {
       print("Error al actualizar el campo $field: $e");
+      return null;
+    }
+  }
+
+  //*metodo para eliminar todos los pedidos de packing
+  Future<int?> deleteAllPedidosPacking() async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      final resDelete = await db.delete(
+        PedidosPackingConsolidateTable.tableName,
+      );
+      print("deleteAllPedidosPacking: $resDelete");
+      return resDelete;
+    } catch (e) {
+      print("Error al eliminar todos los pedidos de packing: $e");
       return null;
     }
   }

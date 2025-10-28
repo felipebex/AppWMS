@@ -40,7 +40,6 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:wms_app/src/services/webSocket_service.dart';
 import 'src/presentation/views/home/index.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -59,6 +58,10 @@ void main() async {
   // 1. **SIEMPRE LO PRIMERO:** Inicializar los bindings
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inicializa las preferencias
+  await Preferences.init();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   // 2. **ATRAPAR ERRORES:** Envolvemos la inicialización en runZonedGuarded
   await runZonedGuarded<Future<void>>(() async {
     // 3. **CONFIGURACIONES CRÍTICAS DEL FRAMEWORK DENTRO DE LA ZONA**
@@ -72,10 +75,6 @@ void main() async {
             exit(0);
           },
         );
-
-    // Inicializa las preferencias
-    await Preferences.init();
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
     // Inicializa Firebase
     await Firebase.initializeApp(

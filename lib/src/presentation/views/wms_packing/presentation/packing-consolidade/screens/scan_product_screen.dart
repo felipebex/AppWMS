@@ -1280,6 +1280,10 @@ class _ScanProductPackingConsolidateScreenState
         LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
   }
 
+
+
+  
+
   void _validatebuttonquantity() {
     final batchBloc = context.read<PackingConsolidateBloc>();
     final currentProduct = batchBloc.currentProduct;
