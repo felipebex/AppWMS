@@ -602,6 +602,105 @@ class _ListPackingConsolidadeScreenState
                                             child: Row(
                                               children: [
                                                 Icon(
+                                                  Icons.add,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                  'Cantidad de pedidos: ',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  batch.cantidadTotalPedidos
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                  'Cantidad de lineas: ',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  batch.cantidadTotalProductos
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                  'Cantidad unidades: ',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  batch.unidadesProductos
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
                                                   Icons.person,
                                                   color: primaryColorApp,
                                                   size: 15,

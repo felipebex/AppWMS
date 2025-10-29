@@ -125,6 +125,13 @@ class _PackingConsolidateListScreenState
                   width: double.infinity,
                   child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
                       builder: (context, status) {
+                    context.read<PackingConsolidateBloc>().batch =
+                        widget.batchModel;
+
+                    context.read<PackingConsolidateBloc>().listOfOrigins =
+                        context.read<PackingConsolidateBloc>().parseOrigins() ??
+                            [];
+
                     return Column(
                       children: [
                         const WarningWidgetCubit(),
@@ -159,7 +166,7 @@ class _PackingConsolidateListScreenState
                               Padding(
                                 padding:
                                     EdgeInsets.only(left: size.width * 0.08),
-                                child: const Text("PACKING CONSOLIDATE",
+                                child: const Text("PACKING CONSOLIDADO",
                                     style:
                                         TextStyle(color: white, fontSize: 18)),
                               ),
@@ -213,9 +220,8 @@ class _PackingConsolidateListScreenState
                           ),
                           Row(
                             children: [
-                              Text("Zona:",
+                              Text("Zona de entrega/planilla :",
                                   style: TextStyle(fontSize: 12, color: black)),
-                              const SizedBox(width: 10),
                               Flexible(
                                 child: Text(packing.zonaEntrega ?? "",
                                     style: const TextStyle(
@@ -237,24 +243,20 @@ class _PackingConsolidateListScreenState
                           ),
                           Row(
                             children: [
-                              Text("Cantidad de productos:",
+                              Text("Cantidad de lineas: ",
                                   style: TextStyle(fontSize: 12, color: black)),
-                              const SizedBox(width: 10),
-                              Text(packing.cantidadProductos.toString(),
+                              Text(widget.batchModel?.cantidadTotalProductos.toString() ?? "0",
                                   style: const TextStyle(
                                       fontSize: 12, color: primaryColorApp)),
                             ],
                           ),
                           Row(
                             children: [
-                              Text('Referencia:',
-                                  style: TextStyle(color: black, fontSize: 12)),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(packing.referencia ?? '',
-                                    style: const TextStyle(
-                                        color: primaryColorApp, fontSize: 12)),
-                              ),
+                              Text("Cantidad de unidades: ",
+                                  style: TextStyle(fontSize: 12, color: black)),
+                              Text(widget.batchModel?.unidadesProductos.toString() ?? "0",
+                                  style: const TextStyle(
+                                      fontSize: 12, color: primaryColorApp)),
                             ],
                           ),
                           Align(
@@ -275,11 +277,10 @@ class _PackingConsolidateListScreenState
                               const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    "Fecha programada:",
+                                    "Fecha programada: ",
                                     style:
                                         TextStyle(fontSize: 12, color: black),
                                   )),
-                              const SizedBox(width: 10),
                               Builder(
                                 builder: (context) {
                                   // Verifica si `scheduledDate` es false o null
@@ -320,18 +321,6 @@ class _PackingConsolidateListScreenState
                               ),
                             ],
                           ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text("Contacto:",
-                                style: TextStyle(fontSize: 12, color: black)),
-                          ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: size.width * 0.9,
-                            child: Text(packing.contactoName ?? " ",
-                                style: const TextStyle(
-                                    fontSize: 12, color: primaryColorApp)),
-                          ),
                         ],
                       ),
                     ),
@@ -339,26 +328,61 @@ class _PackingConsolidateListScreenState
                 ),
 
                 Center(
-                  child: Text('Pedidos consolidados',
-                      style: TextStyle(fontSize: 16, color: primaryColorApp)),
+                  child: Text(' Expediciones/Packing consolidados',
+                      style: TextStyle(fontSize: 14, color: primaryColorApp)),
                 ),
                 Expanded(
                   // Usamos Expanded para que el ListView ocupe el espacio restante
                   child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 0),
+                    padding: const EdgeInsets.only(top: 5, bottom: 5),
                     itemCount: packingBloc.listOfPedidos.length,
                     itemBuilder: (context, index) {
                       final String pedido = packingBloc.listOfPedidos[index];
 
                       return Card(
                         margin: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                            horizontal: 10, vertical: 2),
                         elevation: 2,
                         child: ListTile(
                           leading: const Icon(
                             Icons.inventory_2_outlined,
                             color: primaryColorApp,
                             size: 15,
+                          ),
+                          title: Text(
+                            pedido,
+                            style: const TextStyle(fontSize: 12, color: black),
+                          ),
+                          onTap: () {
+                            // Lógica para navegar o realizar una acción con el pedido
+                            print('Abriendo detalle de: $pedido');
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Center(
+                  child: Text(' Documentos origen ',
+                      style: TextStyle(fontSize: 14, color: primaryColorApp)),
+                ),
+                Expanded(
+                  // Usamos Expanded para que el ListView ocupe el espacio restante
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(top: 5),
+                    itemCount: packingBloc.listOfPedidos.length,
+                    itemBuilder: (context, index) {
+                      final String pedido = packingBloc.listOfOrigins[index];
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 2),
+                        elevation: 2,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.inventory_2_outlined,
+                            color: primaryColorApp,
+                            size: 10,
                           ),
                           title: Text(
                             pedido,
@@ -386,7 +410,7 @@ class _PackingConsolidateListScreenState
                       minimumSize: Size(size.width * 0.8, 40),
                     ),
                     child: Text(
-                      'PACKING',
+                      'INICIAR',
                       style: TextStyle(
                         fontSize: 16,
                         color: white,

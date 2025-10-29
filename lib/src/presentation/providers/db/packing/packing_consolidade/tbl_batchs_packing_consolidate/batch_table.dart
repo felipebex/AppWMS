@@ -30,6 +30,12 @@ class BatchPackingConsolidateTable {
   static const String columnTemperatura = 'temperatura';
   static const String columnOrigins = 'origins';
 
+  // cantidad_total_pedidos
+  // cantidad_total_productos
+  static const String columnCantidadTotalPedidos = 'cantidad_total_pedidos';
+  static const String columnCantidadTotalProductos = 'cantidad_total_productos';
+//unidades_productos
+  static const String columnUnidadesProductos = 'unidades_productos';
   // Método para crear la tabla
   static String createTable() {
     return '''
@@ -55,6 +61,9 @@ class BatchPackingConsolidateTable {
         $columnManejaTemperatura INTEGER,
         $columnTemperatura REAL,
         $columnOrigins TEXT,
+        $columnCantidadTotalPedidos INTEGER,
+        $columnCantidadTotalProductos REAL,
+        $columnUnidadesProductos REAL,
         $columnTimeSeparateEnd VARCHAR(255)
       )
     ''';

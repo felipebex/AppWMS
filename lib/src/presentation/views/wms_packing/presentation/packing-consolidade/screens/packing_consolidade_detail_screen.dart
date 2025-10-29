@@ -137,7 +137,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                tabs: const [
+                tabs: [
                   Tab(
                     text: 'Detalles',
                     icon: Icon(
@@ -146,29 +146,95 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                       size: 20,
                     ),
                   ),
-                  Tab(
-                    text: 'Por hacer',
-                    icon: Icon(
-                      Icons.pending_actions,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Por hacer',
+                        icon: Icon(
+                          Icons.pending_actions,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 8,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            context
+                                .read<PackingConsolidateBloc>()
+                                .listOfProductosProgress
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Preparado',
-                    icon: Icon(
-                      Icons.star,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Preparado',
+                        icon: Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 8,
+                          backgroundColor: yellow,
+                          child: Text(
+                            context
+                                .read<PackingConsolidateBloc>()
+                                .productsDone
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Listo',
-                    icon: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Listo',
+                        icon: Icon(
+                          Icons.done,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 8,
+                          backgroundColor: green,
+                          child: Text(
+                            context
+                                .read<PackingConsolidateBloc>()
+                                .productsDonePacking
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

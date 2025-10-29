@@ -153,48 +153,16 @@ class Tab1Screen extends StatelessWidget {
                                       .viewDetail
                                   ? Column(
                                       children: [
+                                      
                                         Row(
                                           children: [
                                             const Text(
-                                              'Referencia: ',
+                                              'Total de lineas: ',
                                               style: TextStyle(
                                                   fontSize: 12, color: black),
                                             ),
                                             Text(
-                                              packingModel?.referencia ?? '',
-                                              style: TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                          ],
-                                        ),
-                                        const Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            'Contacto: ',
-                                            style: TextStyle(
-                                                fontSize: 12, color: black),
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            packingModel?.contactoName ?? '',
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp),
-                                          ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              'Total productos del pedido: ',
-                                              style: TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                            Text(
-                                              packingModel?.cantidadProductos
-                                                      .toStringAsFixed(2) ??
-                                                  "",
+                                              batchModel?.cantidadTotalProductos.toString() ?? "0",
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp),
@@ -203,8 +171,13 @@ class Tab1Screen extends StatelessWidget {
                                         ),
                                         Row(
                                           children: [
+                                            const Text(
+                                              'Pendientes por hacer: ',
+                                              style: TextStyle(
+                                                  fontSize: 12, color: black),
+                                            ),
                                             Text(
-                                              batchModel?.name ?? "",
+                                              context.read<PackingConsolidateBloc>()?.listOfProductosProgress.length.toString() ?? "",
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp),

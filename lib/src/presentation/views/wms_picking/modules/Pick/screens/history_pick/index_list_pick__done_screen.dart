@@ -558,7 +558,7 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                                 ),
                                                 const SizedBox(width: 5),
                                                 const Text(
-                                                  "Cantidad Productos: ",
+                                                  "Cantidad de lineas: ",
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       color: black),

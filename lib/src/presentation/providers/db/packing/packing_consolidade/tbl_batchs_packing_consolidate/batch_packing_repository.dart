@@ -37,6 +37,12 @@ class BatchPackingConsolidateRepository {
             //temperatura
             BatchPackingConsolidateTable.columnTemperatura: batchItem.temperatura,
             BatchPackingConsolidateTable.columnOrigins: batchItem.origins,
+            BatchPackingConsolidateTable.columnCantidadTotalPedidos:
+                batchItem.cantidadTotalPedidos,
+            BatchPackingConsolidateTable.columnCantidadTotalProductos:
+                batchItem.cantidadTotalProductos,
+            BatchPackingConsolidateTable.columnUnidadesProductos:
+                batchItem.unidadesProductos,
           };
 
           // Elimina si ya existe el registro con ese ID

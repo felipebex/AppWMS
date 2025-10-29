@@ -57,6 +57,11 @@ class ProductoPedido {
   final dynamic timeSeparate;
   final dynamic timeSeparatStart;
   final dynamic timeSeparateEnd;
+  // cantidad_total_pedidos":
+  final dynamic cantidadTotalPedidos;
+
+  // "cantidad_total_productos":
+  final dynamic cantidadTotalProductos;
 
   ProductoPedido(
       {this.productId,
@@ -104,6 +109,8 @@ class ProductoPedido {
       this.imageNovedad,
       this.timeSeparate,
       this.timeSeparatStart,
+      this.cantidadTotalPedidos,
+      this.cantidadTotalProductos,
       this.timeSeparateEnd});
 
   factory ProductoPedido.fromJson(String str) =>
@@ -162,6 +169,8 @@ class ProductoPedido {
       imageNovedad: json["image_novedad"],
       timeSeparate: json["time_separate"],
       timeSeparatStart: json['time_separate_start'],
+      cantidadTotalPedidos: json['cantidad_total_pedidos'],
+      cantidadTotalProductos: json['cantidad_total_productos'],
       timeSeparateEnd: json["time_separate_end"]);
 
   Map<String, dynamic> toMap() => {
@@ -213,6 +222,8 @@ class ProductoPedido {
         "image_novedad": imageNovedad,
         "time_separate": timeSeparate,
         "time_separate_start": timeSeparatStart,
+        "cantidad_total_pedidos": cantidadTotalPedidos,
+        "cantidad_total_productos": cantidadTotalProductos,
         "time_separate_end": timeSeparateEnd,
       };
 }
