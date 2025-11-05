@@ -153,7 +153,6 @@ class Tab1Screen extends StatelessWidget {
                                       .viewDetail
                                   ? Column(
                                       children: [
-                                      
                                         Row(
                                           children: [
                                             const Text(
@@ -162,7 +161,9 @@ class Tab1Screen extends StatelessWidget {
                                                   fontSize: 12, color: black),
                                             ),
                                             Text(
-                                              batchModel?.cantidadTotalProductos.toString() ?? "0",
+                                              batchModel?.cantidadTotalProductos
+                                                      .toString() ??
+                                                  "0",
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp),
@@ -177,7 +178,13 @@ class Tab1Screen extends StatelessWidget {
                                                   fontSize: 12, color: black),
                                             ),
                                             Text(
-                                              context.read<PackingConsolidateBloc>()?.listOfProductosProgress.length.toString() ?? "",
+                                              context
+                                                      .read<
+                                                          PackingConsolidateBloc>()
+                                                      ?.listOfProductosProgress
+                                                      .length
+                                                      .toString() ??
+                                                  "",
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp),
@@ -407,7 +414,17 @@ class Tab1Screen extends StatelessWidget {
                                                             ElevatedButton(
                                                               onPressed:
                                                                   () async {
-//verificamos que no tenga producto en estado por hacer o preparado
+                                                                //cerramos el tiempo de separacion
+                                                                context
+                                                                    .read<
+                                                                        PackingConsolidateBloc>()
+                                                                    .add(EndTimePack(
+                                                                        packingModel?.batchId ??
+                                                                            0,
+                                                                        DateTime
+                                                                            .now()));
+
+                                                                //verificamos que no tenga producto en estado por hacer o preparado
 
                                                                 await DataBaseSqlite()
                                                                     .batchPackingConsolidateRepository

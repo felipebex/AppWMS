@@ -81,15 +81,28 @@ class _Tab2ScreenState extends State<Tab2Screen> {
         ))
         ..add(ClearScannedValuePackEvent('toDo'));
 
+      // Variable para almacenar el contexto del diálogo
+      BuildContext? dialogContext;
+
       showDialog(
         context: context,
-        builder: (_) => const DialogLoading(
-          message: 'Cargando información del producto...',
-        ),
+        builder: (ctx) {
+          // ✅ Capturamos el contexto del diálogo como 'ctx'
+          dialogContext = ctx; // Almacenamos la referencia
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
       );
 
       Future.delayed(const Duration(seconds: 1), () {
-        Navigator.of(context, rootNavigator: true).pop();
+        // 1. Verificar si el contexto del diálogo es válido
+        if (dialogContext != null) {
+          // ✅ CORRECCIÓN CLAVE: Usamos el contexto capturado para hacer el POP seguro
+          Navigator.of(dialogContext!, rootNavigator: true).pop();
+        }
+
+        // 2. Navegación a la siguiente vista
         Navigator.pushReplacementNamed(
           context,
           'Packing',
@@ -102,8 +115,9 @@ class _Tab2ScreenState extends State<Tab2Screen> {
 
     // 1️⃣ Buscar por código de barras principal
     final product = listOfProducts.firstWhere(
-      (p) => p.barcode?.toLowerCase() == scan
-          || p.productCode?.toLowerCase() == scan,
+      (p) =>
+          p.barcode?.toLowerCase() == scan ||
+          p.productCode?.toLowerCase() == scan,
       orElse: () => ProductoPedido(),
     );
 
@@ -401,16 +415,15 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
+                                                  final bloc = context
+                                                      .read<WmsPackingBloc>();
                                                   print(
                                                       "Producto seleccionado: ${product.toMap()}");
-                                                  // validamos si este articulo se encuentra en la lista de productos preparados
-                                                  if (context
-                                                      .read<WmsPackingBloc>()
-                                                      .productsDone
-                                                      .any((doneProduct) =>
+                                                  // 1. VALIDACIÓN DEFENSIVA: Verificar si el producto ya está en estado 'preparado'
+                                                  if (bloc.productsDone.any(
+                                                      (doneProduct) =>
                                                           doneProduct.idMove ==
                                                           product.idMove)) {
-                                                    // Mostramos el error
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(SnackBar(
@@ -419,42 +432,60 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       backgroundColor:
                                                           Colors.red[200],
                                                     ));
-                                                    return;
+                                                    return; // Salimos de la función
                                                   }
 
-                                                  context
-                                                      .read<WmsPackingBloc>()
-                                                      .add(FetchProductEvent(
-                                                          product));
+                                                  // 2. DISPARAR EVENTO DE CARGA DE DATOS
+                                                  // Esto inicia la operación asíncrona que tu BLoC debe resolver (ej. traer los productos del pedido)
+                                                  bloc.add(FetchProductEvent(
+                                                      product));
 
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return const DialogLoading(
-                                                        message:
-                                                            'Cargando información del producto...',
-                                                      );
-                                                    },
-                                                  );
+                                                  // 3. MOSTRAR DIÁLOGO DE CARGA
+                                                  // Usamos Future.microtask para asegurar que el diálogo se muestre antes de la espera
+                                                  Future.microtask(() {
+                                                    showDialog(
+                                                      context: context,
+                                                      barrierDismissible: false,
+                                                      builder: (context) {
+                                                        return const DialogLoading(
+                                                          message:
+                                                              'Cargando información del producto...',
+                                                        );
+                                                      },
+                                                    );
+                                                  });
 
+                                                  // 4. ✅ SINCRONIZACIÓN CRÍTICA Y NAVEGACIÓN
+                                                  // Usamos Future.delayed SÓLO como un tiempo fijo de espera para la API/DB,
+                                                  // que es tu mecanismo actual. Si tu BLoC tuviera un Stream de 'Loaded',
+                                                  // lo ideal sería usar BlocListener.
+
+                                                  // El retraso de 1000ms da tiempo al BLoC para cambiar de estado (Loaded)
                                                   Future.delayed(
                                                       const Duration(
-                                                          seconds: 1), () {
-                                                    // Cerrar el diálogo de carga
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
+                                                          milliseconds: 1000),
+                                                      () {
+                                                    if (mounted) {
+                                                      // Chequeo de seguridad de contexto
 
-                                                    // Ahora navegar a la vista "batch"
-                                                    Navigator
-                                                        .pushReplacementNamed(
-                                                      context,
-                                                      'Packing',
-                                                      arguments: [
-                                                        widget.packingModel,
-                                                        widget.batchModel,
-                                                      ],
-                                                    );
+                                                      // 4.1. Cerrar el diálogo de carga (usando el context del widget, ya que el diálogo fue abierto con él)
+                                                      Navigator.of(context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
+
+                                                      // 4.2. Navegar a la vista 'Packing' (Línea 450)
+                                                      // Se asume que la vista 'Packing' ahora puede usar los datos que el BLoC ya cargó.
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                        context,
+                                                        'Packing',
+                                                        arguments: [
+                                                          widget.packingModel,
+                                                          widget.batchModel,
+                                                        ],
+                                                      );
+                                                    }
                                                   });
                                                 },
                                                 child: Column(

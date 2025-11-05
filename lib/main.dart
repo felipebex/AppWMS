@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, depend_on_referenced_packages, avoid_print
 
 import 'dart:io';
+import 'dart:async'; // <--- AÑADIR ESTA IMPORTACIÓN
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:wms_app/firebase_options.dart';
@@ -32,12 +33,10 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'src/presentation/views/home/index.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart'; // <--- NUEVA IMPORTACIÓN
-import 'dart:async';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final ApiRequestService apiRequestService = ApiRequestService();
@@ -47,18 +46,28 @@ final internetChecker = CheckInternetConnection();
 final connectionStatusCubit =
     ConnectionStatusCubit(internetChecker: internetChecker);
 void main() async {
-  // 1. **SIEMPRE LO PRIMERO:** Inicializar los bindings
-  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 1. **NO SE LLAMA ensureInitialized AQUÍ**
 
-  // Inicializa las preferencias
-  await Preferences.init();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  // 2. **ATRAPAR ERRORES:** Envolvemos la inicialización en runZonedGuarded
+  // 2. INICIAR LA ZONA DE CAPTURA DE ERRORES (Crashlytics)
   await runZonedGuarded<Future<void>>(() async {
-    //  **CONFIGURACIONES CRÍTICAS DEL FRAMEWORK DENTRO DE LA ZONA**
+    
+    // ✅ CORRECCIÓN CLAVE: Inicializar los bindings DENTRO de la Zona
+    WidgetsFlutterBinding.ensureInitialized(); 
 
-    // Configuración de ErrorWidget.builder (estaba causando el desajuste)
+    // TAREAS PESADAS Y CRÍTICAS DENTRO DE LA ZONA SEGURA:
+    await Preferences.init();
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+    // Inicializa Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // Configuración de Manejadores
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+    // Configuración de ErrorWidget.builder
     ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
           title: 'Algo salió mal',
           message: 'No se pudo cargar la información...',
@@ -67,22 +76,12 @@ void main() async {
             exit(0);
           },
         );
-
-    // Inicializa Firebase
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    //  **CONFIGURACIÓN CLAVE DE CRASHLYTICS:**
-    // Dirige todos los errores de Flutter (errores de UI, builds, etc.)
-    // al reportero de Crashlytics.
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-    // 6. Ejecuta la aplicación
+        
+    // 4. Ejecuta la aplicación
     runApp(const MyApp());
+    
   }, (error, stack) {
-    // 7. **CALLBACK DE runZonedGuarded:** Captura errores asíncronos que
-    // no fueron manejados por FlutterError.onError (ej. futures, isolates).
+    // 5. CALLBACK DE runZonedGuarded: Captura errores asíncronos restantes
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
   });
 }
@@ -121,14 +120,13 @@ class MyApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         initialRoute: AppRoutes.checkout,
-        unknownRoute: GetPage(name: AppRoutes.home, page: () => HomePage()),
+        routes: AppRoutes.routes,
         supportedLocales: const [Locale('es', 'ES')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        routes: AppRoutes.routes,
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.grey[300],
           appBarTheme: AppBarTheme(elevation: 0, color: primaryColorApp),

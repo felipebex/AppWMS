@@ -46,6 +46,7 @@ class StartTimePack extends PackingConsolidateEvent {
   StartTimePack(this.batchId, this.time);
 }
 
+
 class EndTimePack extends PackingConsolidateEvent {
   final int batchId;
   final DateTime time;

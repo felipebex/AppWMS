@@ -60,6 +60,10 @@ class TimeSeparatePackSuccess extends PackingConsolidateState {
   final String time;
   TimeSeparatePackSuccess(this.time);
 }
+class TimeEndSeparatePackSuccess extends PackingConsolidateState {
+  final String time;
+  TimeEndSeparatePackSuccess(this.time);
+}
 
 class TimeSeparatePackError extends PackingConsolidateState {
   final String msg;

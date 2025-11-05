@@ -6,8 +6,6 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 
-
-
 class PopupMenuButtonPickWidget extends StatelessWidget {
   const PopupMenuButtonPickWidget({
     super.key,
@@ -20,7 +18,15 @@ class PopupMenuButtonPickWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PickingPickBloc, PickingPickState>(
       builder: (context, state) {
+// Lógica para el botón 'Dejar pendiente'
         final batchBloc = BlocProvider.of<PickingPickBloc>(context);
+        // Definimos la lista de productos pendientes de forma segura
+        final pendingProducts = batchBloc.pickWithProducts.products
+            ?.where((element) => element.isSeparate != 1)
+            .toList();
+
+        final int pendingCount = pendingProducts?.length ?? 0;
+
         return PopupMenuButton<String>(
           shadowColor: Colors.white,
           color: Colors.white,
@@ -125,12 +131,9 @@ class PopupMenuButtonPickWidget extends StatelessWidget {
                   ],
                 ),
               ),
-             if (batchBloc.locationIsOk == true &&
+              if (batchBloc.locationIsOk == true &&
                   batchBloc.index + 1 <
-                      batchBloc.pickWithProducts.products!.where(
-                          (element) => element.isSeparate != 1,
-                        ).
-                      length &&
+                      pendingCount && // Usamos el conteo seguro
                   currentProduct.isPending != 1)
                 PopupMenuItem<String>(
                   value: '2',

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -168,6 +169,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 context.read<HomeBloc>().add(AppVersionEvent());
               },
               child: Scaffold(
+                floatingActionButton: FloatingActionButton(
+                  backgroundColor: primaryColorApp,
+                  onPressed: () {
+                    // 1. Registrar un log informativo antes del fallo (Opcional, pero útil)
+                    FirebaseCrashlytics.instance
+                        .log("Iniciando prueba de crash forzado.");
+
+                    // 2. Método principal que provoca un cierre fatal (Crash)
+                    // El reporte será enviado a Firebase la próxima vez que la app se inicie.
+                    FirebaseCrashlytics.instance.crash();
+                  },
+                  child: const Icon(Icons.inventory_2_outlined,
+                      color: Colors.white),
+                ),
                 backgroundColor: white,
                 body: Container(
                   color: primaryColorApp,
@@ -192,7 +207,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 padding: const EdgeInsets.only(
                                     left: 10, right: 10, top: 40, bottom: 10),
                                 child: Card(
-                                  color: const Color.fromARGB(236, 255, 255, 255),
+                                  color:
+                                      const Color.fromARGB(236, 255, 255, 255),
                                   elevation: 2,
                                   child: Container(
                                       padding: const EdgeInsets.only(
@@ -396,7 +412,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                       )),
                                 ),
                               ),
-
                               const SizedBox(height: 20),
                               Container(
                                   padding: const EdgeInsets.symmetric(

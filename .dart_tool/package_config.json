@@ -1100,6 +1100,36 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "video_player",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/video_player-2.9.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "video_player_android",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/video_player_android-2.7.16",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "video_player_avfoundation",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/video_player_avfoundation-2.7.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "video_player_platform_interface",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/video_player_platform_interface-6.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "video_player_web",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/video_player_web-2.3.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "vm_service",
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/vm_service-14.2.5",
       "packageUri": "lib/",
@@ -1166,7 +1196,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-10-29T13:14:04.261282Z",
+  "generated": "2025-11-04T22:36:53.649738Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Volumes/Baneste/fvm/versions/3.24.4",

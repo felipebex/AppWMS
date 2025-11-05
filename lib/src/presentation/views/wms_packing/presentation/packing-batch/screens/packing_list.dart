@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters, unrelated_type_equality_checks
+// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -106,30 +106,41 @@ class _PakingListScreenState extends State<PakingListScreen>
     }
   }
 
+  // Tu método _handlePedidoTap corregido
+
   void _handlePedidoTap(BuildContext context, PedidoPacking pedido,
       BuildContext contextBuilder) async {
-    context.read<WmsPackingBloc>().add(ShowDetailvent(true));
+    final packingBloc = context.read<WmsPackingBloc>();
 
-    // Limpiamos la lista de paquetes
-    context.read<WmsPackingBloc>().packages = [];
-    // Pedimos todos los productos de un pedido
-    context.read<WmsPackingBloc>().add(LoadAllProductsFromPedidoEvent(
-          pedido.id ?? 0,
-        ));
+    packingBloc.add(ShowDetailvent(true));
+    packingBloc.packages = [];
+    packingBloc.add(LoadAllProductsFromPedidoEvent(
+      pedido.id ?? 0,
+    ));
+
+    // Variable para almacenar el contexto del diálogo
+    BuildContext? dialogContext;
 
     showDialog(
       context: context,
-      barrierDismissible:
-          false, // No permitir que el usuario cierre el diálogo manualmente
-      builder: (_) => const DialogLoading(
-        message: 'Cargando interfaz...',
-      ),
+      barrierDismissible: false,
+      builder: (ctx) {
+        // ✅ Capturamos el contexto del diálogo (ctx)
+        dialogContext = ctx; // Almacenamos la referencia
+        return const DialogLoading(
+          message: 'Cargando interfaz...',
+        );
+      },
     );
 
     await Future.delayed(const Duration(seconds: 1));
-    Navigator.pop(context);
 
-    //cerramos el teclado focus
+    // ✅ CORRECCIÓN CRÍTICA: Usar el contexto del diálogo si está disponible
+    if (dialogContext != null && mounted) {
+      Navigator.of(dialogContext!, rootNavigator: true).pop();
+    }
+
+    // Aseguramos que el teclado esté cerrado antes de navegar
     FocusScope.of(context).unfocus();
 
     // Viajamos a la vista de detalle de un pedido
@@ -152,9 +163,7 @@ class _PakingListScreenState extends State<PakingListScreen>
         return false;
       },
       child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
-        listener: (context, state) {
-         
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           print(
               'isKeyboardVisible: ${context.read<WmsPackingBloc>().isKeyboardVisible}');

@@ -17,7 +17,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_edit_product_widget.dart';
-import 'package:wms_app/src/presentation/widgets/dialog_error_request_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class PickDetailScreen extends StatelessWidget {

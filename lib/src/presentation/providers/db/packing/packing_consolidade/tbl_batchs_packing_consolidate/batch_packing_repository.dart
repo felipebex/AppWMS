@@ -21,21 +21,28 @@ class BatchPackingConsolidateRepository {
             BatchPackingConsolidateTable.columnName: batchItem.name,
             BatchPackingConsolidateTable.columnScheduledDate:
                 batchItem.scheduleddate.toString(),
-            BatchPackingConsolidateTable.columnPickingTypeId: batchItem.pickingTypeId,
+            BatchPackingConsolidateTable.columnPickingTypeId:
+                batchItem.pickingTypeId,
             BatchPackingConsolidateTable.columnState: batchItem.state,
             BatchPackingConsolidateTable.columnUserId: batchItem.userId,
             BatchPackingConsolidateTable.columnUserName: batchItem.userName,
-            BatchPackingConsolidateTable.columnCantidadPedidos: batchItem.cantidadPedidos,
-            BatchPackingConsolidateTable.columnZonaEntrega: batchItem.zonaEntrega,
-            BatchPackingConsolidateTable.columnZonaEntregaTms: batchItem.zonaEntregaTms,
-            BatchPackingConsolidateTable.columnStartTimePack: batchItem.startTimePack,
-            BatchPackingConsolidateTable.columnEndTimePack: batchItem.endTimePack,
+            BatchPackingConsolidateTable.columnCantidadPedidos:
+                batchItem.cantidadPedidos,
+            BatchPackingConsolidateTable.columnZonaEntrega:
+                batchItem.zonaEntrega,
+            BatchPackingConsolidateTable.columnZonaEntregaTms:
+                batchItem.zonaEntregaTms,
+            BatchPackingConsolidateTable.columnStartTimePack:
+                batchItem.startTimePack,
+            BatchPackingConsolidateTable.columnEndTimePack:
+                batchItem.endTimePack,
             BatchPackingConsolidateTable.columnIsSeparate: 0,
             //maneja_temperatura
             BatchPackingConsolidateTable.columnManejaTemperatura:
                 batchItem.manejaTemperatura,
             //temperatura
-            BatchPackingConsolidateTable.columnTemperatura: batchItem.temperatura,
+            BatchPackingConsolidateTable.columnTemperatura:
+                batchItem.temperatura,
             BatchPackingConsolidateTable.columnOrigins: batchItem.origins,
             BatchPackingConsolidateTable.columnCantidadTotalPedidos:
                 batchItem.cantidadTotalPedidos,
@@ -106,12 +113,10 @@ class BatchPackingConsolidateRepository {
     }
   }
 
-
-
   //*metodo para eliminar un batch de packing por id
   Future<int?> deleteBatchPackingById(int batchId) async {
     try {
-      final db = await DataBaseSqlite().getDatabaseInstance();  
+      final db = await DataBaseSqlite().getDatabaseInstance();
       final resDelete = await db.delete(
         BatchPackingConsolidateTable.tableName,
         where: '${BatchPackingConsolidateTable.columnId} = ?',
@@ -128,7 +133,7 @@ class BatchPackingConsolidateRepository {
   //metodo para eliminar todos los batchs de packing
   Future<int?> deleteAllBatchPacking() async {
     try {
-      final db = await DataBaseSqlite().getDatabaseInstance();  
+      final db = await DataBaseSqlite().getDatabaseInstance();
       final resDelete = await db.delete(
         BatchPackingConsolidateTable.tableName,
       );
@@ -155,6 +160,25 @@ class BatchPackingConsolidateRepository {
     } catch (e) {
       print(
           "Error al iniciar el cronómetro para el batch en pack: $batchId: $e");
+      return null;
+    }
+  }
+
+  // Método para detener el cronómetro de un batch de picking
+  Future<int?> stopStopwatchBatch(int batchId, String date) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Actualiza el campo 'end_time_pack' con la fecha proporcionada
+      final resUpdate = await db.rawUpdate(
+          "UPDATE ${BatchPackingConsolidateTable.tableName} SET ${BatchPackingConsolidateTable.columnEndTimePack} = ? WHERE ${BatchPackingConsolidateTable.columnId} = ?",
+          [date, batchId]);
+
+      print("stopStopwatchBatchPack: $resUpdate");
+      return resUpdate;
+    } catch (e) {
+      print(
+          "Error al detener el cronómetro para el batch en pack: $batchId: $e");
       return null;
     }
   }

@@ -336,11 +336,21 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         final productsIterable =
             _extractAllProducts(result.result!).toList(growable: false);
 
+        final sentProductsIterable =
+            _getAllSentProducts(result.result!).toList(growable: false);
+
         final allBarcodes =
             _extractAllBarcodes(result.result!).toList(growable: false);
+
+        print('productsToInsert: ${productsIterable.length}');
+        print('sentProductsIterable: ${sentProductsIterable.length}');
+        print('allBarcodes: ${allBarcodes.length}');
+
         // Enviar la lista agrupada a insertBatchProducts
         await db.pickProductsRepository
             .insertPickProducts(productsIterable, 'pick-componentes');
+        await db.pickProductsRepository
+            .insertPickProducts(sentProductsIterable, 'pick-componentes');
 
         if (allBarcodes.isNotEmpty) {
           // Enviar la lista agrupada a insertBarcodesPackageProduct

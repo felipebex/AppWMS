@@ -1131,7 +1131,9 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                           ""
                                                       ? true
                                                       : false),
-                                              if (currentProduct.productTracking == "lot")
+                                              if (currentProduct
+                                                      .productTracking ==
+                                                  "lot")
                                                 Row(
                                                   children: [
                                                     Align(
@@ -1341,7 +1343,9 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                               //informacion del lote:
                                               Column(
                                                 children: [
-                                                  if (currentProduct.productTracking == "lot")
+                                                  if (currentProduct
+                                                          .productTracking ==
+                                                      "lot")
                                                     Row(
                                                       children: [
                                                         Align(
@@ -1926,13 +1930,24 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                               ),
                               //al dar enter
                               onFieldSubmitted: (value) {
-                                //validamos que el texto no este vacio
+                
                                 if (value.isNotEmpty) {
-                                  if (int.parse(value) >
-                                      (currentProduct.quantity ?? 0)) {
+                                  // ✅ 1. PARSEO SEGURO: Convertir el valor de entrada a un double
+                                  final double enteredQuantity =
+                                      double.tryParse(value) ?? 0.0;
+
+                                  // Aseguramos que la cantidad del producto también sea double para la comparación
+                                  final double maxQuantity =
+                                      (currentProduct.quantity as num?)
+                                              ?.toDouble() ??
+                                          0.0;
+
+                                  // ✅ 2. CORRECCIÓN CLAVE: Comparar como doubles
+                                  if (enteredQuantity > maxQuantity) {
                                     _audioService.playErrorSound();
                                     _vibrationService.vibrate();
-                                    //todo: cantidad fuera del rango
+
+                                    // ... (Tu lógica de error de rango)
                                     batchBloc.add(ValidateFieldsEvent(
                                         field: "quantity", isOk: false));
                                     cantidadController.clear();
@@ -1944,19 +1959,17 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                       backgroundColor: Colors.red[200],
                                     ));
                                   } else {
-                                    //todo: cantidad dentro del rango
-                                    if (double.parse(value) ==
-                                        currentProduct.quantity) {
+                                    // --- Lógica cuando la cantidad está dentro del rango ---
+                                    // (Aseguramos que el valor que se pasa a los BLoCs sea el double parseado)
+
+                                    if (enteredQuantity == maxQuantity) {
                                       //*cantidad correcta
-                                      //guardamos la cantidad en la bd
                                       batchBloc.add(ChangeQuantitySeparate(
-                                          double.parse(value),
+                                          enteredQuantity, // Usamos el double ya parseado
                                           currentProduct.idProduct ?? 0,
                                           currentProduct.idMove ?? 0));
                                     } else {
                                       //todo cantidad menor a la cantidad pedida
-                                      //preguntar si estamos en la ultima posicion
-
                                       showDialog(
                                           context: context,
                                           builder: (context) {
@@ -1972,7 +1985,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                 onAccepted: () {
                                                   batchBloc.add(
                                                       ChangeQuantitySeparate(
-                                                          double.parse(value),
+                                                          enteredQuantity, // Usamos el double ya parseado
                                                           currentProduct
                                                                   .idProduct ??
                                                               0,

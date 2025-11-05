@@ -73,8 +73,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/history/scree
 import 'package:wms_app/src/presentation/views/wms_picking/modules/picking_componentes/index_list_picking_componentes_screen.dart';
 
 class AppRoutes {
-  //todo ocr
-  static const String ocr = 'ocr';
+
   //todo  Mapa estático de rutas
   static const String enterprice = 'enterprice';
   static const String auth = 'auth';
@@ -103,9 +102,12 @@ class AppRoutes {
   static const String packingDetail = 'packing-detail';
 
   //todo packing consolidade
-  static const String listPackingConsolidade = 'list-packing-consolidade'; // lista de batchs de packing consolidados
-  static const String packingConsolidateList = 'pedido-packing-consolidate-list'; // lista de pedidos consolidados por batch packing
-  static const String packingConsolidateDetail = 'packing-consolidate-detail'; // detalles ya del pedido consolidado a separar
+  static const String listPackingConsolidade =
+      'list-packing-consolidade'; // lista de batchs de packing consolidados
+  static const String packingConsolidateList =
+      'pedido-packing-consolidate-list'; // lista de pedidos consolidados por batch packing
+  static const String packingConsolidateDetail =
+      'packing-consolidate-detail'; // detalles ya del pedido consolidado a separar
   static const String scanProductConsolidate =
       'scan-product-consolidate'; // pantalla de escaneo de productos para consolidar
 
@@ -194,6 +196,7 @@ class AppRoutes {
 
   static Map<String, Widget Function(BuildContext)> get routes {
     return {
+      AppRoutes.checkout: (context) => const CheckAuthPage(),
       //todo conteo
       conteo: (_) => const ListConteoScreen(),
       conteoDetail: (context) {
@@ -231,7 +234,6 @@ class AppRoutes {
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),
-      checkout: (_) => const CheckAuthPage(),
 
       // todo WMS Picking
       wmsPicking: (context) => WMSPickingPage(
@@ -299,7 +301,6 @@ class AppRoutes {
         );
       },
 
-
       packingConsolidateDetail: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
@@ -314,10 +315,8 @@ class AppRoutes {
         );
       },
 
-     
-
       scanProductConsolidate: (context) {
-         final arguments =
+        final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
         final packingModel = arguments[0] as PedidoPacking?;
         final batchModel = arguments[1] as BatchPackingModel?;
@@ -369,11 +368,21 @@ class AppRoutes {
       },
 
       // todo Recepcion
+
       scanProductOrder: (context) {
         final arguments =
-            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-        final ordenCompraArg = arguments[0] as ResultEntrada?;
-        final currentProducArg = arguments[1] as LineasTransferencia?;
+            ModalRoute.of(context)?.settings.arguments as List<dynamic>?;
+
+        // Asignación segura con verificación de tipo
+        final ResultEntrada? ordenCompraArg =
+            (arguments != null && arguments.isNotEmpty)
+                ? arguments[0] as ResultEntrada?
+                : null;
+        final LineasTransferencia? currentProducArg =
+            (arguments != null && arguments.length > 1)
+                ? arguments[1] as LineasTransferencia?
+                : null;
+
         return ScanProductOrderScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
       },

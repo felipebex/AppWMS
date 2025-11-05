@@ -206,6 +206,33 @@ class PackingConsolidateBloc
     //*evento para obtener las novedades
     on<LoadAllNovedadesPackingConsolidateEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesPackingConsolidateEvent());
+
+    on<EndTimePack>(_onEndTimePickEvent);
+  }
+
+  void _onEndTimePickEvent(
+      EndTimePack event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(event.time);
+    
+      final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
+          event.batchId,
+          formattedDate,
+          'update_start_time',
+          'end_time_pack',
+          'start_time');
+
+      if (responseTimeBatch) {
+        await db.batchPackingConsolidateRepository
+            .stopStopwatchBatch(event.batchId, formattedDate);
+        emit(TimeEndSeparatePackSuccess(formattedDate));
+      } else {
+        emit(TimeSeparatePackError('Error al iniciar el tiempo de separacion'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onStartTimePickEvent: $e, $s");
+    }
   }
 
   //*meotod para cargar todas las novedades
@@ -234,7 +261,7 @@ class PackingConsolidateBloc
         event.productId,
         event.idMove,
         event.quantity,
-        'packing-batch');
+        'packing-batch-consolidate');
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
@@ -248,7 +275,7 @@ class PackingConsolidateBloc
           "is_quantity_is_ok",
           1,
           event.idMove,
-          'packing-batch');
+          'packing-batch-consolidate');
     }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
@@ -308,7 +335,7 @@ class PackingConsolidateBloc
                   null,
                   product.idMove,
                   event.request.idPaquete,
-                  'packing-batch');
+                  'packing-batch-consolidate');
           //actualizamos el estado del producto como no certificado
           await db.productosPedidosRepository
               .setFieldTableProductosPedidosUnPacking(
