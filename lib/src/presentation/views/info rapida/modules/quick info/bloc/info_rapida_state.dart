@@ -110,10 +110,10 @@ class UpdateProductFailure extends InfoRapidaState {
 
 class UpdateProductSuccess extends InfoRapidaState {}
 
-class ConfigurationLoaded extends InfoRapidaState {
+class ConfigurationLoadedInfoRapida extends InfoRapidaState {
   final Configurations configurations;
 
-  ConfigurationLoaded(this.configurations);
+  ConfigurationLoadedInfoRapida(this.configurations);
 }
 
 class ConfigurationError extends InfoRapidaState {

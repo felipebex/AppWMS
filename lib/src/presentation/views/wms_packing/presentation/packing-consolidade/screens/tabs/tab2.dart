@@ -58,7 +58,12 @@ class _Tab2ScreenState extends State<Tab2Screen> {
     final listOfProducts = bloc.listOfProductosProgress;
 
     /// Función auxiliar para procesar el producto encontrado
+    /// Función auxiliar para procesar el producto encontrado y manejar la navegación.
     void processProduct(ProductoPedido product) {
+      // 1. Declarar la variable de contexto para el diálogo
+      BuildContext? dialogContext;
+
+      // Disparar eventos del BLoC (Lógica de negocio en cascada)
       bloc
         ..add(FetchProductEvent(product))
         ..add(ChangeLocationIsOkEvent(
@@ -81,15 +86,29 @@ class _Tab2ScreenState extends State<Tab2Screen> {
         ))
         ..add(ClearScannedValuePackEvent('toDo'));
 
+      // 2. ABRIR DIÁLOGO Y CAPTURAR SU CONTEXTO
       showDialog(
         context: context,
-        builder: (_) => const DialogLoading(
-          message: 'Cargando información del producto...',
-        ),
+        barrierDismissible: false,
+        builder: (ctx) {
+          dialogContext =
+              ctx; // ✅ Capturamos la referencia al contexto del diálogo
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
       );
 
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.of(context, rootNavigator: true).pop();
+      // 3. TEMPORIZADOR ASÍNCRONO (Retraso de 1 segundo)
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        // 4. ✅ CORRECCIÓN CRÍTICA: Usar el contexto capturado para el POP seguro
+        if (dialogContext != null) {
+          // El 'pop' ahora es seguro y usa el contexto válido del diálogo
+          Navigator.of(dialogContext!, rootNavigator: true).pop();
+        }
+
+        // 5. Navegación a la siguiente vista
+        // Esta línea es ahora segura porque el diálogo fue cerrado previamente.
         Navigator.pushReplacementNamed(
           context,
           'scan-product-consolidate',
@@ -102,8 +121,9 @@ class _Tab2ScreenState extends State<Tab2Screen> {
 
     // 1️⃣ Buscar por código de barras principal
     final product = listOfProducts.firstWhere(
-      (p) => p.barcode?.toLowerCase() == scan
-          || p.productCode?.toLowerCase() == scan,
+      (p) =>
+          p.barcode?.toLowerCase() == scan ||
+          p.productCode?.toLowerCase() == scan,
       orElse: () => ProductoPedido(),
     );
 
@@ -184,7 +204,8 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                 showDialog(
                                   context: context,
                                   builder: (_) {
-                                    final bloc = context.read<PackingConsolidateBloc>();
+                                    final bloc =
+                                        context.read<PackingConsolidateBloc>();
                                     return DialogConfirmatedPacking(
                                       productos: context
                                           .read<PackingConsolidateBloc>()
@@ -368,7 +389,8 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             //* se activa segun el permiso
                                             Visibility(
                                               visible: context
-                                                      .read<PackingConsolidateBloc>()
+                                                      .read<
+                                                          PackingConsolidateBloc>()
                                                       .configurations
                                                       .result
                                                       ?.result
@@ -376,21 +398,24 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                   true,
                                               child: Checkbox(
                                                 value: context
-                                                    .read<PackingConsolidateBloc>()
+                                                    .read<
+                                                        PackingConsolidateBloc>()
                                                     .listOfProductsForPacking
                                                     .contains(product),
                                                 onChanged: (bool? selected) {
                                                   if (selected == true) {
                                                     // Seleccionar producto
                                                     context
-                                                        .read<PackingConsolidateBloc>()
+                                                        .read<
+                                                            PackingConsolidateBloc>()
                                                         .add(
                                                             SelectProductPackingEvent(
                                                                 product));
                                                   } else {
                                                     // Deseleccionar producto
                                                     context
-                                                        .read<PackingConsolidateBloc>()
+                                                        .read<
+                                                            PackingConsolidateBloc>()
                                                         .add(
                                                             UnSelectProductPackingEvent(
                                                                 product));
@@ -401,16 +426,16 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
+                                                  final bloc = context.read<
+                                                      PackingConsolidateBloc>();
                                                   print(
                                                       "Producto seleccionado: ${product.toMap()}");
-                                                  // validamos si este articulo se encuentra en la lista de productos preparados
-                                                  if (context
-                                                      .read<PackingConsolidateBloc>()
-                                                      .productsDone
-                                                      .any((doneProduct) =>
+
+                                                  // 1. VALIDACIÓN DEFENSIVA DE PRODUCTO PREPARADO
+                                                  if (bloc.productsDone.any(
+                                                      (doneProduct) =>
                                                           doneProduct.idMove ==
                                                           product.idMove)) {
-                                                    // Mostramos el error
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(SnackBar(
@@ -422,14 +447,19 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                     return;
                                                   }
 
-                                                  context
-                                                      .read<PackingConsolidateBloc>()
-                                                      .add(FetchProductEvent(
-                                                          product));
+                                                  // 2. DISPARAR EVENTO DE CARGA
+                                                  bloc.add(FetchProductEvent(
+                                                      product));
+
+                                                  // Variable para almacenar el contexto del diálogo
+                                                  BuildContext? dialogContext;
 
                                                   showDialog(
                                                     context: context,
-                                                    builder: (context) {
+                                                    barrierDismissible: false,
+                                                    builder: (ctx) {
+                                                      // ✅ CAPTURA DEL CONTEXTO DEL DIÁLOGO
+                                                      dialogContext = ctx;
                                                       return const DialogLoading(
                                                         message:
                                                             'Cargando información del producto...',
@@ -437,24 +467,35 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                     },
                                                   );
 
+                                                  // 3. NAVEGACIÓN Y CIERRE ASÍNCRONO SEGURO (Usando un delay corto para el UX)
                                                   Future.delayed(
                                                       const Duration(
-                                                          seconds: 1), () {
-                                                    // Cerrar el diálogo de carga
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
+                                                          milliseconds: 500),
+                                                      () {
+                                                    if (mounted) {
+                                                      // Chequeo de seguridad del widget principal
 
-                                                    // Ahora navegar a la vista "batch"
-                                                    Navigator
-                                                        .pushReplacementNamed(
-                                                      context,
-                                                      'scan-product-consolidate',
-                                                      arguments: [
-                                                        widget.packingModel,
-                                                        widget.batchModel,
-                                                      ],
-                                                    );
+                                                      // 3.1. Cierre seguro del diálogo (Corrige el fallo del pop)
+                                                      if (dialogContext !=
+                                                          null) {
+                                                        Navigator.of(
+                                                                dialogContext!,
+                                                                rootNavigator:
+                                                                    true)
+                                                            .pop();
+                                                      }
+
+                                                      // 3.2. Ahora navegar a la vista de destino
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                        context,
+                                                        'scan-product-consolidate',
+                                                        arguments: [
+                                                          widget.packingModel,
+                                                          widget.batchModel,
+                                                        ],
+                                                      );
+                                                    }
                                                   });
                                                 },
                                                 child: Column(

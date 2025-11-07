@@ -40,9 +40,9 @@ class ListConteoScreen extends StatelessWidget {
                 children: [
                   //appBar
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: primaryColorApp,
-                      borderRadius: const BorderRadius.only(
+                      borderRadius:  BorderRadius.only(
                         bottomLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
                       ),
@@ -206,7 +206,7 @@ class ListConteoScreen extends StatelessWidget {
                                       child: Card(
                                         elevation: 3,
                                         child: ListTile(
-                                          trailing: Icon(
+                                          trailing: const Icon(
                                               Icons.arrow_forward_ios,
                                               color: primaryColorApp),
                                           title: Text(conteo?.name ?? '',
@@ -220,7 +220,7 @@ class ListConteoScreen extends StatelessWidget {
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
-                                                    Text(
+                                                   const  Text(
                                                       'Estado:',
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -257,7 +257,7 @@ class ListConteoScreen extends StatelessWidget {
                                                       Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
-                                                      Text(
+                                                      const Text(
                                                         'Tipo de conteo:',
                                                         style: TextStyle(
                                                             fontSize: 12,
@@ -267,7 +267,7 @@ class ListConteoScreen extends StatelessWidget {
                                                       Text(
                                                         conteo?.countType ??
                                                             'Sin tipo',
-                                                        style: TextStyle(
+                                                        style:const TextStyle(
                                                             fontSize: 12,
                                                             color:
                                                                 primaryColorApp),
@@ -278,7 +278,7 @@ class ListConteoScreen extends StatelessWidget {
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
-                                                    Icon(
+                                                   const Icon(
                                                       Icons
                                                           .calendar_month_sharp,
                                                       color: primaryColorApp,
@@ -309,13 +309,13 @@ class ListConteoScreen extends StatelessWidget {
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
-                                                    Icon(
+                                                   const Icon(
                                                       Icons.add,
                                                       color: primaryColorApp,
                                                       size: 15,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    Text(
+                                                    const Text(
                                                       'Cantidad de lineas:',
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -338,13 +338,13 @@ class ListConteoScreen extends StatelessWidget {
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons.warehouse,
                                                       color: primaryColorApp,
                                                       size: 15,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    Text(
+                                                    const Text(
                                                       'Almacen:',
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -371,31 +371,33 @@ class ListConteoScreen extends StatelessWidget {
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons.notes,
                                                       color: primaryColorApp,
                                                       size: 15,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    Text(
+                                                    const Text(
                                                       'Observación:',
                                                       style: TextStyle(
                                                           fontSize: 12,
                                                           color: black),
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    Text(
-                                                      conteo?.observationGeneral !=
-                                                                  null &&
-                                                              conteo?.observationGeneral !=
-                                                                  ""
-                                                          ? conteo!
-                                                              .observationGeneral!
-                                                          : 'Sin observación',
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp),
+                                                    Flexible(
+                                                      child: Text(
+                                                        conteo?.observationGeneral !=
+                                                                    null &&
+                                                                conteo?.observationGeneral !=
+                                                                    ""
+                                                            ? conteo!
+                                                                .observationGeneral!
+                                                            : 'Sin observación',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -405,7 +407,7 @@ class ListConteoScreen extends StatelessWidget {
                                                       Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
-                                                      Icon(
+                                                      const Icon(
                                                         Icons.person,
                                                         color: primaryColorApp,
                                                         size: 15,

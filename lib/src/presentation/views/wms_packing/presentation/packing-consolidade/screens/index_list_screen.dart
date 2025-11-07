@@ -13,6 +13,7 @@ import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_start_packing_widget.dart';
@@ -93,14 +94,45 @@ class _ListPackingConsolidadeScreenState
         .read<PackingConsolidateBloc>()
         .add(LoadConfigurationsUserPackConsolidate());
 
-    if (batch.startTimePack != "") {
-      context.read<PackingConsolidateBloc>().add(LoadAllPedidosFromBatchEvent(
-            batch.id ?? 0,
-          ));
-      context.read<PackingConsolidateBloc>().add(ShowKeyboardEvent(false));
-      goBatchInfo(
-          contextBuilder, context.read<PackingConsolidateBloc>(), batch);
+    // 2. Lógica para asignar el responsable o continuar
+    if (batch.userName == null || batch.userName == "" || batch.userName == 0) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => DialogAsignUserToOrderWidget(
+          title:
+              'Esta seguro de tomar este batch de packing consolidado, una vez aceptado no podrá ser cancelada desde la app, una vez asignado se registrará el tiempo de inicio de la operación.',
+          onAccepted: () async {
+            // Lógica para asignar el usuario
+            final packingBloc = context.read<PackingConsolidateBloc>();
+            packingBloc.add(AssignUserToBatch(batch.id ?? 0, batch));
+            packingBloc.add(ShowKeyboardEvent(false));
+            packingBloc.searchController.clear();
+            packingBloc.add(LoadAllPedidosFromBatchEvent(
+              batch.id ?? 0,
+            ));
+
+            // validamos si tiene tiempo de separacion de inicio
+            if (batch.startTimePack == "" || batch.startTimePack == null) {
+              packingBloc.add(
+                    StartTimePack(batch.id ?? 0, DateTime.now()),
+                  );
+            }
+
+            Navigator.pop(dialogContext); // Cierra el diálogo de asignación
+
+            // Después de asignar el usuario, continuar con la validación de tiempo
+          },
+        ),
+      );
     } else {
+      // Si el responsable ya existe, validar el tiempo directamente
+      validateTime(batch, context);
+    }
+  }
+
+  void validateTime(dynamic batch, BuildContext context) {
+    if (batch.startTimePack == "" || batch.startTimePack == null) {
       showDialog(
         context: context,
         barrierDismissible:
@@ -124,11 +156,16 @@ class _ListPackingConsolidadeScreenState
 
             Navigator.pop(context);
 
-            goBatchInfo(
-                contextBuilder, context.read<PackingConsolidateBloc>(), batch);
+            goBatchInfo(context, context.read<PackingConsolidateBloc>(), batch);
           },
         ),
       );
+    } else {
+      context.read<PackingConsolidateBloc>().add(LoadAllPedidosFromBatchEvent(
+            batch.id ?? 0,
+          ));
+      context.read<PackingConsolidateBloc>().add(ShowKeyboardEvent(false));
+      goBatchInfo(context, context.read<PackingConsolidateBloc>(), batch);
     }
   }
 
@@ -170,10 +207,47 @@ class _ListPackingConsolidadeScreenState
             duration: Duration(seconds: 5),
           );
         }
+
+        if (state is AssignUserToBatchError) {
+          //validamos que este un dialog abierto
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+          Get.snackbar(
+            '360 Software Informa',
+            state.error,
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
+
+        if (state is AssignUserToBatchLoading) {
+          // mostramos un dialogo de carga y despues
+          showDialog(
+            context: context,
+            barrierDismissible:
+                false, // No permitir que el usuario cierre el diálogo manualmente
+            builder: (_) => const DialogLoading(
+              message: 'Cargando interfaz...',
+            ),
+          );
+        }
+
+        if (state is AssignUserToBatchLoaded) {
+          // cerramos el dialogo de carga
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+          Navigator.pushReplacementNamed(
+            context,
+            'pedido-packing-consolidate-list',
+            arguments: [state.batchPackingModel],
+          );
+        }
       },
       builder: (context, state) {
         return Scaffold(
-          
             backgroundColor: white,
             bottomNavigationBar: context
                     .read<PackingConsolidateBloc>()
@@ -400,21 +474,20 @@ class _ListPackingConsolidadeScreenState
                                       ),
                                       leading: GestureDetector(
                                         onTap: () {
-
-
                                           context
                                               .read<PackingConsolidateBloc>()
                                               .batch = batch;
 
-                                            context
+                                          context
                                               .read<PackingConsolidateBloc>()
                                               .listOfOrigins = context
-                                              .read<PackingConsolidateBloc>()
-                                              .parseOrigins() ?? [];
+                                                  .read<
+                                                      PackingConsolidateBloc>()
+                                                  .parseOrigins() ??
+                                              [];
 
-                                          
                                           //todo
-                                          
+
                                           showDialog(
                                               context: context,
                                               builder: (context) =>
@@ -454,10 +527,10 @@ class _ListPackingConsolidadeScreenState
                                                               child: ListTile(
                                                                 title: Text(
                                                                     context
-                                                                        .read<
-                                                                            PackingConsolidateBloc>()
-                                                                        .listOfOrigins[index] ??
-                                                                        'Sin nombre',
+                                                                            .read<
+                                                                                PackingConsolidateBloc>()
+                                                                            .listOfOrigins[
+                                                                        index],
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,
@@ -608,7 +681,7 @@ class _ListPackingConsolidadeScreenState
                                                 ),
                                                 Expanded(
                                                   child: Text(
-                                                  'Cantidad de pedidos: ',
+                                                    'Cantidad de pedidos: ',
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black),
@@ -641,7 +714,7 @@ class _ListPackingConsolidadeScreenState
                                                 ),
                                                 Expanded(
                                                   child: Text(
-                                                  'Cantidad de lineas: ',
+                                                    'Cantidad de lineas: ',
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black),
@@ -674,7 +747,7 @@ class _ListPackingConsolidadeScreenState
                                                 ),
                                                 Expanded(
                                                   child: Text(
-                                                  'Cantidad unidades: ',
+                                                    'Cantidad unidades: ',
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black),
@@ -712,9 +785,14 @@ class _ListPackingConsolidadeScreenState
                                                             batch.userName == ""
                                                         ? "Sin responsable"
                                                         : batch.userName!,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         fontSize: 12,
-                                                        color: black),
+                                                        color: batch.userName ==
+                                                                    null ||
+                                                                batch.userName ==
+                                                                    ""
+                                                            ? red
+                                                            : black),
                                                     maxLines: 2,
                                                     overflow:
                                                         TextOverflow.ellipsis,

@@ -181,7 +181,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
       if (response != null) {
         configurations = response;
-        emit(ConfigurationLoaded(response));
+        emit(ConfigurationLoadedInfoRapida(response));
       } else {
         emit(ConfigurationError('Error al cargar configuraciones'));
       }

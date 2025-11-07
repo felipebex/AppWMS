@@ -280,3 +280,18 @@ class ChangeIsOkState extends PackingConsolidateState {
   final bool isOk;
   ChangeIsOkState(this.isOk);
 }
+
+
+
+class AssignUserToBatchLoading extends PackingConsolidateState {}
+
+class AssignUserToBatchLoaded extends PackingConsolidateState {
+  final int batchId;
+  final BatchPackingModel batchPackingModel;
+  AssignUserToBatchLoaded({required this.batchId, required this.batchPackingModel});
+}
+
+class AssignUserToBatchError extends PackingConsolidateState {
+  final String error;
+  AssignUserToBatchError(this.error);
+}

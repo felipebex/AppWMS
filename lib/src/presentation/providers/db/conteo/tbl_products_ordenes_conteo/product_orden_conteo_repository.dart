@@ -219,7 +219,7 @@ class ProductoOrdenConteoRepository {
         'AND ${ProductosOrdenConteoTable.columnLocationId} = ?',
         [setValue, productId, idMove, idOrdenConteo, locationId]);
     print(
-        "update TableProductOrdenConteo (idProduct ----($productId)) -------($field): $resUpdate");
+        "update TableProductOrdenConteo (idProduct ----($productId)). (idMove ----($idMove) -------($field): $resUpdate");
     return resUpdate;
   }
 

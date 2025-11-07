@@ -236,18 +236,18 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         //actualizamos la cantidad del producto en la bd
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
           event.productExist.orderId ?? 0,
-          event.productExist.productId ?? 0,
+            event.productExist.productId ?? 0,
           'quantity_counted',
           event.quantity ?? 0,
-          event.productExist.idMove.toString(),
+            event.productExist.idMove.toString(),
           event.productExist.locationId.toString(),
         );
 
         //enviamos ese producto nuevamente al wms con la cantidad sobrescrita
         final productSend = ConteoItem(
-          lineId: event.productExist.idMove.toString(),
-          orderId: event.productExist.orderId ?? 0,
-          productId: event.productExist.productId ?? 0,
+          lineId:   event.productExist.idMove.toString(),
+          orderId:   event.productExist.orderId ?? 0,
+          productId:   event.productExist.productId ?? 0,
           quantityCounted: event.quantity,
           observation: 'Sin novedad',
           timeLine: double.parse(event.productExist.time.toString()).toInt(),
@@ -269,6 +269,16 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           return;
         }
 
+        // actualizamos el estado del producto en la bd
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          event.productExist.orderId ?? 0,
+            event.productExist.productId ?? 0,
+          'is_done_item',
+          1,
+            event.productExist.idMove.toString(),
+          event.productExist.locationId.toString(),
+        );
+
         emit(SendProductConteoSuccess(response));
       } else {
         //pasamos a sumar las cantidades para ese producto que ya fue enviado
@@ -283,15 +293,15 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           event.productExist.productId ?? 0,
           'quantity_counted',
           newQuantity,
-          event.productExist.idMove.toString(),
+           event.productExist.idMove.toString(),
           event.productExist.locationId.toString(),
         );
 
         //enviamos ese producto nuevamente al wms con la cantidad sobrescrita
         final productSend = ConteoItem(
-          lineId: event.productExist.idMove.toString(),
+          lineId:  event.productExist.idMove.toString(),
           orderId: event.productExist.orderId ?? 0,
-          productId: event.productExist.productId ?? 0,
+          productId:  event.productExist.productId ?? 0,
           quantityCounted: newQuantity,
           observation: 'Sin novedad',
           timeLine: double.parse(event.productExist.time.toString()).toInt(),
@@ -309,6 +319,15 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
               response.result?.msg ?? 'Error al enviar el producto'));
           return;
         }
+        // actualizamos el estado del producto en la bd
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          event.productExist.orderId ?? 0,
+           event.productExist.productId ?? 0,
+          'is_done_item',
+          1,
+           event.productExist.idMove.toString(),
+          event.productExist.locationId.toString(),
+        );
         emit(SendProductConteoSuccess(response));
       }
     } catch (e, s) {
@@ -327,6 +346,36 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       // Buscar directamente en las líneas contadas
       final existingProduct = productosEnvidos.firstWhereOrNull(
+        (p) =>
+            p.productId == product.productId &&
+            p.locationId == product.locationId &&
+            (p.lotId ?? 0) == (product.loteId ?? 0),
+      );
+
+      // La lógica de validación se vuelve simple y directa:
+      // Si se encontró el producto y su `idMove` no es nulo ni 0, devuelve true.
+      if (existingProduct != null &&
+          existingProduct.idMove != null &&
+          existingProduct.idMove != 0) {
+        return existingProduct; // Producto ya fue enviado
+      }
+    } catch (e, s) {
+      print("❌ Error en _onValidateProductSentEvent: $e, $s");
+    }
+    return null;
+  }
+
+  //metodo paara validar si el producto que voy a enviar ya esta en el listado de por hacer
+  Future<CountedLine?> validateProductPorHacerEvent(ConteoItem product) async {
+    try {
+      print(
+          "locationID: ${product.locationId} productID: ${product.productId} loteID: ${product.loteId}");
+
+      final productosPorHacer =
+          lineasContadas.where((p) => p.isDoneItem != 1).toList();
+
+      // Buscar directamente en las líneas contadas
+      final existingProduct = productosPorHacer.firstWhereOrNull(
         (p) =>
             p.productId == product.productId &&
             p.locationId == product.locationId &&
@@ -631,6 +680,8 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     try {
       emit(SendProductConteoLoading());
 
+      print("SendProductConteoEvent: cantidad: ${event.cantidad}");
+
       int userId = await PrefUtils.getUserId();
       //verificamos si el producto actual tiene lote
       if (event.currentProduct.productTracking == "lot" &&
@@ -651,14 +702,14 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       }
       DateTime dateStart = DateTime.parse(dateInicio);
       DateTime dateEnd = DateTime.parse(dateFin);
-
+ 
       var difference = dateEnd.difference(dateStart);
       int time = difference.inSeconds;
 
 //construimos el producto a enviar
       final productSend = ConteoItem(
         lineId: event.currentProduct.idMove.toString(),
-        orderId: event.currentProduct.orderId ?? 0,
+        orderId: ordenConteo.id ?? 0,
         productId: event.currentProduct.productId ?? 0,
         quantityCounted: event.cantidad,
         observation: 'Sin novedad',
@@ -670,6 +721,92 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
             : event.currentProduct.locationId,
         loteId: currentProductLote?.id,
       );
+
+      //validamos ei el producro esta en el listado de por hacer
+      final productIsPorHacer = await validateProductPorHacerEvent(productSend);
+
+      if (productIsPorHacer?.productId != null) {
+
+        final productSendPorHacer = ConteoItem(
+          lineId: productIsPorHacer?.idMove.toString() ?? '',
+          orderId: ordenConteo.id ?? 0,
+          productId: productIsPorHacer?.productId ?? 0,
+          quantityCounted: event.cantidad,
+          observation: 'Sin novedad',
+          timeLine: time == 0 || time == null ? 5 : time,
+          fechaTransaccion: formattedDate,
+          idOperario: userId,
+          locationId:productIsPorHacer?.locationId,
+          loteId: currentProductLote?.id,
+        );
+
+        //actualizamos tiempo del producto
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+          ordenConteo.id ?? 0,
+          productSendPorHacer.productId,
+          'time',
+          5,
+          productSendPorHacer.lineId.toString(),
+          productSendPorHacer.locationId.toString(),
+        );
+
+        final response = await _repository.sendProductConteo(true, productSendPorHacer);
+
+        if (response.result?.code == 200) {
+//validamso si el producto tiene lote para guardarlo con el lote que seleccionamos
+          if (event.currentProduct.productTracking == "lot") {
+            //actualizamos el lote del producto en la bd
+            await db.productoOrdenConteoRepository
+                .setFieldTableProductOrdenConteo(
+              ordenConteo.id ?? 0,
+              productSendPorHacer.productId,
+              'lot_id',
+              currentProductLote?.id ?? 0,
+              productSendPorHacer.lineId.toString(),
+              productSendPorHacer.locationId.toString(),
+            );
+
+            await db.productoOrdenConteoRepository
+                .setFieldTableProductOrdenConteo(
+             ordenConteo.id ?? 0,
+              productSendPorHacer.productId,
+              'lot_name',
+              currentProductLote?.name ?? '',
+              productSendPorHacer.lineId.toString(),
+              productSendPorHacer.locationId.toString(),
+            );
+          }
+          //actualzamos la cantidad del producto en la bd
+          await db.productoOrdenConteoRepository
+              .setFieldTableProductOrdenConteo(
+           ordenConteo.id ?? 0,
+            productSendPorHacer.productId,
+            "quantity_counted",
+            productSendPorHacer.quantityCounted ?? 0,
+            productSendPorHacer.lineId.toString(),
+            productSendPorHacer.locationId.toString(),
+          );
+
+          // actualizamos el estado del producto en la bd
+          await db.productoOrdenConteoRepository
+              .setFieldTableProductOrdenConteo(
+            ordenConteo.id ?? 0,
+            productSendPorHacer.productId,
+            'is_done_item',
+            1,
+            productSendPorHacer.lineId.toString(),
+            productSendPorHacer.locationId.toString(),
+          );
+
+          await db.ordenRepository.incrementNumeroItemsContados(
+            ordenConteo.id ?? 0,
+          );
+        }
+
+        emit(SendProductConteoSuccess(response));
+
+        return;
+      }
 
       //validamos si el producto ya fue enviado
       final productIsSent = await validateProductSentEvent(productSend);
@@ -1334,7 +1471,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       print('Variable quantityIsOk: $quantityIsOk');
 
       currentProduct = productBD ?? CountedLine();
-      print('Producto actual db: ${currentProduct.productName}');
+      print('Producto actual db: ${currentProduct.toMap()}');
       products();
       add(FetchBarcodesProductEvent(false));
       //validamos si el producto tiene lote

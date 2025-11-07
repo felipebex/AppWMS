@@ -308,101 +308,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                         }),
                       ),
 
-                      // Container(
-                      //   padding: const EdgeInsets.only(top: 3),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      //     children: [
-                      // ElevatedButton(
-                      //     onPressed: () {
-                      //       context
-                      //           .read<WMSPickingBloc>()
-                      //           .add(FilterBatchesBStatusEvent(''));
-                      //     },
-                      //     style: ElevatedButton.styleFrom(
-                      //         backgroundColor: white,
-                      //         shape: RoundedRectangleBorder(
-                      //             borderRadius:
-                      //                 BorderRadius.circular(10))),
-                      //     child: Row(
-                      //       children: [
-                      //         Icon(
-                      //           Icons.batch_prediction,
-                      //           color: primaryColorApp,
-                      //           size: 20,
-                      //         ),
-                      //         const SizedBox(width: 5),
-                      //         Text(
-                      //           'En Proceso',
-                      //           style: TextStyle(
-                      //               color: primaryColorApp, fontSize: 12),
-                      //         )
-                      //       ],
-                      //     )),
-                      //       ElevatedButton(
-                      //         onPressed: () async {
-                      //           // Primero, asegúrate de que el FocusNode esté activo
-                      //           FocusScope.of(context).unfocus();
-                      //           var pickedDate =
-                      //               await DatePicker.showSimpleDatePicker(
-                      //             titleText: 'Seleccione una fecha',
-                      //             context,
-                      //             confirmText: 'Buscar',
-                      //             cancelText: 'Cancelar',
-                      //             // initialDate: DateTime(2020),
-                      //             firstDate:
-                      //                 //un mes atras
-                      //                 DateTime.now()
-                      //                     .subtract(const Duration(days: 30)),
-                      //             lastDate: DateTime.now(),
-                      //             dateFormat: "dd-MMMM-yyyy",
-                      //             locale: DateTimePickerLocale.es,
-                      //             looping: false,
-                      //           );
-
-                      //           // Verificar si el usuario seleccionó una fecha
-                      //           if (pickedDate != null) {
-                      //             // Formatear la fecha al formato "yyyy-MM-dd"
-                      //             final formattedDate = DateFormat('yyyy-MM-dd')
-                      //                 .format(pickedDate);
-
-                      //             // Disparar el evento con la fecha seleccionada
-                      //             context.read<WMSPickingBloc>().add(
-                      //                   LoadHistoryBatchsEvent(
-                      //                       true, formattedDate),
-                      //                 );
-
-                      //             // Navegar a la pantalla de historial
-                      //             Navigator.pushNamed(context, 'history-list');
-                      //           }
-                      //         },
-                      //         style: ElevatedButton.styleFrom(
-                      //           backgroundColor: white,
-                      //           shape: RoundedRectangleBorder(
-                      //             borderRadius: BorderRadius.circular(10),
-                      //           ),
-                      //         ),
-                      //         child: Row(
-                      //           children: [
-                      //             const Icon(
-                      //               Icons.history,
-                      //               color: green,
-                      //               size: 20,
-                      //             ),
-                      //             const SizedBox(width: 5),
-                      //             Text(
-                      //               'Histórico',
-                      //               style: TextStyle(
-                      //                 color: primaryColorApp,
-                      //                 fontSize: 12,
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
+            
 
                       BarcodeScannerField(
                         controller: _controllerToDo,
@@ -451,68 +357,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       horizontal: 10,
                                     ),
                                     child: GestureDetector(
-                                      // onTap: () async {
-                                      //   // Agrupar eventos de BatchBloc si es necesario
-                                      //   final batchBloc =
-                                      //       context.read<BatchBloc>();
-                                      //   print(batch.toMap());
-                                      //   try {
-                                      //     print(batch.toMap());
-
-                                      //     if (batch.startTimePick != "") {
-                                      //       batchBloc.add(
-                                      //           FetchBatchWithProductsEvent(
-                                      //               batch.id ?? 0));
-                                      //       batchBloc
-                                      //           .add(LoadInfoDeviceEvent());
-                                      //       batchBloc
-                                      //           .add(LoadConfigurationsUser());
-
-                                      //       goBatchInfo(contextBuilder,
-                                      //           batchBloc, batch);
-                                      //     } else {
-                                      //       showDialog(
-                                      //         context: context,
-                                      //         barrierDismissible:
-                                      //             false, // No permitir que el usuario cierre el diálogo manualmente
-                                      //         builder: (context) =>
-                                      //             DialogStartTimeWidget(
-                                      //           onAccepted: () async {
-                                      //             // Disparar eventos de BatchBloc
-                                      //             batchBloc.add(
-                                      //                 FetchBatchWithProductsEvent(
-                                      //                     batch.id ?? 0));
-                                      //             batchBloc.add(
-                                      //                 LoadInfoDeviceEvent());
-                                      //             batchBloc.add(
-                                      //                 LoadConfigurationsUser());
-
-                                      //             batchBloc.add(StartTimePick(
-                                      //                 batch.id ?? 0,
-                                      //                 DateTime.now()));
-
-                                      //             Navigator.pop(context);
-
-                                      //             goBatchInfo(contextBuilder,
-                                      //                 batchBloc, batch);
-                                      //           },
-                                      //           title: 'Iniciar Picking',
-                                      //         ),
-                                      //       );
-                                      //     }
-                                      //   } catch (e) {
-                                      //     // Manejo de errores, por si ocurre algún problema
-
-                                      //     ScaffoldMessenger.of(contextBuilder)
-                                      //         .showSnackBar(
-                                      //       const SnackBar(
-                                      //         content: Text(
-                                      //             'Error al cargar los datos'),
-                                      //         duration: Duration(seconds: 4),
-                                      //       ),
-                                      //     );
-                                      //   }
-                                      // },
+                                
 
                                       onTap: () async {
                                         print(batch.toMap());
@@ -870,26 +715,42 @@ class _PickingPageState extends State<WMSPickingPage> {
     );
   }
 
-  void goBatchInfo(
-      BuildContext context, BatchBloc batchBloc, BatchsModel batch) async {
-    // mostramos un dialogo de carga y despues
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // No permitir que el usuario cierre el diálogo manualmente
-      builder: (_) => const DialogLoading(
+  void goBatchInfo(BuildContext context, BatchBloc batchBloc, BatchsModel batch) async {
+  
+  // 1. Mostrar Diálogo (Capturamos el contexto del diálogo)
+  BuildContext? dialogContext;
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) { 
+      dialogContext = ctx; // ✅ Capturamos el contexto del diálogo
+      return const DialogLoading(
         message: 'Cargando interfaz...',
-      ),
-    );
+      );
+    },
+  );
 
-    await Future.delayed(const Duration(seconds: 1));
-    Navigator.pop(context);
+  // ⚠️ NOTA: El código que carga los datos del Batch debe ejecutarse aquí
+  // Ejemplo: batchBloc.add(FetchBatchData(batch.id));
+  
+  // 2. Esperar un tiempo mínimo fijo para el UX del diálogo (retraso muy corto)
+  // Reemplazamos await Future.delayed(const Duration(seconds: 1));
+  await Future.delayed(const Duration(milliseconds: 300));
 
-    // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
-    if (batch.isSeparate != 1) {
-      Navigator.pushReplacementNamed(context, 'batch');
-    } else {}
+  // 3. Cierre Seguro del Diálogo
+  // Usamos el contexto capturado, asegurando que la acción de pop sea válida
+  if (dialogContext != null) { 
+    Navigator.of(dialogContext!, rootNavigator: true).pop();
   }
+
+  // 4. Navegación (Lógica sin cambios)
+  // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
+  if (batch.isSeparate != 1) {
+    Navigator.pushReplacementNamed(context, 'batch');
+  } else {
+    Navigator.pushReplacementNamed(context, 'batch-detail'); // Asumo que va aquí
+  }
+}
 
 // Tu código refactorizado en un método privado
   void _handleBatchSelection(

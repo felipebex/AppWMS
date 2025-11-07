@@ -212,8 +212,9 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
     final dateEnd = DateTime.now().toString();
 
 //sacamos la diferencia en segundos
-    final differenceInSeconds =
-        DateTime.parse(dateEnd).difference(DateTime.parse(dateStarProduct)).inSeconds;
+    final differenceInSeconds = DateTime.parse(dateEnd)
+        .difference(DateTime.parse(dateStarProduct))
+        .inSeconds;
     print("diferencia en segundos $differenceInSeconds");
 
     bloc.add(SendTransferInfo(
@@ -225,7 +226,6 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
           idUbicacionOrigen: widget.ubicacion?.idUbicacion ?? 0,
           timeLine: differenceInSeconds,
           observacion: "Sin novedad",
-          
         ),
         cantidad));
 
@@ -298,11 +298,16 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                             current is InfoRapidaLoaded ||
                             current is InfoRapidaError,
                         listener: (listenerContext, state) {
-                          // Cerramos el diálogo de carga antes de cualquier otra acción
-                          Navigator.pop(listenerContext);
+                          // 1. CERRAR DIÁLOGO DE FORMA SEGURA (Mover esto al inicio)
+                          Future.microtask(() {
+                            // Usamos canPop para evitar el error de contexto si ya cerramos el diálogo
+                            if (Navigator.canPop(listenerContext)) {
+                              Navigator.pop(listenerContext);
+                            }
+                          });
 
                           if (state is InfoRapidaLoaded) {
-                            // ✅ Paso 2: La carga fue exitosa. La navegación es segura.
+                            // 2. Navegar
                             print(
                                 'Datos de Info Rápida cargados. Navegando...');
                             Navigator.pushReplacementNamed(
@@ -310,7 +315,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                               'product-info',
                             );
                           } else if (state is InfoRapidaError) {
-                            // Manejo del error de carga de Info Rápida
+                            // Manejo del error
                             Get.snackbar('Error',
                                 state.error ?? 'Fallo al cargar información.');
                           }

@@ -31,6 +31,9 @@ class ProductInventarioTable {
   //use_expiration_date
   static const String columnUseExpirationDate = 'use_expiration_date';
 
+  //category
+  static const String columnCategory = 'category';
+
   static String createTable() {
     return '''
       CREATE TABLE $tableName (
@@ -51,6 +54,7 @@ class ProductInventarioTable {
         $columnLocationName TEXT,
         $columnQuantity REAL,
         $columnUseExpirationDate INTEGER,
+        $columnCategory TEXT,
         $columnVolumeUomName TEXT
         )
 

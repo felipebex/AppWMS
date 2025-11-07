@@ -9,6 +9,7 @@ import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -41,6 +42,8 @@ class PackingConsolidateBloc
 
   //*repositorio
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
+
+  RecepcionRepository recepcionRepository = RecepcionRepository();
 
 //*base de datos
   DataBaseSqlite db = DataBaseSqlite();
@@ -208,6 +211,90 @@ class PackingConsolidateBloc
     add(LoadAllNovedadesPackingConsolidateEvent());
 
     on<EndTimePack>(_onEndTimePickEvent);
+
+    //*asignar un usuario a una orden de compra
+    on<AssignUserToBatch>(_onAssignUserToBatch);
+  }
+
+  //*metodo para obtener los permisos del usuario
+  void _onAssignUserToBatch(
+      AssignUserToBatch event, Emitter<PackingConsolidateState> emit) async {
+    try {
+      int userId = await PrefUtils.getUserId();
+      String nameUser = await PrefUtils.getUserName();
+
+      emit(AssignUserToBatchLoading());
+      final response = await recepcionRepository.assignUserToReceptionBatch(
+        false,
+        userId,
+        event.batchId,
+      );
+
+      if (response) {
+        //actualizamos la tabla entrada:
+        await db.batchPackingConsolidateRepository.setFieldTableBatchPacking(
+          event.batchId,
+          "user_id",
+          userId,
+        );
+
+        await db.batchPackingConsolidateRepository.setFieldTableBatchPacking(
+          event.batchId,
+          "user_name",
+          nameUser,
+        );
+        await db.batchPackingConsolidateRepository.setFieldTableBatchPacking(
+          event.batchId,
+          "is_selected",
+          1,
+        );
+
+        // add(StartOrStopTimeBatch(
+        //   event.id,
+        //   "start_time_transfer",
+        // ));
+
+        emit(AssignUserToBatchLoaded(
+          batchId: event.batchId,
+          batchPackingModel: BatchPackingModel(
+            id: event.batchId,
+            name: event.batchPackingModel.name,
+            scheduleddate: event.batchPackingModel.scheduleddate,
+            cantidadPedidos: event.batchPackingModel.cantidadPedidos,
+            state: event.batchPackingModel.state,
+            userId: userId,
+            userName: nameUser,
+            pickingTypeId: event.batchPackingModel.pickingTypeId,
+            listaPedidos: event.batchPackingModel.listaPedidos,
+            isSeparate: event.batchPackingModel.isSeparate,
+            isSelected: 1,
+            isPacking: event.batchPackingModel.isPacking,
+            pedidoSeparateQty: event.batchPackingModel.pedidoSeparateQty,
+            timeSeparateTotal: event.batchPackingModel.timeSeparateTotal,
+            timeSeparateStart: event.batchPackingModel.timeSeparateStart,
+            timeSeparateEnd: event.batchPackingModel.timeSeparateEnd,
+            zonaEntrega: event.batchPackingModel.zonaEntrega,
+            zonaEntregaTms: event.batchPackingModel.zonaEntregaTms,
+            startTimePack: event.batchPackingModel.startTimePack,
+            endTimePack: event.batchPackingModel.endTimePack,
+            manejaTemperatura: event.batchPackingModel.manejaTemperatura,
+            temperatura: event.batchPackingModel.temperatura,
+            origin: event.batchPackingModel.origin,
+            origins: event.batchPackingModel.origins,
+            cantidadTotalPedidos: event.batchPackingModel.cantidadTotalPedidos,
+            cantidadTotalProductos:
+                event.batchPackingModel.cantidadTotalProductos,
+            unidadesProductos: event.batchPackingModel.unidadesProductos,
+          ),
+        ));
+      } else {
+        emit(AssignUserToBatchError(
+            "La recepción ya tiene un responsable asignado"));
+      }
+    } catch (e, s) {
+      emit(AssignUserToBatchError('Error al asignar el usuario'));
+      print('Error en el _onAssignUserToOrder: $e, $s');
+    }
   }
 
   void _onEndTimePickEvent(
@@ -215,7 +302,7 @@ class PackingConsolidateBloc
     try {
       DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
       String formattedDate = formatter.format(event.time);
-    
+
       final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
           event.batchId,
           formattedDate,

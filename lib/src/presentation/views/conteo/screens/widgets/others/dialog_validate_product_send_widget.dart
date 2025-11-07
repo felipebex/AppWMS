@@ -179,6 +179,8 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                   onPressed: () {
                     context.read<ConteoBloc>().add(UpdateProductConteoEvent(
                         product, productExist, cantidad, true)); //sobrescribir
+                    //CERRAMOS EL DIALOGO SI ESTA ABIERO
+                    
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColorApp,
@@ -189,6 +191,7 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                   onPressed: () {
                     context.read<ConteoBloc>().add(UpdateProductConteoEvent(
                         product, productExist, cantidad, false));
+                   
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColorApp,

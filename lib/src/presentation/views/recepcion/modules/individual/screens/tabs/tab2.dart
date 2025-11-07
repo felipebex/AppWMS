@@ -66,14 +66,12 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         .toList();
 
     /// Función auxiliar para procesar un producto encontrado
+    /// Función auxiliar para procesar un producto encontrado
     void processProduct(LineasTransferencia product) {
-      showDialog(
-        context: context,
-        builder: (_) => const DialogLoading(
-          message: 'Cargando información del producto...',
-        ),
-      );
+      // Variable para almacenar el contexto creado por showDialog
+      BuildContext? dialogContext;
 
+      // Disparar eventos del BLoC (sin cambios)
       bloc
         ..add(ValidateFieldsOrderEvent(field: "product", isOk: true))
         ..add(ChangeQuantitySeparate(
@@ -91,8 +89,28 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         ))
         ..add(FetchPorductOrder(product))
         ..add(ClearScannedValueOrderEvent('toDo'));
+
+      // 1. ABRIR DIÁLOGO Y CAPTURAR SU CONTEXTO
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          // ✅ Capturamos el contexto del diálogo como 'ctx'
+          dialogContext = ctx; // Almacenamos la referencia
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
+      );
+
+      // 2. TEMPORIZADOR PARA CERRAR Y NAVEGAR
       Future.delayed(const Duration(milliseconds: 1000), () {
-        Navigator.pop(context);
+        // 3. ✅ CORRECCIÓN CLAVE: Usar el contexto capturado para el POP
+        if (dialogContext != null) {
+          // El 'pop' ahora es seguro y usa el contexto válido del diálogo
+          Navigator.of(dialogContext!, rootNavigator: true).pop();
+        }
+
+        // 4. Navegación a la siguiente vista
         Navigator.pushReplacementNamed(
           context,
           'scan-product-order',
@@ -103,10 +121,13 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
       print('✅ Producto procesado: ${product.toMap()}');
     }
 
+// ... (El resto de tu función validateBarcode sin cambios)
+
     // 1️⃣ Buscar producto por código de barras principal
     final product = listOfProducts.firstWhere(
-      (p) => p.productBarcode?.toLowerCase() == scan
-          || p.productCode?.toLowerCase() == scan,
+      (p) =>
+          p.productBarcode?.toLowerCase() == scan ||
+          p.productCode?.toLowerCase() == scan,
       orElse: () => LineasTransferencia(),
     );
 

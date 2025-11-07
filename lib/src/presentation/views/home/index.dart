@@ -41,29 +41,47 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    _onDataUser();
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _onDataUser();
+  }
+
+
+@override
+void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.resumed) {
       if (mounted) {
+        // Variable para almacenar el contexto del diálogo
+        BuildContext? dialogContext; 
+
         // Aquí se ejecutan las acciones solo si la pantalla aún está montada
         showDialog(
           context: context,
-          builder: (context) {
+          barrierDismissible: false,
+          builder: (ctx) { // ✅ CAPTURAMOS EL CONTEXTO DEL DIÁLOGO
+            dialogContext = ctx; // Almacenamos la referencia
             return const DialogLoading(
               message: "Espere un momento...",
             );
           },
         );
+        
+        // Disparar evento de carga
         context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+        
+        // Cierre asíncrono seguro
         Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pop(context);
+          // ✅ CORRECCIÓN CLAVE: Usamos el contexto capturado para el pop seguro
+          if (dialogContext != null && mounted) {
+            Navigator.of(dialogContext!, rootNavigator: true).pop();
+          }
         });
       }
     }
@@ -99,14 +117,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     return DialogUnauthorizedDevice();
                   },
                 );
-              }
-
-              if (state is RegisterDeviceIdSuccess) {
+              } else if (state is RegisterDeviceIdSuccess) {
                 //cerrar el dialogo de loading
                 Navigator.pop(context);
-              }
-
-              if (state is RegisterDeviceIdLoading) {
+              } else if (state is RegisterDeviceIdLoading) {
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -115,6 +129,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     );
                   },
                 );
+              } else if (state is ConfigurationLoaded) {
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, 'user');
+                });
               }
             },
           ),
@@ -169,20 +188,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 context.read<HomeBloc>().add(AppVersionEvent());
               },
               child: Scaffold(
-                floatingActionButton: FloatingActionButton(
-                  backgroundColor: primaryColorApp,
-                  onPressed: () {
-                    // 1. Registrar un log informativo antes del fallo (Opcional, pero útil)
-                    FirebaseCrashlytics.instance
-                        .log("Iniciando prueba de crash forzado.");
+                // floatingActionButton: FloatingActionButton(
+                //   backgroundColor: primaryColorApp,
+                //   onPressed: () {
+                //     // 1. Registrar un log informativo antes del fallo (Opcional, pero útil)
+                //     FirebaseCrashlytics.instance
+                //         .log("Iniciando prueba de crash forzado.");
 
-                    // 2. Método principal que provoca un cierre fatal (Crash)
-                    // El reporte será enviado a Firebase la próxima vez que la app se inicie.
-                    FirebaseCrashlytics.instance.crash();
-                  },
-                  child: const Icon(Icons.inventory_2_outlined,
-                      color: Colors.white),
-                ),
+                //     // 2. Método principal que provoca un cierre fatal (Crash)
+                //     // El reporte será enviado a Firebase la próxima vez que la app se inicie.
+                //     FirebaseCrashlytics.instance.crash();
+                //   },
+                //   child: const Icon(Icons.inventory_2_outlined,
+                //       color: Colors.white),
+                // ),
                 backgroundColor: white,
                 body: Container(
                   color: primaryColorApp,
@@ -274,15 +293,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       });
 
                                                   // Esperar 3 segundos antes de continuar
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 300),
-                                                      () {
-                                                    Navigator.pop(context);
-                                                    Navigator
-                                                        .pushReplacementNamed(
-                                                            context, 'user');
-                                                  });
                                                 },
                                                 child: Row(
                                                   children: [

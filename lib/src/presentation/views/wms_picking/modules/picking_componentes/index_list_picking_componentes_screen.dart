@@ -122,6 +122,7 @@ class IndexListPickComponentsScreen extends StatelessWidget {
             // cerramos el dialogo de carga
             Navigator.pop(context);
             bloc.add(FetchPickWithProductsEvent(state.id));
+            bloc.add(LoadAllNovedadesPickEvent());
             bloc.add(LoadConfigurationsUser());
             Navigator.pushReplacementNamed(context, 'scan-product-pick');
           }

@@ -417,7 +417,27 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Aquí puedes manejar la lógica de lo que suceda cuando se seleccione el lote
+                        // 1. ✅ PUNTO DE CONTROL CRÍTICO: Verificar si la lista está vacía
+                        if (bloc.listLotesProductFilters.isEmpty) {
+                          // No hay lotes para seleccionar. Muestra un error o ignora.
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'No hay lotes disponibles para seleccionar.')),
+                          );
+                          return;
+                        }
+
+                        // 2. ✅ Desempaquetado seguro: El `selectedIndex` debe tener un valor válido si llegamos aquí
+                        if (selectedIndex == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Por favor, selecciona un lote.')),
+                          );
+                          return;
+                        }
+
                         var selectedLote =
                             bloc.listLotesProductFilters[selectedIndex!];
 

@@ -197,6 +197,8 @@ class _SearchProductScreenState extends State<SearchProductConteoScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildInfoRow("Nombre:", product.name, highlight: true),
+                _buildInfoRow("Categoria:", product.category, 
+                    emptyText: 'Sin categoría'),
                 _buildInfoRow("Barcode:", product.barcode,
                     emptyText: 'Sin barcode'),
                 _buildInfoRow("Code:", product.code,

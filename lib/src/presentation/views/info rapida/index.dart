@@ -54,7 +54,6 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
       buildWhen: (previous, current) =>
           current is InfoRapidaInitial || current is InfoRapidaLoaded,
       listener: (context, state) async {
-
         print('Estado actual: $state');
         if (state is DeviceNotAuthorized) {
           Navigator.pop(context);
@@ -76,7 +75,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
         } else if (state is NeedUpdateVersionState) {
           Get.snackbar(
             '360 Software Informa',
-        'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+            'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.amber),
@@ -102,7 +101,13 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                 const DialogLoading(message: "Buscando información..."),
           );
         } else if (state is InfoRapidaLoaded) {
-          Navigator.pop(context);
+          Navigator.pop(context); // Cierra el loader
+
+          // 1. ✅ Chequeo de seguridad: Si la lista de resultados está vacía, mostramos error
+          if (state.infoRapidaResult == null) {
+            return;
+          }
+          // Si la información es válida, mostramos el Snackbar
           Future.microtask(() {
             Get.snackbar(
               '360 Software Informa',
@@ -111,8 +116,21 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
               colorText: primaryColorApp,
               icon: const Icon(Icons.check_circle, color: Colors.green),
             );
+
+            // 2. Navegación basada en el tipo (Línea 115, donde ocurre el error)
             if (state.infoRapidaResult.type == 'product') {
+              // Usamos !. o chequeo nulo si infoRapidaResult es nullable
+
+              // 3. ✅ Aquí es donde debes asegurarte que la lista de productos NO esté vacía
+              // Este error ocurre si la lista 'products' está vacía y tu pantalla de destino
+              // (product-info) intenta acceder a su primer elemento sin verificar.
+
+              // Si el BLoC de InfoRapida tiene una lista de productos, asegúrate que no esté vacía
+              // if (state.infoRapidaResult!.products!.isNotEmpty) {
               Navigator.pushReplacementNamed(context, 'product-info');
+              // } else {
+              //      context.read<InfoRapidaBloc>().add(ShowErrorEvent("El producto no tiene datos de inventario."));
+              // }
             } else if (state.infoRapidaResult.type == 'ubicacion') {
               Navigator.pushReplacementNamed(
                 context,

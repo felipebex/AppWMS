@@ -251,3 +251,10 @@ class UnPackingEvent extends PackingConsolidateEvent {
 
 
 class LoadAllNovedadesPackingConsolidateEvent extends PackingConsolidateEvent {}
+
+
+class AssignUserToBatch extends PackingConsolidateEvent {
+  final int batchId;
+  final BatchPackingModel batchPackingModel;
+  AssignUserToBatch(this.batchId, this.batchPackingModel);
+}

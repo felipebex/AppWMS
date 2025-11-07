@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/location/location_dropdown_widget.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/dialog_validate_product_send_widget.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/product/product_dropdown_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
@@ -403,6 +404,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                           0),
                                 );
 
+                              
+
                             Navigator.pushReplacementNamed(
                               context,
                               'conteo-detail',
@@ -447,26 +450,43 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                           }
 
                           //*estado cuando el producto es leido ok
-                         if (state is ChangeProductOrderIsOkState) {
-  // Verificamos si el producto tiene lote para saber a dónde mover el foco
-  if (context.read<ConteoBloc>().currentProduct.productTracking == "lot") {
-    // Si la pantalla sigue activa, movemos el foco
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        FocusScope.of(context).requestFocus(focusNode5);
-      }
-    });
-  } else {
-    // Si no tiene lote, movemos el foco a otro lugar
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        FocusScope.of(context).requestFocus(focusNode3);
-      }
-    });
-  }
+                          if (state is ChangeProductOrderIsOkState) {
+                            // Verificamos si el producto tiene lote para saber a dónde mover el foco
+                            if (context
+                                    .read<ConteoBloc>()
+                                    .currentProduct
+                                    .productTracking ==
+                                "lot") {
+                              // Si la pantalla sigue activa, movemos el foco
+                              Future.delayed(const Duration(seconds: 1), () {
+                                if (mounted) {
+                                  FocusScope.of(context)
+                                      .requestFocus(focusNode5);
+                                }
+                              });
+                            } else {
+                              // Si no tiene lote, movemos el foco a otro lugar
+                              Future.delayed(const Duration(seconds: 1), () {
+                                if (mounted) {
+                                  FocusScope.of(context)
+                                      .requestFocus(focusNode3);
+                                }
+                              });
+                            }
 
-  _handleFocusAccordingToState();
-}
+                            _handleFocusAccordingToState();
+                          } else if (state is ProductAlreadySentState) {
+                            //mostramos un dialogo DialogValidateProductSendWidget
+
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return DialogValidateProductSendWidget(
+                                      productExist: state.productExist,
+                                      product: state.product,
+                                      cantidadController: cantidadController);
+                                });
+                          }
                         }, builder: (context, status) {
                           return Column(
                             children: [
@@ -958,7 +978,10 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                     locationIsOk: context.read<ConteoBloc>().locationIsOk,
                     productIsOk: context.read<ConteoBloc>().productIsOk,
                     locationDestIsOk: false,
-                    totalQuantity: context.read<ConteoBloc>().currentProduct.quantityInventory,
+                    totalQuantity: context
+                        .read<ConteoBloc>()
+                        .currentProduct
+                        .quantityInventory,
                     quantitySelected:
                         context.read<ConteoBloc>().quantitySelected,
                     unidades:
@@ -1022,7 +1045,13 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                       controller: cantidadController,
                       onchanged: _validatebuttonquantity,
                     ),
-                    isViewCant: context.read<ConteoBloc>().ordenConteo.mostrarCantidad == 1 ? true : false,
+                    isViewCant: context
+                                .read<ConteoBloc>()
+                                .ordenConteo
+                                .mostrarCantidad ==
+                            1
+                        ? true
+                        : false,
                   ),
                 ],
               ));
@@ -1112,6 +1141,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
         double cantidad = double.parse(cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : cantidadController.text);
+
+        print("cantidad: $cantidad");
         bloc.add(SendProductConteoEvent(false, cantidad, bloc.currentProduct));
       }
     } else {

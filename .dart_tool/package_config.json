@@ -477,7 +477,7 @@
     },
     {
       "name": "get",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/get-4.6.6",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/get-4.7.2",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -1196,7 +1196,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-11-04T22:36:53.649738Z",
+  "generated": "2025-11-05T19:23:45.160654Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Volumes/Baneste/fvm/versions/3.24.4",

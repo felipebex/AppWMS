@@ -361,7 +361,7 @@ class ProductInfoScreen extends StatelessWidget {
                     cacheExtent: 500, // Precarga 500px adicionales
                     padding: const EdgeInsets.all(0),
                     itemCount: product?.ubicaciones?.length ?? 0,
-                    itemBuilder: (context, index) {
+                    itemBuilder: (contextList, index) {
                       final ubicacion = product?.ubicaciones?[index];
                       return Card(
                         elevation: 2,
@@ -429,8 +429,8 @@ class ProductInfoScreen extends StatelessWidget {
                                       .add(SetDateStartEventTransfer());
 
                                   showDialog(
-                                    context: context,
-                                    builder: (context) {
+                                    context: contextList,
+                                    builder: (contextList) {
                                       return const DialogLoading(
                                         message: "Cargando informacion...",
                                       );

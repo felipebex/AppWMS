@@ -345,6 +345,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
   void validateMuelle(String value) {
     final bloc = context.read<TransferenciaBloc>();
 
+    // Normalizar el valor escaneado
     String scan = bloc.scannedValue4.trim().toLowerCase() == ""
         ? value.trim().toLowerCase()
         : bloc.scannedValue4.trim().toLowerCase();
@@ -352,13 +353,33 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     _controllerLocationDest.text = "";
     final currentProduct = bloc.currentProduct;
 
-    if (scan == currentProduct.locationDestBarcode.toString().toLowerCase()) {
+    // 1. ✅ PUNTO DE CONTROL CRÍTICO: Verificar si currentProduct es nulo
+    if (currentProduct == null || currentProduct.productId == null) {
+      _audioService.playErrorSound();
+      _vibrationService.vibrate();
+      print(
+          '⚠️ Error: No hay un producto actual seleccionado para validar el muelle.');
+      // Puedes añadir un SnackBar aquí para informar al usuario
+      bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
+      bloc.add(ClearScannedValueEvent('muelle'));
+      return;
+    }
+
+    // 2. Extracción de valores de producto con seguridad
+    final String destBarcode =
+        currentProduct.locationDestBarcode?.toString().toLowerCase() ?? '';
+    final int productId =
+        int.tryParse(currentProduct.productId.toString()) ?? 0;
+
+    // 3. PRIMERA VALIDACIÓN: ¿Coincide con el muelle de destino predefinido?
+    if (scan == destBarcode) {
       bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
       bloc.add(ChangeLocationDestIsOkEvent(
           true,
-          int.parse(currentProduct.productId),
+          productId,
           currentProduct.idTransferencia ?? 0,
           currentProduct.idMove ?? 0,
+          // Re-usar los datos del producto actual para construir la ubicación
           ResultUbicaciones(
             id: currentProduct.locationDestId,
             name: currentProduct.locationDestName,
@@ -368,12 +389,17 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
           )));
 
       bloc.add(ClearScannedValueEvent('muelle'));
-    } else {
+      return;
+    }
+
+    // 4. SEGUNDA VALIDACIÓN: Buscar en la lista de ubicaciones
+    else {
       // Buscar el barcode que coincida con el valor escaneado
       ResultUbicaciones? matchedUbicacion = bloc.ubicaciones.firstWhere(
+          // Normalizamos la búsqueda con .trim()
           (ubicacion) => ubicacion.barcode?.toLowerCase() == scan.trim(),
           orElse: () =>
-              ResultUbicaciones() // Si no se encuentra ningún match, devuelve null
+              ResultUbicaciones() // Devolver instancia vacía si no se encuentra
           );
 
       if (matchedUbicacion.barcode != null) {
@@ -381,7 +407,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
         bloc.add(ChangeLocationDestIsOkEvent(
           true,
-          int.parse(currentProduct.productId),
+          productId,
           currentProduct.idTransferencia ?? 0,
           currentProduct.idMove ?? 0,
           matchedUbicacion,
@@ -389,6 +415,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
         bloc.add(ClearScannedValueEvent('muelle'));
       } else {
+        // Fallo final
         _audioService.playErrorSound();
         _vibrationService.vibrate();
         print('Ubicacion no encontrada');

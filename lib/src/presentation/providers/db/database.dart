@@ -88,7 +88,7 @@ class DataBaseSqlite {
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 13,
+      version: 14,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -307,6 +307,26 @@ class DataBaseSqlite {
             '❌ Error al crear la tabla ${BatchPackingConsolidateTable.tableName}, es posible que ya exista.');
       }
     }
+
+
+    if(oldVersion <14){
+      //solucion para cuando la version no tiene la tabla de maestra de productos de inventario
+      print('Migrando la base de datos a la versión 14...');
+      try {
+        // Añadir la columna 'category' a la tabla ProductInventarioTable
+        await db.execute('''
+          ALTER TABLE ${ProductInventarioTable.tableName}
+          ADD COLUMN ${ProductInventarioTable.columnCategory} TEXT;
+        ''');
+        print(
+            '✅ Columna ${ProductInventarioTable.columnCategory} añadida a ${ProductInventarioTable.tableName}.');
+      } catch (e) {
+        print(
+            '❌ Error al añadir la columna ${ProductInventarioTable.columnCategory}, es posible que ya exista.');
+      }
+    }
+
+
 
    
 

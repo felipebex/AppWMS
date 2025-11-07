@@ -241,6 +241,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
       child: BlocConsumer<ConteoBloc, ConteoState>(
         listener: (context, state) {},
         builder: (context, state) {
+          
           final conteoBloc = context.read<ConteoBloc>();
           final productosPorContar = conteoBloc.lineasContadas
               .where((element) => element.isDoneItem != 1)
