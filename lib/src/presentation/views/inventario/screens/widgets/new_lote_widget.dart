@@ -43,7 +43,6 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<InventarioBloc>();
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -58,15 +57,16 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
                 ),
                 child: CustomKeyboard(
                   isLogin: false,
-                  controller: bloc.newLoteController,
+                  controller: context.read<InventarioBloc>().newLoteController,
                   onchanged: () {
-                    bloc.newLoteController.text = bloc.newLoteController.text;
+                    context.read<InventarioBloc>().newLoteController.text = context.read<InventarioBloc>().newLoteController.text;
                   },
                 ),
               )
             : null,
         body: BlocBuilder<InventarioBloc, InventarioState>(
           builder: (context, state) {
+            final bloc = context.read<InventarioBloc>();
             return SizedBox(
               width: size.width * 1,
               height: size.height * 1,

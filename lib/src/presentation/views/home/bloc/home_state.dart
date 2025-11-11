@@ -34,3 +34,15 @@ final class AppVersionUpdateState extends HomeState {
   final AppVersion version;
   AppVersionUpdateState(this.version);
 }
+
+final class ConfigurationLoadedHomeState extends HomeState {
+  final Configurations configurations;
+
+  ConfigurationLoadedHomeState(this.configurations);
+}
+
+final class ConfigurationErrorHomeState extends HomeState {
+  final String message;
+
+  ConfigurationErrorHomeState(this.message);
+}

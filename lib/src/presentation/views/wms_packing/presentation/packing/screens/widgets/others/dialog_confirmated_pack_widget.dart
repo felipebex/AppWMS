@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
@@ -31,9 +32,11 @@ class DialogConfirmatedPack extends StatelessWidget {
           children: [
             SizedBox(
               height: 100,
-              width: 150,
-              child: Image.asset(
-                 "assets/images/icono.jpeg",
+              width: 200,
+              child: SvgPicture.asset(
+                "assets/images/icono.svg",
+                height: 150,
+                width: 50,
                 fit: BoxFit.cover,
               ),
             ),
@@ -58,7 +61,6 @@ class DialogConfirmatedPack extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          
             BlocBuilder<PackingPedidoBloc, PackingPedidoState>(
               builder: (context, state) {
                 return Column(
@@ -115,7 +117,6 @@ class DialogConfirmatedPack extends StatelessWidget {
                     productos,
                     context.read<PackingPedidoBloc>().isSticker,
                     isCertificate,
-                  
                   ));
               Navigator.pop(context);
             },

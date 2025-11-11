@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -1077,10 +1078,16 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                             alignment: Alignment.centerLeft,
                                             child: Row(
                                               children: [
-                                                Image.asset(
-                                                  "assets/icons/barcode.png",
-                                                  color: primaryColorApp,
+                                                SizedBox(
+                                                  height: 20,
                                                   width: 20,
+                                                  child: SvgPicture.asset(
+                                                    color: primaryColorApp,
+                                                    "assets/icons/barcode.svg",
+                                                    height: 20,
+                                                    width: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
                                                 const SizedBox(width: 10),
                                                 Text(
@@ -1189,11 +1196,19 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                         visible: batchBloc
                                                             .listOfBarcodes
                                                             .isNotEmpty,
-                                                        child: Image.asset(
-                                                            "assets/icons/package_barcode.png",
+                                                        child: SizedBox(
+                                                          height: 20,
+                                                          width: 20,
+                                                          child:
+                                                              SvgPicture.asset(
                                                             color:
                                                                 primaryColorApp,
-                                                            width: 20),
+                                                            "assets/icons/barcode.svg",
+                                                            height: 20,
+                                                            width: 20,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1300,11 +1315,18 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                           Alignment.centerLeft,
                                                       child: Row(
                                                         children: [
-                                                          Image.asset(
-                                                            "assets/icons/barcode.png",
-                                                            color:
-                                                                primaryColorApp,
+                                                          SizedBox(
+                                                            height: 20,
                                                             width: 20,
+                                                            child: SvgPicture
+                                                                .asset(
+                                                              color:
+                                                                  primaryColorApp,
+                                                              "assets/icons/barcode.svg",
+                                                              height: 20,
+                                                              width: 20,
+                                                              fit: BoxFit.cover,
+                                                            ),
                                                           ),
                                                           const SizedBox(
                                                               width: 10),
@@ -1402,11 +1424,20 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                             visible: batchBloc
                                                                 .listOfBarcodes
                                                                 .isNotEmpty,
-                                                            child: Image.asset(
-                                                                "assets/icons/package_barcode.png",
+                                                            child: SizedBox(
+                                                              height: 20,
+                                                              width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
                                                                 color:
                                                                     primaryColorApp,
-                                                                width: 20),
+                                                                "assets/icons/barcode.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -1930,7 +1961,6 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                               ),
                               //al dar enter
                               onFieldSubmitted: (value) {
-                
                                 if (value.isNotEmpty) {
                                   // ✅ 1. PARSEO SEGURO: Convertir el valor de entrada a un double
                                   final double enteredQuantity =
@@ -2263,61 +2293,58 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
       FocusScope.of(context).unfocus();
 
       showDialog(
-          context: context,
-          builder: (context) {
-            return DialogPickIncompleted(
-              currentProduct: batchBloc.currentProduct,
-              cantidad: unidadesSeparadas,
-              onAccepted: () {
-                if (batchBloc
-                        .configurations.result?.result?.showDetallesPicking ==
-                    true) {
-                  //cerramos el focus
-                  batchBloc.isSearch = false;
-                  batchBloc.add(LoadProductEditEvent());
-                  Navigator.pushReplacementNamed(
-                    context,
-                    'pick-detail',
-                  ).then((_) {});
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      duration: Duration(milliseconds: 1000),
-                      content: Text('No tienes permisos para ver detalles'),
-                    ),
-                  );
-                }
-              },
-              onClose: () {
-                if (batchBloc
-                        .configurations.result?.result?.hideValidatePicking ==
-                    false) {
-                  Navigator.pop(context);
-                  FocusScope.of(context).unfocus();
-                  Future.delayed(Duration.zero, () {
-                    showDialog(
-                        context:
-                            Navigator.of(context, rootNavigator: true).context,
-                        builder: (context) {
-                          return DialogBackorderPick(
-                            isHistory: false,
-                            idPick: batchBloc.pickWithProducts.pick?.id ?? 0,
-                            unidadesSeparadas: unidadesSeparadas,
-                            createBackorder: batchBloc
-                                    .pickWithProducts.pick?.createBackorder ??
-                                "ask",
-                            isExternalProduct:
-                                false, // Pasamos false por defecto
-                          );
-                        });
-                  });
-                } else {
-                  batchBloc.add(
-                      PickOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
-                }
-              },
-            );
-          });
+        context: context,
+        builder: (context) => DialogPickIncompleted(
+          currentProduct: batchBloc.currentProduct,
+          cantidad: unidadesSeparadas,
+          onAccepted: () {
+            // ✅ Este código se ejecuta DESPUÉS de cerrar el diálogo
+            if (batchBloc.configurations.result?.result?.showDetallesPicking ==
+                true) {
+              batchBloc.isSearch = false;
+              batchBloc.add(ShowKeyboard(false));
+              batchBloc.add(LoadProductEditEvent());
+              Navigator.pushReplacementNamed(
+                context,
+                'pick-detail',
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  duration: Duration(milliseconds: 1000),
+                  content: Text('No tienes permisos para ver detalles'),
+                ),
+              );
+            }
+          },
+          onClose: () {
+            // ✅ Este código se ejecuta DESPUÉS de cerrar el diálogo
+            if (batchBloc.configurations.result?.result?.hideValidatePicking ==
+                false) {
+              // Mostrar nuevo diálogo después de cerrar el actual
+              Future.delayed(Duration.zero, () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return DialogBackorderPick(
+                      isHistory: false,
+                      idPick: batchBloc.pickWithProducts.pick?.id ?? 0,
+                      unidadesSeparadas: unidadesSeparadas,
+                      createBackorder:
+                          batchBloc.pickWithProducts.pick?.createBackorder ??
+                              "ask",
+                      isExternalProduct: false,
+                    );
+                  },
+                );
+              });
+            } else {
+              batchBloc
+                  .add(PickOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
+            }
+          },
+        ),
+      );
     }
   }
 }

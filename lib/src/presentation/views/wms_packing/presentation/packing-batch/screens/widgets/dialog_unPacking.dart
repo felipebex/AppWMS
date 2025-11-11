@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
@@ -30,9 +31,11 @@ class DialogUnPacking extends StatelessWidget {
             children: [
               SizedBox(
                 height: 100,
-                width: 150,
-                child: Image.asset(
-                  "assets/images/icono.jpeg",
+                width: 200,
+                child: SvgPicture.asset(
+                  "assets/images/icono.svg",
+                  height: 150,
+                  width: 50,
                   fit: BoxFit.cover,
                 ),
               ),

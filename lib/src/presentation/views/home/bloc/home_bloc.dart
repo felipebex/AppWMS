@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/data/home_repository.dart';
 import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
+import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 part 'home_event.dart';
 part 'home_state.dart';
 
@@ -21,6 +23,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   HomeRepository homeRepository = HomeRepository();
 
+  //*configuracion del usuario //permisos
+  Configurations configurations = Configurations();
+
+  DataBaseSqlite db = DataBaseSqlite();
+
   HomeBloc() : super(HomeInitial()) {
     on<HomeLoadData>((event, emit) async {
       emit(HomeLoadingState());
@@ -34,6 +41,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     });
     add(HomeLoadData());
+
+    //*obtener las configuraciones y permisos del usuario desde la bd
+    on<LoadConfigurationsUserHome>(_onLoadConfigurationsUserEvent);
 
     on<AppVersionEvent>((event, emit) async {
       emit(AppVersionLoadingState());
@@ -70,5 +80,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             AppVersionLoadErrorState('Error al obtener la versión de la app '));
       }
     });
+  }
+
+  void _onLoadConfigurationsUserEvent(
+      LoadConfigurationsUserHome event, Emitter<HomeState> emit) async {
+    emit(HomeLoadingState());
+    try {
+      int userId = await PrefUtils.getUserId();
+      final response =
+          await db.configurationsRepository.getConfiguration(userId);
+      if (response != null) {
+        configurations = response;
+        emit(ConfigurationLoadedHomeState(response));
+      } else {
+        emit(ConfigurationErrorHomeState('Error al cargar configuraciones'));
+      }
+    } catch (e, s) {
+      emit(ConfigurationErrorHomeState(e.toString()));
+      print('Error en LoadConfigurationsUserPack.dart: $e =>$s');
+    }
   }
 }

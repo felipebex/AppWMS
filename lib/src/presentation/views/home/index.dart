@@ -1,11 +1,9 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
-import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/widgets/dialog_dispositivo_no_autorizado_widget.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
@@ -51,31 +49,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _onDataUser();
   }
 
-
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.resumed) {
       if (mounted) {
         // Variable para almacenar el contexto del diálogo
-        BuildContext? dialogContext; 
+        BuildContext? dialogContext;
 
         // Aquí se ejecutan las acciones solo si la pantalla aún está montada
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (ctx) { // ✅ CAPTURAMOS EL CONTEXTO DEL DIÁLOGO
+          builder: (ctx) {
+            // ✅ CAPTURAMOS EL CONTEXTO DEL DIÁLOGO
             dialogContext = ctx; // Almacenamos la referencia
             return const DialogLoading(
               message: "Espere un momento...",
             );
           },
         );
-        
+
         // Disparar evento de carga
         context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-        
+
         // Cierre asíncrono seguro
         Future.delayed(const Duration(seconds: 1), () {
           // ✅ CORRECCIÓN CLAVE: Usamos el contexto capturado para el pop seguro
@@ -152,6 +150,10 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
               );
             }
 
+            if (state is HomeLoadedState) {
+              context.read<HomeBloc>().add(LoadConfigurationsUserHome());
+            }
+
             if (state is AppVersionUpdateState) {
               showDialog(
                   context: context,
@@ -188,20 +190,6 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                 context.read<HomeBloc>().add(AppVersionEvent());
               },
               child: Scaffold(
-                // floatingActionButton: FloatingActionButton(
-                //   backgroundColor: primaryColorApp,
-                //   onPressed: () {
-                //     // 1. Registrar un log informativo antes del fallo (Opcional, pero útil)
-                //     FirebaseCrashlytics.instance
-                //         .log("Iniciando prueba de crash forzado.");
-
-                //     // 2. Método principal que provoca un cierre fatal (Crash)
-                //     // El reporte será enviado a Firebase la próxima vez que la app se inicie.
-                //     FirebaseCrashlytics.instance.crash();
-                //   },
-                //   child: const Icon(Icons.inventory_2_outlined,
-                //       color: Colors.white),
-                // ),
                 backgroundColor: white,
                 body: Container(
                   color: primaryColorApp,
@@ -274,9 +262,9 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                               ),
                                               GestureDetector(
                                                 onTap: () {
-                                                  context.read<UserBloc>().add(
-                                                      GetConfigurations(
-                                                          context));
+                                                  context
+                                                      .read<UserBloc>()
+                                                      .add(GetConfigurations());
 
                                                   context.read<UserBloc>().add(
                                                       LoadInfoDeviceEventUser());
@@ -480,7 +468,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                 PickingState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  urlImg: "picking.png",
+                                                  urlImg: "picking.svg",
                                                   title: 'Picking',
                                                 );
                                               },
@@ -532,7 +520,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                 WmsPackingState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  urlImg: "packing.png",
+                                                  urlImg: "packing.svg",
                                                   title: 'Packing',
                                                 );
                                               },
@@ -571,7 +559,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                 RecepcionBatchState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  urlImg: "devoluciones.png",
+                                                  urlImg: "devoluciones.svg",
                                                   title: 'Devoluciones',
                                                 );
                                               },
@@ -643,7 +631,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                           element.isFinish ==
                                                               null)
                                                       .length,
-                                                  urlImg: "recepcion.png",
+                                                  urlImg: "recepcion.svg",
                                                   title: 'Recepción',
                                                 );
                                               },
@@ -715,7 +703,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                               null)
                                                       .toList()
                                                       .length,
-                                                  urlImg: "transferencia.png",
+                                                  urlImg: "transferencia.svg",
                                                   title: 'Transferencia',
                                                 );
                                               },
@@ -733,47 +721,6 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                         contextHome: context,
                                                       );
                                                     });
-
-                                                // //obtenemos las ubicaciones
-                                                // context
-                                                //     .read<InventarioBloc>()
-                                                //     .add(GetLocationsEvent());
-                                                // //obtenemos los productos
-                                                // context
-                                                //     .read<InventarioBloc>()
-                                                //     .add(GetProductsForDB());
-                                                // //cargamos la configuracion
-                                                // context.read<InventarioBloc>().add(
-                                                //     LoadConfigurationsUserInventory());
-
-                                                // showDialog(
-                                                //     context: context,
-                                                //     builder: (context) {
-                                                //       return const DialogLoading(
-                                                //           message:
-                                                //               'Cargando inventario rapido...');
-                                                //     });
-
-                                                // await Future.delayed(const Duration(
-                                                //     seconds:
-                                                //         1)); // Ajusta el tiempo si es necesario
-
-                                                // Navigator.pop(context);
-                                                // Navigator.pushReplacementNamed(
-                                                //   context,
-                                                //   'inventario',
-                                                // );
-
-                                                // context.read<ConteoBloc>().add(
-                                                //     GetConteosFromDBEvent());
-                                                // context.read<ConteoBloc>().add(
-                                                //     LoadConfigurationsUserConteo());
-
-                                                // // Navigator.pop(context);
-                                                // Navigator.pushReplacementNamed(
-                                                //   context,
-                                                //   'conteo',
-                                                // );
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -787,7 +734,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                               }
                                             },
                                             child: ImteModule(
-                                              urlImg: "inventario.png",
+                                              urlImg: "inventario.svg",
                                               title: 'Inventario',
                                             ),
                                           ),
@@ -799,22 +746,40 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                         children: [
                                           GestureDetector(
                                             onTap: () async {
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DialogLoading(
-                                                        message:
-                                                            'Cargando componentes...');
-                                                  });
-                                              await Future.delayed(const Duration(
-                                                  seconds:
-                                                      1)); // Ajusta el tiempo si es necesario
+                                              if (context
+                                                      .read<HomeBloc>()
+                                                      .configurations
+                                                      .result
+                                                      ?.result
+                                                      ?.accessProductionModule ==
+                                                  true) {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando componentes...');
+                                                    });
+                                                await Future.delayed(const Duration(
+                                                    seconds:
+                                                        1)); // Ajusta el tiempo si es necesario
 
-                                              Navigator.pop(context);
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                'picking-componentes',
-                                              );
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'picking-componentes',
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
                                             },
                                             child: BlocBuilder<PickingPickBloc,
                                                 PickingPickState>(
@@ -829,7 +794,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                           element.isSeparate ==
                                                               null)
                                                       .length,
-                                                  urlImg: "pc.png",
+                                                  urlImg: "pc.svg",
                                                   title: 'Picking\nComponentes',
                                                 );
                                               },
@@ -837,21 +802,39 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                           ),
                                           GestureDetector(
                                             onTap: () async {
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DialogLoading(
-                                                        message:
-                                                            'Cargando entrega de productos...');
-                                                  });
-                                              await Future.delayed(const Duration(
-                                                  seconds:
-                                                      1)); // Ajusta el tiempo si es necesario
-                                              Navigator.pop(context);
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                'list-entrada-productos',
-                                              );
+                                              if (context
+                                                      .read<HomeBloc>()
+                                                      .configurations
+                                                      .result
+                                                      ?.result
+                                                      ?.accessProductionModule ==
+                                                  true) {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando entrega de productos...');
+                                                    });
+                                                await Future.delayed(const Duration(
+                                                    seconds:
+                                                        1)); // Ajusta el tiempo si es necesario
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'list-entrada-productos',
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
                                             },
                                             child: BlocBuilder<
                                                 TransferenciaBloc,
@@ -868,7 +851,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                                               null)
                                                       .toList()
                                                       .length,
-                                                  urlImg: "entrega.png",
+                                                  urlImg: "entrega.svg",
                                                   title: 'Entrada\nProductos',
                                                 );
                                               },
@@ -909,7 +892,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                               );
                                             },
                                             child: const ImteModule(
-                                              urlImg: "info.png",
+                                              urlImg: "info.svg",
                                               title: 'Info Rapida',
                                             ),
                                           ),

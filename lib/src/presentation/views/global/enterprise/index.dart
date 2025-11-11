@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/validator_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -12,7 +13,6 @@ import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../widgets/message_modal.dart';
 
 class SelectEnterpricePage extends StatelessWidget {
   const SelectEnterpricePage({super.key});
@@ -30,7 +30,28 @@ class SelectEnterpricePage extends StatelessWidget {
 
           //estado de error
           if (state is EntrepriseFailure) {
-            showModalDialog(context, state.error);
+            Get.defaultDialog(
+              title: '360 Software Informa',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: state.error,
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
           }
 
           if (state is EntrepriseSuccess) {
@@ -72,11 +93,10 @@ class SelectEnterpricePage extends StatelessWidget {
                                 color: Colors.white, fontSize: 22),
                           )),
 
-                           Center(
-                           child: Text("Version: ${context
-                                                  .read<UserBloc>()
-                                                  .versionApp}",
-                                style: TextStyle( 
+                          Center(
+                            child: Text(
+                                "Version: ${context.read<UserBloc>().versionApp}",
+                                style: TextStyle(
                                     color: Colors.white, fontSize: 10)),
                           )
                           //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
@@ -257,7 +277,28 @@ class _loginForm extends StatelessWidget {
                         .add(EntrepriseButtonPressed());
                   }
                 } catch (e) {
-                  showModalDialog(context, 'Error al procesar la solicitud');
+                  Get.defaultDialog(
+                    title: '360 Software Informa',
+                    titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                    middleText:'Error al procesar la solicitud',
+                    middleTextStyle: TextStyle(color: black, fontSize: 14),
+                    backgroundColor: Colors.white,
+                    radius: 10,
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColorApp,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text('Aceptar', style: TextStyle(color: white)),
+                      ),
+                    ],
+                  );
                 }
               },
               child: BlocBuilder<EntrepriseBloc, EntrepriseState>(

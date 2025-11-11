@@ -41,7 +41,6 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<RecepcionBloc>();
 
     return BlocConsumer<RecepcionBloc, RecepcionState>(
       listener: (context, state) {
@@ -53,6 +52,7 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
         }
       },
       builder: (context, state) {
+        final bloc = context.read<RecepcionBloc>();
         return BackdropFilter(
           filter: ImageFilter.blur(
             sigmaX: 5,

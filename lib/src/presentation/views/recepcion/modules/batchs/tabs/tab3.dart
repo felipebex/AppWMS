@@ -17,8 +17,6 @@ class Tab3ScreenRecepBatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recepcionBloc = context.read<RecepcionBatchBloc>();
-
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
@@ -27,6 +25,7 @@ class Tab3ScreenRecepBatch extends StatelessWidget {
       child: BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
         listener: (context, state) {},
         builder: (context, state) {
+          final recepcionBloc = context.read<RecepcionBatchBloc>();
           return Scaffold(
             backgroundColor: white,
             body: Container(

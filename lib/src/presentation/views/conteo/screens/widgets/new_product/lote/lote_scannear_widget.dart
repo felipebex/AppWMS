@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 
@@ -39,7 +40,6 @@ class LoteScannerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isZebraDevice = context.read<UserBloc>().fabricante.contains("Zebra");
     final statusColor = loteIsOk ? green : yellow;
     final cardColor = isLoteOk
         ? loteIsOk
@@ -76,7 +76,9 @@ class LoteScannerWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    isZebraDevice ? _buildZebraInput() : _buildNonZebraInput(),
+                    context.read<UserBloc>().fabricante.contains("Zebra")
+                        ? _buildZebraInput()
+                        : _buildNonZebraInput(),
                     _buildExpirationDate(expirationDate),
                   ],
                 )
@@ -96,10 +98,16 @@ class LoteScannerWidget extends StatelessWidget {
           style: TextStyle(fontSize: 14, color: primaryColorApp),
         ),
         const Spacer(),
-        Image.asset(
-          "assets/icons/barcode.png",
-          color: primaryColorApp,
+        SizedBox(
+          height: 20,
           width: 20,
+          child: SvgPicture.asset(
+            color: primaryColorApp,
+            "assets/icons/barcode.svg",
+            height: 20,
+            width: 20,
+            fit: BoxFit.cover,
+          ),
         ),
         IconButton(
           onPressed: () {

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -298,16 +299,11 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                             current is InfoRapidaLoaded ||
                             current is InfoRapidaError,
                         listener: (listenerContext, state) {
-                          // 1. CERRAR DIÁLOGO DE FORMA SEGURA (Mover esto al inicio)
-                          Future.microtask(() {
-                            // Usamos canPop para evitar el error de contexto si ya cerramos el diálogo
-                            if (Navigator.canPop(listenerContext)) {
-                              Navigator.pop(listenerContext);
-                            }
-                          });
+                          // Cerramos el diálogo de carga antes de cualquier otra acción
+                          Navigator.pop(listenerContext);
 
                           if (state is InfoRapidaLoaded) {
-                            // 2. Navegar
+                            // ✅ Paso 2: La carga fue exitosa. La navegación es segura.
                             print(
                                 'Datos de Info Rápida cargados. Navegando...');
                             Navigator.pushReplacementNamed(
@@ -315,7 +311,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                               'product-info',
                             );
                           } else if (state is InfoRapidaError) {
-                            // Manejo del error
+                            // Manejo del error de carga de Info Rápida
                             Get.snackbar('Error',
                                 state.error ?? 'Fallo al cargar información.');
                           }
@@ -488,10 +484,16 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Image.asset(
-                                              "assets/icons/barcode.png",
-                                              color: primaryColorApp,
+                                            SizedBox(
+                                              height: 20,
                                               width: 20,
+                                              child: SvgPicture.asset(
+                                                color: primaryColorApp,
+                                                "assets/icons/barcode.svg",
+                                                height: 20,
+                                                width: 20,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                             const SizedBox(width: 10),
                                             Text(
@@ -515,51 +517,11 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                                       : black),
                                             ),
                                             const Spacer(),
-                                            // GestureDetector(
-                                            //   onTap: () {
-                                            //     showDialog(
-                                            //         context: context,
-                                            //         builder: (context) {
-                                            //           return DialogBarcodes(
-                                            //               listOfBarcodes: product
-                                            //                       ?.codigosBarrasPaquetes ??
-                                            //                   []);
-                                            //         });
-                                            //   },
-                                            //   child: Visibility(
-                                            //     visible: product
-                                            //             ?.codigosBarrasPaquetes
-                                            //             ?.isNotEmpty ==
-                                            //         true,
-                                            //     child: Image.asset(
-                                            //         "assets/icons/package_barcode.png",
-                                            //         color: primaryColorApp,
-                                            //         width: 20),
-                                            //   ),
-                                            // ),
                                           ],
                                         ),
                                       ),
                                       Column(
                                         children: [
-                                          // ExpiryDateWidget(
-                                          //     expireDate: currentProduct
-                                          //                     .expireDate ==
-                                          //                 "" ||
-                                          //             currentProduct
-                                          //                     .expireDate ==
-                                          //                 null
-                                          //         ? DateTime.now()
-                                          //         : DateTime.parse(
-                                          //             currentProduct
-                                          //                 .expireDate),
-                                          //     size: size,
-                                          //     isDetaild: false,
-                                          //     isNoExpireDate:
-                                          //         currentProduct.expireDate ==
-                                          //                 ""
-                                          //             ? true
-                                          //             : false),
                                           if (widget.ubicacion?.lote != "")
                                             Row(
                                               children: [
@@ -648,10 +610,17 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                                   ),
                                                 ),
                                                 const Spacer(),
-                                                Image.asset(
-                                                  "assets/icons/packing.png",
-                                                  color: primaryColorApp,
+                                               
+                                                SizedBox(
+                                                  height: 20,
                                                   width: 20,
+                                                  child: SvgPicture.asset(
+                                                    color: primaryColorApp,
+                                                    "assets/icons/packing.svg",
+                                                    height: 20,
+                                                    width: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -733,11 +702,17 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                                     ),
                                                   ),
                                                   const Spacer(),
-                                                  Image.asset(
-                                                    "assets/icons/packing.png",
+                                                 SizedBox(
+                                                  height: 20,
+                                                  width: 20,
+                                                  child: SvgPicture.asset(
                                                     color: primaryColorApp,
+                                                    "assets/icons/packing.svg",
+                                                    height: 20,
                                                     width: 20,
+                                                    fit: BoxFit.cover,
                                                   ),
+                                                ),
                                                 ],
                                               ),
                                             ),

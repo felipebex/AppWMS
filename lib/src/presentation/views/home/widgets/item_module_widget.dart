@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 
 class ImteModule extends StatelessWidget {
@@ -49,14 +50,15 @@ class _ImteModuleContent extends StatelessWidget {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               height: 40,
               width: 40,
-              margin: const EdgeInsets.only(top: 10),
-              child: Image.asset(
+              child: SvgPicture.asset(
                 "assets/icons/$urlImg",
-                fit: BoxFit.cover,
                 color: Colors.black,
+                height: 50,
+                width: 50,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: 2),
@@ -74,8 +76,7 @@ class _ImteModuleContent extends StatelessWidget {
             ),
           ],
         ),
-        if (count > 0)
-          _CountBadge(count: count),
+        if (count > 0) _CountBadge(count: count),
       ],
     );
   }

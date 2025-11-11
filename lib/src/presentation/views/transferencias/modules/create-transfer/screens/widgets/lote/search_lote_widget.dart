@@ -43,7 +43,6 @@ class _NewLoteScreenState extends State<SearchLoteCreateTransferScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<CreateTransferBloc>();
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -58,15 +57,22 @@ class _NewLoteScreenState extends State<SearchLoteCreateTransferScreen> {
                 ),
                 child: CustomKeyboard(
                   isLogin: false,
-                  controller: bloc.newLoteController,
+                  controller:
+                      context.read<CreateTransferBloc>().newLoteController,
                   onchanged: () {
-                    bloc.newLoteController.text = bloc.newLoteController.text;
+                    context.read<CreateTransferBloc>().newLoteController.text =
+                        context
+                            .read<CreateTransferBloc>()
+                            .newLoteController
+                            .text;
                   },
                 ),
               )
             : null,
         body: BlocBuilder<CreateTransferBloc, CreateTransferState>(
           builder: (context, state) {
+            final bloc = context.read<CreateTransferBloc>();
+
             return SizedBox(
               width: size.width * 1,
               height: size.height * 1,

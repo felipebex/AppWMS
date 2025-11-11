@@ -20,15 +20,15 @@ class PaqueteInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<InfoRapidaBloc>();
-
-    final paquete = bloc.infoRapidaResult.result;
     // barcodeController
 
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {},
       builder: (context, state) {
+        final bloc = context.read<InfoRapidaBloc>();
+        final paquete = bloc.infoRapidaResult.result;
+
         return WillPopScope(
           onWillPop: () async {
             return false;
@@ -50,29 +50,14 @@ class PaqueteInfoScreen extends StatelessWidget {
                             onchanged: () {},
                           ))
                 : null,
-            // appBar: PreferredSize(
-            //   preferredSize: Size.fromHeight(45), // ajusta el alto
-            //   child: AppBar(size: size), // tuwidget AppBar personalizado
-            // ),
+           
             body: SizedBox(
               width: size.width * 1,
               height: size.height * 1,
               child: Column(
                 children: [
                   AppBar(size: size),
-                  // Padding(
-                  //   padding: const EdgeInsets.only(top: 5, left: 20),
-                  //   child: Align(
-                  //     alignment: Alignment.centerLeft,
-                  //     child: Text(
-                  //       "Paquete",
-                  //       style: TextStyle(
-                  //           color: black,
-                  //           fontSize: 13,
-                  //           fontWeight: FontWeight.bold),
-                  //     ),
-                  //   ),
-                  // ),
+              
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: SizedBox(

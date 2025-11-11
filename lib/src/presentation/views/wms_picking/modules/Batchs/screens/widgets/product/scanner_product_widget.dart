@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -104,10 +105,16 @@ class ProductScannerWidget extends StatelessWidget {
                         const SizedBox(height: 10),
                         Row(
                           children: [
-                            Image.asset(
-                              "assets/icons/barcode.png",
-                              color: primaryColorApp,
+                            SizedBox(
+                              height: 20,
                               width: 20,
+                              child: SvgPicture.asset(
+                                color: primaryColorApp,
+                                "assets/icons/barcode.svg",
+                                height: 20,
+                                width: 20,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Text(
@@ -142,7 +149,7 @@ class ProductScannerWidget extends StatelessWidget {
                           ),
                         Row(
                           children: [
-                             if (lotId != "") ...[
+                            if (lotId != "") ...[
                               Text('Lote/serie:',
                                   style: TextStyle(
                                       fontSize: 13, color: primaryColorApp)),
@@ -162,10 +169,17 @@ class ProductScannerWidget extends StatelessWidget {
                               onTap: onBarcodesDialogTap,
                               child: Visibility(
                                 visible: listOfBarcodes.isNotEmpty,
-                                child: Image.asset(
-                                    "assets/icons/package_barcode.png",
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: SvgPicture.asset(
                                     color: primaryColorApp,
-                                    width: 20),
+                                    "assets/icons/barcode.svg",
+                                    height: 20,
+                                    width: 20,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -214,10 +228,16 @@ class ProductScannerWidget extends StatelessWidget {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Image.asset(
-                            "assets/icons/barcode.png",
-                            color: primaryColorApp,
+                          SizedBox(
+                            height: 20,
                             width: 20,
+                            child: SvgPicture.asset(
+                              color: primaryColorApp,
+                              "assets/icons/barcode.svg",
+                              height: 20,
+                              width: 20,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -258,10 +278,17 @@ class ProductScannerWidget extends StatelessWidget {
                             onTap: onBarcodesDialogTap,
                             child: Visibility(
                               visible: listOfBarcodes.isNotEmpty,
-                              child: Image.asset(
-                                  "assets/icons/package_barcode.png",
+                              child: SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: SvgPicture.asset(
                                   color: primaryColorApp,
-                                  width: 20),
+                                  "assets/icons/barcode.svg",
+                                  height: 20,
+                                  width: 20,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
                         ],

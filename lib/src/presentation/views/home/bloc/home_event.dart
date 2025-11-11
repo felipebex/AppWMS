@@ -12,3 +12,7 @@ class AppVersionEvent extends HomeEvent {
 
 class ClearDataEvent extends HomeEvent {
 }
+
+
+class LoadConfigurationsUserHome extends HomeEvent {
+}

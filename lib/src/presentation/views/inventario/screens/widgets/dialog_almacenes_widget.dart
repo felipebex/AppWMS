@@ -10,7 +10,6 @@ class DialogAlmacenes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<UserBloc>();
 
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -36,13 +35,13 @@ class DialogAlmacenes extends StatelessWidget {
           height: 300,
           width: size.width * 0.9,
           child: ListView.builder(
-            itemCount: bloc.almacenes.length,
+            itemCount: context.read<UserBloc>().almacenes.length,
             itemBuilder: (contextList, index) {
               return Card(
                 color: white,
                 elevation: 2,
                 child: ListTile(
-                  title: Text(bloc.almacenes[index].name ?? 'Sin nombre',
+                  title: Text(context.read<UserBloc>().almacenes[index].name ?? 'Sin nombre',
                       style: const TextStyle(fontSize: 12, color: black)),
                   leading:
                       Icon(Icons.warehouse, color: primaryColorApp, size: 20),
@@ -50,7 +49,7 @@ class DialogAlmacenes extends StatelessWidget {
                       color: primaryColorApp, size: 20),
                   onTap: () {
                     Navigator.pop(
-                        context, bloc.almacenes[index].id); // Devuelve el ID
+                        context, context.read<UserBloc>().almacenes[index].id); // Devuelve el ID
                   },
                 ),
               );

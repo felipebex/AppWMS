@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -39,7 +40,6 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(context.read<PackingConsolidateBloc>().novedades.length);
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -91,8 +91,8 @@ class _DialogAdvetenciaCantidadScreenState
             ),
             Center(
               child: const Text(
-                "Para continuar, seleccione la novedad para el producto",
-                textAlign: TextAlign.center,
+                  "Para continuar, seleccione la novedad para el producto",
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black, fontSize: 14)),
             ),
             const SizedBox(height: 10),
@@ -121,10 +121,16 @@ class _DialogAdvetenciaCantidadScreenState
                         fontSize: 14,
                         color: black), // Cambia primaryColorApp a tu color
                   ),
-                  icon: Image.asset(
-                    "assets/icons/novedad.png",
-                    color: primaryColorApp,
-                    width: 24,
+                  icon: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: SvgPicture.asset(
+                      color: primaryColorApp,
+                      "assets/icons/novedad.svg",
+                      height: 20,
+                      width: 20,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   value: selectedNovedad, // Muestra la opción seleccionada
                   alignment: Alignment.centerLeft,
@@ -211,7 +217,8 @@ class _DialogAdvetenciaCantidadScreenState
                                     .updateNovedadPacking(
                                         widget.currentProduct.pedidoId ?? 0,
                                         widget.currentProduct.idProduct ?? 0,
-                                        selectedNovedad ?? '', 'packing-batch-consolidate');
+                                        selectedNovedad ?? '',
+                                        'packing-batch-consolidate');
                                 // Cierra el diálogo y ejecuta el callback después de actualizar
                                 if (Navigator.canPop(context)) {
                                   Navigator.pop(context);
@@ -224,7 +231,8 @@ class _DialogAdvetenciaCantidadScreenState
                                       .updateNovedadPacking(
                                           widget.currentProduct.pedidoId ?? 0,
                                           widget.currentProduct.idProduct ?? 0,
-                                          selectedNovedad ?? '', 'packing-batch-consolidate');
+                                          selectedNovedad ?? '',
+                                          'packing-batch-consolidate');
                                   // Cierra el diálogo y ejecuta el callback después de actualizar
                                   if (Navigator.canPop(context)) {
                                     Navigator.pop(context);

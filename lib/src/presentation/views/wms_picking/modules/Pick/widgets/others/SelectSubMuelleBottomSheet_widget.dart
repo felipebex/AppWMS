@@ -25,7 +25,6 @@ class _SelectSubMuelleBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final batchBloc = context.read<PickingPickBloc>();
 
     return BlocBuilder<PickingPickBloc, PickingPickState>(
       builder: (context, state) {
@@ -42,10 +41,10 @@ class _SelectSubMuelleBottomSheetState
               const SizedBox(height: 10),
               Expanded(
                 child: ListView.builder(
-                  itemCount: batchBloc.submuelles.length,
+                  itemCount: context.read<PickingPickBloc>().submuelles.length,
                   itemBuilder: (context, index) {
-                    final muelle = batchBloc.submuelles[index];
-                    bool isSelected = muelle == batchBloc.subMuelleSelected;
+                    final muelle = context.read<PickingPickBloc>().submuelles[index];
+                    bool isSelected = muelle == context.read<PickingPickBloc>().subMuelleSelected;
 
                     return GestureDetector(
                       onTap: () {
@@ -139,7 +138,7 @@ class _SelectSubMuelleBottomSheetState
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        batchBloc.subMuelleSelected = Muelles();
+                        context.read<PickingPickBloc>().subMuelleSelected = Muelles();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -156,7 +155,7 @@ class _SelectSubMuelleBottomSheetState
                     const SizedBox(width: 10),
                     ElevatedButton(
                       onPressed:
-                          (batchBloc.subMuelleSelected.completeName == null ||
+                          (context.read<PickingPickBloc>().subMuelleSelected.completeName == null ||
                                   isOccupied == null)
                               ? null
                               : () {
@@ -164,13 +163,13 @@ class _SelectSubMuelleBottomSheetState
                                   print(
                                       'Estado del submuelle: ${isOccupied == true ? "Ocupado" : "Libre"}');
 
-                                  batchBloc.add(AssignSubmuelleEvent(
-                                    batchBloc.filteredProducts.where((e) {
+                                  context.read<PickingPickBloc>().add(AssignSubmuelleEvent(
+                                    context.read<PickingPickBloc>().filteredProducts.where((e) {
                                      return (e.isSeparate == 1) &&
                                     (e.idLocationDest ==
-                                        batchBloc.pickWithProducts.pick?.idMuellePadre);
+                                        context.read<PickingPickBloc>().pickWithProducts.pick?.idMuellePadre);
                                       }).toList(),
-                                    batchBloc.subMuelleSelected,
+                                    context.read<PickingPickBloc>().subMuelleSelected,
                                     isOccupied == null ? false : isOccupied!,
                                   ));
 

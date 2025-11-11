@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -810,10 +811,16 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                               alignment: Alignment.centerLeft,
                                               child: Row(
                                                 children: [
-                                                  Image.asset(
-                                                    "assets/icons/barcode.png",
-                                                    color: primaryColorApp,
+                                                  SizedBox(
+                                                    height: 20,
                                                     width: 20,
+                                                    child: SvgPicture.asset(
+                                                      color: primaryColorApp,
+                                                      "assets/icons/barcode.svg",
+                                                      height: 20,
+                                                      width: 20,
+                                                      fit: BoxFit.cover,
+                                                    ),
                                                   ),
                                                   const SizedBox(width: 10),
                                                   Text(
@@ -928,11 +935,19 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                         visible: bloc
                                                             .listOfBarcodes
                                                             .isNotEmpty,
-                                                        child: Image.asset(
-                                                            "assets/icons/package_barcode.png",
+                                                        child: SizedBox(
+                                                          height: 20,
+                                                          width: 20,
+                                                          child:
+                                                              SvgPicture.asset(
                                                             color:
                                                                 primaryColorApp,
-                                                            width: 20),
+                                                            "assets/icons/barcode.svg",
+                                                            height: 20,
+                                                            width: 20,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1026,11 +1041,19 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                             .centerLeft,
                                                         child: Row(
                                                           children: [
-                                                            Image.asset(
-                                                              "assets/icons/barcode.png",
-                                                              color:
-                                                                  primaryColorApp,
+                                                            SizedBox(
+                                                              height: 20,
                                                               width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
+                                                                color:
+                                                                    primaryColorApp,
+                                                                "assets/icons/barcode.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                             ),
                                                             const SizedBox(
                                                                 width: 10),
@@ -1130,11 +1153,20 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                             visible: bloc
                                                                 .listOfBarcodes
                                                                 .isNotEmpty,
-                                                            child: Image.asset(
-                                                                "assets/icons/package_barcode.png",
+                                                            child: SizedBox(
+                                                              height: 20,
+                                                              width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
                                                                 color:
                                                                     primaryColorApp,
-                                                                width: 20),
+                                                                "assets/icons/barcode.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -1231,10 +1263,16 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                     ),
                                                   ),
                                                   const Spacer(),
-                                                  Image.asset(
-                                                    "assets/icons/packing.png",
-                                                    color: primaryColorApp,
+                                                  SizedBox(
+                                                    height: 20,
                                                     width: 20,
+                                                    child: SvgPicture.asset(
+                                                      color: primaryColorApp,
+                                                      "assets/icons/packing.svg",
+                                                      height: 20,
+                                                      width: 20,
+                                                      fit: BoxFit.cover,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -1316,10 +1354,16 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                       ),
                                                     ),
                                                     const Spacer(),
-                                                    Image.asset(
-                                                      "assets/icons/packing.png",
-                                                      color: primaryColorApp,
+                                                     SizedBox(
+                                                      height: 20,
                                                       width: 20,
+                                                      child: SvgPicture.asset(
+                                                        color: primaryColorApp,
+                                                        "assets/icons/packing.svg",
+                                                        height: 20,
+                                                        width: 20,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),

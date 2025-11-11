@@ -1,11 +1,10 @@
-
 // ignore_for_file: file_names
 
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-
 
 class DialogLoadingPacking extends StatelessWidget {
   const DialogLoadingPacking({
@@ -26,12 +25,14 @@ class DialogLoadingPacking extends StatelessWidget {
             SizedBox(
               height: 100,
               width: 200,
-              child: Image.asset(
-                "assets/images/icono.jpeg",
+              child: SvgPicture.asset(
+                "assets/images/icono.svg",
+                height: 150,
+                width: 50,
                 fit: BoxFit.cover,
               ),
             ),
-             Align(
+            Align(
               alignment: Alignment.center,
               child: Text(
                 'Cargando Información...',
@@ -41,7 +42,7 @@ class DialogLoadingPacking extends StatelessWidget {
             ),
           ],
         )),
-        content:  Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

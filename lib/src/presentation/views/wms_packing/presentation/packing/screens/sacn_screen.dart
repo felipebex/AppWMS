@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -159,8 +160,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
     }
   }
 
-  void validateQuantity(String value) {
-    final batchBloc = context.read<PackingPedidoBloc>();
+  void validateQuantity(String value, PackingPedidoBloc batchBloc) {
+    // Verificar que el widget esté montado antes de usar context
 
     String scan = batchBloc.scannedValue3.trim().toLowerCase() == ""
         ? value.trim().toLowerCase()
@@ -670,10 +671,16 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                 const SizedBox(height: 10),
                                                 Row(
                                                   children: [
-                                                    Image.asset(
-                                                      "assets/icons/barcode.png",
-                                                      color: primaryColorApp,
+                                                    SizedBox(
+                                                      height: 20,
                                                       width: 20,
+                                                      child: SvgPicture.asset(
+                                                        color: primaryColorApp,
+                                                        "assets/icons/barcode.svg",
+                                                        height: 20,
+                                                        width: 20,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Text(
@@ -725,11 +732,19 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                         visible: packinghBloc
                                                             .listOfBarcodes
                                                             .isNotEmpty,
-                                                        child: Image.asset(
-                                                            "assets/icons/package_barcode.png",
+                                                        child: SizedBox(
+                                                          height: 20,
+                                                          width: 20,
+                                                          child:
+                                                              SvgPicture.asset(
                                                             color:
                                                                 primaryColorApp,
-                                                            width: 20),
+                                                            "assets/icons/barcode.svg",
+                                                            height: 20,
+                                                            width: 20,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -894,11 +909,18 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                     const SizedBox(height: 10),
                                                     Row(
                                                       children: [
-                                                        Image.asset(
-                                                          "assets/icons/barcode.png",
-                                                          color:
-                                                              primaryColorApp,
+                                                        SizedBox(
+                                                          height: 20,
                                                           width: 20,
+                                                          child:
+                                                              SvgPicture.asset(
+                                                            color:
+                                                                primaryColorApp,
+                                                            "assets/icons/barcode.svg",
+                                                            height: 20,
+                                                            width: 20,
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                         ),
                                                         const SizedBox(
                                                             width: 10),
@@ -953,11 +975,20 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                             visible: packinghBloc
                                                                 .listOfBarcodes
                                                                 .isNotEmpty,
-                                                            child: Image.asset(
-                                                                "assets/icons/package_barcode.png",
+                                                            child: SizedBox(
+                                                              height: 20,
+                                                              width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
                                                                 color:
                                                                     primaryColorApp,
-                                                                width: 20),
+                                                                "assets/icons/barcode.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -1117,7 +1148,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                       _controllerQuantity, // Controlador que maneja el texto
                                                   focusNode: focusNode3,
                                                   onChanged: (value) {
-                                                    validateQuantity(value);
+                                                    validateQuantity(
+                                                        value, packinghBloc);
                                                   },
                                                   decoration: InputDecoration(
                                                     hintText: packinghBloc
@@ -1142,7 +1174,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                               .enter) {
                                                         validateQuantity(
                                                             packinghBloc
-                                                                .scannedValue3);
+                                                                .scannedValue3,
+                                                            packinghBloc);
 
                                                         return KeyEventResult
                                                             .handled;

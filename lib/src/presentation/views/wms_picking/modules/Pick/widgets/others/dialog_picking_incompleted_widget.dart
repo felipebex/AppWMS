@@ -22,9 +22,17 @@ class DialogPickIncompleted extends StatelessWidget {
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
   final VoidCallback onClose; // Callback para la acción a ejecutar
 
+  void _handleAccepted(BuildContext context) {
+    // ✅ Cerrar el diálogo primero
+    Navigator.of(context).pop();
+    // ✅ Luego ejecutar la lógica del callback
+    onAccepted();
+  }
+
+ 
+
   @override
   Widget build(BuildContext context) {
-    final batchBloc = context.read<PickingPickBloc>();
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: BlocBuilder<PickingPickBloc, PickingPickState>(
@@ -33,8 +41,11 @@ class DialogPickIncompleted extends StatelessWidget {
             actionsAlignment: MainAxisAlignment.center,
             backgroundColor: Colors.white,
             title: const Center(
-                child: Text('360 Software Informa',
-                    style: TextStyle(color: yellow, fontSize: 14))),
+              child: Text(
+                '360 Software Informa',
+                style: TextStyle(color: yellow, fontSize: 14),
+              ),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,8 +57,9 @@ class DialogPickIncompleted extends StatelessWidget {
                       const TextSpan(
                         text: 'El proceso del picking no esta completo en su ',
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14), // Color del texto normal
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
                       ),
                       const TextSpan(
                         text: '100%',
@@ -55,13 +67,14 @@ class DialogPickIncompleted extends StatelessWidget {
                           color: green,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                        ), // Color verde para currentProduct?.quantity
+                        ),
                       ),
                       const TextSpan(
                         text: ' tiene un total de ',
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14), // Color del texto normal
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
                       ),
                       TextSpan(
                         text: '$cantidad% ',
@@ -70,7 +83,6 @@ class DialogPickIncompleted extends StatelessWidget {
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
-                        // Color rojo para quantity
                       ),
                       const TextSpan(
                         text: 'en unidades separadas.',
@@ -78,25 +90,27 @@ class DialogPickIncompleted extends StatelessWidget {
                           color: Colors.black,
                           fontSize: 14,
                         ),
-                        // Color rojo para quantity
                       ),
                       const TextSpan(
                         text: "\n¿Quiere continuar con el cierre del PICK ",
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14), // Color del texto normal
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
                       ),
                       TextSpan(
-                        text: "${batchBloc.pickWithProducts.pick?.name} ",
+                        text: "${context.read<PickingPickBloc>().pickWithProducts.pick?.name} ",
                         style: TextStyle(
-                            color: primaryColorApp,
-                            fontSize: 14), // Color del texto normal
+                          color: primaryColorApp,
+                          fontSize: 14,
+                        ),
                       ),
                       const TextSpan(
                         text: " o desea verficar?",
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14), // Color del texto normal
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -105,35 +119,35 @@ class DialogPickIncompleted extends StatelessWidget {
             ),
             actions: [
               ElevatedButton(
-                  onPressed: () async {
-                    onClose(); // Llama al callback
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 3,
+                onPressed: () {
+                  onClose();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text('Cerrar PICK',
-                      style: TextStyle(color: primaryColorApp, fontSize: 12))),
-
-
-
-                      
+                  elevation: 3,
+                ),
+                child: Text(
+                  'Cerrar PICK',
+                  style: TextStyle(color: primaryColorApp, fontSize: 12),
+                ),
+              ),
               ElevatedButton(
-                  onPressed: () async {
-                    onAccepted(); // Llama al callback
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 3,
+                onPressed: () => _handleAccepted(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text('Verificar',
-                      style: TextStyle(color: Colors.white, fontSize: 12))),
+                  elevation: 3,
+                ),
+                child: const Text(
+                  'Verificar',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
             ],
           );
         },

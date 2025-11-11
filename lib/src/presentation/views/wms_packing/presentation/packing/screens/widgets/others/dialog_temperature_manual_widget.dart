@@ -21,7 +21,6 @@ class DialogTemperaturaManualPack extends StatefulWidget {
 class _DialogCapturaTemperaturaState extends State<DialogTemperaturaManualPack> {
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<PackingPedidoBloc>();
 
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
       listener: (context, state) {
@@ -33,6 +32,8 @@ class _DialogCapturaTemperaturaState extends State<DialogTemperaturaManualPack> 
         }
       },
       builder: (context, state) {
+    final bloc = context.read<PackingPedidoBloc>();
+
         return BackdropFilter(
           filter: ImageFilter.blur(
             sigmaX: 5,

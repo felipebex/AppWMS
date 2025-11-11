@@ -3,8 +3,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-
 
 class DialogLoading extends StatelessWidget {
   const DialogLoading(
@@ -25,8 +25,10 @@ class DialogLoading extends StatelessWidget {
             SizedBox(
               height: 100,
               width: 200,
-              child: Image.asset(
-                "assets/images/icono2.jpeg",
+              child: SvgPicture.asset(
+                "assets/images/icono2.svg",
+                height: 150,
+                width: 50,
                 fit: BoxFit.cover,
               ),
             ),

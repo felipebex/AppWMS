@@ -244,10 +244,20 @@ class AppRoutes {
       historyLits: (_) => const HistoryListScreen(),
       historyDetail: (_) => const HistoryDetailScreen(),
       pick: (_) => const IndexListPickScreen(),
-      pickDone: (_) => const IndexListPickDoneScreen(),
+      pickDone: (context) {
+        final arguments =
+            ModalRoute.of(context)! .settings.arguments as List<dynamic>;
+        final isFromPick = arguments[0] as bool;
+        return IndexListPickDoneScreen(isFromPick: isFromPick);
+      },
       scanProductPick: (_) => const ScanProductPickScreen(),
       pickDetail: (_) => const PickDetailScreen(),
-      detailPickDone: (_) => const DetailPickDoneScreen(),
+      detailPickDone: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final isFromPick = arguments[0] as bool;
+        return  DetailPickDoneScreen(isFromPick: isFromPick);
+      },
 
       //todo picking componentes
       pickingComponentes: (_) => IndexListPickComponentsScreen(),

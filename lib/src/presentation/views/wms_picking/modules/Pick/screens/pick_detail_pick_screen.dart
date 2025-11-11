@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
@@ -132,8 +133,6 @@ class PickDetailScreen extends StatelessWidget {
                                         color: white),
                                     onPressed: () {
                                       bloc.add(ClearSearchProudctsPickEvent());
-                                      // bloc.add(FetchPickWithProductsEvent(
-                                      //     bloc.pickWithProducts.pick?.id ?? 0));
                                       Navigator.pushReplacementNamed(
                                           context, 'scan-product-pick');
                                     },
@@ -342,8 +341,26 @@ class PickDetailScreen extends StatelessWidget {
                               physics: const ScrollPhysics(),
                               itemCount: bloc.filteredProducts.length,
                               itemBuilder: (context, index) {
-                                final productsBatch =
-                                    bloc.filteredProducts[index];
+                                // ✅ SOLUCIÓN 1: Verificación de límites del índice
+                                if (index < 0 ||
+                                    index >= bloc.filteredProducts.length) {
+                                  print(
+                                      '❌ Índice fuera de rango: $index de ${bloc.filteredProducts.length}');
+                                  return _buildErrorWidget(
+                                      index, bloc.filteredProducts.length);
+                                }
+
+                                // ✅ SOLUCIÓN 2: Acceso seguro con elementAtOrNull
+                                final productsBatch = bloc.filteredProducts
+                                    .elementAtOrNull(index);
+
+                                // Verificación adicional por si elementAtOrNull retorna null
+                                if (productsBatch == null) {
+                                  print('❌ Producto nulo en índice: $index');
+                                  return _buildErrorWidget(
+                                      index, bloc.filteredProducts.length);
+                                }
+
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 5),
@@ -444,10 +461,16 @@ class PickDetailScreen extends StatelessWidget {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.start,
                                                   children: [
-                                                    Image.asset(
-                                                      "assets/icons/barcode.png",
-                                                      color: primaryColorApp,
+                                                    SizedBox(
+                                                      height: 20,
                                                       width: 20,
+                                                      child: SvgPicture.asset(
+                                                        color: primaryColorApp,
+                                                        "assets/icons/barcode.svg",
+                                                        height: 20,
+                                                        width: 20,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 5),
                                                     Text(productsBatch.barcode,
@@ -552,11 +575,19 @@ class PickDetailScreen extends StatelessWidget {
                                                                     );
                                                                   });
                                                             },
-                                                            child: Image.asset(
-                                                              'assets/icons/list_final.png',
+                                                            child: SizedBox(
                                                               height: 20,
-                                                              color:
-                                                                  primaryColorApp,
+                                                              width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
+                                                                color:
+                                                                    primaryColorApp,
+                                                                "assets/icons/list_final.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
@@ -1125,4 +1156,39 @@ class DialogoConfirmateProductLoad extends StatelessWidget {
       ),
     );
   }
+}
+
+
+// 🔧 Función auxiliar para mostrar errores
+Widget _buildErrorWidget(int index, int totalLength) {
+  return Card(
+    color: Colors.red[50],
+    elevation: 2,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red, size: 24),
+          SizedBox(height: 8),
+          Text(
+            'Error de índice',
+            style: TextStyle(
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+              fontSize: 12
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Índice: $index\nTotal: $totalLength',
+            style: TextStyle(
+              color: Colors.red[700],
+              fontSize: 10
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
 }

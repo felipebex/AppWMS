@@ -43,7 +43,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<ConteoBloc>();
+   
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -58,9 +58,9 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                 ),
                 child: CustomKeyboard(
                   isLogin: false,
-                  controller: bloc.newLoteController,
+                  controller: context.read<ConteoBloc>().newLoteController,
                   onchanged: () {
-                    bloc.newLoteController.text = bloc.newLoteController.text;
+                    context.read<ConteoBloc>().newLoteController.text = context.read<ConteoBloc>().newLoteController.text;
                   },
                 ),
               )
@@ -185,7 +185,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                   ),
 
                   const SizedBox(height: 10),
-                  if (!bloc.isKeyboardVisible)
+                  if (!context.read<ConteoBloc>().isKeyboardVisible)
                     Padding(
                       padding:
                           EdgeInsets.only(bottom: 5, top: viewList ? 0 : 10),
@@ -224,7 +224,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                         ? true
                                         : false,
                                     textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchControllerLote,
+                                    controller: context.read<ConteoBloc>().searchControllerLote,
                                     showCursor: true,
                                     decoration: InputDecoration(
                                       prefixIcon: const Icon(
@@ -234,11 +234,11 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                       ),
                                       suffixIcon: IconButton(
                                           onPressed: () {
-                                            bloc.searchControllerLote.clear();
-                                            bloc.add(SearchLotevent(
+                                            context.read<ConteoBloc>().searchControllerLote.clear();
+                                            context.read<ConteoBloc>().add(SearchLotevent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardEvent(false));
+                                            context.read<ConteoBloc>().add(ShowKeyboardEvent(false));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -254,7 +254,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                       border: InputBorder.none,
                                     ),
                                     onChanged: (value) {
-                                      bloc.add(SearchLotevent(
+                                      context.read<ConteoBloc>().add(SearchLotevent(
                                         value,
                                       ));
                                     },
@@ -264,7 +264,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardEvent(true));
+                                            context.read<ConteoBloc>().add(ShowKeyboardEvent(true));
                                           },
                                   ),
                                 ),
@@ -279,7 +279,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                     visible: viewList,
                     child: Expanded(
                         child: ListView.builder(
-                            itemCount: bloc.listLotesProductFilters.length,
+                            itemCount: context.read<ConteoBloc>().listLotesProductFilters.length,
                             itemBuilder: (context, index) {
                               bool isSelected = selectedIndex == index;
 
@@ -304,7 +304,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                              'Lote: ${bloc.listLotesProductFilters[index].name}',
+                                              'Lote: ${context.read<ConteoBloc>().listLotesProductFilters[index].name}',
                                               style: TextStyle(
                                                   color: primaryColorApp,
                                                   fontSize: 12)),
@@ -315,14 +315,11 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                                       color: black,
                                                       fontSize: 12)),
                                               Text(
-                                                  '${bloc.listLotesProductFilters[index].expirationDate == "" || bloc.listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProductFilters[index].expirationDate}',
+                                                  '${context.read<ConteoBloc>().listLotesProductFilters[index].expirationDate == "" || context.read<ConteoBloc>().listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : context.read<ConteoBloc>().listLotesProductFilters[index].expirationDate}',
                                                   style: TextStyle(
-                                                      color: bloc
-                                                                      .listLotesProductFilters[
-                                                                          index]
-                                                                      .expirationDate ==
+                                                      color: context.read<ConteoBloc>().listLotesProductFilters[index].expirationDate ==
                                                                   "" ||
-                                                              bloc
+                                                              context.read<ConteoBloc>()
                                                                       .listLotesProductFilters[
                                                                           index]
                                                                       .expirationDate ==
@@ -333,11 +330,11 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                             ],
                                           ),
                                           Visibility(
-                                            visible: bloc
+                                            visible: context.read<ConteoBloc>()
                                                     .listLotesProductFilters[
                                                         index]
                                                     .id ==
-                                                bloc.currentProduct?.lotId,
+                                                context.read<ConteoBloc>().currentProduct?.lotId,
                                             child: Text('Lote sugerido',
                                                 style: TextStyle(
                                                     color: primaryColorApp,
@@ -364,7 +361,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                           SizedBox(
                             height: 40,
                             child: TextFormField(
-                              controller: bloc.newLoteController,
+                              controller: context.read<ConteoBloc>().newLoteController,
                               style: TextStyle(color: black, fontSize: 14),
                               decoration: InputDecoration(
                                 labelText: 'Nombre del lote',
@@ -374,7 +371,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                 ),
                                 suffixIcon: IconButton(
                                     onPressed: () {
-                                      bloc.newLoteController.clear();
+                                      context.read<ConteoBloc>().newLoteController.clear();
                                       FocusScope.of(context).unfocus();
                                     },
                                     icon: const Icon(Icons.close, color: grey)),
@@ -386,11 +383,11 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                             height: 40,
                             child: TextFormField(
                               style: TextStyle(color: black, fontSize: 14),
-                              controller: bloc.dateLoteController,
+                              controller: context.read<ConteoBloc>().dateLoteController,
                               decoration: InputDecoration(
                                 suffixIcon: IconButton(
                                     onPressed: () {
-                                      bloc.dateLoteController.clear();
+                                      context.read<ConteoBloc>().dateLoteController.clear();
                                       FocusScope.of(context).unfocus();
                                     },
                                     icon: const Icon(Icons.close, color: grey)),
@@ -429,7 +426,7 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
 
                                   // Actualizar el estado de la fecha seleccionada
                                   selectedDate = pickedDate;
-                                  bloc.dateLoteController.text = formattedDate;
+                                  context.read<ConteoBloc>().dateLoteController.text = formattedDate;
                                 }
                               }, // Llamar al selector de fecha y hora
                             ),
@@ -446,9 +443,9 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                         onPressed: () {
                           // Aquí puedes manejar la lógica de lo que suceda cuando se seleccione el lote
                           var selectedLote =
-                              bloc.listLotesProductFilters[selectedIndex!];
+                              context.read<ConteoBloc>().listLotesProductFilters[selectedIndex!];
 
-                          bloc.add(SelectecLoteEvent(selectedLote));
+                          context.read<ConteoBloc>().add(SelectecLoteEvent(selectedLote));
 
                           Navigator.pushReplacementNamed(
                             context,
@@ -475,14 +472,14 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                     ),
                   ),
                   Visibility(
-                    visible: !bloc.isKeyboardVisible,
+                    visible: !context.read<ConteoBloc>().isKeyboardVisible,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                             onPressed: () {
-                              bloc.newLoteController.clear();
-                              bloc.dateLoteController.clear();
+                              context.read<ConteoBloc>().newLoteController.clear();
+                              context.read<ConteoBloc>().dateLoteController.clear();
                               setState(() {
                                 viewList = true;
                               });
@@ -524,10 +521,10 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                               onPressed: () {
                                 //ocultamos la lista de lotes
                                 ///validamos que l nombre del lote no sea el mismo que ya existe en la lista
-                                if (bloc.listLotesProduct
+                                if (context.read<ConteoBloc>().listLotesProduct
                                     .where((element) =>
                                         element.name ==
-                                        bloc.newLoteController.text)
+                                        context.read<ConteoBloc>().newLoteController.text)
                                     .isNotEmpty) {
                                   Get.snackbar(
                                     'Error al crear lote',
@@ -540,10 +537,10 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                   return;
                                 }
 
-                                if (bloc.newLoteController.text.isEmpty ||
-                                    bloc.newLoteController.text == '' &&
-                                        bloc.dateLoteController.text.isEmpty ||
-                                    bloc.dateLoteController.text == "") {
+                                if (context.read<ConteoBloc>().newLoteController.text.isEmpty ||
+                                    context.read<ConteoBloc>().newLoteController.text == '' &&
+                                        context.read<ConteoBloc>().dateLoteController.text.isEmpty ||
+                                    context.read<ConteoBloc>().dateLoteController.text == "") {
                                   Get.snackbar(
                                     'Error al crear lote',
                                     'Los campos del lote no puede estar vacíos',
@@ -555,9 +552,9 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                                   return;
                                 }
 
-                                bloc.add(CreateLoteProduct(
-                                  bloc.newLoteController.text,
-                                  bloc.dateLoteController.text,
+                                context.read<ConteoBloc>().add(CreateLoteProduct(
+                                  context.read<ConteoBloc>().newLoteController.text,
+                                  context.read<ConteoBloc>().dateLoteController.text,
                                 ));
                               },
                               style: ElevatedButton.styleFrom(
@@ -576,14 +573,14 @@ class _NewLoteScreenState extends State<SearchLoteConteoScreen> {
                   ),
 
                   Visibility(
-                    visible: bloc.isKeyboardVisible &&
+                    visible: context.read<ConteoBloc>().isKeyboardVisible &&
                         context.read<UserBloc>().fabricante.contains("Zebra"),
                     child: CustomKeyboard(
                       isLogin: false,
-                      controller: bloc.searchControllerLote,
+                      controller: context.read<ConteoBloc>().searchControllerLote,
                       onchanged: () {
-                        bloc.add(SearchLotevent(
-                          bloc.searchControllerLote.text,
+                        context.read<ConteoBloc>().add(SearchLotevent(
+                          context.read<ConteoBloc>().searchControllerLote.text,
                         ));
                       },
                     ),

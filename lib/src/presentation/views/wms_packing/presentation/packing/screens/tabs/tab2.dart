@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/vibrate_utils.dart';
@@ -41,102 +42,133 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
     super.dispose();
   }
 
-void validateBarcode(String value, BuildContext context) {
-  final bloc = context.read<PackingPedidoBloc>();
-  final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
-      .trim()
-      .toLowerCase();
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<PackingPedidoBloc>();
+    final scan = (bloc.scannedValue5.isEmpty ? value : bloc.scannedValue5)
+        .trim()
+        .toLowerCase();
 
-  _controllerToDo.clear();
-  print('🔎 Scan barcode (packing pedido): $scan');
+    _controllerToDo.clear();
+    print('🔎 Scan barcode (packing pedido): $scan');
 
-  final listOfProducts = bloc.listOfProductosProgress;
+    final listOfProducts = bloc.listOfProductosProgress;
 
-  // Función auxiliar para procesar un producto encontrado
-  void processProduct(ProductoPedido product) {
-    bloc
-      ..add(FetchProductEvent(product))
-      ..add(ChangeLocationIsOkEvent(
-        product.idProduct ?? 0,
-        product.pedidoId ?? 0,
-        product.idMove ?? 0,
-      ))
-      ..add(ChangeProductIsOkEvent(
-        true,
-        product.idProduct ?? 0,
-        product.pedidoId ?? 0,
-        0,
-        product.idMove ?? 0,
-      ))
-      ..add(ChangeIsOkQuantity(
-        true,
-        product.idProduct ?? 0,
-        product.pedidoId ?? 0,
-        product.idMove ?? 0,
-      ))
-      ..add(ClearScannedValuePackEvent('toDo'));
+    // Función auxiliar para procesar un producto encontrado
+    void processProduct(ProductoPedido product) {
+      // VERIFICAR que el producto tenga los datos necesarios
+      if (product.idProduct == null ||
+          product.pedidoId == null ||
+          product.idMove == null) {
+        print('❌ Producto incompleto: ${product.toMap()}');
+        _showError(context, bloc);
+        return;
+      }
 
-    showDialog(
-      context: context,
-      builder: (_) => const DialogLoading(
-        message: 'Cargando información del producto...',
-      ),
-    );
+      bloc
+        ..add(FetchProductEvent(product))
+        ..add(ChangeLocationIsOkEvent(
+          product.idProduct!,
+          product.pedidoId!,
+          product.idMove!,
+        ))
+        ..add(ChangeProductIsOkEvent(
+          true,
+          product.idProduct!,
+          product.pedidoId!,
+          0,
+          product.idMove!,
+        ))
+        ..add(ChangeIsOkQuantity(
+          true,
+          product.idProduct!,
+          product.pedidoId!,
+          product.idMove!,
+        ))
+        ..add(ClearScannedValuePackEvent('toDo'));
 
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.of(context, rootNavigator: true).pop();
-      Navigator.pushReplacementNamed(context, 'scan-pack');
-    });
+      showDialog(
+        context: context,
+        builder: (_) => const DialogLoading(
+          message: 'Cargando información del producto...',
+        ),
+      );
 
-    print('✅ Producto procesado: ${product.toMap()}');
-  }
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.pushReplacementNamed(context, 'scan-pack');
+      });
 
-  // Buscar el producto usando el código de barras principal o el código de producto
-  final product = listOfProducts.firstWhere(
-    (p) =>
-        p.barcode?.toLowerCase() == scan ||
-        p.productCode?.toLowerCase() == scan,
-    orElse: () => ProductoPedido(),
-  );
+      print('✅ Producto procesado: ${product.toMap()}');
+    }
 
-  if (product.idMove != null) {
-    print('🔎 Producto encontrado por código principal: ${product.idProduct}');
-    processProduct(product);
-    return;
-  }
+    // Buscar el producto usando el código de barras principal o el código de producto
+    ProductoPedido? product;
+    try {
+      product = listOfProducts.firstWhere(
+        (p) =>
+            (p.barcode?.toLowerCase() == scan) ||
+            (p.productCode?.toLowerCase() == scan),
+      );
+    } catch (e) {
+      print('ℹ️ Producto no encontrado en búsqueda principal: $e');
+      product = null;
+    }
 
-  // Buscar el producto usando códigos de barras secundarios
-  final barcode = bloc.listAllOfBarcodes.firstWhere(
-    (b) => b.barcode?.toLowerCase() == scan,
-    orElse: () => Barcodes(),
-  );
-
-  if (barcode.barcode != null) {
-    print('🔎 Código de barras secundario encontrado. Buscando ID de producto: ${barcode.idProduct}');
-    // Nos aseguramos de convertir ambos lados a strings para una comparación segura
-    final productByBarcode = listOfProducts.firstWhere(
-      (p) => p.idProduct.toString() == barcode.idProduct.toString(),
-      orElse: () => ProductoPedido(),
-    );
-
-    if (productByBarcode.idProduct != null) {
-      print('🔎 Producto encontrado por código de barras secundario: ${productByBarcode.idProduct}');
-      processProduct(productByBarcode);
+    if (product?.idMove != null) {
+      print(
+          '🔎 Producto encontrado por código principal: ${product!.idProduct}');
+      processProduct(product);
       return;
     }
+
+    // Buscar el producto usando códigos de barras secundarios
+    Barcodes? barcode;
+    try {
+      barcode = bloc.listAllOfBarcodes.firstWhere(
+        (b) => b.barcode?.toLowerCase() == scan,
+      );
+    } catch (e) {
+      print('ℹ️ Código de barras secundario no encontrado: $e');
+      barcode = null;
+    }
+
+    if (barcode?.barcode != null && barcode?.idProduct != null) {
+      print(
+          '🔎 Código de barras secundario encontrado. Buscando ID de producto: ${barcode!.idProduct}');
+
+      ProductoPedido? productByBarcode;
+      try {
+        productByBarcode = listOfProducts.firstWhere(
+          (p) => p.idProduct.toString() == barcode!.idProduct.toString(),
+        );
+      } catch (e) {
+        print('ℹ️ Producto no encontrado por código secundario: $e');
+        productByBarcode = null;
+      }
+
+      if (productByBarcode?.idProduct != null) {
+        print(
+            '🔎 Producto encontrado por código de barras secundario: ${productByBarcode!.idProduct}');
+        processProduct(productByBarcode);
+        return;
+      }
+    }
+
+    // Si no se encuentra ningún producto, mostrar un error
+    _showError(context, bloc);
   }
 
-  // Si no se encuentra ningún producto, mostrar un error
-  _audioService.playErrorSound();
-  _vibrationService.vibrate();
+  void _showError(BuildContext context, PackingPedidoBloc bloc) {
+    _audioService.playErrorSound();
+    _vibrationService.vibrate();
 
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: const Text("Código erróneo"),
-    backgroundColor: Colors.red[200],
-    duration: const Duration(milliseconds: 500),
-  ));
-  bloc.add(ClearScannedValuePackEvent('toDo'));
-}
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text("Código erróneo"),
+      backgroundColor: Colors.red[200],
+      duration: const Duration(milliseconds: 500),
+    ));
+    bloc.add(ClearScannedValuePackEvent('toDo'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,11 +239,16 @@ void validateBarcode(String value, BuildContext context) {
                                 );
                               },
                         backgroundColor: primaryColorApp,
-                        child: Image.asset(
-                          'assets/icons/packing.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: SvgPicture.asset(
+                            color: white,
+                            "assets/icons/packing.svg",
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),

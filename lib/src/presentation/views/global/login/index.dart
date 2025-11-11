@@ -15,8 +15,6 @@ import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../widgets/message_modal.dart';
-
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -44,7 +42,28 @@ class LoginPage extends StatelessWidget {
 
               if (state is LoginFailure) {
                 Get.back();
-                showModalDialog(context, state.error);
+                Get.defaultDialog(
+                  title: '360 Software Informa',
+                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                  middleText: state.error,
+                  middleTextStyle: TextStyle(color: black, fontSize: 14),
+                  backgroundColor: Colors.white,
+                  radius: 10,
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColorApp,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text('Aceptar', style: TextStyle(color: white)),
+                    ),
+                  ],
+                );
               }
             },
           ),
@@ -54,12 +73,33 @@ class LoginPage extends StatelessWidget {
 
               if (state is RegisterDeviceIdError) {
                 Get.back();
-                showModalDialog(context, state.message);
+                Get.defaultDialog(
+                  title: '360 Software Informa',
+                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                  middleText: state.message,
+                  middleTextStyle: TextStyle(color: black, fontSize: 14),
+                  backgroundColor: Colors.white,
+                  radius: 10,
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColorApp,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text('Aceptar', style: TextStyle(color: white)),
+                    ),
+                  ],
+                );
               }
 
               if (state is RegisterDeviceIdSuccess) {
                 context.read<UserBloc>().add(
-                    GetConfigurations(context)); //configuracion del usuario
+                    GetConfigurations()); //configuracion del usuario
               }
 
               if (state is ConfigurationLoaded) {
@@ -81,7 +121,28 @@ class LoginPage extends StatelessWidget {
 
               if (state is ConfigurationError) {
                 Get.back();
-                showModalDialog(context, state.message);
+                Get.defaultDialog(
+                  title: '360 Software Informa',
+                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                  middleText: state.message,
+                  middleTextStyle: TextStyle(color: black, fontSize: 14),
+                  backgroundColor: Colors.white,
+                  radius: 10,
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColorApp,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text('Aceptar', style: TextStyle(color: white)),
+                    ),
+                  ],
+                );
               }
             },
           ),
@@ -162,10 +223,9 @@ class LoginPage extends StatelessWidget {
   }
 }
 
+
 class _LoginForm extends StatefulWidget {
-  const _LoginForm({
-    super.key,
-  });
+  const _LoginForm({super.key});
 
   @override
   State<_LoginForm> createState() => _LoginFormState();
@@ -177,24 +237,44 @@ class _LoginFormState extends State<_LoginForm> {
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    // Escuchar cambios de foco para reconstruir el keyboard
+    _focusNodeEmail.addListener(_onFocusChanged);
+    _focusNodePassword.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   void dispose() {
-    // No olvides liberar los FocusNode al finalizar el formulario
+    _focusNodeEmail.removeListener(_onFocusChanged);
+    _focusNodePassword.removeListener(_onFocusChanged);
     _focusNodeEmail.dispose();
     _focusNodePassword.dispose();
     super.dispose();
+  }
+
+  // Determinar el controlador activo basado en el foco
+  TextEditingController _getActiveController(BuildContext context) {
+    final loginBloc = context.read<LoginBloc>();
+    if (_focusNodeEmail.hasFocus) return loginBloc.email;
+    if (_focusNodePassword.hasFocus) return loginBloc.password;
+    return loginBloc.email; // default
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    // Establecer el controlador según el foco activo
-    TextEditingController activeController = _focusNodeEmail.hasFocus
-        ? context.read<LoginBloc>().email
-        : context.read<LoginBloc>().password;
-
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
+        final activeController = _getActiveController(context);
+
         return Form(
           key: formkey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -204,28 +284,28 @@ class _LoginFormState extends State<_LoginForm> {
               Container(
                 margin: const EdgeInsets.only(left: 30, right: 30),
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                          color: primaryColorApp.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10))
-                    ]),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColorApp.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
                     TextFormField(
                       focusNode: _focusNodeEmail,
                       controller: context.read<LoginBloc>().email,
-                      onTap:
-                          !context.read<UserBloc>().fabricante.contains("Zebra")
-                              ? null
-                              : () {
-                                  setState(() {
-                                    FocusScope.of(context).requestFocus(
-                                        _focusNodeEmail); // Solicitar foco inmediatamente
-                                  });
-                                },
+                      onTap: !context.read<UserBloc>().fabricante.contains("Zebra")
+                          ? null
+                          : () {
+                              setState(() {
+                                FocusScope.of(context).requestFocus(_focusNodeEmail);
+                              });
+                            },
                       style: const TextStyle(fontSize: 13),
                       decoration: InputDecoration(
                         disabledBorder: const OutlineInputBorder(),
@@ -235,30 +315,26 @@ class _LoginFormState extends State<_LoginForm> {
                           color: primaryColorApp,
                         ),
                         hintText: "Correo electrónico",
-                        hintStyle:
-                            const TextStyle(color: Colors.grey, fontSize: 12),
+                        hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(10),
-                        errorStyle:
-                            const TextStyle(color: Colors.red, fontSize: 10),
+                        errorStyle: const TextStyle(color: Colors.red, fontSize: 10),
                       ),
                       validator: (value) => Validator.email(value, context),
                     ),
                     TextFormField(
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
-                      obscureText: context.watch<LoginBloc>().isVisible,
+                      obscureText: context.read<LoginBloc>().isVisible,
                       focusNode: _focusNodePassword,
                       style: const TextStyle(fontSize: 13),
-                      onTap:
-                          !context.read<UserBloc>().fabricante.contains("Zebra")
-                              ? null
-                              : () {
-                                  setState(() {
-                                    FocusScope.of(context).requestFocus(
-                                        _focusNodePassword); // Solicitar foco inmediatamente
-                                  });
-                                },
+                      onTap: !context.read<UserBloc>().fabricante.contains("Zebra")
+                          ? null
+                          : () {
+                              setState(() {
+                                FocusScope.of(context).requestFocus(_focusNodePassword);
+                              });
+                            },
                       decoration: InputDecoration(
                         disabledBorder: const OutlineInputBorder(),
                         contentPadding: const EdgeInsets.all(10),
@@ -269,12 +345,10 @@ class _LoginFormState extends State<_LoginForm> {
                         ),
                         suffixIcon: IconButton(
                           onPressed: () {
-                            context
-                                .read<LoginBloc>()
-                                .add(TogglePasswordVisibility());
+                            context.read<LoginBloc>().add(TogglePasswordVisibility());
                           },
                           icon: Icon(
-                            context.watch<LoginBloc>().isVisible
+                            context.read<LoginBloc>().isVisible
                                 ? Icons.visibility
                                 : Icons.visibility_off,
                             size: 15,
@@ -282,10 +356,8 @@ class _LoginFormState extends State<_LoginForm> {
                           ),
                         ),
                         hintText: "Contraseña",
-                        errorStyle:
-                            const TextStyle(color: Colors.red, fontSize: 10),
-                        hintStyle:
-                            const TextStyle(color: Colors.grey, fontSize: 12),
+                        errorStyle: const TextStyle(color: Colors.red, fontSize: 10),
+                        hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
                         border: InputBorder.none,
                       ),
                       validator: (value) => Validator.password(value, context),
@@ -297,96 +369,101 @@ class _LoginFormState extends State<_LoginForm> {
               Padding(
                 padding: const EdgeInsets.only(left: 30, right: 30, top: 10),
                 child: MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    disabledColor: Colors.grey,
-                    elevation: 0,
-                    color: primaryColorApp,
-                    onPressed: () async {
-                      if (!context
-                          .read<UserBloc>()
-                          .fabricante
-                          .contains("Zebra")) {
-                        FocusScope.of(context).unfocus();
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  disabledColor: Colors.grey,
+                  elevation: 0,
+                  color: primaryColorApp,
+                  onPressed: () async {
+                    if (!context.read<UserBloc>().fabricante.contains("Zebra")) {
+                      FocusScope.of(context).unfocus();
+                    }
+                    if (!formkey.currentState!.validate()) return;
+                    
+                    try {
+                      final result = await InternetAddress.lookup('example.com');
+                      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+                        context.read<LoginBloc>().add(LoginButtonPressed(context));
                       }
-                      if (!formkey.currentState!.validate()) return;
-                      try {
-                        final result =
-                            await InternetAddress.lookup('example.com');
-                        if (result.isNotEmpty &&
-                            result[0].rawAddress.isNotEmpty) {
-                          context
-                              .read<LoginBloc>()
-                              .add(LoginButtonPressed(context));
-                        }
-                      } catch (e, s) {
-                        print("Error en login: $e $s");
-                        Navigator.of(context).pop();
-                        showModalDialog(
-                            context, 'No tiene conexión a internet');
-                      }
-                    },
-                    child: Container(
-                      width: size.width * 0.9,
-                      alignment: Alignment.center,
-                      child: BlocBuilder<LoginBloc, LoginState>(
-                        builder: (context, state) {
-                          if (state is LoginLoading) {
-                            return const Center(
-                              child: Text(
-                                "Cargando...",
-                                style: TextStyle(color: Colors.white),
+                    } catch (e, s) {
+                      print("Error en login: $e $s");
+                      Navigator.of(context).pop();
+                      Get.defaultDialog(
+                        title: '360 Software Informa',
+                        titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                        middleText: 'No tiene conexión a internet',
+                        middleTextStyle: TextStyle(color: black, fontSize: 14),
+                        backgroundColor: Colors.white,
+                        radius: 10,
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () => Get.back(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColorApp,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                            );
-                          }
-                          return const Text(
+                            ),
+                            child: Text('Aceptar', style: TextStyle(color: white)),
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: size.width * 0.9,
+                    alignment: Alignment.center,
+                    child: state is LoginLoading
+                        ? const Center(
+                            child: Text(
+                              "Cargando...",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : const Text(
                             "Iniciar Sesión",
                             style: TextStyle(color: Colors.white),
-                          );
-                        },
-                      ),
-                    )),
+                          ),
+                  ),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 30, right: 30),
                 child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      elevation: 0,
-                      minimumSize: Size(size.width * 0.9, 20),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    onPressed: () {
-                      // Limpiamos los campos
-                      // context.read<LoginBloc>().email.clear();
-                      context.read<LoginBloc>().password.clear();
-                      Navigator.pushReplacementNamed(context, 'enterprice');
-                    },
-                    child: Container(
-                      width: 220,
-                      height: 30,
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Atras",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )),
+                    elevation: 0,
+                    minimumSize: Size(size.width * 0.9, 20),
+                  ),
+                  onPressed: () {
+                    context.read<LoginBloc>().password.clear();
+                    Navigator.pushReplacementNamed(context, 'enterprice');
+                  },
+                  child: Container(
+                    width: 220,
+                    height: 30,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "Atras",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Visibility(
                 visible: context.read<UserBloc>().fabricante.contains("Zebra"),
                 child: CustomKeyboard(
-                    isLogin: true,
-                    controller:
-                        activeController, // Cambia el controlador activamente
-                    onchanged: () {}),
+                  isLogin: true,
+                  controller: activeController,
+                  onchanged: () {},
+                ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
             ],
           ),
         );

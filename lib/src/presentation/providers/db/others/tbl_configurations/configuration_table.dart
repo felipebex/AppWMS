@@ -75,6 +75,9 @@ static const String columnReturnsLocationDestOption = 'returns_location_dest_opt
   //location_manual_inventory
   static const String columnLocationManualInventory = 'location_manual_inventory';
 
+  //accessProductionModule
+  static const String columnAccessProductionModule = 'access_production_module';
+
   
 
   // Método para crear la tabla
@@ -120,6 +123,7 @@ static const String columnReturnsLocationDestOption = 'returns_location_dest_opt
         $columnShowPhotoTemperature INTEGER,
         $columnReturnsLocationDestOption TEXT,
         $columnManualProductSelectionInventory INTEGER,
+        $columnAccessProductionModule INTEGER,
         $columnLocationManualInventory INTEGER,
         $columnCountQuantityInventory INTEGER
       )

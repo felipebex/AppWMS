@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/vibrate_utils.dart';
@@ -32,7 +33,6 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final batchBloc = context.read<PickingPickBloc>();
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -51,48 +51,94 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                 color: primaryColorApp,
               ),
             ),
-            icon: Image.asset(
-              "assets/icons/packing.png",
-              color: primaryColorApp,
+            icon: SizedBox(
+              height: 20,
               width: 20,
+              child: SvgPicture.asset(
+                color: primaryColorApp,
+                "assets/icons/packing.svg",
+                height: 20,
+                width: 20,
+                fit: BoxFit.cover,
+              ),
             ),
             value: widget.selectedMuelle,
             items: [
               DropdownMenuItem(
-                value: batchBloc.configurations.result?.result?.muelleOption ==
+                value: context
+                            .read<PickingPickBloc>()
+                            .configurations
+                            .result
+                            ?.result
+                            ?.muelleOption ==
                         "multiple"
-                    ? batchBloc.currentProduct.barcodeLocationDest
-                    : batchBloc.pickWithProducts.pick?.barcodeMuelle,
+                    ? context
+                        .read<PickingPickBloc>()
+                        .currentProduct
+                        .barcodeLocationDest
+                    : context
+                        .read<PickingPickBloc>()
+                        .pickWithProducts
+                        .pick
+                        ?.barcodeMuelle,
                 child: Text(
-                  batchBloc.configurations.result?.result?.muelleOption ==
+                  context
+                              .read<PickingPickBloc>()
+                              .configurations
+                              .result
+                              ?.result
+                              ?.muelleOption ==
                           "multiple"
-                      ? batchBloc.currentProduct.locationDestId ?? ""
-                      : batchBloc.pickWithProducts.pick?.muelle ?? "",
+                      ? context
+                              .read<PickingPickBloc>()
+                              .currentProduct
+                              .locationDestId ??
+                          ""
+                      : context
+                              .read<PickingPickBloc>()
+                              .pickWithProducts
+                              .pick
+                              ?.muelle ??
+                          "",
                   style: const TextStyle(fontSize: 14, color: black),
                 ),
               ),
             ],
-            onChanged: batchBloc
-                        .configurations.result?.result?.manualSpringSelection ==
+            onChanged: context
+                        .read<PickingPickBloc>()
+                        .configurations
+                        .result
+                        ?.result
+                        ?.manualSpringSelection ==
                     false
                 ? null
-                : !batchBloc.quantityIsOk &&
-                        !batchBloc.locationDestIsOk &&
-                        batchBloc.productIsOk
+                : !context.read<PickingPickBloc>().quantityIsOk &&
+                        !context.read<PickingPickBloc>().locationDestIsOk &&
+                        context.read<PickingPickBloc>().productIsOk
                     ? (String? newValue) {
                         print("Muelle seleccionado: $newValue");
-                        if (batchBloc.configurations.result?.result
+                        if (context
+                                    .read<PickingPickBloc>()
+                                    .configurations
+                                    .result
+                                    ?.result
                                     ?.muelleOption ==
                                 "multiple"
                             ? newValue ==
-                                batchBloc.currentProduct.barcodeLocationDest
+                                context
+                                    .read<PickingPickBloc>()
+                                    .currentProduct
+                                    .barcodeLocationDest
                             : newValue ==
-                                batchBloc
-                                    .pickWithProducts.pick?.barcodeMuelle) {
+                                context
+                                    .read<PickingPickBloc>()
+                                    .pickWithProducts
+                                    .pick
+                                    ?.barcodeMuelle) {
                           print('Muelle correcto');
                           // Validación correcta
                           validatePicking(
-                            batchBloc,
+                            context.read<PickingPickBloc>(),
                             context,
                             widget.currentProduct,
                           );
@@ -100,8 +146,9 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                           _audioService.playErrorSound();
                           _vibrationService.vibrate();
                           // Si la validación falla
-                          batchBloc.add(ValidateFieldsEvent(
-                              field: "locationDest", isOk: false));
+                          context.read<PickingPickBloc>().add(
+                              ValidateFieldsEvent(
+                                  field: "locationDest", isOk: false));
                           // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           //   duration: const Duration(milliseconds: 1000),
                           //   content: const Text('Muelle erróneo'),
@@ -117,10 +164,24 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                batchBloc.configurations.result?.result?.muelleOption ==
+                context
+                            .read<PickingPickBloc>()
+                            .configurations
+                            .result
+                            ?.result
+                            ?.muelleOption ==
                         "multiple"
-                    ? batchBloc.currentProduct.locationDestId ?? ""
-                    : batchBloc.pickWithProducts.pick?.muelle ?? "",
+                    ? context
+                            .read<PickingPickBloc>()
+                            .currentProduct
+                            .locationDestId ??
+                        ""
+                    : context
+                            .read<PickingPickBloc>()
+                            .pickWithProducts
+                            .pick
+                            ?.muelle ??
+                        "",
                 style: const TextStyle(fontSize: 14, color: black),
               ),
             ),
@@ -128,14 +189,46 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
           Align(
             alignment: Alignment.centerLeft,
             child: Visibility(
-              visible: batchBloc.configurations.result?.result?.muelleOption ==
+              visible: context
+                          .read<PickingPickBloc>()
+                          .configurations
+                          .result
+                          ?.result
+                          ?.muelleOption ==
                       "multiple"
-                  ? batchBloc.currentProduct.barcodeLocationDest == false ||
-                      batchBloc.currentProduct.barcodeLocationDest == null ||
-                      batchBloc.currentProduct.barcodeLocationDest == ""
-                  : batchBloc.pickWithProducts.pick?.barcodeMuelle == false ||
-                      batchBloc.pickWithProducts.pick?.barcodeMuelle == null ||
-                      batchBloc.pickWithProducts.pick?.barcodeMuelle == "",
+                  ? context
+                              .read<PickingPickBloc>()
+                              .currentProduct
+                              .barcodeLocationDest ==
+                          false ||
+                      context
+                              .read<PickingPickBloc>()
+                              .currentProduct
+                              .barcodeLocationDest ==
+                          null ||
+                      context
+                              .read<PickingPickBloc>()
+                              .currentProduct
+                              .barcodeLocationDest ==
+                          ""
+                  : context
+                              .read<PickingPickBloc>()
+                              .pickWithProducts
+                              .pick
+                              ?.barcodeMuelle ==
+                          false ||
+                      context
+                              .read<PickingPickBloc>()
+                              .pickWithProducts
+                              .pick
+                              ?.barcodeMuelle ==
+                          null ||
+                      context
+                              .read<PickingPickBloc>()
+                              .pickWithProducts
+                              .pick
+                              ?.barcodeMuelle ==
+                          "",
               child: const Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Text(
@@ -229,10 +322,19 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
               builder: (context) {
                 return DialogBackorderPick(
                   isHistory: false,
-                  idPick: context.read<PickingPickBloc>().pickWithProducts.pick?.id ?? 0,
+                  idPick: context
+                          .read<PickingPickBloc>()
+                          .pickWithProducts
+                          .pick
+                          ?.id ??
+                      0,
                   unidadesSeparadas: unidadesSeparadas,
-                  createBackorder:
-                      context.read<PickingPickBloc>().pickWithProducts.pick?.createBackorder ?? "ask",
+                  createBackorder: context
+                          .read<PickingPickBloc>()
+                          .pickWithProducts
+                          .pick
+                          ?.createBackorder ??
+                      "ask",
                   isExternalProduct: false,
                 );
               });

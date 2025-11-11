@@ -27,7 +27,6 @@ class ProductDropdownOrderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final AudioService _audioService = AudioService();
     final VibrationService _vibrationService = VibrationService();
-    final recepcionBloc = context.read<RecepcionBloc>();
     return SizedBox(
       height: 48,
       child: Center(
@@ -75,25 +74,25 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                   ),
                 );
               }).toList(),
-              onChanged: recepcionBloc.configurations.result?.result
+              onChanged: context.read<RecepcionBloc>().configurations.result?.result
                           ?.manualProductReading ==
                       false
                   ? null
-                  : !recepcionBloc.productIsOk
+                  : !context.read<RecepcionBloc>().productIsOk
                       ? (String? newValue) {
                           if (newValue ==
                               currentProduct.productName.toString()) {
-                            recepcionBloc.add(ValidateFieldsOrderEvent(
+                            context.read<RecepcionBloc>().add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: true));
 
-                            recepcionBloc.add(ChangeQuantitySeparate(
+                            context.read<RecepcionBloc>().add(ChangeQuantitySeparate(
                               0,
                               int.parse(currentProduct.productId),
                               currentProduct.idRecepcion ?? 0,
                               currentProduct.idMove ?? 0,
                             ));
 
-                            recepcionBloc.add(ChangeProductIsOkEvent(
+                            context.read<RecepcionBloc>().add(ChangeProductIsOkEvent(
                                 currentProduct.idRecepcion ?? 0,
                                 true,
                                 int.parse(currentProduct.productId),
@@ -103,14 +102,10 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                             _audioService.playErrorSound();
                             _vibrationService.vibrate();
 
-                            recepcionBloc.add(ValidateFieldsOrderEvent(
+                            context.read<RecepcionBloc>().add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: false));
 
-                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            //   duration: const Duration(milliseconds: 1000),
-                            //   content: const Text('Producto erroneo'),
-                            //   backgroundColor: Colors.red[200],
-                            // ));
+                          
                           }
                         }
                       : null,

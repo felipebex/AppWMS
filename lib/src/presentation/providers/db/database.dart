@@ -68,7 +68,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProdu
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 import 'package:sqflite/sqflite.dart';
- 
+
 class DataBaseSqlite {
   static final DataBaseSqlite _instance = DataBaseSqlite._internal();
   factory DataBaseSqlite() => _instance;
@@ -88,7 +88,7 @@ class DataBaseSqlite {
     // Si la base de datos no está inicializada, la inicializas aquí
     _database = await openDatabase(
       'wmsapp.db',
-      version: 14,
+      version: 15,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -274,8 +274,7 @@ class DataBaseSqlite {
       }
     }
 
-
-    if(oldVersion <12){
+    if (oldVersion < 12) {
       //solucion para cuando la version no tiene la tabla de productos para crear transferencia
       print('Migrando la base de datos a la versión 12...');
       try {
@@ -289,7 +288,7 @@ class DataBaseSqlite {
       }
     }
 
-    if(oldVersion <13){
+    if (oldVersion < 13) {
       //solucion para cuando la version no tiene la tabla de batch packing consolidade
       print('Migrando la base de datos a la versión 13...');
       try {
@@ -297,7 +296,7 @@ class DataBaseSqlite {
         await db.execute(BatchPackingConsolidateTable.createTable());
         //crear la tabla de pedidos de packing consolidade
         await db.execute(PedidosPackingConsolidateTable.createTable());
-       
+
         print(
             '✅ Tabla ${BatchPackingConsolidateTable.tableName} creada correctamente.');
         print(
@@ -308,8 +307,7 @@ class DataBaseSqlite {
       }
     }
 
-
-    if(oldVersion <14){
+    if (oldVersion < 14) {
       //solucion para cuando la version no tiene la tabla de maestra de productos de inventario
       print('Migrando la base de datos a la versión 14...');
       try {
@@ -326,12 +324,22 @@ class DataBaseSqlite {
       }
     }
 
-
-
-   
-
-    
-
+    if (oldVersion < 15) {
+      //solucion para cuabndo no tebnemos el campo de accessProductionModule en la tabla de configuraciones
+      print('Migrando la base de datos a la versión 15...');
+      try {
+        // Añadir la columna 'access_production_module' a la tabla ConfigurationsTable
+        await db.execute('''
+          ALTER TABLE ${ConfigurationsTable.tableName}
+          ADD COLUMN ${ConfigurationsTable.columnAccessProductionModule} INTEGER;
+        ''');
+        print(
+            '✅ Columna ${ConfigurationsTable.columnAccessProductionModule} añadida a ${ConfigurationsTable.tableName}.');
+      } catch (e) {
+        print(
+            '❌ Error al añadir la columna ${ConfigurationsTable.columnAccessProductionModule}, es posible que ya exista.');
+      }
+    }
   }
 
   //todo repositorios de las tablas
@@ -652,8 +660,6 @@ class DataBaseSqlite {
       await db.delete(BatchPackingConsolidateTable.tableName);
       await db.delete(PedidosPackingConsolidateTable.tableName);
     }
-
-
 
     await db.delete(PedidosPackingTable.tableName,
         where: '${PedidosPackingTable.columnType} = ?', whereArgs: [type]);

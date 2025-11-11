@@ -46,42 +46,47 @@ final internetChecker = CheckInternetConnection();
 final connectionStatusCubit =
     ConnectionStatusCubit(internetChecker: internetChecker);
 void main() async {
-  
-  // 1. **NO SE LLAMA ensureInitialized AQUÍ**
-
-  // 2. INICIAR LA ZONA DE CAPTURA DE ERRORES (Crashlytics)
+  // runZonedGuarded crea una zona de ejecución que captura errores no manejados
   await runZonedGuarded<Future<void>>(() async {
-    
-    // ✅ CORRECCIÓN CLAVE: Inicializar los bindings DENTRO de la Zona
-    WidgetsFlutterBinding.ensureInitialized(); 
+    // 🔧 INICIALIZACIÓN DE FLUTTER
+    // Asegura que los bindings de Flutter estén inicializados antes de cualquier operación
+    WidgetsFlutterBinding.ensureInitialized();
 
-    // TAREAS PESADAS Y CRÍTICAS DENTRO DE LA ZONA SEGURA:
+    // 💾 INICIALIZACIÓN DE PREFERENCIAS
+    // Inicializa el sistema de almacenamiento local (SharedPreferences)
     await Preferences.init();
+
+    // 📱 CONFIGURACIÓN DE ORIENTACIÓN
+    // Fuerza la app a permanecer en orientación vertical
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    // Inicializa Firebase
+    // 🔥 INICIALIZACIÓN DE FIREBASE
+    // Configura Firebase con las opciones específicas de la plataforma
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Configuración de Manejadores
+    // 🚨 CONFIGURACIÓN DE MANEJO DE ERRORES DE FLUTTER
+    // Captura errores de Flutter y los envía a Crashlytics
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-    // Configuración de ErrorWidget.builder
+    // ⚠️ CONFIGURACIÓN DE PANTALLA DE ERROR
+    // Define un widget personalizado para mostrar cuando ocurren errores críticos
     ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
           title: 'Algo salió mal',
           message: 'No se pudo cargar la información...',
           buttonText: 'Cerrar la app',
           onPressed: () {
-            exit(0);
+            exit(0); // Fuerza el cierre de la aplicación
           },
         );
-        
-    // 4. Ejecuta la aplicación
+
+    // 🚀 EJECUCIÓN DE LA APLICACIÓN
+    // Inicia la aplicación Flutter
     runApp(const MyApp());
-    
   }, (error, stack) {
-    // 5. CALLBACK DE runZonedGuarded: Captura errores asíncronos restantes
+    // 🎯 CAPTURADOR DE ERRORES GLOBALES
+    // Captura cualquier error no manejado en toda la aplicación y lo reporta a Crashlytics
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
   });
 }

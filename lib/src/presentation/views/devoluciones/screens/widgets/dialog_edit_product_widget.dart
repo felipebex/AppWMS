@@ -33,7 +33,6 @@ class DialogEditProduct extends StatelessWidget {
     TextEditingController controllerManualQuantity = TextEditingController();
 
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<DevolucionesBloc>();
     return WillPopScope(
       onWillPop: () async {
         // Evita que el diálogo se cierre al presionar el botón de retroceso
@@ -41,6 +40,7 @@ class DialogEditProduct extends StatelessWidget {
       },
       child: BlocBuilder<DevolucionesBloc, DevolucionesState>(
         builder: (context, state) {
+          final bloc = context.read<DevolucionesBloc>();
           return BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
             child: AlertDialog(
@@ -127,7 +127,9 @@ class DialogEditProduct extends StatelessWidget {
                                           fontSize: 12, color: primaryColorApp),
                                     ),
                                     Text(
-                                      bloc.currentProduct.useExpirationDate == 1 ? "Si" : "No",
+                                      bloc.currentProduct.useExpirationDate == 1
+                                          ? "Si"
+                                          : "No",
                                       style: const TextStyle(
                                           fontSize: 12, color: black),
                                     ),
@@ -613,13 +615,6 @@ class DialogEditProduct extends StatelessWidget {
                       child: const Text('Agregar',
                           style: TextStyle(color: Colors.white)),
                     ),
-
-
-
-
-
-
-                    
                   if (isEdit)
                     ElevatedButton(
                       onPressed: () {

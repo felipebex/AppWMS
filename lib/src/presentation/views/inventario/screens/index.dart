@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -51,19 +52,44 @@ class _InventarioScreenState extends State<InventarioScreen>
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.resumed && mounted) {
-      if (mounted) {
-        // Aquí se ejecutan las acciones solo si la pantalla aún está montada
-        showDialog(
-          context: context,
-          builder: (context) {
-            return const DialogLoading(
-              message: "Espere un momento...",
-            );
-          },
-        );
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) Navigator.pop(context);
-        });
+      _showAndAutoCloseLoadingDialog();
+    }
+  }
+
+  void _showAndAutoCloseLoadingDialog() {
+    // Verificar que el widget esté montado
+    if (!mounted) return;
+
+    // Mostrar el diálogo
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Evitar que se cierre tocando fuera
+      builder: (context) => const DialogLoading(
+        message: "Espere un momento...",
+      ),
+    ).then((_) {
+      // Este callback se ejecuta cuando el diálogo se cierra
+      print('Diálogo cerrado');
+    });
+
+    // Cerrar después de 1 segundo de forma segura
+    Future.delayed(const Duration(seconds: 1), () {
+      _safeCloseDialog();
+    });
+  }
+
+  void _safeCloseDialog() {
+    // Verificar múltiples condiciones antes de cerrar
+    if (!mounted) return;
+
+    // Verificar si podemos hacer pop del Navigator
+    if (Navigator.of(context, rootNavigator: false).canPop()) {
+      // Intentar cerrar el diálogo de forma segura
+      try {
+        Navigator.of(context, rootNavigator: false).pop();
+      } catch (e) {
+        print('Error al cerrar diálogo: $e');
+        // No hacer nada si falla
       }
     }
   }
@@ -974,10 +1000,16 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
-                                                    Image.asset(
-                                                      "assets/icons/barcode.png",
-                                                      color: primaryColorApp,
+                                                    SizedBox(
+                                                      height: 20,
                                                       width: 20,
+                                                      child: SvgPicture.asset(
+                                                        color: primaryColorApp,
+                                                        "assets/icons/barcode.svg",
+                                                        height: 20,
+                                                        width: 20,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Text(
@@ -1025,11 +1057,19 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         visible: bloc
                                                             .barcodeInventario
                                                             .isNotEmpty,
-                                                        child: Image.asset(
-                                                            "assets/icons/package_barcode.png",
+                                                        child: SizedBox(
+                                                          height: 20,
+                                                          width: 20,
+                                                          child:
+                                                              SvgPicture.asset(
                                                             color:
                                                                 primaryColorApp,
-                                                            width: 20),
+                                                            "assets/icons/barcode.svg",
+                                                            height: 20,
+                                                            width: 20,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1229,10 +1269,17 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
-                                                      Image.asset(
-                                                        "assets/icons/barcode.png",
-                                                        color: primaryColorApp,
+                                                      SizedBox(
+                                                        height: 20,
                                                         width: 20,
+                                                        child: SvgPicture.asset(
+                                                          color:
+                                                              primaryColorApp,
+                                                          "assets/icons/barcode.svg",
+                                                          height: 20,
+                                                          width: 20,
+                                                          fit: BoxFit.cover,
+                                                        ),
                                                       ),
                                                       const SizedBox(width: 10),
                                                       Text(
@@ -1280,11 +1327,19 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                           visible: bloc
                                                               .barcodeInventario
                                                               .isNotEmpty,
-                                                          child: Image.asset(
-                                                              "assets/icons/package_barcode.png",
+                                                          child: SizedBox(
+                                                            height: 20,
+                                                            width: 20,
+                                                            child: SvgPicture
+                                                                .asset(
                                                               color:
                                                                   primaryColorApp,
-                                                              width: 20),
+                                                              "assets/icons/barcode.svg",
+                                                              height: 20,
+                                                              width: 20,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
@@ -1383,10 +1438,16 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   color: primaryColorApp),
                                             ),
                                             const Spacer(),
-                                            Image.asset(
-                                              "assets/icons/barcode.png",
-                                              color: primaryColorApp,
+                                            SizedBox(
+                                              height: 20,
                                               width: 20,
+                                              child: SvgPicture.asset(
+                                                color: primaryColorApp,
+                                                "assets/icons/barcode.svg",
+                                                height: 20,
+                                                width: 20,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                             IconButton(
                                                 onPressed: () {

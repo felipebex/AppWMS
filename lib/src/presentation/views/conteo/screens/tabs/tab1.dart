@@ -53,7 +53,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Text('Almacen: ',
+                                const Text('Almacen: ',
                                     style: TextStyle(
                                         fontSize: 14, color: primaryColorApp)),
                                 Text(
@@ -68,8 +68,8 @@ class Tab1ScreenConteo extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Text('Tipo de conteo: ',
-                                    style: TextStyle(
+                                const Text('Tipo de conteo: ',
+                                    style:  TextStyle(
                                         fontSize: 14, color: primaryColorApp)),
                                 Text(
                                   ordeConteoBd.countType ?? "",
@@ -83,7 +83,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Text('Tipo de filtro: ',
+                               const Text('Tipo de filtro: ',
                                     style: TextStyle(
                                         fontSize: 14, color: primaryColorApp)),
                                 Text(
@@ -98,7 +98,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Icon(
+                               const Icon(
                                   Icons.calendar_month_sharp,
                                   color: primaryColorApp,
                                   size: 15,
@@ -119,7 +119,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              Align(
+                             const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Total lineas : ',
@@ -131,13 +131,13 @@ class Tab1ScreenConteo extends StatelessWidget {
                                   child: Text(
                                     ordeConteoBd.numeroLineas.toString(),
                                     style:
-                                        TextStyle(fontSize: 14, color: black),
+                                        const TextStyle(fontSize: 14, color: black),
                                   )),
                             ],
                           ),
                           Row(
                             children: [
-                              Align(
+                             const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Total lineas contadas : ',
@@ -156,13 +156,13 @@ class Tab1ScreenConteo extends StatelessWidget {
                                         .length
                                         .toString(),
                                     style:
-                                        TextStyle(fontSize: 14, color: black),
+                                        const TextStyle(fontSize: 14, color: black),
                                   )),
                             ],
                           ),
                           Row(
                             children: [
-                              Align(
+                             const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Total ubicaciones : ',
@@ -178,13 +178,13 @@ class Tab1ScreenConteo extends StatelessWidget {
                                         .length
                                         .toString(),
                                     style:
-                                        TextStyle(fontSize: 14, color: black),
+                                        const TextStyle(fontSize: 14, color: black),
                                   )),
                             ],
                           ),
                           Row(
                             children: [
-                              Align(
+                             const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Total categorias : ',
@@ -200,18 +200,18 @@ class Tab1ScreenConteo extends StatelessWidget {
                                         .length
                                         .toString(),
                                     style:
-                                        TextStyle(fontSize: 14, color: black),
+                                       const TextStyle(fontSize: 14, color: black),
                                   )),
                             ],
                           ),
-
-                           Align(
+                          Align(
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Text(
+                                const Text(
                                   'Observación:',
-                                  style: TextStyle(fontSize: 12, color: primaryColorApp),
+                                  style: TextStyle(
+                                      fontSize: 12, color: primaryColorApp),
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
@@ -219,16 +219,14 @@ class Tab1ScreenConteo extends StatelessWidget {
                                           ordeConteoBd.observationGeneral != ""
                                       ? ordeConteoBd.observationGeneral!
                                       : 'Sin observación',
-                                  style: TextStyle(
-                                      fontSize: 12, color: black),
+                                  style: const TextStyle(fontSize: 12, color: black),
                                 ),
                               ],
                             ),
                           ),
-                         
                           Row(
                             children: [
-                              Align(
+                             const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Estado : ',
@@ -238,7 +236,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                               Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    ordeConteoBd?.numeroLineas ==
+                                    ordeConteoBd.numeroLineas ==
                                             context
                                                 .read<ConteoBloc>()
                                                 .lineasContadas
@@ -258,7 +256,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                                             : 'En progreso',
                                     style: TextStyle(
                                         fontSize: 14,
-                                        color: ordeConteoBd?.numeroLineas ==
+                                        color: ordeConteoBd.numeroLineas ==
                                                 context
                                                     .read<ConteoBloc>()
                                                     .lineasContadas
@@ -283,7 +281,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Icon(
+                               const Icon(
                                   Icons.person_rounded,
                                   color: primaryColorApp,
                                   size: 15,
@@ -301,40 +299,7 @@ class Tab1ScreenConteo extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.timer,
-                                  color: primaryColorApp,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  'Tiempo de inicio : ',
-                                  style: TextStyle(
-                                      fontSize: 14, color: primaryColorApp),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  // ordeCompraBd.startTimeReception == null ||
-                                  //         ordeCompraBd.startTimeReception == ''
-                                  // ?
-                                  'Sin tiempo'
-                                  // : ordeCompraBd.startTimeReception ?? ""
-                                  ,
-                                  style: const TextStyle(
-                                      fontSize: 14, color: black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            color: black,
-                            thickness: 1,
-                            height: 5,
-                          ),
+                          
                         ],
                       ),
                     ),

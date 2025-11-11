@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 
@@ -14,8 +15,7 @@ class DialogBackorderPick extends StatelessWidget {
       required this.createBackorder,
       required this.idPick,
       required this.isExternalProduct,
-      required this.isHistory
-      });
+      required this.isHistory});
 
   final double unidadesSeparadas;
   final String createBackorder;
@@ -25,8 +25,6 @@ class DialogBackorderPick extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final batchBloc = context.read<PickingPickBloc>();
-
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -43,9 +41,11 @@ class DialogBackorderPick extends StatelessWidget {
           children: [
             SizedBox(
               height: 100,
-              width: 150,
-              child: Image.asset(
-                "assets/images/icono.jpeg",
+              width: 200,
+              child: SvgPicture.asset(
+                "assets/images/icono.svg",
+                height: 150,
+                width: 50,
                 fit: BoxFit.cover,
               ),
             ),
@@ -73,9 +73,10 @@ class DialogBackorderPick extends StatelessWidget {
                         : true,
             child: ElevatedButton(
               onPressed: () {
-                batchBloc.add(ShowKeyboard(false));
-                batchBloc.add(CreateBackOrderOrNot(
-                    batchBloc.pickWithProducts.pick?.id ?? 0,
+                context.read<PickingPickBloc>().add(ShowKeyboard(false));
+                context.read<PickingPickBloc>().add(CreateBackOrderOrNot(
+                    context.read<PickingPickBloc>().pickWithProducts.pick?.id ??
+                        0,
                     true,
                     isExternalProduct));
                 Navigator.pop(context);
@@ -95,10 +96,16 @@ class DialogBackorderPick extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              batchBloc.add(ShowKeyboard(false));
-              batchBloc.add(CreateBackOrderOrNot(
-                  isHistory ? idPick :
-                  batchBloc.pickWithProducts.pick?.id ?? 0,
+              context.read<PickingPickBloc>().add(ShowKeyboard(false));
+              context.read<PickingPickBloc>().add(CreateBackOrderOrNot(
+                  isHistory
+                      ? idPick
+                      : context
+                              .read<PickingPickBloc>()
+                              .pickWithProducts
+                              .pick
+                              ?.id ??
+                          0,
                   createBackorder == "never"
                       ? false
                       : createBackorder == "always"

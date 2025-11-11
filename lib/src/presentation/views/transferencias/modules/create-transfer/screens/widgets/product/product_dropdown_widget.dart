@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -17,7 +18,9 @@ class ProductDropdownCreateTransferWidget extends StatelessWidget {
                   !context.read<CreateTransferBloc>().productIsOk &&
                   !context.read<CreateTransferBloc>().quantityIsOk)
               ? () {
-                  context.read<CreateTransferBloc>().add(GetProductsFromDBEvent());
+                  context
+                      .read<CreateTransferBloc>()
+                      .add(GetProductsFromDBEvent());
                   Navigator.pushReplacementNamed(
                     context,
                     'search-product-create-transfer',
@@ -62,10 +65,16 @@ class ProductDropdownCreateTransferWidget extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
-              Image.asset(
-                "assets/icons/barcode.png",
-                color: primaryColorApp,
+              SizedBox(
+                height: 20,
                 width: 20,
+                child: SvgPicture.asset(
+                  color: primaryColorApp,
+                  "assets/icons/barcode.svg",
+                  height: 20,
+                  width: 20,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(width: 10),
               Text(
@@ -107,9 +116,21 @@ class ProductDropdownCreateTransferWidget extends StatelessWidget {
                   );
                 },
                 child: Visibility(
-                  visible: context.read<CreateTransferBloc>().listOfBarcodes.isNotEmpty,
-                  child: Image.asset("assets/icons/package_barcode.png",
-                      color: primaryColorApp, width: 20),
+                  visible: context
+                      .read<CreateTransferBloc>()
+                      .listOfBarcodes
+                      .isNotEmpty,
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: SvgPicture.asset(
+                      color: primaryColorApp,
+                      "assets/icons/barcode.svg",
+                      height: 20,
+                      width: 20,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             ],

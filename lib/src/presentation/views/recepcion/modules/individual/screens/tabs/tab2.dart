@@ -325,35 +325,47 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: GestureDetector(
                                       onTap: () async {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return const DialogLoading(
-                                                message:
-                                                    'Cargando información del producto',
-                                              );
-                                            });
-
                                         context
                                             .read<RecepcionBloc>()
                                             .add(FetchPorductOrder(
                                               product,
                                             ));
 
-                                        // Esperar 3 segundos antes de continuar
-                                        Future.delayed(
-                                            const Duration(milliseconds: 300),
-                                            () {
-                                          Navigator.pop(context);
-
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            'scan-product-order',
-                                            arguments: [
-                                              widget.ordenCompra,
-                                              product
-                                            ],
+                                        Future.microtask(() {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (context) {
+                                              return const DialogLoading(
+                                                message:
+                                                    'Cargando información del producto...',
+                                              );
+                                            },
                                           );
+                                        });
+
+                                        Future.delayed(
+                                            const Duration(milliseconds: 1000),
+                                            () {
+                                          if (mounted) {
+                                            // Chequeo de seguridad de contexto
+
+                                            // 4.1. Cerrar el diálogo de carga (usando el context del widget, ya que el diálogo fue abierto con él)
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
+                                                .pop();
+
+                                            // 4.2. Navegar a la vista 'Packing' (Línea 450)
+                                            // Se asume que la vista 'Packing' ahora puede usar los datos que el BLoC ya cargó.
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'scan-product-order',
+                                              arguments: [
+                                                widget.ordenCompra,
+                                                product
+                                              ],
+                                            );
+                                          }
                                         });
                                         print(product.toMap());
                                       },

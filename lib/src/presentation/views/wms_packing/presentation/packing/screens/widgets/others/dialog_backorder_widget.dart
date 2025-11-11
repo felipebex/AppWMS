@@ -4,21 +4,19 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 
 class DialogBackorderPack extends StatelessWidget {
   const DialogBackorderPack(
-      {Key? key, required this.totalEnviadas, required this.createBackorder})
-      : super(key: key);
+      {super.key, required this.totalEnviadas, required this.createBackorder});
 
   final double totalEnviadas;
   final String createBackorder;
 
   @override
   Widget build(BuildContext context) {
-    final batchBloc = context.read<PackingPedidoBloc>();
-
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -35,9 +33,11 @@ class DialogBackorderPack extends StatelessWidget {
           children: [
             SizedBox(
               height: 100,
-              width: 150,
-              child: Image.asset(
-                "assets/images/icono.jpeg",
+              width: 200,
+              child: SvgPicture.asset(
+                "assets/images/icono.svg",
+                height: 150,
+                width: 50,
                 fit: BoxFit.cover,
               ),
             ),
@@ -53,7 +53,6 @@ class DialogBackorderPack extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-           
           ],
         ),
         actions: [
@@ -65,9 +64,10 @@ class DialogBackorderPack extends StatelessWidget {
                     : true,
             child: ElevatedButton(
               onPressed: () {
-                batchBloc.add(ShowKeyboardEvent(false));
-                batchBloc.add(CreateBackPackOrNot(
-                    batchBloc.currentPedidoPack.id ?? 0, true));
+                context.read<PackingPedidoBloc>().add(ShowKeyboardEvent(false));
+                context.read<PackingPedidoBloc>().add(CreateBackPackOrNot(
+                    context.read<PackingPedidoBloc>().currentPedidoPack.id ?? 0,
+                    true));
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
@@ -85,9 +85,9 @@ class DialogBackorderPack extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              batchBloc.add(ShowKeyboardEvent(false));
-              batchBloc.add(CreateBackPackOrNot(
-                  batchBloc.currentPedidoPack.id ?? 0,
+              context.read<PackingPedidoBloc>().add(ShowKeyboardEvent(false));
+              context.read<PackingPedidoBloc>().add(CreateBackPackOrNot(
+                  context.read<PackingPedidoBloc>().currentPedidoPack.id ?? 0,
                   createBackorder == "never"
                       ? false
                       : createBackorder == "always"

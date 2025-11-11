@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -404,8 +405,6 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                           0),
                                 );
 
-                              
-
                             Navigator.pushReplacementNamed(
                               context,
                               'conteo-detail',
@@ -715,10 +714,16 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                                       color: primaryColorApp),
                                                 ),
                                                 const Spacer(),
-                                                Image.asset(
-                                                  "assets/icons/barcode.png",
-                                                  color: primaryColorApp,
+                                                SizedBox(
+                                                  height: 20,
                                                   width: 20,
+                                                  child: SvgPicture.asset(
+                                                    color: primaryColorApp,
+                                                    "assets/icons/barcode.svg",
+                                                    height: 20,
+                                                    width: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
                                                 IconButton(
                                                     onPressed: () {

@@ -13,7 +13,8 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 
 class DetailPickDoneScreen extends StatelessWidget {
-  const DetailPickDoneScreen({super.key});
+  final bool isFromPick;
+  const DetailPickDoneScreen({super.key, required this.isFromPick});
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +168,9 @@ class DetailPickDoneScreen extends StatelessWidget {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  const IndexListPickDoneScreen()),
+                                                   IndexListPickDoneScreen(
+                                                    isFromPick: isFromPick,
+                                                  )),
                                           (route) => false);
                                     },
                                   ),

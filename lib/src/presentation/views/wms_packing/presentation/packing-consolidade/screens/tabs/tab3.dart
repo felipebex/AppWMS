@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
@@ -69,7 +70,8 @@ class Tab3Screen extends StatelessWidget {
                                 showDialog(
                                   context: context,
                                   builder: (_) {
-                                    final bloc = context.read<PackingConsolidateBloc>();
+                                    final bloc =
+                                        context.read<PackingConsolidateBloc>();
                                     return DialogConfirmatedPacking(
                                       productos: context
                                           .read<PackingConsolidateBloc>()
@@ -92,11 +94,16 @@ class Tab3Screen extends StatelessWidget {
                                 );
                               },
                         backgroundColor: primaryColorApp,
-                        child: Image.asset(
-                          'assets/icons/packing.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: SvgPicture.asset(
+                            color: white,
+                            "assets/icons/packing.svg",
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
@@ -140,7 +147,10 @@ class Tab3Screen extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 5, bottom: 10),
                   // width: double.infinity,
                   // height: size.height * 0.7,
-                  child: (context.read<PackingConsolidateBloc>().productsDone.isEmpty)
+                  child: (context
+                          .read<PackingConsolidateBloc>()
+                          .productsDone
+                          .isEmpty)
                       ? const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -230,10 +240,12 @@ class Tab3Screen extends StatelessWidget {
                                                                             height:
                                                                                 100,
                                                                             width:
-                                                                                150,
+                                                                                200,
                                                                             child:
-                                                                                Image.asset(
-                                                                              "assets/images/icono.jpeg",
+                                                                                SvgPicture.asset(
+                                                                              "assets/images/icono.svg",
+                                                                              height: 150,
+                                                                              width: 50,
                                                                               fit: BoxFit.cover,
                                                                             ),
                                                                           ),

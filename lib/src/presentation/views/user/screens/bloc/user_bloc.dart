@@ -41,7 +41,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<GetConfigurations>((event, emit) async {
       try {
         emit(ConfigurationLoading());
-        final response = await userRepository.configurations(event.context);
+        final response = await userRepository.configurations();
         if (response.result?.code == 200) {
           final int userId = await PrefUtils.getUserId();
           await db.configurationsRepository

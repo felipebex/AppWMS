@@ -97,6 +97,7 @@ class DataConfig {
   bool? hideValidateReception;
   bool? hideValidatePacking;
   bool? hideValidatePicking;
+  bool? accessProductionModule;
 
   bool? updateItemInventory;
 
@@ -156,6 +157,8 @@ class DataConfig {
     this.returnsLocationDestOption,
     this.locationManualInventory,
     this.manualProductSelectionInventory,
+    //accessProductionModule
+    this.accessProductionModule,
   });
 
   factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
@@ -206,6 +209,7 @@ class DataConfig {
         returnsLocationDestOption: json["returns_location_dest_option"],
         locationManualInventory: json["location_manual_inventory"],
         manualProductSelectionInventory: json["manual_product_selection_inventory"],
+        accessProductionModule: json["access_production_module"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -253,6 +257,7 @@ class DataConfig {
         "returns_location_dest_option": returnsLocationDestOption,  
         "location_manual_inventory": locationManualInventory,
         "manual_product_selection_inventory": manualProductSelectionInventory,
+        "access_production_module": accessProductionModule,
       };
 }
 

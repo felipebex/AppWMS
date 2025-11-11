@@ -286,7 +286,7 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
                                           // Text('WMS',
-                                          Text('14',
+                                          Text('15',
                                               style: const TextStyle(
                                                   fontSize: 14, color: black))
                                         ],
@@ -499,6 +499,60 @@ class UserScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      const SizedBox(height: 10),
+                                      Card(
+                                        color: white,
+                                        elevation: 3,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: [
+                                              Center(
+                                                child: Text("Accesos:",
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            primaryColorApp)),
+                                              ),
+                                              const SizedBox(height: 10),
+                                               Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Acceso al modulo de produccion: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.accessProductionModule ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Acceso al modulo de produccion",
+                                                                  body:
+                                                                      "Acceso al modulo de produccion en la aplicacion",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                       const SizedBox(height: 10),
                                       //todo: permisos de picking
                                       Visibility(
@@ -765,6 +819,7 @@ class UserScreen extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(height: 10),
+
                                       //todo permisos de packing
                                       Visibility(
                                         visible: config.result?.result?.rol ==

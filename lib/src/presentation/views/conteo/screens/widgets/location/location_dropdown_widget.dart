@@ -35,7 +35,6 @@ class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final conteoBloc = widget.conteoBloc;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,28 +98,28 @@ class _LocationDropdownWidgetState extends State<LocationDropdownConteoWidget> {
               );
             }).toList();
           },
-          onChanged: conteoBloc
+          onChanged: widget.conteoBloc
                       .configurations.result?.result?.locationManualInventory ==
                   false
               ? null
-              : conteoBloc.locationIsOk
+              : widget.conteoBloc.locationIsOk
                   ? null
                   : (String? newValue) {
                       final expected =
                           widget.currentProduct.locationName.toString();
                       if (newValue == expected) {
-                        conteoBloc.add(
+                        widget.conteoBloc.add(
                             ValidateFieldsEvent(field: "location", isOk: true));
-                        conteoBloc.add(ChangeLocationIsOkEvent(
+                        widget.conteoBloc.add(ChangeLocationIsOkEvent(
                           false,
                           ResultUbicaciones(),
                           widget.currentProduct.productId ?? 0,
                           widget.currentProduct.orderId ?? 0,
                           widget.currentProduct.idMove ?? 0,
                         ));
-                        conteoBloc.oldLocation = expected;
+                        widget.conteoBloc.oldLocation = expected;
                       } else {
-                        conteoBloc.add(ValidateFieldsEvent(
+                        widget.conteoBloc.add(ValidateFieldsEvent(
                             field: "location", isOk: false));
 
                         _vibrationService.vibrate();

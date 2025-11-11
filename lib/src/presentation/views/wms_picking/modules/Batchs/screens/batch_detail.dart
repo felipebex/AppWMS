@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
@@ -495,10 +496,16 @@ class BatchDetailScreen extends StatelessWidget {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.start,
                                                   children: [
-                                                    Image.asset(
-                                                      "assets/icons/barcode.png",
-                                                      color: primaryColorApp,
+                                                    SizedBox(
+                                                      height: 20,
                                                       width: 20,
+                                                      child: SvgPicture.asset(
+                                                        color: primaryColorApp,
+                                                        "assets/icons/barcode.svg",
+                                                        height: 20,
+                                                        width: 20,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 5),
                                                     Text(productsBatch.barcode,
@@ -649,11 +656,19 @@ class BatchDetailScreen extends StatelessWidget {
                                                                     );
                                                                   });
                                                             },
-                                                            child: Image.asset(
-                                                              'assets/icons/list_final.png',
+                                                            child: SizedBox(
                                                               height: 20,
-                                                              color:
-                                                                  primaryColorApp,
+                                                              width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
+                                                                color:
+                                                                    primaryColorApp,
+                                                                "assets/icons/list_final.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
@@ -1085,11 +1100,6 @@ class BatchDetailScreen extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (!context.read<BatchBloc>().isPdaZebra)
-                                    Image.asset('assets/images/empty.png',
-                                        height:
-                                            100), // Ajusta la altura según necesites
-                                  const SizedBox(height: 10),
                                   Text(
                                       context.read<BatchBloc>().isSearch
                                           ? 'No se encontraron resultados'

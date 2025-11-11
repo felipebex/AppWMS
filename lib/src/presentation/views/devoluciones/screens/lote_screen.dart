@@ -40,7 +40,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<DevolucionesBloc>();
+    // final bloc = context.read<DevolucionesBloc>();
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: Scaffold(
@@ -53,9 +53,9 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                 ),
                 child: CustomKeyboard(
                   isLogin: false,
-                  controller: bloc.newLoteController,
+                  controller: context.read<DevolucionesBloc>().newLoteController,
                   onchanged: () {
-                    bloc.newLoteController.text = bloc.newLoteController.text;
+                    context.read<DevolucionesBloc>().newLoteController.text = context.read<DevolucionesBloc>().newLoteController.text;
                   },
                 ),
               )
@@ -141,11 +141,11 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                     },
                   ),
 
-                  if (!bloc.isKeyboardVisible)
+                  if (!context.read<DevolucionesBloc>().isKeyboardVisible)
                     Padding(
                       padding:
                           EdgeInsets.only(bottom: 5, top: viewList ? 0 : 10),
-                      child: Text(bloc.currentProduct?.name ?? '',
+                      child: Text(context.read<DevolucionesBloc>().currentProduct?.name ?? '',
                           style: TextStyle(fontSize: 14, color: black)),
                     ),
 
@@ -178,7 +178,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                         ? true
                                         : false,
                                     textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchControllerLote,
+                                    controller: context.read<DevolucionesBloc>().searchControllerLote,
                                     showCursor: true,
                                     decoration: InputDecoration(
                                       prefixIcon: const Icon(
@@ -188,11 +188,11 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                       ),
                                       suffixIcon: IconButton(
                                           onPressed: () {
-                                            bloc.searchControllerLote.clear();
-                                            bloc.add(SearchLotevent(
+                                            context.read<DevolucionesBloc>().searchControllerLote.clear();
+                                            context.read<DevolucionesBloc>().add(SearchLotevent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardEvent(false));
+                                            context.read<DevolucionesBloc>().add(ShowKeyboardEvent(false));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -208,7 +208,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                       border: InputBorder.none,
                                     ),
                                     onChanged: (value) {
-                                      bloc.add(SearchLotevent(
+                                      context.read<DevolucionesBloc>().add(SearchLotevent(
                                         value,
                                       ));
                                     },
@@ -218,7 +218,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardEvent(true));
+                                            context.read<DevolucionesBloc>().add(ShowKeyboardEvent(true));
                                           },
                                   ),
                                 ),
@@ -233,7 +233,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                     visible: viewList,
                     child: Expanded(
                         child: ListView.builder(
-                            itemCount: bloc.listLotesProductFilters.length,
+                            itemCount: context.read<DevolucionesBloc>().listLotesProductFilters.length,
                             itemBuilder: (context, index) {
                               bool isSelected = selectedIndex == index;
 
@@ -258,7 +258,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                              'Lote: ${bloc.listLotesProductFilters[index].name}',
+                                              'Lote: ${context.read<DevolucionesBloc>().listLotesProductFilters[index].name}',
                                               style: TextStyle(
                                                   color: primaryColorApp,
                                                   fontSize: 12)),
@@ -269,9 +269,9 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                                       color: black,
                                                       fontSize: 12)),
                                               Text(
-                                                  '${bloc.listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProductFilters[index].expirationDate}',
+                                                  '${context.read<DevolucionesBloc>().listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : context.read<DevolucionesBloc>().listLotesProductFilters[index].expirationDate}',
                                                   style: TextStyle(
-                                                      color: bloc
+                                                      color: context.read<DevolucionesBloc>()
                                                                   .listLotesProductFilters[
                                                                       index]
                                                                   .expirationDate ==
@@ -300,7 +300,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                           SizedBox(
                             height: 40,
                             child: TextFormField(
-                              controller: bloc.newLoteController,
+                              controller: context.read<DevolucionesBloc>().newLoteController,
                               style: TextStyle(color: black, fontSize: 14),
                               decoration: InputDecoration(
                                 labelText: 'Nombre del lote',
@@ -310,7 +310,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                 ),
                                 suffixIcon: IconButton(
                                     onPressed: () {
-                                      bloc.newLoteController.clear();
+                                      context.read<DevolucionesBloc>().newLoteController.clear();
                                       FocusScope.of(context).unfocus();
                                     },
                                     icon: const Icon(Icons.close, color: grey)),
@@ -320,17 +320,17 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                           const SizedBox(height: 10),
                           Visibility(
                             visible:
-                                bloc.currentProduct.useExpirationDate == true ||
-                                    bloc.currentProduct.useExpirationDate == 1,
+                                context.read<DevolucionesBloc>().currentProduct.useExpirationDate == true ||
+                                    context.read<DevolucionesBloc>().currentProduct.useExpirationDate == 1,
                             child: SizedBox(
                               height: 40,
                               child: TextFormField(
                                 style: TextStyle(color: black, fontSize: 14),
-                                controller: bloc.dateLoteController,
+                                controller: context.read<DevolucionesBloc>().dateLoteController,
                                 decoration: InputDecoration(
                                   suffixIcon: IconButton(
                                       onPressed: () {
-                                        bloc.dateLoteController.clear();
+                                        context.read<DevolucionesBloc>().dateLoteController.clear();
                                         FocusScope.of(context).unfocus();
                                       },
                                       icon:
@@ -370,7 +370,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
 
                                     // Actualizar el estado de la fecha seleccionada
                                     selectedDate = pickedDate;
-                                    bloc.dateLoteController.text =
+                                    context.read<DevolucionesBloc>().dateLoteController.text =
                                         formattedDate;
                                   }
                                 }, // Llamar al selector de fecha y hora
@@ -390,9 +390,9 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                         onPressed: () {
                           // Aquí puedes manejar la lógica de lo que suceda cuando se seleccione el lote
                           var selectedLote =
-                              bloc.listLotesProduct[selectedIndex!];
+                              context.read<DevolucionesBloc>().listLotesProduct[selectedIndex!];
 
-                          bloc.add(SelectecLoteEvent(selectedLote));
+                          context.read<DevolucionesBloc>().add(SelectecLoteEvent(selectedLote));
 
                           Navigator.pop(context);
 
@@ -417,7 +417,7 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                     ),
                   ),
                   Visibility(
-                    visible: !bloc.isKeyboardVisible,
+                    visible: !context.read<DevolucionesBloc>().isKeyboardVisible,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -464,10 +464,10 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                               onPressed: () {
                                 //ocultamos la lista de lotes
                                 ///validamos que l nombre del lote no sea el mismo que ya existe en la lista
-                                if (bloc.listLotesProduct
+                                if (context.read<DevolucionesBloc>().listLotesProduct
                                     .where((element) =>
                                         element.name ==
-                                        bloc.newLoteController.text)
+                                        context.read<DevolucionesBloc>().newLoteController.text)
                                     .isNotEmpty) {
                                   Get.snackbar(
                                     'Error al crear lote',
@@ -480,8 +480,8 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                   return;
                                 }
 
-                                if (bloc.newLoteController.text.isEmpty ||
-                                    bloc.newLoteController.text == '') {
+                                if (context.read<DevolucionesBloc>().newLoteController.text.isEmpty ||
+                                    context.read<DevolucionesBloc>().newLoteController.text == '') {
                                   Get.snackbar(
                                     'Error al crear lote',
                                     'El nombre del lote no puede estar vacío',
@@ -493,12 +493,12 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                   return;
                                 }
 
-                                if (bloc.currentProduct.useExpirationDate ==
+                                if (context.read<DevolucionesBloc>().currentProduct.useExpirationDate ==
                                         true ||
-                                    bloc.currentProduct.useExpirationDate ==
+                                    context.read<DevolucionesBloc>().currentProduct.useExpirationDate ==
                                         1) {
-                                  if (bloc.dateLoteController.text.isEmpty ||
-                                      bloc.dateLoteController.text == "") {
+                                  if (context.read<DevolucionesBloc>().dateLoteController.text.isEmpty ||
+                                      context.read<DevolucionesBloc>().dateLoteController.text == "") {
                                     Get.snackbar(
                                       'Error al crear lote',
                                       'La fecha de caducidad no puede estar vacía',
@@ -511,9 +511,9 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                                   }
                                 }
 
-                                bloc.add(CreateLoteProduct(
-                                  bloc.newLoteController.text,
-                                  bloc.dateLoteController.text,
+                                context.read<DevolucionesBloc>().add(CreateLoteProduct(
+                                  context.read<DevolucionesBloc>().newLoteController.text,
+                                  context.read<DevolucionesBloc>().dateLoteController.text,
                                 ));
                               },
                               style: ElevatedButton.styleFrom(
@@ -532,14 +532,14 @@ class _NewLoteScreenState extends State<NewLoteScreenDevolucion> {
                   ),
                   const SizedBox(height: 5),
                   Visibility(
-                    visible: bloc.isKeyboardVisible &&
+                    visible: context.read<DevolucionesBloc>().isKeyboardVisible &&
                         context.read<UserBloc>().fabricante.contains("Zebra"),
                     child: CustomKeyboard(
                       isLogin: false,
-                      controller: bloc.searchControllerLote,
+                      controller: context.read<DevolucionesBloc>().searchControllerLote,
                       onchanged: () {
-                        bloc.add(SearchLotevent(
-                          bloc.searchControllerLote.text,
+                        context.read<DevolucionesBloc>().add(SearchLotevent(
+                          context.read<DevolucionesBloc>().searchControllerLote.text,
                         ));
                       },
                     ),

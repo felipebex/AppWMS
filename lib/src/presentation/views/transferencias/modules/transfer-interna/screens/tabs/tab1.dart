@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -676,9 +677,11 @@ class Tab1ScreenTrans extends StatelessWidget {
                                             children: [
                                               SizedBox(
                                                 height: 100,
-                                                width: 150,
-                                                child: Image.asset(
-                                                  "assets/images/icono.jpeg",
+                                                width: 200,
+                                                child: SvgPicture.asset(
+                                                  "assets/images/icono.svg",
+                                                  height: 150,
+                                                  width: 50,
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),

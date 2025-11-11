@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -681,10 +682,16 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                               alignment: Alignment.centerLeft,
                                               child: Row(
                                                 children: [
-                                                  Image.asset(
-                                                    "assets/icons/barcode.png",
-                                                    color: primaryColorApp,
+                                                  SizedBox(
+                                                    height: 20,
                                                     width: 20,
+                                                    child: SvgPicture.asset(
+                                                      color: primaryColorApp,
+                                                      "assets/icons/barcode.svg",
+                                                      height: 20,
+                                                      width: 20,
+                                                      fit: BoxFit.cover,
+                                                    ),
                                                   ),
                                                   const SizedBox(width: 10),
                                                   Text(
@@ -736,11 +743,18 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       visible: recepcionBloc
                                                           .listOfBarcodes
                                                           .isNotEmpty,
-                                                      child: Image.asset(
-                                                          "assets/icons/package_barcode.png",
+                                                      child: SizedBox(
+                                                        height: 20,
+                                                        width: 20,
+                                                        child: SvgPicture.asset(
                                                           color:
                                                               primaryColorApp,
-                                                          width: 20),
+                                                          "assets/icons/barcode.svg",
+                                                          height: 20,
+                                                          width: 20,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ],
@@ -812,11 +826,19 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                             .centerLeft,
                                                         child: Row(
                                                           children: [
-                                                            Image.asset(
-                                                              "assets/icons/barcode.png",
-                                                              color:
-                                                                  primaryColorApp,
+                                                            SizedBox(
+                                                              height: 20,
                                                               width: 20,
+                                                              child: SvgPicture
+                                                                  .asset(
+                                                                color:
+                                                                    primaryColorApp,
+                                                                "assets/icons/barcode.svg",
+                                                                height: 20,
+                                                                width: 20,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
                                                             ),
                                                             const SizedBox(
                                                                 width: 10),
@@ -868,11 +890,21 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                                 visible: recepcionBloc
                                                                     .listOfBarcodes
                                                                     .isNotEmpty,
-                                                                child: Image.asset(
-                                                                    "assets/icons/package_barcode.png",
+                                                                child: SizedBox(
+                                                                  height: 20,
+                                                                  width: 20,
+                                                                  child:
+                                                                      SvgPicture
+                                                                          .asset(
                                                                     color:
                                                                         primaryColorApp,
-                                                                    width: 20),
+                                                                    "assets/icons/barcode.svg",
+                                                                    height: 20,
+                                                                    width: 20,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                           ],
@@ -935,10 +967,16 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                     color: primaryColorApp),
                                               ),
                                               const Spacer(),
-                                              Image.asset(
-                                                "assets/icons/barcode.png",
-                                                color: primaryColorApp,
+                                              SizedBox(
+                                                height: 20,
                                                 width: 20,
+                                                child: SvgPicture.asset(
+                                                  color: primaryColorApp,
+                                                  "assets/icons/barcode.svg",
+                                                  height: 20,
+                                                  width: 20,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                               IconButton(
                                                   onPressed: () {
@@ -1141,9 +1179,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                           (recepcionBloc.configurations.result?.result
                                       ?.scanDestinationLocationReception ==
                                   false)
-                              ? 
-                              
-                              Row(
+                              ? Row(
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -1189,10 +1225,16 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       ),
                                                     ),
                                                     const Spacer(),
-                                                    Image.asset(
-                                                      "assets/icons/packing.png",
-                                                      color: primaryColorApp,
+                                                    SizedBox(
+                                                      height: 20,
                                                       width: 20,
+                                                      child: SvgPicture.asset(
+                                                        color: primaryColorApp,
+                                                        "assets/icons/packing.svg",
+                                                        height: 20,
+                                                        width: 20,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -1460,8 +1502,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     ),
                                   ],
                                 ),
-                      
-                      
                         ],
                       ),
                     ),

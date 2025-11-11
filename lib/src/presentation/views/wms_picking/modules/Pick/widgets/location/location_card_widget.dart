@@ -27,7 +27,6 @@ class LocationDropdownWidget extends StatelessWidget {
     final AudioService _audioService = AudioService();
     final VibrationService _vibrationService = VibrationService();
 
-    final batchBloc = context.read<PickingPickBloc>();
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -78,27 +77,27 @@ class LocationDropdownWidget extends StatelessWidget {
                 ),
               );
             }).toList(),
-            onChanged: batchBloc
+            onChanged: context.read<PickingPickBloc>()
                         .configurations.result?.result?.locationPickingManual ==
                     false
                 ? null
-                : batchBloc.locationIsOk
+                : context.read<PickingPickBloc>().locationIsOk
                     ? null
                     : (String? newValue) {
                         if (newValue == currentProduct.locationId.toString()) {
-                          batchBloc.add(ValidateFieldsEvent(
+                          context.read<PickingPickBloc>().add(ValidateFieldsEvent(
                               field: "location", isOk: true));
-                          batchBloc.add(ChangeLocationIsOkEvent(
+                          context.read<PickingPickBloc>().add(ChangeLocationIsOkEvent(
                               currentProduct.idProduct ?? 0,
-                              batchBloc.pickWithProducts.pick?.id ?? 0,
+                              context.read<PickingPickBloc>().pickWithProducts.pick?.id ?? 0,
                               currentProduct.idMove ?? 0));
 
-                          batchBloc.oldLocation =
+                          context.read<PickingPickBloc>().oldLocation =
                               currentProduct.locationId.toString();
                         } else {
                           _vibrationService.vibrate();
                           _audioService.playErrorSound();
-                          batchBloc.add(ValidateFieldsEvent(
+                          context.read<PickingPickBloc>().add(ValidateFieldsEvent(
                               field: "location", isOk: false));
                           
                         }

@@ -202,6 +202,36 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     on<FetchPickingComponentesFromDBEvent>(
         _onFetchPickingComponentesFromDBEvent);
+
+    //*obtener todos los pick de componentes desde el historial de odoo
+    on<LoadHistoryPickComponentEvent>(_onLoadHistoryPickComponentEvent);
+  }
+
+  void _onLoadHistoryPickComponentEvent(LoadHistoryPickComponentEvent event,
+      Emitter<PickingPickState> emit) async {
+    try {
+      print('date: ${event.date}');
+      emit(PickingLoadingState());
+
+      final response = await pickingPickRepository.resPicksComponentsDone(
+        event.isLoadinDialog,
+        event.date,
+      );
+
+      if (response != null && response is List) {
+        historyPicks = [];
+        filtersHistoryPicks = [];
+        historyPicks.addAll(response);
+        filtersHistoryPicks.addAll(response);
+
+        emit(LoadHistoryPicksState(listOfBatchs: filtersHistoryPicks));
+      } else {
+        print('Error resHistoryBatchs: response is null');
+      }
+    } catch (e, s) {
+      print('Error LoadHistoryBatchsEvent: $e, $s');
+      emit(PickingErrorState(e.toString()));
+    }
   }
 
   void _onLoadHistoryPickEvent(
@@ -423,6 +453,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           isSearch = true;
           add(PickingOkEvent(
               pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
+          //eliminamos el pick de la lista actual
+          await db.pickRepository.deletePickById(event.idPick);
+          //eliminamos de la lista en memoria
+          listOfPick.removeWhere((pick) => pick.id == event.idPick);
+          listOfPickFiltered.removeWhere((pick) => pick.id == event.idPick);
           //pedimos los nuevos picks
           add(FetchPickingPickEvent(false));
         }

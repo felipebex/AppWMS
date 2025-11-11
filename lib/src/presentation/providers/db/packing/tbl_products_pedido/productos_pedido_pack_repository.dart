@@ -547,72 +547,74 @@ class ProductosPedidosRepository {
     return resUpdate;
   }
 
-  Future<int?> findAndAddQuantityAndDelete(int productId, int idMove,
-      dynamic quantityToAdd, int idPedido, String type) async {
-    Database db = await DataBaseSqlite().getDatabaseInstance();
-    int? rowsAffected;
+  Future<int?> findAndAddQuantityAndDelete(int productId, int idMoveToUpdate,
+    dynamic quantityToAdd, int idPedido, String type) async { // Renombrado idMove a idMoveToUpdate para claridad
+  Database db = await DataBaseSqlite().getDatabaseInstance();
+  int? rowsAffected;
 
-    await db.transaction((txn) async {
-      // 1️⃣ Buscar y obtener la cantidad del producto para actualizar
-      final List<Map<String, dynamic>> productsToUpdate = await txn.query(
+  // Asegurar que quantityToAdd es double
+  final double safeQuantityToAdd = (quantityToAdd as num).toDouble();
+
+  await db.transaction((txn) async {
+    // 1️⃣ Buscar y obtener la cantidad del producto para actualizar (Búsqueda por idMoveToUpdate)
+    final List<Map<String, dynamic>> productsToUpdate = await txn.query(
+      ProductosPedidosTable.tableName,
+      columns: [ProductosPedidosTable.columnQuantity],
+      where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+          '${ProductosPedidosTable.columnIdMove} = ? AND '
+          '${ProductosPedidosTable.columnPedidoId} = ? AND '
+          '${ProductosPedidosTable.columnIsSeparate} IS NULL AND '
+          '${ProductosPedidosTable.columnIsProductSplit} = 1 AND '
+          '${ProductosPedidosTable.columnIsSelected} = 0 AND '
+          '${ProductosPedidosTable.columnIsPackage} IS NULL AND '
+          '${ProductosPedidosTable.columnType} = ?',
+      whereArgs: [productId, idMoveToUpdate, idPedido, type],
+      limit: 1,
+    );
+
+    if (productsToUpdate.isNotEmpty) {
+      final currentQuantity = (productsToUpdate
+              .first[ProductosPedidosTable.columnQuantity] as num)
+          .toDouble();
+      final newQuantity = currentQuantity + safeQuantityToAdd;
+
+      // 2️⃣ Actualizar la cantidad del producto encontrado (CORRECCIÓN DEL AND COLGANTE)
+      rowsAffected = await txn.update(
         ProductosPedidosTable.tableName,
-        columns: [ProductosPedidosTable.columnQuantity],
+        {ProductosPedidosTable.columnQuantity: newQuantity},
+        where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
+            '${ProductosPedidosTable.columnIdMove} = ? AND '
+            '${ProductosPedidosTable.columnType} = ?', // ✅ SINTAXIS CORREGIDA
+        whereArgs: [productId, idMoveToUpdate, type],
+      );
+
+      // 3️⃣ Eliminar el producto que ya fue procesado (Se asume que idMoveToDelete es idMoveToUpdate)
+      final int rowsDeleted = await txn.delete(
+        ProductosPedidosTable.tableName,
         where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
             '${ProductosPedidosTable.columnIdMove} = ? AND '
             '${ProductosPedidosTable.columnPedidoId} = ? AND '
-            '${ProductosPedidosTable.columnIsSeparate} IS NULL AND '
+            '${ProductosPedidosTable.columnIsSeparate} = 1 AND '
+            '${ProductosPedidosTable.columnIsSelected} = 1 AND '
+            '${ProductosPedidosTable.columnIsPackage} = 0 AND '
+            '${ProductosPedidosTable.columnIsCertificate} = 1 AND '
             '${ProductosPedidosTable.columnIsProductSplit} = 1 AND '
-            '${ProductosPedidosTable.columnIsSelected} = 0 AND '
-            '${ProductosPedidosTable.columnIsPackage} IS NULL AND '
-            '${ProductosPedidosTable.columnType} = ?',
-        whereArgs: [productId, idMove, idPedido, type],
-        limit: 1,
+            '${ProductosPedidosTable.columnType} = ?', // ✅ CONCATENACIÓN Y TIPO CORRECTO
+        whereArgs: [productId, idMoveToUpdate, idPedido, type],
       );
 
-      if (productsToUpdate.isNotEmpty) {
-        final currentQuantity = (productsToUpdate
-                .first[ProductosPedidosTable.columnQuantity] as num)
-            .toDouble();
-        final newQuantity = currentQuantity + quantityToAdd;
+      print(
+          "✅ Producto actualizado exitosamente. Filas afectadas: $rowsAffected");
+      print(
+          "✅ Producto eliminado exitosamente. Filas eliminadas: $rowsDeleted");
+    } else {
+      print("⚠️ No se encontró el producto para actualizar.");
+      rowsAffected = 0;
+    }
+  });
 
-        // 2️⃣ Actualizar la cantidad del producto encontrado
-        rowsAffected = await txn.update(
-          ProductosPedidosTable.tableName,
-          {ProductosPedidosTable.columnQuantity: newQuantity},
-          where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
-              '${ProductosPedidosTable.columnIdMove} = ? AND '
-              '${ProductosPedidosTable.columnType} = ? AND ',
-          whereArgs: [productId, idMove, type],
-        );
-
-        // 3️⃣ Eliminar el producto que ya fue procesado
-        final int rowsDeleted = await txn.delete(
-          ProductosPedidosTable.tableName,
-          where: '${ProductosPedidosTable.columnIdProduct} = ? AND '
-              '${ProductosPedidosTable.columnIdMove} = ? AND '
-              '${ProductosPedidosTable.columnPedidoId} = ? AND '
-              '${ProductosPedidosTable.columnIsSeparate} = 1 AND '
-              '${ProductosPedidosTable.columnIsSelected} = 1 AND '
-              '${ProductosPedidosTable.columnIsPackage} = 0 AND '
-              '${ProductosPedidosTable.columnIsCertificate} = 1 AND '
-              '${ProductosPedidosTable.columnIsProductSplit} = 1'
-              ' AND ${ProductosPedidosTable.columnType} = ?',
-          whereArgs: [productId, idMove, idPedido, type],
-        );
-
-        print(
-            "✅ Producto actualizado exitosamente. Filas afectadas: $rowsAffected");
-        print(
-            "✅ Producto eliminado exitosamente. Filas eliminadas: $rowsDeleted");
-      } else {
-        print("⚠️ No se encontró el producto para actualizar.");
-        rowsAffected = 0;
-      }
-    });
-
-    return rowsAffected;
-  }
-
+  return rowsAffected;
+}
   // Actualizar la tabla de productos de un pedido (con certificado y paquete)
   Future<int?> setFieldTableProductosPedidos2String(int pedidoId, int productId,
       String field, dynamic setValue, int idMove, String type) async {

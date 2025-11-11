@@ -28,7 +28,6 @@ class ProductPickDropdownWidget extends StatelessWidget {
     final AudioService _audioService = AudioService();
     final VibrationService _vibrationService = VibrationService();
 
-    final batchBloc = context.read<PickingPickBloc>();
     return SizedBox(
       height: 48,
       child: Center(
@@ -74,26 +73,26 @@ class ProductPickDropdownWidget extends StatelessWidget {
                   ),
                 );
               }).toList(),
-              onChanged: batchBloc.configurations.result?.result
+              onChanged: context.read<PickingPickBloc>().configurations.result?.result
                           ?.manualProductSelection ==
                       false
                   ? null
-                  : batchBloc.locationIsOk && !batchBloc.productIsOk
+                  : context.read<PickingPickBloc>().locationIsOk && !context.read<PickingPickBloc>().productIsOk
                       ? (String? newValue) {
                           if (newValue == currentProduct.productId.toString()) {
-                            batchBloc.add(ValidateFieldsEvent(
+                            context.read<PickingPickBloc>().add(ValidateFieldsEvent(
                                 field: "product", isOk: true));
 
-                            batchBloc.add(ChangeProductIsOkEvent(
+                            context.read<PickingPickBloc>().add(ChangeProductIsOkEvent(
                                 true,
                                 currentProduct.idProduct ?? 0,
-                                batchBloc.pickWithProducts.pick?.id ?? 0,
+                                context.read<PickingPickBloc>().pickWithProducts.pick?.id ?? 0,
                                 0,
                                 currentProduct.idMove ?? 0));
                           } else {
                             _vibrationService.vibrate();
                             _audioService.playErrorSound();
-                            batchBloc.add(ValidateFieldsEvent(
+                            context.read<PickingPickBloc>().add(ValidateFieldsEvent(
                                 field: "product", isOk: false));
                           }
                         }

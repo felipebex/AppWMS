@@ -23,9 +23,8 @@ class BarcodeScannerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // La lógica de Zebra se maneja una sola vez en el widget padre
-    final isZebraDevice = context.read<UserBloc>().fabricante.contains("Zebra");
 
-    return isZebraDevice
+    return context.select((UserBloc bloc) => bloc.fabricante).contains("Zebra")
         ? _buildZebraInput(context)
         : _buildNonZebraInput(context);
   }

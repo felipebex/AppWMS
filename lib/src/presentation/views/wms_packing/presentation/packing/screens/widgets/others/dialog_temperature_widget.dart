@@ -42,7 +42,6 @@ class _DialogCapturaTemperaturaState
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<PackingPedidoBloc>();
 
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
       listener: (context, state) {
@@ -54,6 +53,8 @@ class _DialogCapturaTemperaturaState
         }
       },
       builder: (context, state) {
+    final bloc = context.read<PackingPedidoBloc>();
+
         return BackdropFilter(
           filter: ImageFilter.blur(
             sigmaX: 5,

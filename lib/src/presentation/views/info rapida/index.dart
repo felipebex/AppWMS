@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/sounds_utils.dart';
@@ -46,9 +47,6 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isZebra =
-        context.select((UserBloc b) => b.fabricante).contains("Zebra");
-
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listenWhen: (previous, current) => current is! InfoRapidaInitial,
       buildWhen: (previous, current) =>
@@ -168,11 +166,16 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                 child: Column(
                   children: [
                     SizedBox(height: size.height * 0.13),
-                    Image.asset(
-                      'assets/icons/barcode.png',
-                      width: 150,
+                    SizedBox(
                       height: 150,
-                      color: black,
+                      width: 150,
+                      child: SvgPicture.asset(
+                        color: black,
+                        "assets/icons/barcode.svg",
+                        height: 150,
+                        width: 150,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -183,7 +186,9 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    isZebra
+                    context
+                            .select((UserBloc b) => b.fabricante)
+                            .contains("Zebra")
                         ? TextFormField(
                             controller: _controllerSearch,
                             focusNode: focusNode1,

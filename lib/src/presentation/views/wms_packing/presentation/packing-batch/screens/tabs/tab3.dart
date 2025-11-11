@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
@@ -92,11 +93,16 @@ class Tab3Screen extends StatelessWidget {
                                 );
                               },
                         backgroundColor: primaryColorApp,
-                        child: Image.asset(
-                          'assets/icons/packing.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: SvgPicture.asset(
+                            color: white,
+                            "assets/icons/packing.svg",
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
@@ -228,12 +234,15 @@ class Tab3Screen extends StatelessWidget {
                                                                         children: [
                                                                           SizedBox(
                                                                             height:
-                                                                                100,
+                                                                                20,
                                                                             width:
-                                                                                150,
+                                                                                20,
                                                                             child:
-                                                                                Image.asset(
-                                                                              "assets/images/icono.jpeg",
+                                                                                SvgPicture.asset(
+                                                                              color: primaryColorApp,
+                                                                              "assets/icons/packing.svg",
+                                                                              height: 20,
+                                                                              width: 20,
                                                                               fit: BoxFit.cover,
                                                                             ),
                                                                           ),

@@ -25,10 +25,9 @@ class _SelectSubMuelleBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final batchBloc = context.read<BatchBloc>();
-
     return BlocBuilder<BatchBloc, BatchState>(
       builder: (context, state) {
+        final batchBloc = context.read<BatchBloc>();
         return Container(
           padding: const EdgeInsets.all(16.0),
           margin: const EdgeInsets.only(bottom: 5),
@@ -165,12 +164,12 @@ class _SelectSubMuelleBottomSheetState
                                       'Estado del submuelle: ${isOccupied == true ? "Ocupado" : "Libre"}');
 
                                   batchBloc.add(AssignSubmuelleEvent(
-                                    batchBloc.filteredProducts
-                                      .where((e) {
-                                        return (e.isSeparate == 1) &&
-                                    (e.idLocationDest ==
-                                        batchBloc.batchWithProducts.batch?.idMuellePadre);
-                                      }).toList(),
+                                    batchBloc.filteredProducts.where((e) {
+                                      return (e.isSeparate == 1) &&
+                                          (e.idLocationDest ==
+                                              batchBloc.batchWithProducts.batch
+                                                  ?.idMuellePadre);
+                                    }).toList(),
                                     batchBloc.subMuelleSelected,
                                     isOccupied == null ? false : isOccupied!,
                                   ));

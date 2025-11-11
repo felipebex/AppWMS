@@ -18,7 +18,9 @@ import 'package:wms_app/src/presentation/widgets/barcode_scanner_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 class IndexListPickDoneScreen extends StatelessWidget {
-  const IndexListPickDoneScreen({super.key});
+  final bool isFromPick;
+
+  const IndexListPickDoneScreen({super.key, required this.isFromPick});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,6 @@ class IndexListPickDoneScreen extends StatelessWidget {
     final TextEditingController _controllerToDo = TextEditingController();
 
     final size = MediaQuery.of(context).size;
-    final bloc = context.read<PickingPickBloc>();
 
     void validateBarcode(String value, BuildContext context) {
       final bloc = context.read<PickingPickBloc>();
@@ -88,6 +89,8 @@ class IndexListPickDoneScreen extends StatelessWidget {
       child: BlocConsumer<PickingPickBloc, PickingPickState>(
         listener: (context, state) {},
         builder: (context, state) {
+          final bloc = context.read<PickingPickBloc>();
+
           return Scaffold(
             backgroundColor: white,
             bottomNavigationBar: bloc.isKeyboardVisible
@@ -138,15 +141,28 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                       icon: const Icon(Icons.arrow_back,
                                           color: white),
                                       onPressed: () {
-                                        Navigator.pushReplacementNamed(
-                                            context, 'pick');
+                                        if (isFromPick) {
+                                          Navigator.pushReplacementNamed(
+                                              context, 'pick');
+                                        }
+                                        if (!isFromPick) {
+                                          Navigator.pushReplacementNamed(
+                                              context, 'picking-componentes');
+                                        } else {
+                                          Navigator.pushReplacementNamed(
+                                              context, '/home');
+                                        }
                                       },
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(
-                                          left: size.width * 0.15),
-                                      child: const Text(
-                                        'HISTORIAL PICK',
+                                          left: isFromPick
+                                              ? size.width * 0.15
+                                              : 20),
+                                      child: Text(
+                                        isFromPick
+                                            ? 'HISTORIAL PICK'
+                                            : 'HISTORIAL COMPONENTES',
                                         style: TextStyle(
                                             color: white,
                                             fontSize: 18,
@@ -265,8 +281,9 @@ class IndexListPickDoneScreen extends StatelessWidget {
                                             true, batch.id ?? 0));
 
                                     Navigator.pushReplacementNamed(
-                                        context, 'detail-pick-done');
-                                    print('Tapped on batch: ${batch.toMap()}');
+                                        context, 'detail-pick-done',
+                                        arguments: [isFromPick]
+                                        );
                                   },
                                   child: Card(
                                     color: batch.isSeparate == 1

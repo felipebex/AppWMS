@@ -212,4 +212,23 @@ class PickingPickRepository {
       return null; // Devuelve null en caso de error
     }
   }
+
+
+
+  //metodo para eliminar un pick por su id
+  Future<int> deletePickById(int pickId) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();  
+      final rowsDeleted = await db.delete(
+        PickingPickTable.tableName,
+        where: '${PickingPickTable.columnId} = ?',
+        whereArgs: [pickId],
+      );
+      print('Se eliminaron $rowsDeleted registros con ID $pickId en picking pick');
+      return rowsDeleted;
+    } catch (e) {
+      print("Error al eliminar el pick por ID: $e");
+      return 0; // Devuelve 0 en caso de error
+    }
+  } 
 }

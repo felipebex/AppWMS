@@ -23,7 +23,6 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recepcionBloc = context.read<RecepcionBatchBloc>();
     return SizedBox(
       height: 48,
       child: Center(
@@ -71,25 +70,25 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
                   ),
                 );
               }).toList(),
-              onChanged: recepcionBloc.configurations.result?.result
+              onChanged: context.read<RecepcionBatchBloc>().configurations.result?.result
                           ?.manualProductReading ==
                       false
                   ? null
-                  : !recepcionBloc.productIsOk
+                  : !context.read<RecepcionBatchBloc>().productIsOk
                       ? (String? newValue) {
                           if (newValue ==
                               currentProduct.productName.toString()) {
-                            recepcionBloc.add(ValidateFieldsOrderEvent(
+                            context.read<RecepcionBatchBloc>().add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: true));
 
-                            recepcionBloc.add(ChangeQuantitySeparate(
+                            context.read<RecepcionBatchBloc>().add(ChangeQuantitySeparate(
                               0,
                               int.parse(currentProduct.productId),
                               currentProduct.idRecepcion ?? 0,
                               currentProduct.idMove ?? 0,
                             ));
 
-                            recepcionBloc.add(ChangeProductIsOkEvent(
+                            context.read<RecepcionBatchBloc>().add(ChangeProductIsOkEvent(
                                 currentProduct.idRecepcion ?? 0,
                                 true,
                                 int.parse(currentProduct.productId),
@@ -98,7 +97,7 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
 
                            
                           } else {
-                            recepcionBloc.add(ValidateFieldsOrderEvent(
+                            context.read<RecepcionBatchBloc>().add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: false));
 
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(

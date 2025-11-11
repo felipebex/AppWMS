@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
@@ -45,10 +46,16 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                 color: primaryColorApp,
               ),
             ),
-            icon: Image.asset(
-              "assets/icons/packing.png",
-              color: primaryColorApp,
+            icon: SizedBox(
+              height: 20,
               width: 20,
+              child: SvgPicture.asset(
+                color: primaryColorApp,
+                "assets/icons/packing.svg",
+                height: 20,
+                width: 20,
+                fit: BoxFit.cover,
+              ),
             ),
             value: widget.selectedMuelle,
             items: [
@@ -106,7 +113,6 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                     : null,
           ),
 
-          
           Align(
             alignment: Alignment.centerLeft,
             child: Visibility(
@@ -248,7 +254,6 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                     batchBloc.isSearch = false;
                     batchBloc.add(LoadProductEditEvent());
 
-                  
                     Navigator.pushReplacementNamed(
                       context,
                       'batch-detail',

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -37,7 +38,6 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(context.read<RecepcionBatchBloc>().novedades.length);
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -124,10 +124,16 @@ class _DialogAdvetenciaCantidadScreenState
                         fontSize: 14,
                         color: black), // Cambia primaryColorApp a tu color
                   ),
-                  icon: Image.asset(
-                    "assets/icons/novedad.png",
-                    color: primaryColorApp,
-                    width: 24,
+                  icon: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: SvgPicture.asset(
+                      color: primaryColorApp,
+                      "assets/icons/novedad.svg",
+                      height: 20,
+                      width: 20,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   value: selectedNovedad, // Muestra la opción seleccionada
                   alignment: Alignment.centerLeft,
@@ -156,15 +162,14 @@ class _DialogAdvetenciaCantidadScreenState
               visible: (widget.currentProduct.quantityOrdered > 1),
               child: ElevatedButton(
                   onPressed: () async {
-                     DataBaseSqlite db = DataBaseSqlite();
-                  await db.productsEntradaBatchRepository.updateNovedadOrder(
-                      widget.currentProduct.idRecepcion ?? 0,
-                      int.parse(widget.currentProduct.productId),
-                      widget.currentProduct.idMove ?? 0,
-                      'Cantidad dividida');
+                    DataBaseSqlite db = DataBaseSqlite();
+                    await db.productsEntradaBatchRepository.updateNovedadOrder(
+                        widget.currentProduct.idRecepcion ?? 0,
+                        int.parse(widget.currentProduct.productId),
+                        widget.currentProduct.idMove ?? 0,
+                        'Cantidad dividida');
                     Navigator.pop(context); // Cierra el diálogo
-                    widget.onSplit(); // 
-
+                    widget.onSplit(); //
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: grey,
@@ -194,9 +199,6 @@ class _DialogAdvetenciaCantidadScreenState
               ),
               child:
                   Text('Cancelar', style: TextStyle(color: primaryColorApp))),
-
-
-                  
           ElevatedButton(
               onPressed: () async {
                 // Validamos que tenga una novedad seleccionada
@@ -210,7 +212,10 @@ class _DialogAdvetenciaCantidadScreenState
                   Navigator.pop(context); // Cierra el diálogo
                   widget.onAccepted(); // Llama al callback
                 }
-                 print(context.read<RecepcionBatchBloc>().lotesProductCurrent.toMap());
+                print(context
+                    .read<RecepcionBatchBloc>()
+                    .lotesProductCurrent
+                    .toMap());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColorApp,

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 
 class DialogBarcodes extends StatelessWidget {
@@ -39,16 +40,22 @@ class DialogBarcodes extends StatelessWidget {
                 child: ListView.builder(
                   shrinkWrap:
                       true, // Esto hace que el ListView tome solo el espacio necesario
-                  itemCount:  listOfBarcodes.length,
+                  itemCount: listOfBarcodes.length,
                   itemBuilder: (context, index) {
                     return Card(
                       elevation: 3,
                       color: white,
                       child: ListTile(
-                        leading: Image.asset(
-                          "assets/icons/barcode.png",
-                          color: primaryColorApp,
+                        leading: SizedBox(
+                          height: 20,
                           width: 20,
+                          child: SvgPicture.asset(
+                            color: primaryColorApp,
+                            "assets/icons/barcode.svg",
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         title: Text(
                           listOfBarcodes[index].barcode,

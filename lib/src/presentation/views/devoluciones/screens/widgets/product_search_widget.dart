@@ -23,11 +23,11 @@ class _SearchProductDevScreenState extends State<SearchProductDevScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<DevolucionesBloc>();
 
     return BlocConsumer<DevolucionesBloc, DevolucionesState>(
       listener: (context, state) {},
       builder: (context, state) {
+    final bloc = context.read<DevolucionesBloc>();
         return WillPopScope(
           onWillPop: () async => false,
           child: Scaffold(
@@ -114,8 +114,6 @@ class ProductListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<DevolucionesBloc>();
-    final product = bloc.productosFilters[index];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -129,12 +127,12 @@ class ProductListTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildProductRow('Nombre', product.name, isError: false),
-                _buildProductRow('Barcode', product.barcode,
+                _buildProductRow('Nombre', context.read<DevolucionesBloc>().productosFilters[index].name, isError: false),
+                _buildProductRow('Barcode', context.read<DevolucionesBloc>().productosFilters[index].barcode,
                     isError:
-                        product.barcode == null || product.barcode!.isEmpty),
-                _buildProductRow('Code', product.code,
-                    isError: product.code == null || product.code!.isEmpty),
+                        context.read<DevolucionesBloc>().productosFilters[index].barcode == null || context.read<DevolucionesBloc>().productosFilters[index].barcode!.isEmpty),
+                _buildProductRow('Code', context.read<DevolucionesBloc>().productosFilters[index].code,
+                    isError: context.read<DevolucionesBloc>().productosFilters[index].code == null || context.read<DevolucionesBloc>().productosFilters[index].code!.isEmpty),
               ],
             ),
           ),
@@ -225,16 +223,15 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<DevolucionesBloc>();
-    final isZebra = context.read<UserBloc>().fabricante.contains("Zebra");
+
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Card(
         elevation: 3,
         child: TextFormField(
-          readOnly: isZebra,
-          controller: bloc.searchControllerProducts,
+          readOnly: context.read<UserBloc>().fabricante.contains("Zebra"),
+          controller: context.read<DevolucionesBloc>().searchControllerProducts,
           textAlignVertical: TextAlignVertical.center,
           showCursor: true,
           style: const TextStyle(color: black, fontSize: 14),
@@ -243,9 +240,9 @@ class _SearchBar extends StatelessWidget {
             suffixIcon: IconButton(
               icon: const Icon(Icons.close, color: grey, size: 20),
               onPressed: () {
-                bloc.searchControllerProducts.clear();
-                bloc.add(SearchProductEvent(''));
-                bloc.add(ShowKeyboardEvent(false));
+                context.read<DevolucionesBloc>().searchControllerProducts.clear();
+                context.read<DevolucionesBloc>().add(SearchProductEvent(''));
+                context.read<DevolucionesBloc>().add(ShowKeyboardEvent(false));
                 FocusScope.of(context).unfocus();
               },
             ),
@@ -253,8 +250,8 @@ class _SearchBar extends StatelessWidget {
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
             border: InputBorder.none,
           ),
-          onChanged: (value) => bloc.add(SearchProductEvent(value)),
-          onTap: isZebra ? () => bloc.add(ShowKeyboardEvent(true)) : null,
+          onChanged: (value) => context.read<DevolucionesBloc>().add(SearchProductEvent(value)),
+          onTap: context.read<UserBloc>().fabricante.contains("Zebra") ? () => context.read<DevolucionesBloc>().add(ShowKeyboardEvent(true)) : null,
         ),
       ),
     );

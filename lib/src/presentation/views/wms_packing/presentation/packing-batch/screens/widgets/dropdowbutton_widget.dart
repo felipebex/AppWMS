@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -39,7 +40,6 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(context.read<WmsPackingBloc>().novedades.length);
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -49,122 +49,130 @@ class _DialogAdvetenciaCantidadScreenState
         title: const Center(
             child: Text('360 Software Informa',
                 style: TextStyle(color: yellow, fontSize: 14))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                children: [
-                  const TextSpan(
-                    text: 'La cantidad separada ',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14), // Color del texto normal
-                  ),
-                  TextSpan(
-                    text: '${widget.cantidad} ',
-                    style: TextStyle(
-                      color: primaryColorApp,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: 'La cantidad separada ',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14), // Color del texto normal
                     ),
-                    // Color rojo para quantity
-                  ),
-                  const TextSpan(
-                    text: 'es menor a la cantidad a recoger ',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    ), // Color del texto normal
-                  ),
-                  TextSpan(
-                    text: '${widget.currentProduct.quantity}',
-                    style: const TextStyle(
-                      color: green,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ), // Color verde para currentProduct?.quantity
-                  ),
-                ],
-              ),
-            ),
-            const Text(
-                "Para continuar, seleccione la novedad o divida la cantidad del producto",
-                style: TextStyle(color: Colors.black, fontSize: 14)),
-            const SizedBox(height: 10),
-            Card(
-              color: Colors.white,
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: DropdownButton<String>(
-                  underline: Container(height: 0),
-                  selectedItemBuilder: (BuildContext context) {
-                    return context
-                        .read<WmsPackingBloc>()
-                        .novedades
-                        .map<Widget>((Novedad item) {
-                      return Text(item.name ?? '');
-                    }).toList();
-                  },
-                  borderRadius: BorderRadius.circular(10),
-                  focusColor: Colors.white,
-                  isExpanded: true,
-                  isDense: true,
-                  hint: const Text(
-                    'Seleccionar novedad',
-                    style: TextStyle(
+                    TextSpan(
+                      text: '${widget.cantidad} ',
+                      style: TextStyle(
+                        color: primaryColorApp,
                         fontSize: 14,
-                        color: black), // Cambia primaryColorApp a tu color
-                  ),
-                  icon: Image.asset(
-                    "assets/icons/novedad.png",
-                    color: primaryColorApp,
-                    width: 24,
-                  ),
-                  value: selectedNovedad, // Muestra la opción seleccionada
-                  alignment: Alignment.centerLeft,
-                  style: const TextStyle(
-                      color: black,
-                      fontSize: 14), // Cambia primaryColorApp a tu color
-                  items: context
-                      .read<WmsPackingBloc>()
-                      .novedades
-                      .map((Novedad item) {
-                    return DropdownMenuItem<String>(
-                      value: item.name,
-                      child: Text(item.name ?? ''),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedNovedad =
-                          newValue; // Actualiza el estado con la nueva selección
-                    });
-                  },
+                        fontWeight: FontWeight.bold,
+                      ),
+                      // Color rojo para quantity
+                    ),
+                    const TextSpan(
+                      text: 'es menor a la cantidad a recoger ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                      ), // Color del texto normal
+                    ),
+                    TextSpan(
+                      text: '${widget.currentProduct.quantity}',
+                      style: const TextStyle(
+                        color: green,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ), // Color verde para currentProduct?.quantity
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Visibility(
-              visible: widget.cantidad >= 1,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context); // Cierra el diálogo
-                    widget.onSplit(); // L
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: grey,
-                    minimumSize: Size(size.width * 0.6, 30),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+              const Text(
+                  "Para continuar, seleccione la novedad o divida la cantidad del producto",
+                  style: TextStyle(color: Colors.black, fontSize: 14)),
+              const SizedBox(height: 10),
+              Card(
+                color: Colors.white,
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButton<String>(
+                    underline: Container(height: 0),
+                    selectedItemBuilder: (BuildContext context) {
+                      return context
+                          .read<WmsPackingBloc>()
+                          .novedades
+                          .map<Widget>((Novedad item) {
+                        return Text(item.name ?? '');
+                      }).toList();
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    focusColor: Colors.white,
+                    isExpanded: true,
+                    isDense: true,
+                    hint: const Text(
+                      'Seleccionar novedad',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: black), // Cambia primaryColorApp a tu color
                     ),
-                    elevation: 3,
+                    icon: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: SvgPicture.asset(
+                        color: primaryColorApp,
+                        "assets/icons/novedad.svg",
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    value: selectedNovedad, // Muestra la opción seleccionada
+                    alignment: Alignment.centerLeft,
+                    style: const TextStyle(
+                        color: black,
+                        fontSize: 14), // Cambia primaryColorApp a tu color
+                    items: context
+                        .read<WmsPackingBloc>()
+                        .novedades
+                        .map((Novedad item) {
+                      return DropdownMenuItem<String>(
+                        value: item.name,
+                        child: Text(item.name ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedNovedad =
+                            newValue; // Actualiza el estado con la nueva selección
+                      });
+                    },
                   ),
-                  child: const Text('Dividir Cantidad',
-                      style: TextStyle(color: Colors.white))),
-            ),
-          ],
+                ),
+              ),
+              Visibility(
+                visible: widget.cantidad >= 1,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context); // Cierra el diálogo
+                      widget.onSplit(); // L
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: grey,
+                      minimumSize: Size(size.width * 0.6, 30),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 3,
+                    ),
+                    child: const Text('Dividir Cantidad',
+                        style: TextStyle(color: Colors.white))),
+              ),
+            ],
+          ),
         ),
         actions: [
           ElevatedButton(
@@ -208,7 +216,8 @@ class _DialogAdvetenciaCantidadScreenState
                                     .updateNovedadPacking(
                                         widget.currentProduct.pedidoId ?? 0,
                                         widget.currentProduct.idProduct ?? 0,
-                                        selectedNovedad ?? '', 'packing-batch');
+                                        selectedNovedad ?? '',
+                                        'packing-batch');
                                 // Cierra el diálogo y ejecuta el callback después de actualizar
                                 if (Navigator.canPop(context)) {
                                   Navigator.pop(context);
@@ -221,7 +230,8 @@ class _DialogAdvetenciaCantidadScreenState
                                       .updateNovedadPacking(
                                           widget.currentProduct.pedidoId ?? 0,
                                           widget.currentProduct.idProduct ?? 0,
-                                          selectedNovedad ?? '', 'packing-batch');
+                                          selectedNovedad ?? '',
+                                          'packing-batch');
                                   // Cierra el diálogo y ejecuta el callback después de actualizar
                                   if (Navigator.canPop(context)) {
                                     Navigator.pop(context);

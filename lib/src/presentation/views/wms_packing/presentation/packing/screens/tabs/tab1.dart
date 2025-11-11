@@ -323,7 +323,7 @@ class Tab1PedidoScreen extends StatelessWidget {
                                         .read<PackingPedidoBloc>()
                                         .viewDetail
                                     ? SingleChildScrollView(
-                                      child: Column(
+                                        child: Column(
                                           children: [
                                             Align(
                                               alignment: Alignment.centerLeft,
@@ -335,7 +335,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                           color:
                                                               primaryColorApp)),
                                                   Text(
-                                                    pedidoCurrent.priority == '0'
+                                                    pedidoCurrent.priority ==
+                                                            '0'
                                                         ? 'Normal'
                                                         : 'Alta'
                                                             "",
@@ -360,9 +361,11 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       color: primaryColorApp),
                                                 ),
                                                 Text(
-                                                  pedidoCurrent.pickingType ?? "",
+                                                  pedidoCurrent.pickingType ??
+                                                      "",
                                                   style: TextStyle(
-                                                      fontSize: 12, color: black),
+                                                      fontSize: 12,
+                                                      color: black),
                                                 ),
                                               ],
                                             ),
@@ -375,9 +378,11 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       color: primaryColorApp),
                                                 ),
                                                 Text(
-                                                  pedidoCurrent.referencia ?? '',
+                                                  pedidoCurrent.referencia ??
+                                                      '',
                                                   style: TextStyle(
-                                                      fontSize: 12, color: black),
+                                                      fontSize: 12,
+                                                      color: black),
                                                 ),
                                               ],
                                             ),
@@ -397,7 +402,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Text(
-                                                    pedidoCurrent.fechaCreacion !=
+                                                    pedidoCurrent
+                                                                .fechaCreacion !=
                                                             null
                                                         ? DateFormat(
                                                                 'dd/MM/yyyy hh:mm ')
@@ -417,7 +423,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                               alignment: Alignment.centerLeft,
                                               child: Text(
                                                 pedidoCurrent.proveedor == "" ||
-                                                        pedidoCurrent.proveedor ==
+                                                        pedidoCurrent
+                                                                .proveedor ==
                                                             null
                                                     ? 'Sin proveedor'
                                                     : pedidoCurrent.proveedor ??
@@ -476,7 +483,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       'Total productos : ',
                                                       style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp),
+                                                          color:
+                                                              primaryColorApp),
                                                     )),
                                                 Align(
                                                     alignment:
@@ -499,7 +507,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       'Total de unidades: ',
                                                       style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp),
+                                                          color:
+                                                              primaryColorApp),
                                                     )),
                                                 Align(
                                                     alignment:
@@ -526,11 +535,13 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       .read<PackingPedidoBloc>()
                                                       .listOfProductos
                                                       .where((element) =>
-                                                          element.isPackage == 1)
+                                                          element.isPackage ==
+                                                          1)
                                                       .length
                                                       .toString(),
                                                   style: TextStyle(
-                                                      fontSize: 12, color: black),
+                                                      fontSize: 12,
+                                                      color: black),
                                                 ),
                                               ],
                                             ),
@@ -549,14 +560,16 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       .length
                                                       .toString(),
                                                   style: TextStyle(
-                                                      fontSize: 12, color: black),
+                                                      fontSize: 12,
+                                                      color: black),
                                                 ),
                                               ],
                                             ),
                                             Row(
                                               children: [
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                     'Destino: ',
                                                     style: TextStyle(
@@ -565,7 +578,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                     pedidoCurrent
                                                             .locationDestName ??
@@ -633,18 +647,20 @@ class Tab1PedidoScreen extends StatelessWidget {
                                               visible: pedidoCurrent
                                                           .isTerminate !=
                                                       1 &&
-                                                  context
-                                                          .read<
-                                                              PackingPedidoBloc>()
-                                                          .configurations
-                                                          .result!
-                                                          .result
-                                                          ?.hideValidatePacking ==
+                                                  (context
+                                                              .read<
+                                                                  PackingPedidoBloc>()
+                                                              .configurations
+                                                              .result // Asumo que .configurations existe
+                                                              ?.result
+                                                              ?.hideValidatePacking ??
+                                                          false) ==
                                                       false,
                                               child: ElevatedButton(
                                                   onPressed: () {
                                                     if (context
-                                                        .read<PackingPedidoBloc>()
+                                                        .read<
+                                                            PackingPedidoBloc>()
                                                         .productsDone
                                                         .isNotEmpty) {
                                                       ScaffoldMessenger.of(
@@ -663,7 +679,8 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       return;
                                                     }
                                                     if (context
-                                                        .read<PackingPedidoBloc>()
+                                                        .read<
+                                                            PackingPedidoBloc>()
                                                         .packages
                                                         .isEmpty) {
                                                       ScaffoldMessenger.of(
@@ -681,7 +698,7 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                       );
                                                       return;
                                                     }
-                                      
+
                                                     final progress = (totalEnviadas /
                                                                 context
                                                                     .read<
@@ -690,7 +707,7 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                                     .numeroItems ??
                                                             0) *
                                                         100;
-                                      
+
                                                     showDialog(
                                                         context: Navigator.of(
                                                                 context,
@@ -710,14 +727,16 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                           );
                                                         });
                                                   },
-                                                  style: ElevatedButton.styleFrom(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
                                                     minimumSize: Size(
                                                       size.width * 0.9,
                                                       30, // Alto
                                                     ),
                                                     backgroundColor:
                                                         primaryColorApp,
-                                                    shape: RoundedRectangleBorder(
+                                                    shape:
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10),
@@ -732,7 +751,7 @@ class Tab1PedidoScreen extends StatelessWidget {
                                             ),
                                           ],
                                         ),
-                                    )
+                                      )
                                     : SizedBox.shrink(),
                               ),
                             ],
@@ -1003,27 +1022,33 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                                       style:
                                                                           const TextStyle(
                                                                         fontSize:
-                                                                            14, // Tamaño del texto
+                                                                            14,
                                                                         color: Colors
-                                                                            .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                            .black,
                                                                       ),
                                                                       children: <TextSpan>[
                                                                         const TextSpan(
-                                                                            text:
-                                                                                "Cantidad empacada: ",
-                                                                            style:
-                                                                                TextStyle(fontSize: 12, color: black)), // Parte del texto en color negro (o el color que prefieras)
-                                                                        TextSpan(
-                                                                          text: product
-                                                                              .quantitySeparate
-                                                                              .toStringAsFixed(2), // La cantidad en color rojo
+                                                                          text:
+                                                                              "Cantidad empacada: ",
                                                                           style: TextStyle(
-                                                                              color: primaryColorApp,
-                                                                              fontSize: 12), // Estilo solo para la cantidad
+                                                                              fontSize: 12,
+                                                                              color: black),
+                                                                        ),
+                                                                        TextSpan(
+                                                                          text:
+                                                                              (product.quantitySeparate ?? 0.0).toStringAsFixed(2),
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                primaryColorApp,
+                                                                            fontSize:
+                                                                                12,
+                                                                          ),
                                                                         ),
                                                                       ],
                                                                     ),
                                                                   ),
+
                                                                 if (product
                                                                         .isCertificate ==
                                                                     0)

@@ -767,8 +767,46 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*metdo para dividir el producto
   void _onSetPickingsSplitEvent(
       SetPickingSplitEvent event, Emitter<WmsPackingState> emit) async {
+
+
+        
     try {
       emit(SetPickingPackingLoadingState());
+
+
+
+  final DateTime dateTimeNow = DateTime.now();
+
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate_end",
+          dateTimeNow.toString(),
+          event.idMove, 'packing-batch');
+
+      final productUpdate = await db.productosPedidosRepository
+          .getProductoPedidoById(event.pedidoId, event.idMove,'packing-batch');
+
+      print('productUpdate :${productUpdate.toMap()}');
+
+      // Calcular la diferencia del producto ya separado
+      Duration differenceProduct = dateTimeNow
+          .difference(DateTime.parse(productUpdate.timeSeparatStart));
+
+      // Obtener la diferencia en segundos
+      double secondsDifferenceProduct =
+          differenceProduct.inMilliseconds / 1000.0;
+
+      print('secondsDifferenceProduct: $secondsDifferenceProduct');
+      //actualizamos el dato de tiempoSeparado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate",
+          secondsDifferenceProduct,
+          event.idMove, 'packing-batch');
+
+
       //actualizamos el estado del producto como separado
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
           event.pedidoId, event.productId, "is_separate", 1, event.idMove,  'packing-batch');

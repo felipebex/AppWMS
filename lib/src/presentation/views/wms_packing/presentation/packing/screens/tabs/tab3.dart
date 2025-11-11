@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
@@ -91,11 +92,16 @@ class Tab3PedidoScreen extends StatelessWidget {
                                     );
                                   },
                             backgroundColor: primaryColorApp,
-                            child: Image.asset(
-                              'assets/icons/packing.png',
-                              width: 30,
-                              height: 30,
-                              color: Colors.white,
+                            child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: SvgPicture.asset(
+                                color: primaryColorApp,
+                                "assets/icons/packing.svg",
+                                height: 20,
+                                width: 20,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -184,7 +190,8 @@ class Tab3PedidoScreen extends StatelessWidget {
                                             children: [
                                               Flexible(
                                                 child: Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                       maxLines: 2,
                                                       overflow:
@@ -196,14 +203,16 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     //dialogo de confirmacion
                                                     showDialog(
                                                         context: context,
                                                         builder:
-                                                            (_) => BackdropFilter(
+                                                            (_) =>
+                                                                BackdropFilter(
                                                                   filter: ImageFilter
                                                                       .blur(
                                                                           sigmaX:
@@ -218,23 +227,24 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                                     actionsAlignment:
                                                                         MainAxisAlignment
                                                                             .center,
-                                                                    title: Center(
+                                                                    title:
+                                                                        Center(
                                                                       child:
                                                                           Column(
                                                                         mainAxisSize:
-                                                                            MainAxisSize
-                                                                                .min,
+                                                                            MainAxisSize.min,
                                                                         children: [
                                                                           SizedBox(
                                                                             height:
                                                                                 100,
                                                                             width:
-                                                                                150,
+                                                                                200,
                                                                             child:
-                                                                                Image.asset(
-                                                                              "assets/images/icono.jpeg",
-                                                                              fit:
-                                                                                  BoxFit.cover,
+                                                                                SvgPicture.asset(
+                                                                              "assets/images/icono.svg",
+                                                                              height: 150,
+                                                                              width: 50,
+                                                                              fit: BoxFit.cover,
                                                                             ),
                                                                           ),
                                                                           Align(
@@ -242,10 +252,8 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                                                 Alignment.center,
                                                                             child:
                                                                                 RichText(
-                                                                              textAlign:
-                                                                                  TextAlign.center,
-                                                                              text:
-                                                                                  TextSpan(
+                                                                              textAlign: TextAlign.center,
+                                                                              text: TextSpan(
                                                                                 children: [
                                                                                   TextSpan(
                                                                                     text: '¿Está seguro de eliminar el producto del paquete temporal: ',
@@ -281,9 +289,8 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                                           child:
                                                                               Text(
                                                                             "El producto será eliminado y volverá al listado de por hacer.",
-                                                                            style: TextStyle(
-                                                                                color: black,
-                                                                                fontSize: 12),
+                                                                            style:
+                                                                                TextStyle(color: black, fontSize: 12),
                                                                           ),
                                                                         ),
                                                                       ],
@@ -306,9 +313,8 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                                         child:
                                                                             const Text(
                                                                           'Cancelar',
-                                                                          style: TextStyle(
-                                                                              color:
-                                                                                  Colors.white),
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
@@ -333,9 +339,8 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                                         child:
                                                                             const Text(
                                                                           'Aceptar',
-                                                                          style: TextStyle(
-                                                                              color:
-                                                                                  Colors.white),
+                                                                          style:
+                                                                              TextStyle(color: Colors.white),
                                                                         ),
                                                                       ),
                                                                     ],

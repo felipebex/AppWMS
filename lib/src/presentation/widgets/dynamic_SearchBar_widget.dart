@@ -49,7 +49,6 @@ class _DynamicSearchBarState extends State<DynamicSearchBar> {
   @override
   Widget build(BuildContext context) {
     // La lógica de Zebra se maneja aquí (asumiendo que UserBloc está disponible globalmente)
-    final isZebra = context.select((UserBloc bloc) => bloc.fabricante).contains("Zebra");
 
     return Container(
       height: 55,
@@ -64,7 +63,7 @@ class _DynamicSearchBarState extends State<DynamicSearchBar> {
                 color: Colors.white,
                 elevation: 3,
                 child: TextFormField(
-                  readOnly: isZebra, // Habilitar readOnly para Zebra
+                  readOnly: context.select((UserBloc bloc) => bloc.fabricante).contains("Zebra"), // Habilitar readOnly para Zebra
                   showCursor: true,
                   textAlignVertical: TextAlignVertical.center,
                   controller: widget.controller,
@@ -75,7 +74,7 @@ class _DynamicSearchBarState extends State<DynamicSearchBar> {
                   },
                   
                   // 💥 onTap: Activa el teclado para Zebra si está desactivado
-                  onTap: isZebra ? widget.onTap : null, // ✅ Se usa la propiedad
+                  onTap: context.select((UserBloc bloc) => bloc.fabricante).contains("Zebra") ? widget.onTap : null, // ✅ Se usa la propiedad
 
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search, color: grey),

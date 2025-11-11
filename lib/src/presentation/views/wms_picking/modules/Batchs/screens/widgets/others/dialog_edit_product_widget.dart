@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
@@ -201,10 +202,16 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                 color:
                                     black), // Cambia primaryColorApp a tu color
                           ),
-                          icon: Image.asset(
-                            "assets/icons/novedad.png",
-                            color: primaryColorApp,
-                            width: 24,
+                          icon: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: SvgPicture.asset(
+                              color: primaryColorApp,
+                              "assets/icons/novedad.svg",
+                              height: 20,
+                              width: 20,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           value:
                               selectedNovedad, // Muestra la opción seleccionada
@@ -325,22 +332,18 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                     ),
                   ),
                   CustomKeyboardNumber(
-                    controller:
-                        context.read<BatchBloc>().editProductController,
+                    controller: context.read<BatchBloc>().editProductController,
                     onchanged: () {
-                      final value = context
-                          .read<BatchBloc>()
-                          .editProductController
-                          .text;
+                      final value =
+                          context.read<BatchBloc>().editProductController.text;
                       if (value.isNotEmpty) {
                         final parsed = double.tryParse(value);
                         if (parsed != null) {
                           double cantidad = parsed;
-                  
+
                           if (cantidad -
                                   (widget.productsBatch.quantity -
-                                      (widget.productsBatch
-                                              .quantitySeparate ??
+                                      (widget.productsBatch.quantitySeparate ??
                                           0)) >
                               tolerance) {
                             setState(() {

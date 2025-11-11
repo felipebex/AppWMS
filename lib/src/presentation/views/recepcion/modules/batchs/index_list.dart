@@ -19,7 +19,6 @@ class ListRecepctionBatchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<RecepcionBatchBloc>();
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -52,8 +51,8 @@ class ListRecepctionBatchScreen extends StatelessWidget {
               colorText: primaryColorApp,
               icon: Icon(Icons.error, color: Colors.green),
             );
-            bloc.add(GetPorductsToEntradaBatch(state.ordenCompra.id ?? 0));
-            bloc.add(CurrentOrdenesCompraBatch(state.ordenCompra));
+            context.read<RecepcionBatchBloc>().add(GetPorductsToEntradaBatch(state.ordenCompra.id ?? 0));
+            context.read<RecepcionBatchBloc>().add(CurrentOrdenesCompraBatch(state.ordenCompra));
             Navigator.pushReplacementNamed(
               context,
               'recepcion-batch',
@@ -113,6 +112,8 @@ class ListRecepctionBatchScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
+    final bloc = context.read<RecepcionBatchBloc>();
+
           final recepcionBatch = bloc.listReceptionBatchFilter
               .where((element) =>
                   element.isFinish == 0 || element.isFinish == null)

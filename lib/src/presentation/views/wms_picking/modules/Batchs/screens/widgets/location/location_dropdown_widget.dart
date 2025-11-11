@@ -34,7 +34,6 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
     final VibrationService _vibrationService = VibrationService();
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final batchBloc = widget.batchBloc;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,28 +97,28 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
               );
             }).toList();
           },
-          onChanged: batchBloc
+          onChanged: widget.batchBloc
                       .configurations.result?.result?.locationPickingManual ==
                   false
               ? null
-              : batchBloc.locationIsOk
+              :  widget.batchBloc.locationIsOk
                   ? null
                   : (String? newValue) async {
                       final expected =
                           widget.currentProduct.locationId.toString();
                       if (newValue == expected) {
-                        batchBloc.add(
+                         widget.batchBloc.add(
                             ValidateFieldsEvent(field: "location", isOk: true));
-                        batchBloc.add(ChangeLocationIsOkEvent(
+                         widget.batchBloc.add(ChangeLocationIsOkEvent(
                           widget.currentProduct.idProduct ?? 0,
-                          batchBloc.batchWithProducts.batch?.id ?? 0,
+                          widget.batchBloc.batchWithProducts.batch?.id ?? 0,
                           widget.currentProduct.idMove ?? 0,
                         ));
-                        batchBloc.oldLocation = expected;
+                        widget.batchBloc.oldLocation = expected;
                       } else {
                          _vibrationService.vibrate();
                          _audioService.playErrorSound();
-                        batchBloc.add(ValidateFieldsEvent(
+                        widget.batchBloc.add(ValidateFieldsEvent(
                             field: "location", isOk: false));
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),

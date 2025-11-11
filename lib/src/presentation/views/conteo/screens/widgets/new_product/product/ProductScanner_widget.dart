@@ -35,7 +35,6 @@ class ProductScannerAll extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isZebraDevice = context.read<UserBloc>().fabricante.contains("Zebra");
     final statusColor = productIsOk ? green : yellow;
     final cardColor = isProductOk
         ? productIsOk
@@ -62,7 +61,7 @@ class ProductScannerAll extends StatelessWidget {
           child: Container(
             width: size.width * 0.85,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child: isZebraDevice
+            child: context.read<UserBloc>().fabricante.contains("Zebra")
                 ? _buildZebraLayout(context)
                 : _buildNonZebraLayout(context),
           ),

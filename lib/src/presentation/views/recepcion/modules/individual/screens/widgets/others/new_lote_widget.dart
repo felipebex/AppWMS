@@ -43,7 +43,6 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<RecepcionBloc>();
     return Scaffold(
       backgroundColor: white,
       bottomNavigationBar:
@@ -54,15 +53,16 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                   ),
                   child: CustomKeyboard(
                     isLogin: false,
-                    controller: bloc.newLoteController,
+                    controller: context.read<RecepcionBloc>().newLoteController,
                     onchanged: () {
-                      bloc.newLoteController.text = bloc.newLoteController.text;
+                      context.read<RecepcionBloc>().newLoteController.text = context.read<RecepcionBloc>().newLoteController.text;
                     },
                   ),
                 )
               : null,
       body: BlocBuilder<RecepcionBloc, RecepcionState>(
         builder: (context, state) {
+          final bloc = context.read<RecepcionBloc>();
           return SizedBox(
             width: size.width * 1,
             height: size.height * 1,

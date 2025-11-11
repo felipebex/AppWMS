@@ -22,7 +22,6 @@ class _DialogCapturaTemperaturaState
     extends State<DialogTemperaturaManualPacking> {
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<WmsPackingBloc>();
 
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
       listener: (context, state) {
@@ -34,6 +33,7 @@ class _DialogCapturaTemperaturaState
         }
       },
       builder: (context, state) {
+    final bloc = context.read<WmsPackingBloc>();
         return BackdropFilter(
           filter: ImageFilter.blur(
             sigmaX: 5,

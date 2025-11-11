@@ -26,7 +26,6 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<InfoRapidaBloc>();
 
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
@@ -97,6 +96,8 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
         }
       },
       builder: (context, state) {
+    final bloc = context.read<InfoRapidaBloc>();
+
         return WillPopScope(
           onWillPop: () async => false,
           child: Scaffold(
@@ -202,9 +203,7 @@ class ProductListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<InfoRapidaBloc>();
-    final product = bloc.productosFilters[index];
-
+    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GestureDetector(
@@ -217,12 +216,12 @@ class ProductListTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildProductRow('Nombre', product.name, isError: false),
-                _buildProductRow('Barcode', product.barcode,
+                _buildProductRow('Nombre', context.read<InfoRapidaBloc>().productosFilters[index].name, isError: false),
+                _buildProductRow('Barcode', context.read<InfoRapidaBloc>().productosFilters[index].barcode,
                     isError:
-                        product.barcode == null || product.barcode!.isEmpty),
-                _buildProductRow('Code', product.code,
-                    isError: product.code == null || product.code!.isEmpty),
+                        context.read<InfoRapidaBloc>().productosFilters[index].barcode == null || context.read<InfoRapidaBloc>().productosFilters[index].barcode!.isEmpty),
+                _buildProductRow('Code', context.read<InfoRapidaBloc>().productosFilters[index].code,
+                    isError: context.read<InfoRapidaBloc>().productosFilters[index].code == null || context.read<InfoRapidaBloc>().productosFilters[index].code!.isEmpty),
               ],
             ),
           ),

@@ -13,7 +13,6 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
@@ -29,7 +28,6 @@ class IndexListPickScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bloc = context.read<PickingPickBloc>();
 
     final AudioService _audioService = AudioService();
     final VibrationService _vibrationService = VibrationService();
@@ -126,12 +124,17 @@ class IndexListPickScreen extends StatelessWidget {
           if (state is AssignUserToPickSuccess) {
             // cerramos el dialogo de carga
             Navigator.pop(context);
-            bloc.add(FetchPickWithProductsEvent(state.id));
-            bloc.add(LoadConfigurationsUser());
-            Navigator.pushReplacementNamed(context, 'scan-product-pick');
+            context
+                .read<PickingPickBloc>()
+                .add(FetchPickWithProductsEvent(state.id));
+            context.read<PickingPickBloc>().add(LoadConfigurationsUser());
+            Navigator.pushReplacementNamed(context, 'scan-product-pick',
+                arguments: [true]);
           }
         },
         builder: (context, state) {
+          final bloc = context.read<PickingPickBloc>();
+
           return Scaffold(
             backgroundColor: white,
             bottomNavigationBar: bloc.isKeyboardVisible
@@ -286,8 +289,8 @@ class IndexListPickScreen extends StatelessWidget {
                                 );
 
                             // Navegar a la pantalla de historial
-                            Navigator.pushReplacementNamed(
-                                context, 'pick-done');
+                            Navigator.pushReplacementNamed(context, 'pick-done',
+                                arguments: [true]);
                           }
                         },
                         child: Card(
@@ -722,7 +725,8 @@ class IndexListPickScreen extends StatelessWidget {
     if (batch.isSeparate != 1) {
       batchBloc.add(ShowKeyboard(false));
       batchBloc.searchPickController.clear();
-      Navigator.pushReplacementNamed(context, 'scan-product-pick');
+      Navigator.pushReplacementNamed(context, 'scan-product-pick',
+          arguments: [true]);
     }
   }
 

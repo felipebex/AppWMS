@@ -250,6 +250,11 @@ class LoadHistoryPickEvent extends PickingPickEvent {
   final String date;
   LoadHistoryPickEvent(this.isLoadinDialog, this.date);
 }
+class LoadHistoryPickComponentEvent extends PickingPickEvent {
+  final bool isLoadinDialog;
+  final String date;
+  LoadHistoryPickComponentEvent(this.isLoadinDialog, this.date);
+}
 
 class LoadHistoryPickIdEvent extends PickingPickEvent {
   final bool isLoadinDialog;

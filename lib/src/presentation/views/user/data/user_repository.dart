@@ -14,7 +14,6 @@ import 'package:wms_app/src/presentation/views/user/models/response_pda_register
 
 class UserRepository {
   Future<Configurations> configurations(
-    BuildContext context,
   ) async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();

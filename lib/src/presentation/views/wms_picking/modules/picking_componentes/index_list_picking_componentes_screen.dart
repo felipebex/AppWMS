@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_holo_date_picker/date_picker.dart';
+import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
@@ -76,7 +78,6 @@ class IndexListPickComponentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bloc = context.read<PickingPickBloc>();
 
     return WillPopScope(
       onWillPop: () async {
@@ -121,24 +122,33 @@ class IndexListPickComponentsScreen extends StatelessWidget {
           if (state is AssignUserToPickSuccess) {
             // cerramos el dialogo de carga
             Navigator.pop(context);
-            bloc.add(FetchPickWithProductsEvent(state.id));
-            bloc.add(LoadAllNovedadesPickEvent());
-            bloc.add(LoadConfigurationsUser());
+            context
+                .read<PickingPickBloc>()
+                .add(FetchPickWithProductsEvent(state.id));
+            context.read<PickingPickBloc>().add(LoadAllNovedadesPickEvent());
+            context.read<PickingPickBloc>().add(LoadConfigurationsUser());
             Navigator.pushReplacementNamed(context, 'scan-product-pick');
           }
         },
         builder: (context, state) {
           return Scaffold(
             backgroundColor: white,
-            bottomNavigationBar: bloc.isKeyboardVisible
+            bottomNavigationBar: context
+                    .read<PickingPickBloc>()
+                    .isKeyboardVisible
                 ? Padding(
                     padding: const EdgeInsets.only(bottom: 36),
                     child: CustomKeyboard(
                       isLogin: false,
-                      controller: bloc.searchPickController,
+                      controller:
+                          context.read<PickingPickBloc>().searchPickController,
                       onchanged: () {
-                        bloc.add(SearchPickEvent(
-                            bloc.searchPickController.text, true));
+                        context.read<PickingPickBloc>().add(SearchPickEvent(
+                            context
+                                .read<PickingPickBloc>()
+                                .searchPickController
+                                .text,
+                            true));
                       },
                     ),
                   )
@@ -178,7 +188,10 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                       icon: const Icon(Icons.arrow_back,
                                           color: white),
                                       onPressed: () {
-                                        bloc.searchPickController.clear();
+                                        context
+                                            .read<PickingPickBloc>()
+                                            .searchPickController
+                                            .clear();
                                         Navigator.pushReplacementNamed(
                                             context, '/home');
                                       },
@@ -187,7 +200,7 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                       onTap: () async {
                                         await DataBaseSqlite()
                                             .delePick('pick-componentes');
-                                        bloc.add(
+                                        context.read<PickingPickBloc>().add(
                                             FetchPickingComponentesEvent(true));
                                       },
                                       child: Padding(
@@ -227,24 +240,95 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                     }),
                   ),
                   //*barra de buscar
-                  DynamicSearchBar(
-                    controller: bloc.searchPickController,
-                    hintText: "Buscar pick",
-                    onSearchChanged: (value) {
-                      bloc.add(SearchPickEvent(value, true));
-                    },
-                    onSearchCleared: () {
-                      bloc.searchPickController.clear();
-                      bloc.add(SearchPickEvent('', true));
-                      bloc.add(ShowKeyboard(
-                          false)); // Asumo que ShowKeyboard es el evento de tu BLoC
-                      Future.microtask(() {
-                        FocusScope.of(context).requestFocus(focusNodeBuscar);
-                      });
-                    },
-                    onTap: () {
-                      bloc.add(ShowKeyboard(true));
-                    },
+                  Row(
+                    children: [
+                      DynamicSearchBar(
+                        width: size.width * 0.8,
+                        controller: context
+                            .read<PickingPickBloc>()
+                            .searchPickController,
+                        hintText: "Buscar pick",
+                        onSearchChanged: (value) {
+                          context
+                              .read<PickingPickBloc>()
+                              .add(SearchPickEvent(value, true));
+                        },
+                        onSearchCleared: () {
+                          context
+                              .read<PickingPickBloc>()
+                              .searchPickController
+                              .clear();
+                          context
+                              .read<PickingPickBloc>()
+                              .add(SearchPickEvent('', true));
+                          context.read<PickingPickBloc>().add(ShowKeyboard(
+                              false)); // Asumo que ShowKeyboard es el evento de tu BLoC
+                          Future.microtask(() {
+                            FocusScope.of(context)
+                                .requestFocus(focusNodeBuscar);
+                          });
+                        },
+                        onTap: () {
+                          context
+                              .read<PickingPickBloc>()
+                              .add(ShowKeyboard(true));
+                        },
+                      ),
+
+                      //icono de fecha
+                      GestureDetector(
+                        onTap: () async {
+                          // Primero, asegúrate de que el FocusNode esté activo
+                          FocusScope.of(context).unfocus();
+                          var pickedDate =
+                              await DatePicker.showSimpleDatePicker(
+                            titleText: 'Seleccione una fecha',
+                            context,
+                            confirmText: 'Buscar',
+                            cancelText: 'Cancelar',
+                            // initialDate: DateTime(2020),
+                            firstDate:
+                                //un mes atras
+                                DateTime.now()
+                                    .subtract(const Duration(days: 30)),
+                            lastDate: DateTime.now(),
+                            dateFormat: "dd-MMMM-yyyy",
+                            locale: DateTimePickerLocale.es,
+                            looping: false,
+                          );
+
+                          // Verificar si el usuario seleccionó una fecha
+                          if (pickedDate != null) {
+                            // Formatear la fecha al formato "yyyy-MM-dd"
+                            final formattedDate =
+                                DateFormat('yyyy-MM-dd').format(pickedDate);
+
+                            // Disparar el evento con la fecha seleccionada
+                            context.read<PickingPickBloc>().add(
+                                  LoadHistoryPickComponentEvent(
+                                      true, formattedDate),
+                                );
+
+                            // Navegar a la pantalla de historial
+                            Navigator.pushReplacementNamed(context, 'pick-done',
+                                arguments: [false]);
+                          }
+                        },
+                        child: Card(
+                          elevation: 3,
+                          color: white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.calendar_month,
+                              color: primaryColorApp,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                    ],
                   ),
 
                   //*buscar por scan
@@ -263,7 +347,9 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                   ),
 
                   Expanded(
-                    child: bloc.listOfPickCompoFiltered
+                    child: context
+                            .read<PickingPickBloc>()
+                            .listOfPickCompoFiltered
                             .where((batch) => batch.isSeparate == 0)
                             .isNotEmpty
                         ? ListView.builder(
@@ -271,11 +357,15 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                 top: 10, bottom: size.height * 0.15),
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
-                            itemCount: bloc.listOfPickCompoFiltered
+                            itemCount: context
+                                .read<PickingPickBloc>()
+                                .listOfPickCompoFiltered
                                 .where((batch) => batch.isSeparate == 0)
                                 .length,
                             itemBuilder: (contextBuilder, index) {
-                              final batch = bloc.listOfPickCompoFiltered
+                              final batch = context
+                                  .read<PickingPickBloc>()
+                                  .listOfPickCompoFiltered
                                   .where((batch) => batch.isSeparate == 0)
                                   .toList()[index];
                               //convertimos la fecha
