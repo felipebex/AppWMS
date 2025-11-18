@@ -336,3 +336,15 @@ class BatchsPickingErrorState extends PickingPickState {
 }
 
 class NeedUpdateVersionState extends PickingPickState {}
+
+
+class ViewProductImageLoading extends PickingPickState {}
+class ViewProductImageSuccess extends PickingPickState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends PickingPickState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class Tab3ScreenRecep extends StatelessWidget {
   const Tab3ScreenRecep({
@@ -20,7 +21,6 @@ class Tab3ScreenRecep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
@@ -39,6 +39,12 @@ class Tab3ScreenRecep extends StatelessWidget {
             );
           }
 
+          if (state is ViewProductImageSuccess) {
+            showImageDialog(context, state.imageUrl);
+          } else if (state is ViewProductImageFailure) {
+            showScrollableErrorDialog(state.error);
+          }
+
           if (state is DelectedProductWmsSuccess) {
             Navigator.pop(context);
             //mostramos una alerta
@@ -50,32 +56,11 @@ class Tab3ScreenRecep extends StatelessWidget {
 
           if (state is DelectedProductWmsFailure) {
             Navigator.pop(context);
-            Get.defaultDialog(
-              title: '360 Software Informa',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: state.error,
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
+            showScrollableErrorDialog(state.error);
           }
         },
         builder: (context, state) {
-    final recepcionBloc = context.read<RecepcionBloc>();
+          final recepcionBloc = context.read<RecepcionBloc>();
 
           return Scaffold(
             backgroundColor: white,
@@ -289,6 +274,37 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                   style: const TextStyle(
                                                       fontSize: 12,
                                                       color: black)),
+                                              const Spacer(),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(
+                                                          ViewProductImageEvent(
+                                                              int.parse(product
+                                                                  .productId)));
+                                                },
+                                                child: Card(
+                                                  //borde
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                  ),
+                                                  elevation: 2,
+                                                  color: white,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            2.0),
+                                                    child: Icon(
+                                                      Icons.image,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                             ],
                                           ),
                                           Visibility(

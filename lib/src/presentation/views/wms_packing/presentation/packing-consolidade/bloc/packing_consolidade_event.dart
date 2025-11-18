@@ -258,3 +258,8 @@ class AssignUserToBatch extends PackingConsolidateEvent {
   final BatchPackingModel batchPackingModel;
   AssignUserToBatch(this.batchId, this.batchPackingModel);
 }
+
+class ViewProductImageEvent extends PackingConsolidateEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
+}

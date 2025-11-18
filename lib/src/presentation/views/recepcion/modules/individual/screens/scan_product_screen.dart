@@ -20,11 +20,15 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_temperature_manual_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_temperature_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 class ScanProductOrderScreen extends StatefulWidget {
@@ -356,6 +360,12 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                           listener: (context, state) {
                         print('STATE ❤️‍🔥 $state');
 
+                        if (state is ViewProductImageSuccess) {
+                          showImageDialog(context, state.imageUrl);
+                        } else if (state is ViewProductImageFailure) {
+                          showScrollableErrorDialog(state.error);
+                        }
+
                         if (state is GetTemperatureProduct) {
                           //cerramos el dialogo de envio de producto
                           if (Navigator.canPop(context)) {
@@ -604,322 +614,78 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                           ),
 
                           //todo : producto
-                          Row(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: recepcionBloc.productIsOk
-                                        ? green
-                                        : yellow,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                              Card(
-                                color: recepcionBloc.isProductOk
-                                    ? recepcionBloc.productIsOk
-                                        ? Colors.green[100]
-                                        : Colors.grey[300]
-                                    : Colors.red[200],
-                                elevation: 5,
-                                child: Container(
-                                  width: size.width * 0.85,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: context
-                                          .read<UserBloc>()
-                                          .fabricante
-                                          .contains("Zebra")
-                                      ? Column(
-                                          children: [
-                                            ProductDropdownOrderWidget(
-                                              selectedProduct: selectedLocation,
-                                              listOfProductsName: recepcionBloc
-                                                  .listOfProductsName,
-                                              currentProductId: (recepcionBloc
-                                                          .currentProduct
-                                                          .productId ??
-                                                      0)
-                                                  .toString(),
-                                              currentProduct:
-                                                  recepcionBloc.currentProduct,
-                                              isPDA: false,
-                                            ),
-                                            TextFormField(
-                                              showCursor: false,
-                                              enabled: //true
-                                                  !recepcionBloc
-                                                          .productIsOk && //false
-                                                      !recepcionBloc
-                                                          .quantityIsOk,
 
-                                              controller:
-                                                  _controllerProduct, // Controlador que maneja el texto
-                                              focusNode: focusNode2,
-                                              onChanged: (value) {
-                                                validateProduct(value);
-                                              },
-                                              decoration: InputDecoration(
-                                                hintText: recepcionBloc
-                                                        .currentProduct
-                                                        .productName ??
-                                                    ''.toString(),
-                                                disabledBorder:
-                                                    InputBorder.none,
-                                                hintMaxLines: 2,
-                                                hintStyle: const TextStyle(
-                                                    fontSize: 12, color: black),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                            // CODIGO DE BARRAS DEL PRODUCTO
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                  SizedBox(
-                                                    height: 20,
-                                                    width: 20,
-                                                    child: SvgPicture.asset(
-                                                      color: primaryColorApp,
-                                                      "assets/icons/barcode.svg",
-                                                      height: 20,
-                                                      width: 20,
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Text(
-                                                    recepcionBloc.currentProduct
-                                                                    .productBarcode ==
-                                                                false ||
-                                                            recepcionBloc
-                                                                    .currentProduct
-                                                                    .productBarcode ==
-                                                                null ||
-                                                            recepcionBloc
-                                                                    .currentProduct
-                                                                    .productBarcode ==
-                                                                ""
-                                                        ? "Sin codigo de barras"
-                                                        : recepcionBloc
-                                                                .currentProduct
-                                                                .productBarcode ??
-                                                            "",
-                                                    textAlign: TextAlign.start,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: recepcionBloc.currentProduct.productBarcode ==
-                                                                    false ||
-                                                                recepcionBloc
-                                                                        .currentProduct
-                                                                        .productBarcode ==
-                                                                    null ||
-                                                                recepcionBloc
-                                                                        .currentProduct
-                                                                        .productBarcode ==
-                                                                    ""
-                                                            ? red
-                                                            : black),
-                                                  ),
-                                                  const Spacer(),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      showDialog(
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return DialogBarcodes(
-                                                                listOfBarcodes:
-                                                                    recepcionBloc
-                                                                        .listOfBarcodes);
-                                                          });
-                                                    },
-                                                    child: Visibility(
-                                                      visible: recepcionBloc
-                                                          .listOfBarcodes
-                                                          .isNotEmpty,
-                                                      child: SizedBox(
-                                                        height: 20,
-                                                        width: 20,
-                                                        child: SvgPicture.asset(
-                                                          color:
-                                                              primaryColorApp,
-                                                          "assets/icons/barcode.svg",
-                                                          height: 20,
-                                                          width: 20,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Focus(
-                                          focusNode: focusNode2,
-                                          onKey: (FocusNode node,
-                                              RawKeyEvent event) {
-                                            if (event is RawKeyDownEvent) {
-                                              if (event.logicalKey ==
-                                                  LogicalKeyboardKey.enter) {
-                                                validateProduct(recepcionBloc
-                                                    .scannedValue2);
-                                                return KeyEventResult.handled;
-                                              } else {
-                                                recepcionBloc.add(
-                                                    UpdateScannedValueOrderEvent(
-                                                        event.data.keyLabel,
-                                                        'product'));
-                                                return KeyEventResult.handled;
-                                              }
-                                            }
-                                            return KeyEventResult.ignored;
-                                          },
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                ProductDropdownOrderWidget(
-                                                  selectedProduct:
-                                                      selectedLocation,
-                                                  listOfProductsName:
-                                                      recepcionBloc
-                                                          .listOfProductsName,
-                                                  currentProductId:
-                                                      (recepcionBloc
-                                                                  .currentProduct
-                                                                  .productId ??
-                                                              0)
-                                                          .toString(),
-                                                  currentProduct: recepcionBloc
-                                                      .currentProduct,
-                                                  isPDA: true,
-                                                ),
-                                                const SizedBox(height: 10),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start, //alineamos el texto a la izquierda
-                                                    children: [
-                                                      Text(
-                                                        recepcionBloc
-                                                                .currentProduct
-                                                                .productName ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: black),
-                                                      ),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Row(
-                                                          children: [
-                                                            SizedBox(
-                                                              height: 20,
-                                                              width: 20,
-                                                              child: SvgPicture
-                                                                  .asset(
-                                                                color:
-                                                                    primaryColorApp,
-                                                                "assets/icons/barcode.svg",
-                                                                height: 20,
-                                                                width: 20,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                width: 10),
-                                                            Text(
-                                                              recepcionBloc
-                                                                              .currentProduct
-                                                                              .productBarcode ==
-                                                                          false ||
-                                                                      recepcionBloc
-                                                                              .currentProduct
-                                                                              .productBarcode ==
-                                                                          null ||
-                                                                      recepcionBloc
-                                                                              .currentProduct
-                                                                              .productBarcode ==
-                                                                          ""
-                                                                  ? "Sin codigo de barras"
-                                                                  : recepcionBloc
-                                                                          .currentProduct
-                                                                          .productBarcode ??
-                                                                      "",
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .start,
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: recepcionBloc.currentProduct.productBarcode == false ||
-                                                                          recepcionBloc.currentProduct.productBarcode ==
-                                                                              null ||
-                                                                          recepcionBloc.currentProduct.productBarcode ==
-                                                                              ""
-                                                                      ? red
-                                                                      : black),
-                                                            ),
-                                                            const Spacer(),
-                                                            GestureDetector(
-                                                              onTap: () {
-                                                                showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (context) {
-                                                                      return DialogBarcodes(
-                                                                          listOfBarcodes:
-                                                                              recepcionBloc.listOfBarcodes);
-                                                                    });
-                                                              },
-                                                              child: Visibility(
-                                                                visible: recepcionBloc
-                                                                    .listOfBarcodes
-                                                                    .isNotEmpty,
-                                                                child: SizedBox(
-                                                                  height: 20,
-                                                                  width: 20,
-                                                                  child:
-                                                                      SvgPicture
-                                                                          .asset(
-                                                                    color:
-                                                                        primaryColorApp,
-                                                                    "assets/icons/barcode.svg",
-                                                                    height: 20,
-                                                                    width: 20,
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ],
+                          // todo: Producto
+
+                          ProductScannerWidget(
+                            isProductOk: recepcionBloc.isProductOk,
+                            productIsOk: recepcionBloc.productIsOk,
+                            locationIsOk: true,
+                            quantityIsOk: recepcionBloc.quantityIsOk,
+                            locationDestIsOk: recepcionBloc.isLocationDestOk,
+                            currentProductId: recepcionBloc
+                                .currentProduct.productName
+                                .toString(),
+                            barcode:
+                                recepcionBloc.currentProduct.productBarcode,
+                            lotId: recepcionBloc.currentProduct.lotName,
+                            expireDate:
+                                recepcionBloc.currentProduct.fechaVencimiento,
+                            size: size,
+                            onValidateProduct: (value) {
+                              validateProduct(value); // tu función actual
+                            },
+                            onKeyScanned: (keyLabel) {
+                              recepcionBloc.add(UpdateScannedValueOrderEvent(
+                                  keyLabel, 'product'));
+                            },
+                            focusNode: focusNode2,
+                            controller: _controllerProduct,
+                            productDropdown: ProductDropdownOrderWidget(
+                              selectedProduct: selectedLocation,
+                              listOfProductsName:
+                                  recepcionBloc.listOfProductsName,
+                              currentProductId:
+                                  (recepcionBloc.currentProduct.productId ?? 0)
+                                      .toString(),
+                              currentProduct: recepcionBloc.currentProduct,
+                              isPDA: false,
+                            ),
+                            origin: '',
+                            expiryWidget: ExpiryDateWidget(
+                              expireDate: recepcionBloc.currentProduct
+                                              .fechaVencimiento ==
+                                          "" ||
+                                      recepcionBloc.currentProduct
+                                              .fechaVencimiento ==
+                                          null
+                                  ? DateTime.now()
+                                  : DateTime.parse(recepcionBloc
+                                          .currentProduct.fechaVencimiento ??
+                                      ""),
+                              size: size,
+                              isDetaild: false,
+                              isNoExpireDate: recepcionBloc
+                                          .currentProduct.fechaVencimiento ==
+                                      ""
+                                  ? true
+                                  : false,
+                            ),
+                            listOfBarcodes: recepcionBloc.listOfBarcodes,
+                            onBarcodesDialogTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return DialogBarcodes(
+                                      listOfBarcodes:
+                                          recepcionBloc.listOfBarcodes);
+                                },
+                              );
+                            },
+                            onViewImgProduct: () {
+                              recepcionBloc.add(ViewProductImageEvent(int.parse(
+                                  recepcionBloc.currentProduct.productId)));
+                            },
                           ),
 
                           //todo: lotes

@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/create-transfer/bloc/crate_transfer_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class DetailCreateTransferScreen extends StatelessWidget {
   const DetailCreateTransferScreen({super.key});
@@ -135,29 +136,7 @@ class DetailCreateTransferScreen extends StatelessWidget {
             },
           );
         } else if (state is CreateTransferFailure) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+          showScrollableErrorDialog(state.error);
         }
       },
       builder: (context, state) {

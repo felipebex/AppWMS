@@ -9,7 +9,9 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/products_empty_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class Tab3ScreenConteo extends StatefulWidget {
   const Tab3ScreenConteo({
@@ -49,34 +51,19 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
                   const DialogLoading(message: "Eliminando registro..."),
             );
           }
+
+          if (state is ViewProductImageSuccess) {
+            showImageDialog(context, state.imageUrl);
+          } else if (state is ViewProductImageFailure) {
+            showScrollableErrorDialog( state.error);
+          }
           if (state is DeleteProductConteoSuccess) {
             Navigator.pop(context); // Cierra el diálogo de carga
           }
 
           if (state is DeleteProductConteoFailure) {
             Navigator.pop(context); // Cierra el diálogo de carga
-            Get.defaultDialog(
-              title: '360 Software Informa',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: state.error,
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
+            showScrollableErrorDialog( state.error);
           }
         },
         builder: (context, state) {
@@ -149,12 +136,6 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
                     "Cantidad contada", product.quantityCounted.toString()),
                 Row(
                   children: [
-                    Icon(
-                      Icons.access_time,
-                      color: primaryColorApp,
-                      size: 15,
-                    ),
-                    const SizedBox(width: 5),
                     Text(
                       "Tiempo: ",
                       style: TextStyle(
@@ -164,11 +145,36 @@ class _Tab3ScreenRecepState extends State<Tab3ScreenConteo> {
                     ),
                     Text(convertirTiempo(product.time.toString()),
                         style: const TextStyle(fontSize: 12, color: black)),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        context
+                            .read<ConteoBloc>()
+                            .add(ViewProductImageEvent(product.productId ?? 0));
+                      },
+                      child: Card(
+                        //borde
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        elevation: 2,
+                        color: white,
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Icon(
+                            Icons.image,
+                            color: primaryColorApp,
+                            size: 15,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 if (product.productTracking == 'lot')
                   _buildInfoRow("Lote", product.lotName ?? ''),
-                  _buildInfoRow("Tipo registro", product.isOriginal == 1 ? "Segun orden" : 'Registro nuevo'),
+                _buildInfoRow("Tipo registro",
+                    product.isOriginal == 1 ? "Segun orden" : 'Registro nuevo'),
               ],
             ),
           ),

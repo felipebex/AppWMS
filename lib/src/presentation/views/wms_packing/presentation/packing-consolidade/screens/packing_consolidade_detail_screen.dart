@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab3.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-consolidade/screens/tabs/tab4.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class PackingConsolidateDetailScreen extends StatefulWidget {
   const PackingConsolidateDetailScreen({
@@ -58,28 +59,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
     return BlocConsumer<PackingConsolidateBloc, PackingConsolidateState>(
       listener: (context, state) {
         if (state is PackingConsolidateError) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+            showScrollableErrorDialog(state.error);
         }
         if (state is SetPackingsOkState) {
           Get.snackbar(
@@ -159,7 +139,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                       Positioned(
                         right: 0,
                         child: CircleAvatar(
-                          radius: 8,
+                          radius: 12,
                           backgroundColor: Colors.red,
                           child: Text(
                             context
@@ -169,7 +149,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                                 .toString(),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                         ),
@@ -189,7 +169,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                       Positioned(
                         right: 0,
                         child: CircleAvatar(
-                          radius: 8,
+                          radius: 12,
                           backgroundColor: yellow,
                           child: Text(
                             context
@@ -199,7 +179,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                                 .toString(),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                         ),
@@ -209,7 +189,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                   Stack(
                     children: [
                       Tab(
-                        text: 'Listo',
+                        text: ' Listo ',
                         icon: Icon(
                           Icons.done,
                           color: Colors.white,
@@ -219,7 +199,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                       Positioned(
                         right: 0,
                         child: CircleAvatar(
-                          radius: 8,
+                          radius: 12,
                           backgroundColor: green,
                           child: Text(
                             context
@@ -229,7 +209,7 @@ class _PackingDetailScreenState extends State<PackingConsolidateDetailScreen>
                                 .toString(),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                         ),

@@ -53,24 +53,7 @@ Future<void> showImageDialog(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // const SizedBox(height: 10),
-              // Text(
-              //   "",
-              //   style: TextStyle(
-              //     fontWeight: FontWeight.bold,
-              //     fontSize: 16,
-              //     color: primaryColorApp,
-              //   ),
-              // ),
-              // const SizedBox(height: 10),
-              // Text(
-              //   "$temperatura °C",
-              //   style: const TextStyle(
-              //     fontSize: 14,
-              //     color: Colors.black,
-              //   ),
-              // ),
-              // const SizedBox(height: 10),
+            
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: ClipRRect(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
@@ -45,8 +46,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<TransferenciaBloc, TransferenciaState>(
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async {
@@ -97,7 +97,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                tabs: const [
+                tabs: [
                   Tab(
                     text: 'Detalles',
                     icon: Icon(
@@ -106,21 +106,74 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
                       size: 20,
                     ),
                   ),
-                  Tab(
-                    text: 'Por hacer',
-                    icon: Icon(
-                      Icons.pending_actions,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Por hacer',
+                        icon: Icon(
+                          Icons.pending_actions,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: yellow,
+                          child: Text(
+                            context
+                                .read<TransferenciaBloc>()
+                                .listProductsTransfer
+                                .where((element) {
+                                  return (element.isSeparate == 0 ||
+                                          element.isSeparate == null) &&
+                                      (element.isDoneItem == 0 ||
+                                          element.isDoneItem == null);
+                                })
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Listo',
-                    icon: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Listo',
+                        icon: Icon(
+                          Icons.done,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: green,
+                          child: Text(
+                            context
+                                .read<TransferenciaBloc>()
+                                .listProductsTransfer
+                                .where((element) {
+                                  return element.isDoneItem == 1;
+                                })
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -189,6 +189,33 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     on<SearchLocationEvent>(_onSearchLocationEvent);
     //*metodo para bucar un producto
     on<SearchProductEvent>(_onSearchProductEvent);
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+  }
+
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<ConteoState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await _inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   void _onOrderConteosByStateEvent(
@@ -236,18 +263,18 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         //actualizamos la cantidad del producto en la bd
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
           event.productExist.orderId ?? 0,
-            event.productExist.productId ?? 0,
+          event.productExist.productId ?? 0,
           'quantity_counted',
           event.quantity ?? 0,
-            event.productExist.idMove.toString(),
+          event.productExist.idMove.toString(),
           event.productExist.locationId.toString(),
         );
 
         //enviamos ese producto nuevamente al wms con la cantidad sobrescrita
         final productSend = ConteoItem(
-          lineId:   event.productExist.idMove.toString(),
-          orderId:   event.productExist.orderId ?? 0,
-          productId:   event.productExist.productId ?? 0,
+          lineId: event.productExist.idMove.toString(),
+          orderId: event.productExist.orderId ?? 0,
+          productId: event.productExist.productId ?? 0,
           quantityCounted: event.quantity,
           observation: 'Sin novedad',
           timeLine: double.parse(event.productExist.time.toString()).toInt(),
@@ -272,10 +299,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         // actualizamos el estado del producto en la bd
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
           event.productExist.orderId ?? 0,
-            event.productExist.productId ?? 0,
+          event.productExist.productId ?? 0,
           'is_done_item',
           1,
-            event.productExist.idMove.toString(),
+          event.productExist.idMove.toString(),
           event.productExist.locationId.toString(),
         );
 
@@ -293,15 +320,15 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           event.productExist.productId ?? 0,
           'quantity_counted',
           newQuantity,
-           event.productExist.idMove.toString(),
+          event.productExist.idMove.toString(),
           event.productExist.locationId.toString(),
         );
 
         //enviamos ese producto nuevamente al wms con la cantidad sobrescrita
         final productSend = ConteoItem(
-          lineId:  event.productExist.idMove.toString(),
+          lineId: event.productExist.idMove.toString(),
           orderId: event.productExist.orderId ?? 0,
-          productId:  event.productExist.productId ?? 0,
+          productId: event.productExist.productId ?? 0,
           quantityCounted: newQuantity,
           observation: 'Sin novedad',
           timeLine: double.parse(event.productExist.time.toString()).toInt(),
@@ -322,10 +349,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         // actualizamos el estado del producto en la bd
         await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
           event.productExist.orderId ?? 0,
-           event.productExist.productId ?? 0,
+          event.productExist.productId ?? 0,
           'is_done_item',
           1,
-           event.productExist.idMove.toString(),
+          event.productExist.idMove.toString(),
           event.productExist.locationId.toString(),
         );
         emit(SendProductConteoSuccess(response));
@@ -702,7 +729,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       }
       DateTime dateStart = DateTime.parse(dateInicio);
       DateTime dateEnd = DateTime.parse(dateFin);
- 
+
       var difference = dateEnd.difference(dateStart);
       int time = difference.inSeconds;
 
@@ -726,7 +753,6 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       final productIsPorHacer = await validateProductPorHacerEvent(productSend);
 
       if (productIsPorHacer?.productId != null) {
-
         final productSendPorHacer = ConteoItem(
           lineId: productIsPorHacer?.idMove.toString() ?? '',
           orderId: ordenConteo.id ?? 0,
@@ -736,7 +762,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           timeLine: time == 0 || time == null ? 5 : time,
           fechaTransaccion: formattedDate,
           idOperario: userId,
-          locationId:productIsPorHacer?.locationId,
+          locationId: productIsPorHacer?.locationId,
           loteId: currentProductLote?.id,
         );
 
@@ -750,7 +776,8 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           productSendPorHacer.locationId.toString(),
         );
 
-        final response = await _repository.sendProductConteo(true, productSendPorHacer);
+        final response =
+            await _repository.sendProductConteo(true, productSendPorHacer);
 
         if (response.result?.code == 200) {
 //validamso si el producto tiene lote para guardarlo con el lote que seleccionamos
@@ -768,7 +795,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
             await db.productoOrdenConteoRepository
                 .setFieldTableProductOrdenConteo(
-             ordenConteo.id ?? 0,
+              ordenConteo.id ?? 0,
               productSendPorHacer.productId,
               'lot_name',
               currentProductLote?.name ?? '',
@@ -779,7 +806,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           //actualzamos la cantidad del producto en la bd
           await db.productoOrdenConteoRepository
               .setFieldTableProductOrdenConteo(
-           ordenConteo.id ?? 0,
+            ordenConteo.id ?? 0,
             productSendPorHacer.productId,
             "quantity_counted",
             productSendPorHacer.quantityCounted ?? 0,

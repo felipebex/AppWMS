@@ -9,6 +9,7 @@ import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -100,7 +101,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   DataBaseSqlite db = DataBaseSqlite();
   //*repositorio
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
-
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
   PackingPedidoBloc() : super(PackingPedidoInitial()) {
     on<PackingPedidoEvent>((event, emit) {});
     //evento para mostrar el teclado
@@ -191,6 +193,33 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
     //evento para eliminar un producto del paquete temporal
     on<DeleteProductFromTemporaryPackageEvent>(
         _onDeleteProductFromTemporaryPackageEvent);
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+  }
+
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<PackingPedidoState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   void _onDeleteProductFromTemporaryPackageEvent(
@@ -226,7 +255,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       await db.productosPedidosRepository.revertProductFields(
           event.product.pedidoId ?? 0,
           event.product.idProduct ?? 0,
-          event.product.idMove ?? 0, 'packing-pack');
+          event.product.idMove ?? 0,
+          'packing-pack');
 
       //actualizamos todas las listas
       add(LoadPedidoAndProductsEvent(event.product.pedidoId ?? 0));
@@ -1308,7 +1338,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
           event.productId,
           "quantity_separate",
           event.quantity,
-          event.idMove, 'packing-pack');
+          event.idMove,
+          'packing-pack');
     }
     productIsOk = event.productIsOk;
     emit(ChangeProductPackingIsOkState(

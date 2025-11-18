@@ -266,7 +266,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                                  fontSize: 9,
                                 ),
                               ),
                             )

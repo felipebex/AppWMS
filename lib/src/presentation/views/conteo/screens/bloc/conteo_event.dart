@@ -97,7 +97,7 @@ class ClearExpandedLocationEvent extends ConteoEvent {
 
 class ResetValuesEvent extends ConteoEvent {
   final bool resetAll;
-  final bool isLoading ;
+  final bool isLoading;
   ResetValuesEvent({required this.resetAll, required this.isLoading});
 }
 
@@ -200,8 +200,12 @@ class UpdateProductConteoEvent extends ConteoEvent {
       this.product, this.productExist, this.quantity, this.isOverwrite);
 }
 
-
 class OrderConteosByStateEvent extends ConteoEvent {
   final String stateOrder;
   OrderConteosByStateEvent(this.stateOrder);
+}
+
+class ViewProductImageEvent extends ConteoEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
 }

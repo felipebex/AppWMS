@@ -17,6 +17,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dynamic_SearchBar_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
@@ -62,28 +63,7 @@ class _ListTransferenciasScreenState extends State<ListEntradaProductsScreen> {
             );
           } else if (state is EntregaError) {
             Navigator.pop(context);
-            Get.defaultDialog(
-              title: '360 Software Informa',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: state.message,
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
+            showScrollableErrorDialog(state.message);
           } else if (state is EntregaLoaded) {
             Navigator.pop(context);
           } else if (state is DeviceNotAuthorized) {
@@ -328,7 +308,6 @@ class _ListTransferenciasScreenState extends State<ListEntradaProductsScreen> {
                         }
                       });
                     },
-
                     onTap: () {
                       context
                           .read<TransferenciaBloc>()

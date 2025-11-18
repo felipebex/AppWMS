@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_backorder_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class Tab1PedidoScreen extends StatelessWidget {
   const Tab1PedidoScreen({
@@ -161,28 +162,7 @@ class Tab1PedidoScreen extends StatelessWidget {
               if (state is ValidateConfirmFailure) {
                 Navigator.pop(context);
 
-                Get.defaultDialog(
-                  title: '360 Software Informa',
-                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                  middleText: state.error,
-                  middleTextStyle: TextStyle(color: black, fontSize: 14),
-                  backgroundColor: Colors.white,
-                  radius: 10,
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColorApp,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('Aceptar', style: TextStyle(color: white)),
-                    ),
-                  ],
-                );
+                showScrollableErrorDialog(state.error);
               }
 
               if (state is CreateBackOrderOrNotFailure) {
@@ -237,28 +217,7 @@ class Tab1PedidoScreen extends StatelessWidget {
                     ],
                   );
                 } else {
-                  Get.defaultDialog(
-                    title: '360 Software Informa',
-                    titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                    middleText: state.error,
-                    middleTextStyle: TextStyle(color: black, fontSize: 14),
-                    backgroundColor: Colors.white,
-                    radius: 10,
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Get.back();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColorApp,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text('Aceptar', style: TextStyle(color: white)),
-                      ),
-                    ],
-                  );
+                  showScrollableErrorDialog(state.error);
                 }
               }
             },

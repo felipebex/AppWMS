@@ -262,3 +262,8 @@ class ToggleProductExpansionEvent extends RecepcionEvent {
 
   ToggleProductExpansionEvent(this.isExpanded);
 }
+
+class ViewProductImageEvent extends RecepcionEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
+}

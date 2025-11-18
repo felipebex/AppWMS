@@ -8,6 +8,7 @@ import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_model.dart';
@@ -91,7 +92,8 @@ class RecepcionBatchBloc
   TextEditingController loteController = TextEditingController();
 
   TextEditingController searchControllerLocationDest = TextEditingController();
-
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
   RecepcionBatchBloc() : super(RecepcionBatchInitial()) {
     on<RecepcionBatchEvent>((event, emit) {});
 
@@ -179,6 +181,33 @@ class RecepcionBatchBloc
     on<SearchLotevent>(_onSearchLoteEvent);
 
     on<SelectecLoteEvent>(_onChangeLoteIsOkEvent);
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+  }
+
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<RecepcionBatchState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   void _onChangeLoteIsOkEvent(

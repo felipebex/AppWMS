@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/prod
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class DevolucionesScreen extends StatefulWidget {
   const DevolucionesScreen({super.key});
@@ -272,28 +273,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
         print('Estado actual ❤️‍🔥: $state');
 
         if (state is AddProductFailure) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+           showScrollableErrorDialog( state.error);
         } else if (state is DeviceNotAuthorized) {
           Get.defaultDialog(
             title: 'Dispositivo no autorizado',
@@ -372,28 +352,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             bloc.add(ChangeStateIsDialogVisibleEvent(false));
           });
         } else if (state is SendDevolucionFailure) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+          showScrollableErrorDialog( state.error);
         } else if (state is SendDevolucionSuccess) {
 //dialogo para mostrar la devolucion creada
           showDialog(

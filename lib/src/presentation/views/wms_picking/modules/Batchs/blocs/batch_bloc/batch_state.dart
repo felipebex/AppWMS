@@ -262,3 +262,14 @@ class LoadSelectedProductState extends BatchState {
   final ProductsBatch selectedProduct;
   LoadSelectedProductState(this.selectedProduct);
 }
+
+class ViewProductImageLoading extends BatchState {}
+class ViewProductImageSuccess extends BatchState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends BatchState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

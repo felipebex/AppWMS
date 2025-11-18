@@ -5,11 +5,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class Tab3PedidoScreen extends StatelessWidget {
   const Tab3PedidoScreen({super.key});
@@ -20,29 +20,7 @@ class Tab3PedidoScreen extends StatelessWidget {
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
       listener: (context, state) {
         if (state is DeleteProductFromTemporaryPackageError) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.message,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+          showScrollableErrorDialog(state.message);
         }
       },
       builder: (context, state) {
@@ -96,7 +74,7 @@ class Tab3PedidoScreen extends StatelessWidget {
                               height: 20,
                               width: 20,
                               child: SvgPicture.asset(
-                                color: primaryColorApp,
+                                color: white,
                                 "assets/icons/packing.svg",
                                 height: 20,
                                 width: 20,

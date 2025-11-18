@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab3.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab4.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class PackingDetailScreen extends StatefulWidget {
   const PackingDetailScreen({
@@ -57,28 +58,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
       listener: (context, state) {
         if (state is WmsPackingErrorState) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.message,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+          showScrollableErrorDialog(state.message);
         }
         if (state is WmsPackingSuccessState) {
           Get.snackbar(
@@ -136,7 +116,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                tabs: const [
+                tabs: [
                   Tab(
                     text: 'Detalles',
                     icon: Icon(
@@ -145,29 +125,95 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
                       size: 20,
                     ),
                   ),
-                  Tab(
-                    text: 'Por hacer',
-                    icon: Icon(
-                      Icons.pending_actions,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Por hacer',
+                        icon: Icon(
+                          Icons.pending_actions,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            context
+                                .read<WmsPackingBloc>()
+                                .listOfProductosProgress
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Preparado',
-                    icon: Icon(
-                      Icons.star,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Preparado',
+                        icon: Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: yellow,
+                          child: Text(
+                            context
+                                .read<WmsPackingBloc>()
+                                .productsDone
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Listo',
-                    icon: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: ' Listo ',
+                        icon: Icon(
+                          Icons.done,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: green,
+                          child: Text(
+                            context
+                                .read<WmsPackingBloc>()
+                                .productsDonePacking
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

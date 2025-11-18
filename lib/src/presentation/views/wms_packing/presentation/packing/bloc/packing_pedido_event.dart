@@ -129,12 +129,11 @@ class SendTemperatureEvent extends PackingPedidoEvent {
 }
 
 class SendTemperatureManualPackEvent extends PackingPedidoEvent {
- final int moveLineId;
+  final int moveLineId;
   SendTemperatureManualPackEvent({
     required this.moveLineId,
   });
 }
-
 
 class SendImageNovedad extends PackingPedidoEvent {
   final dynamic cantidad;
@@ -218,7 +217,8 @@ class UnPackingEvent extends PackingPedidoEvent {
   final int pedidoId;
   final int productId;
   final dynamic consecutivoPackage;
-  UnPackingEvent(this.request, this.pedidoId, this.productId, this.consecutivoPackage);
+  UnPackingEvent(
+      this.request, this.pedidoId, this.productId, this.consecutivoPackage);
 }
 
 class StartOrStopTimePack extends PackingPedidoEvent {
@@ -231,15 +231,11 @@ class StartOrStopTimePack extends PackingPedidoEvent {
   );
 }
 
-
-
 class CreateBackPackOrNot extends PackingPedidoEvent {
   final int idPick;
   final bool isBackOrder;
   CreateBackPackOrNot(this.idPick, this.isBackOrder);
 }
-
-
 
 class ValidateConfirmEvent extends PackingPedidoEvent {
   final int idPedido;
@@ -248,13 +244,15 @@ class ValidateConfirmEvent extends PackingPedidoEvent {
   ValidateConfirmEvent(this.idPedido, this.isBackOrder, this.isLoadinDialog);
 }
 
-
-
-
 class DeleteProductFromTemporaryPackageEvent extends PackingPedidoEvent {
   final ProductoPedido product;
 
   DeleteProductFromTemporaryPackageEvent({
     required this.product,
   });
+}
+
+class ViewProductImageEvent extends PackingPedidoEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
 }

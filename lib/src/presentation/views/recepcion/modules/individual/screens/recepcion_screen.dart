@@ -74,9 +74,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
             },
           ),
           title: Text(
-             (widget.ordenCompra?.type == 'dev') 
-                ? 'DEVOLUCIÓN'
-                : 'RECEPCIÓN',
+            (widget.ordenCompra?.type == 'dev') ? 'DEVOLUCIÓN' : 'RECEPCIÓN',
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
           bottom: TabBar(
@@ -93,7 +91,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
-            tabs: const [
+            tabs: [
               Tab(
                 text: 'Detalles',
                 icon: Icon(
@@ -102,21 +100,73 @@ class _RecepcionScreenState extends State<RecepcionScreen>
                   size: 20,
                 ),
               ),
-              Tab(
-                text: 'Por hacer',
-                icon: Icon(
-                  Icons.pending_actions,
-                  color: Colors.white,
-                  size: 20,
-                ),
+              Stack(
+                children: [
+                  Tab(
+                    text: 'Por hacer',
+                    icon: Icon(
+                      Icons.pending_actions,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        context
+                            .read<RecepcionBloc>()
+                            .listProductsEntrada
+                            .where((element) {
+                              return (element.isSeparate == 0 ||
+                                      element.isSeparate == null) &&
+                                  (element.isDoneItem == 0 ||
+                                      element.isDoneItem == null);
+                            })
+                            .length
+                            .toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Tab(
-                text: 'Listo',
-                icon: Icon(
-                  Icons.done,
-                  color: Colors.white,
-                  size: 20,
-                ),
+              Stack(
+                children: [
+                  Tab(
+                    text: 'Listo',
+                    icon: Icon(
+                      Icons.done,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundColor: green,
+                      child: Text(
+                        context
+                            .read<RecepcionBloc>().
+                          listProductsEntrada
+                                .where((element) {
+                              return element.isDoneItem == 1;
+                            }).length
+                            .toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

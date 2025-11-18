@@ -9,8 +9,10 @@ class InitialStateEvent extends BatchEvent {}
 
 class LoadAllProductsBatchsEvent extends BatchEvent {
   int batchId;
- 
-  LoadAllProductsBatchsEvent({required this.batchId, });
+
+  LoadAllProductsBatchsEvent({
+    required this.batchId,
+  });
 }
 
 class ClearSearchProudctsBatchEvent extends BatchEvent {}
@@ -43,16 +45,15 @@ class GetProductById extends BatchEvent {
 
 //*empezar el tiempo de separacion
 class StartTimePick extends BatchEvent {
- 
   final int batchId;
   final DateTime time;
-  StartTimePick( this.batchId, this.time);
+  StartTimePick(this.batchId, this.time);
 }
+
 class EndTimePick extends BatchEvent {
-  
   final int batchId;
   final DateTime time;
-  EndTimePick( this.batchId, this.time);
+  EndTimePick(this.batchId, this.time);
 }
 
 //* CAMBIAR VALORES DE VARIABLES
@@ -92,8 +93,10 @@ class ChangeIsOkQuantity extends BatchEvent {
 
 class ChangeCurrentProduct extends BatchEvent {
   final ProductsBatch currentProduct;
-  
-  ChangeCurrentProduct({required this.currentProduct, });
+
+  ChangeCurrentProduct({
+    required this.currentProduct,
+  });
 }
 
 class QuantityChanged extends BatchEvent {
@@ -153,15 +156,18 @@ class SendProductEditOdooEvent extends BatchEvent {
   final ProductsBatch product;
   final dynamic cantidad;
 
-  SendProductEditOdooEvent(this.product, this.cantidad, );
+  SendProductEditOdooEvent(
+    this.product,
+    this.cantidad,
+  );
 }
 
 class AssignSubmuelleEvent extends BatchEvent {
   final List<ProductsBatch> productsSeparate;
   final Muelles muelle;
   final bool isOccupied;
-  
-  AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.isOccupied );
+
+  AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.isOccupied);
 }
 
 class ScanBarcodeEvent extends BatchEvent {}
@@ -192,7 +198,9 @@ class SortProductsByLocation extends BatchEvent {}
 class SendProductOdooEvent extends BatchEvent {
   final ProductsBatch product;
 
-  SendProductOdooEvent(this.product, );
+  SendProductOdooEvent(
+    this.product,
+  );
 }
 
 class UpdateScannedValueEvent extends BatchEvent {
@@ -218,12 +226,14 @@ class SetIsProcessingEvent extends BatchEvent {
 
 class CloseStateEvent extends BatchEvent {}
 
-
-class FetchMuellesEvent extends BatchEvent {
-
-}
+class FetchMuellesEvent extends BatchEvent {}
 
 class LoadSelectedProductEvent extends BatchEvent {
   final ProductsBatch selectedProduct;
   LoadSelectedProductEvent(this.selectedProduct);
+}
+
+class ViewProductImageEvent extends BatchEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
 }

@@ -1,57 +1,85 @@
 import 'dart:async';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/io.dart';
 
 class WebSocketService {
+  // 1. Singleton: Permite que solo exista una instancia de este servicio
   static final WebSocketService _instance = WebSocketService._internal();
 
-  factory WebSocketService() {
-    return _instance;
-  }
+  factory WebSocketService() => _instance;
 
+  // Constructor privado para asegurar la instancia única
   WebSocketService._internal();
 
-  late WebSocketChannel _channel;
-  final String _url = 'wss://echo.websocket.events';
-  final StreamController<String> _messageController = StreamController.broadcast();
+  // 2. Propiedades del Canal y Estado
+  WebSocketChannel? _channel;
+  bool _isConnected = false;
 
-  // Expone el stream de mensajes para que los widgets puedan escucharlo.
-  Stream<String> get messages => _messageController.stream;
+  // ✅ StreamController para exponer los mensajes a los BLoCs
+  final StreamController<dynamic> _messageController = StreamController.broadcast();
+  
+  // ✅ Stream público para que los BLoCs se suscriban (pueden ser múltiples)
+  Stream<dynamic> get messages => _messageController.stream;
 
+  // ⚠️ URL DE PRUEBA: Reemplazar con tu URL de backend, si es necesario.
+  final String _socketUrl = 'ws://34.127.73.152:5020/ws'; 
+
+  // 3. Conectar al WebSocket
   void connect() {
+    if (_isConnected) {
+      print("WebSocketService: Ya conectado.");
+      return;
+    }
+
     try {
-      _channel = IOWebSocketChannel.connect(_url);
-      _channel.stream.listen(
-        (message) {
-          // Agrega los mensajes entrantes al StreamController
-          _messageController.sink.add(message.toString());
+      _channel = WebSocketChannel.connect(Uri.parse(_socketUrl));
+      _isConnected = true;
+      print("WebSocketService: Intentando conectar a $_socketUrl");
+
+      // 4. Iniciar la escucha del canal
+      _channel!.stream.listen(
+        (data) {
+          _handleMessage(data); // Envía el mensaje al StreamController
         },
         onDone: () {
-          print('Conexión WebSocket cerrada.');
-          _messageController.close();
+          _isConnected = false;
+          print("WebSocketService: Conexión cerrada.");
+          // Lógica de reconexión si es necesaria
         },
         onError: (error) {
-          print('Error en la conexión WebSocket: $error');
-          _messageController.addError(error);
+          _isConnected = false;
+          print("WebSocketService: Error en la conexión: $error");
         },
       );
     } catch (e) {
-      print('No se pudo conectar al servidor WebSocket: $e');
+      _isConnected = false;
+      print("WebSocketService: Error al iniciar la conexión: $e");
     }
   }
 
-  void sendMessage(String message) {
-    if (_channel != null) {
-      _channel.sink.add(message);
+  // 5. Manejar el mensaje: Añadir datos al Stream
+  void _handleMessage(dynamic data) {
+    print("WebSocketService: Mensaje recibido: $data");
+    // ✅ Añadir el dato recibido al Stream para que los BLoCs reaccionen
+    if (!_messageController.isClosed) {
+      _messageController.add(data); 
+    }
+  }
+
+  // 6. Enviar datos al servidor
+  void sendMessage(dynamic data) {
+    if (_isConnected && _channel != null) {
+      // Si envías JSON, usa jsonEncode(data)
+      _channel!.sink.add(data);
     } else {
-      print('No se pudo enviar el mensaje. Conexión no establecida.');
+      print("WebSocketService: Error, no conectado. No se puede enviar: $data");
     }
   }
 
-  void disconnect() {
-    if (_channel != null) {
-      _channel.sink.close();
-      _messageController.close();
-    }
+  // 7. Limpieza de recursos (¡Crucial!)
+  void dispose() {
+    _channel?.sink.close();
+    _messageController.close(); // ✅ CERRAR EL CONTROLLER
+    _isConnected = false;
+    print("WebSocketService: Recursos liberados.");
   }
 }

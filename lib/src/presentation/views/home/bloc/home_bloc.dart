@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -8,6 +10,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/data/home_repository.dart';
 import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
+import 'package:wms_app/src/services/webSocket_service.dart';
 part 'home_event.dart';
 part 'home_state.dart';
 
@@ -28,7 +31,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   DataBaseSqlite db = DataBaseSqlite();
 
+  final WebSocketService _webSocketService =
+      WebSocketService(); // Instancia del servicio
+  late StreamSubscription _webSocketSubscription; // Para gestionar el listener
+
   HomeBloc() : super(HomeInitial()) {
+// ✅ 1. INICIAR LA SUSCRIPCIÓN EN EL CONSTRUCTOR DEL BLOQUE
+    _webSocketSubscription =
+        _webSocketService.messages.listen(_onWebSocketMessage);
+
+    // ✅ 2. MAPEAR EL EVENTO DE RECEPCIÓN DE MENSAJES
+    on<WebSocketMessageReceived>(_handleIncomingWebSocketData);
+
     on<HomeLoadData>((event, emit) async {
       emit(HomeLoadingState());
       try {
@@ -80,6 +94,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             AppVersionLoadErrorState('Error al obtener la versión de la app '));
       }
     });
+  }
+
+  // ✅ 3. MANEJADOR QUE RECIBE EL MENSAJE Y LO CONVIERTE EN EVENTO
+  void _onWebSocketMessage(dynamic data) {
+    // Aquí puedes pre-procesar el mensaje (ej. decodificar JSON) antes de enviarlo como evento.
+    // Por ahora, asumimos que 'data' es un JSON o String.
+    add(WebSocketMessageReceived(data));
+  }
+
+  // ✅ 4. LÓGICA DE REACCIÓN A DATOS EN TIEMPO REAL
+  void _handleIncomingWebSocketData(
+      WebSocketMessageReceived event, Emitter<HomeState> emit) {
+    print('HomeBloc: Mensaje WebSocket en tiempo real: ${event.payload}');
+
+    // ⚠️ LÓGICA CLAVE: Aquí iría el código para actualizar el estado del BLoC
+    // Por ejemplo, si el servidor envía {'type': 'NEW_ORDER'}:
+    // if (event.payload is Map && event.payload['type'] == 'NEW_ORDER') {
+    //   emit(HomeDataUpdatedState(newOrderAlert: true));
+    // }
+  }
+
+  @override
+  Future<void> close() {
+    // 5. CANCELAR LA SUSCRIPCIÓN AL CERRAR EL BLOQUE (¡Crucial para evitar fugas!)
+    _webSocketSubscription.cancel();
+    return super.close();
   }
 
   void _onLoadConfigurationsUserEvent(

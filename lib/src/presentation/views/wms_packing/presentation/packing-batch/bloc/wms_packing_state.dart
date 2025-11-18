@@ -215,9 +215,7 @@ class LoadDocOriginsState extends WmsPackingState {
   LoadDocOriginsState({required this.listOfOrigins});
 }
 
-
 class DeleteProductFromTemporaryPackageLoading extends WmsPackingState {}
-
 
 class DeleteProductFromTemporaryPackageError extends WmsPackingState {
   final String message;
@@ -226,12 +224,22 @@ class DeleteProductFromTemporaryPackageError extends WmsPackingState {
 
 class DeleteProductFromTemporaryPackageOkState extends WmsPackingState {}
 
-
 class NeedUpdateVersionState extends WmsPackingState {}
-
 
 class LoadAllPedidosFromBatchLoaded extends WmsPackingState {
   final List<PedidoPacking> listOfPedidos;
 
   LoadAllPedidosFromBatchLoaded({required this.listOfPedidos});
+}
+
+class ViewProductImageLoading extends WmsPackingState {}
+
+class ViewProductImageSuccess extends WmsPackingState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends WmsPackingState {
+  final String error;
+  ViewProductImageFailure(this.error);
 }

@@ -12,6 +12,7 @@ import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
@@ -24,6 +25,8 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
@@ -245,7 +248,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
       },
       child: BlocBuilder<PackingPedidoBloc, PackingPedidoState>(
         builder: (context, state) {
-          final packinghBloc = context.read<PackingPedidoBloc>();
+          final packingBloc = context.read<PackingPedidoBloc>();
 
           return Scaffold(
               backgroundColor: Colors.white,
@@ -262,9 +265,15 @@ class _PackingScreenState extends State<ScanPackScreen> {
                           listener: (context, state) {
                             print('❤️‍🔥 state: $state ');
 
+                            if (state is ViewProductImageSuccess) {
+                              showImageDialog(context, state.imageUrl);
+                            } else if (state is ViewProductImageFailure) {
+                              showScrollableErrorDialog(state.error);
+                            }
+
                             if (state is ChangeQuantitySeparateState) {
                               if (state.quantity ==
-                                  packinghBloc.currentProduct.quantity) {
+                                  packingBloc.currentProduct.quantity) {
                                 _finichPackingProduct(context);
                               }
                             }
@@ -284,13 +293,13 @@ class _PackingScreenState extends State<ScanPackScreen> {
                               }
 
                               //validamos si el producto maneja temperatura
-                              if (packinghBloc
+                              if (packingBloc
                                           .currentProduct.manejaTemperatura ==
                                       1 ||
-                                  packinghBloc
+                                  packingBloc
                                           .currentProduct.manejaTemperatura ==
                                       true) {
-                                if (packinghBloc.configurations.result?.result
+                                if (packingBloc.configurations.result?.result
                                         ?.showPhotoTemperature ==
                                     true) {
                                   showDialog(
@@ -301,9 +310,9 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                       onWillPop: () async =>
                                           false, // Evita que se cierre con la flecha de atrás
                                       child: DialogCapturaTemperaturaPack(
-                                        moveLineId: packinghBloc
-                                                .currentProduct.idMove ??
-                                            0,
+                                        moveLineId:
+                                            packingBloc.currentProduct.idMove ??
+                                                0,
                                       ),
                                     ),
                                   );
@@ -317,9 +326,9 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                       onWillPop: () async =>
                                           false, // Evita que se cierre con la flecha de atrás
                                       child: DialogTemperaturaManualPack(
-                                        moveLineId: packinghBloc
-                                                .currentProduct.idMove ??
-                                            0,
+                                        moveLineId:
+                                            packingBloc.currentProduct.idMove ??
+                                                0,
                                       ),
                                     ),
                                   );
@@ -348,39 +357,15 @@ class _PackingScreenState extends State<ScanPackScreen> {
                             if (state is SendTemperatureFailure) {
                               Navigator.pop(context);
 
-                              Get.defaultDialog(
-                                title: '360 Software Informa',
-                                titleStyle:
-                                    TextStyle(color: Colors.red, fontSize: 18),
-                                middleText: state.error,
-                                middleTextStyle:
-                                    TextStyle(color: black, fontSize: 14),
-                                backgroundColor: Colors.white,
-                                radius: 10,
-                                actions: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColorApp,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    child: Text('Aceptar',
-                                        style: TextStyle(color: white)),
-                                  ),
-                                ],
-                              );
+                              showScrollableErrorDialog(state.error);
                             }
 
                             if (state is SendImageNovedadSuccess) {
-                              packinghBloc.add(ChangeQuantitySeparate(
+                              packingBloc.add(ChangeQuantitySeparate(
                                   state.cantidad,
-                                  packinghBloc.currentProduct.idProduct ?? 0,
-                                  packinghBloc.currentProduct.pedidoId ?? 0,
-                                  packinghBloc.currentProduct.idMove ?? 0));
+                                  packingBloc.currentProduct.idProduct ?? 0,
+                                  packingBloc.currentProduct.pedidoId ?? 0,
+                                  packingBloc.currentProduct.idMove ?? 0));
                               cantidadController.clear();
                               _finichPackingProduct(context);
                             }
@@ -409,13 +394,13 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                     children: [
                                       IconButton(
                                         onPressed: () {
-                                          packinghBloc.quantitySelected = 0;
+                                          packingBloc.quantitySelected = 0;
                                           cantidadController.clear();
-                                          packinghBloc.oldLocation = "";
+                                          packingBloc.oldLocation = "";
 
                                           context.read<PackingPedidoBloc>().add(
                                               LoadPedidoAndProductsEvent(
-                                                  packinghBloc.currentProduct
+                                                  packingBloc.currentProduct
                                                           .pedidoId ??
                                                       0));
                                           Navigator.pushReplacementNamed(
@@ -464,7 +449,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                       width: 10,
                                       height: 10,
                                       decoration: BoxDecoration(
-                                        color: packinghBloc.locationIsOk
+                                        color: packingBloc.locationIsOk
                                             ? green
                                             : yellow,
                                         shape: BoxShape.circle,
@@ -472,8 +457,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                     ),
                                   ),
                                   Card(
-                                    color: packinghBloc.isLocationOk
-                                        ? packinghBloc.locationIsOk
+                                    color: packingBloc.isLocationOk
+                                        ? packingBloc.locationIsOk
                                             ? Colors.green[100]
                                             : Colors.grey[300]
                                         : Colors.red[200],
@@ -492,16 +477,14 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                   isPDA: false,
                                                   selectedLocation:
                                                       selectedLocation,
-                                                  positionsOrigen: packinghBloc
+                                                  positionsOrigen: packingBloc
                                                       .currentProduct
                                                       .locationId,
-                                                  currentLocationId:
-                                                      packinghBloc
-                                                          .currentProduct
-                                                          .locationId
-                                                          .toString(),
-                                                  batchBloc: packinghBloc,
-                                                  currentProduct: packinghBloc
+                                                  currentLocationId: packingBloc
+                                                      .currentProduct.locationId
+                                                      .toString(),
+                                                  batchBloc: packingBloc,
+                                                  currentProduct: packingBloc
                                                       .currentProduct,
                                                 ),
                                                 Container(
@@ -512,13 +495,13 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                     showCursor: false,
                                                     controller:
                                                         _controllerLocation, // Asignamos el controlador
-                                                    enabled: !packinghBloc
+                                                    enabled: !packingBloc
                                                             .locationIsOk && // false
-                                                        !packinghBloc
+                                                        !packingBloc
                                                             .productIsOk && // false
-                                                        !packinghBloc
+                                                        !packingBloc
                                                             .quantityIsOk && // false
-                                                        !packinghBloc
+                                                        !packingBloc
                                                             .locationDestIsOk,
 
                                                     focusNode: focusNode1,
@@ -529,7 +512,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                               .text);
                                                     },
                                                     decoration: InputDecoration(
-                                                      hintText: packinghBloc
+                                                      hintText: packingBloc
                                                           .currentProduct
                                                           .locationId
                                                           .toString(),
@@ -553,13 +536,12 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                   if (event.logicalKey ==
                                                       LogicalKeyboardKey
                                                           .enter) {
-                                                    validateLocation(
-                                                        packinghBloc
-                                                            .scannedValue1);
+                                                    validateLocation(packingBloc
+                                                        .scannedValue1);
                                                     return KeyEventResult
                                                         .handled;
                                                   } else {
-                                                    packinghBloc.add(
+                                                    packingBloc.add(
                                                         UpdateScannedValuePackEvent(
                                                             event.data.keyLabel,
                                                             'location'));
@@ -573,16 +555,16 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                 isPDA: true,
                                                 selectedLocation:
                                                     selectedLocation,
-                                                positionsOrigen: packinghBloc
+                                                positionsOrigen: packingBloc
                                                         .currentProduct
                                                         .locationId ??
                                                     "",
-                                                currentLocationId: packinghBloc
+                                                currentLocationId: packingBloc
                                                     .currentProduct.locationId
                                                     .toString(),
-                                                batchBloc: packinghBloc,
+                                                batchBloc: packingBloc,
                                                 currentProduct:
-                                                    packinghBloc.currentProduct,
+                                                    packingBloc.currentProduct,
                                               ),
                                             ),
                                     ),
@@ -592,475 +574,74 @@ class _PackingScreenState extends State<ScanPackScreen> {
 
                               // todo: Producto
 
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Container(
-                                      width: 10,
-                                      height: 10,
-                                      decoration: BoxDecoration(
-                                        color: packinghBloc.productIsOk
-                                            ? green
-                                            : yellow,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                  Card(
-                                    color: packinghBloc.isProductOk
-                                        ? packinghBloc.productIsOk
-                                            ? Colors.green[100]
-                                            : Colors.grey[300]
-                                        : Colors.red[200],
-                                    elevation: 5,
-                                    child: Container(
-                                      width: size.width * 0.85,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 2),
-                                      child: context
-                                              .read<UserBloc>()
-                                              .fabricante
-                                              .contains("Zebra")
-                                          ? Column(
-                                              children: [
-                                                ProductDropdownPackWidget(
-                                                  selectedProduct:
-                                                      selectedLocation,
-                                                  listOfProductsName:
-                                                      packinghBloc
-                                                          .listOfProductsName,
-                                                  currentProductId: packinghBloc
-                                                      .currentProduct.idProduct
-                                                      .toString(),
-                                                  batchBloc: packinghBloc,
-                                                  currentProduct: packinghBloc
-                                                      .currentProduct,
-                                                ),
-                                                TextFormField(
-                                                  showCursor: false,
-                                                  enabled: packinghBloc
-                                                          .locationIsOk && //true
-                                                      !packinghBloc
-                                                          .productIsOk && //false
-                                                      !packinghBloc
-                                                          .quantityIsOk,
-
-                                                  controller:
-                                                      _controllerProduct, // Controlador que maneja el texto
-                                                  focusNode: focusNode2,
-                                                  onChanged: (value) {
-                                                    validateProduct(value);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText: packinghBloc
-                                                        .currentProduct
-                                                        .productId
-                                                        .toString(),
-                                                    disabledBorder:
-                                                        InputBorder.none,
-                                                    hintMaxLines: 2,
-                                                    hintStyle: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: black),
-                                                    border: InputBorder.none,
-                                                  ),
-                                                ),
-                                                // Lote/Numero de serie
-                                                const SizedBox(height: 10),
-                                                Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      height: 20,
-                                                      width: 20,
-                                                      child: SvgPicture.asset(
-                                                        color: primaryColorApp,
-                                                        "assets/icons/barcode.svg",
-                                                        height: 20,
-                                                        width: 20,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Text(
-                                                      (packinghBloc.currentProduct
-                                                                      .barcode ==
-                                                                  null ||
-                                                              packinghBloc
-                                                                  .currentProduct
-                                                                  .barcode!
-                                                                  .isEmpty ||
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .barcode ==
-                                                                  "false")
-                                                          ? "Sin codigo de barras"
-                                                          : packinghBloc
-                                                              .currentProduct
-                                                              .barcode!,
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: (packinghBloc
-                                                                          .currentProduct
-                                                                          .barcode ==
-                                                                      null ||
-                                                                  packinghBloc
-                                                                      .currentProduct
-                                                                      .barcode!
-                                                                      .isEmpty ||
-                                                                  packinghBloc
-                                                                          .currentProduct
-                                                                          .barcode ==
-                                                                      "false")
-                                                              ? Colors.red
-                                                              : black),
-                                                    ),
-                                                    const Spacer(),
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return DialogBarcodes(
-                                                                  listOfBarcodes:
-                                                                      packinghBloc
-                                                                          .listOfBarcodes);
-                                                            });
-                                                      },
-                                                      child: Visibility(
-                                                        visible: packinghBloc
-                                                            .listOfBarcodes
-                                                            .isNotEmpty,
-                                                        child: SizedBox(
-                                                          height: 20,
-                                                          width: 20,
-                                                          child:
-                                                              SvgPicture.asset(
-                                                            color:
-                                                                primaryColorApp,
-                                                            "assets/icons/barcode.svg",
-                                                            height: 20,
-                                                            width: 20,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-
-                                                Column(
-                                                  children: [
-                                                    ExpiryDateWidget(
-                                                        expireDate: packinghBloc
-                                                                    .currentProduct
-                                                                    .expireDate ==
-                                                                ""
-                                                            ? DateTime.now()
-                                                            : DateTime.parse(
-                                                                packinghBloc
-                                                                    .currentProduct
-                                                                    .expireDate),
-                                                        size: size,
-                                                        isDetaild: false,
-                                                        isNoExpireDate: packinghBloc
-                                                                    .currentProduct
-                                                                    .expireDate ==
-                                                                ""
-                                                            ? true
-                                                            : false),
-                                                    if (packinghBloc
-                                                            .currentProduct
-                                                            .loteId !=
-                                                        null)
-                                                      Row(
-                                                        children: [
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              'Lote/serie: ',
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  color:
-                                                                      primaryColorApp),
-                                                            ),
-                                                          ),
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              packinghBloc.currentProduct
-                                                                          .lotId ==
-                                                                      ""
-                                                                  ? 'N/A'
-                                                                  : packinghBloc
-                                                                          .currentProduct
-                                                                          .lotId ??
-                                                                      '',
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          black),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                  ],
-                                                ),
-                                              ],
-                                            )
-                                          : Focus(
-                                              focusNode: focusNode2,
-                                              onKey: (FocusNode node,
-                                                  RawKeyEvent event) {
-                                                if (event is RawKeyDownEvent) {
-                                                  if (event.logicalKey ==
-                                                      LogicalKeyboardKey
-                                                          .enter) {
-                                                    validateProduct(packinghBloc
-                                                        .scannedValue2);
-                                                    return KeyEventResult
-                                                        .handled;
-                                                  } else {
-                                                    packinghBloc.add(
-                                                        UpdateScannedValuePackEvent(
-                                                            event.data.keyLabel,
-                                                            'product'));
-                                                    return KeyEventResult
-                                                        .handled;
-                                                  }
-                                                }
-                                                return KeyEventResult.ignored;
-                                              },
-                                              child: Center(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    ProductDropdownPackWidget(
-                                                      selectedProduct:
-                                                          selectedLocation,
-                                                      listOfProductsName:
-                                                          packinghBloc
-                                                              .listOfProductsName,
-                                                      currentProductId:
-                                                          packinghBloc
-                                                              .currentProduct
-                                                              .idProduct
-                                                              .toString(),
-                                                      batchBloc: packinghBloc,
-                                                      currentProduct:
-                                                          packinghBloc
-                                                              .currentProduct,
-                                                    ),
-
-                                                    const SizedBox(height: 10),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start, //alineamos el texto a la izquierda
-                                                        children: [
-                                                          Text(
-                                                            packinghBloc
-                                                                .currentProduct
-                                                                .productId
-                                                                .toString(),
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color:
-                                                                        black),
-                                                          ),
-                                                          Visibility(
-                                                            visible: packinghBloc
-                                                                        .currentProduct
-                                                                        .barcode ==
-                                                                    false ||
-                                                                packinghBloc
-                                                                        .currentProduct
-                                                                        .barcode ==
-                                                                    null ||
-                                                                packinghBloc
-                                                                        .currentProduct
-                                                                        .barcode ==
-                                                                    "",
-                                                            child: const Text(
-                                                              "Sin codigo de barras",
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .start,
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: red),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-
-                                                    const SizedBox(height: 10),
-                                                    Row(
-                                                      children: [
-                                                        SizedBox(
-                                                          height: 20,
-                                                          width: 20,
-                                                          child:
-                                                              SvgPicture.asset(
-                                                            color:
-                                                                primaryColorApp,
-                                                            "assets/icons/barcode.svg",
-                                                            height: 20,
-                                                            width: 20,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        Text(
-                                                          (packinghBloc.currentProduct
-                                                                          .barcode ==
-                                                                      null ||
-                                                                  packinghBloc
-                                                                      .currentProduct
-                                                                      .barcode!
-                                                                      .isEmpty ||
-                                                                  packinghBloc
-                                                                          .currentProduct
-                                                                          .barcode ==
-                                                                      "false")
-                                                              ? "Sin codigo de barras"
-                                                              : packinghBloc
-                                                                  .currentProduct
-                                                                  .barcode!,
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: (packinghBloc
-                                                                              .currentProduct
-                                                                              .barcode ==
-                                                                          null ||
-                                                                      packinghBloc
-                                                                          .currentProduct
-                                                                          .barcode!
-                                                                          .isEmpty ||
-                                                                      packinghBloc
-                                                                              .currentProduct
-                                                                              .barcode ==
-                                                                          "false")
-                                                                  ? Colors.red
-                                                                  : black),
-                                                        ),
-                                                        const Spacer(),
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return DialogBarcodes(
-                                                                      listOfBarcodes:
-                                                                          packinghBloc
-                                                                              .listOfBarcodes);
-                                                                });
-                                                          },
-                                                          child: Visibility(
-                                                            visible: packinghBloc
-                                                                .listOfBarcodes
-                                                                .isNotEmpty,
-                                                            child: SizedBox(
-                                                              height: 20,
-                                                              width: 20,
-                                                              child: SvgPicture
-                                                                  .asset(
-                                                                color:
-                                                                    primaryColorApp,
-                                                                "assets/icons/barcode.svg",
-                                                                height: 20,
-                                                                width: 20,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    //informacion del lote:
-
-                                                    if (packinghBloc
-                                                            .currentProduct
-                                                            .loteId !=
-                                                        null)
-                                                      Row(
-                                                        children: [
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              'Lote/serie: ',
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  color:
-                                                                      primaryColorApp),
-                                                            ),
-                                                          ),
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                              packinghBloc.currentProduct
-                                                                          .lotId ==
-                                                                      ""
-                                                                  ? 'N/A'
-                                                                  : packinghBloc
-                                                                          .currentProduct
-                                                                          .lotId ??
-                                                                      '',
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          black),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ExpiryDateWidget(
-                                                        expireDate: packinghBloc
-                                                                    .currentProduct
-                                                                    .expireDate ==
-                                                                ""
-                                                            ? DateTime.now()
-                                                            : DateTime.parse(
-                                                                packinghBloc
-                                                                        .currentProduct
-                                                                        .expireDate ??
-                                                                    '',
-                                                              ),
-                                                        size: size,
-                                                        isDetaild: false,
-                                                        isNoExpireDate: packinghBloc
-                                                                    .currentProduct
-                                                                    .expireDate ==
-                                                                ""
-                                                            ? true
-                                                            : false),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                ],
+                              ProductScannerWidget(
+                                isProductOk: packingBloc.isProductOk,
+                                productIsOk: packingBloc.productIsOk,
+                                locationIsOk: packingBloc.locationIsOk,
+                                quantityIsOk: packingBloc.quantityIsOk,
+                                locationDestIsOk: packingBloc.locationDestIsOk,
+                                currentProductId: packingBloc
+                                    .currentProduct.productId
+                                    .toString(),
+                                barcode: packingBloc.currentProduct.barcode,
+                                lotId: packingBloc.currentProduct.lotId,
+                                origin: '',
+                                expireDate:
+                                    packingBloc.currentProduct.expireDate,
+                                size: size,
+                                onValidateProduct: (value) {
+                                  validateProduct(value); // tu función actual
+                                },
+                                onKeyScanned: (keyLabel) {
+                                  packingBloc.add(UpdateScannedValuePackEvent(
+                                      keyLabel, 'product'));
+                                },
+                                focusNode: focusNode2,
+                                controller: _controllerProduct,
+                                productDropdown: ProductDropdownPackWidget(
+                                  selectedProduct: selectedLocation,
+                                  listOfProductsName:
+                                      packingBloc.listOfProductsName,
+                                  currentProductId: packingBloc
+                                      .currentProduct.idProduct
+                                      .toString(),
+                                  batchBloc: packingBloc,
+                                  currentProduct: packingBloc.currentProduct,
+                                ),
+                                expiryWidget: ExpiryDateWidget(
+                                  expireDate:
+                                      packingBloc.currentProduct.expireDate ==
+                                                  "" ||
+                                              packingBloc.currentProduct
+                                                      .expireDate ==
+                                                  null
+                                          ? DateTime.now()
+                                          : DateTime.parse(packingBloc
+                                              .currentProduct.expireDate),
+                                  size: size,
+                                  isDetaild: false,
+                                  isNoExpireDate:
+                                      packingBloc.currentProduct.expireDate ==
+                                              ""
+                                          ? true
+                                          : false,
+                                ),
+                                listOfBarcodes: packingBloc.listOfBarcodes,
+                                onBarcodesDialogTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogBarcodes(
+                                          listOfBarcodes:
+                                              packingBloc.listOfBarcodes);
+                                    },
+                                  );
+                                },
+                                onViewImgProduct: () {
+                                  packingBloc.add(ViewProductImageEvent(
+                                      packingBloc.currentProduct.idProduct ??
+                                          0));
+                                },
                               ),
                             ],
                           ),
@@ -1072,13 +653,13 @@ class _PackingScreenState extends State<ScanPackScreen> {
                   //todo: cantidad
                   SizedBox(
                     width: size.width,
-                    height: packinghBloc.viewQuantity == true &&
+                    height: packingBloc.viewQuantity == true &&
                             context
                                 .read<UserBloc>()
                                 .fabricante
                                 .contains("Zebra")
                         ? 345
-                        : !packinghBloc.viewQuantity
+                        : !packingBloc.viewQuantity
                             ? 110
                             : 150,
                     child: Column(
@@ -1088,8 +669,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
                             horizontal: 10,
                           ),
                           child: Card(
-                            color: packinghBloc.isQuantityOk
-                                ? packinghBloc.quantityIsOk
+                            color: packingBloc.isQuantityOk
+                                ? packingBloc.quantityIsOk
                                     ? white
                                     : Colors.grey[300]
                                 : Colors.red[200],
@@ -1108,7 +689,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Text(
-                                          packinghBloc.currentProduct.quantity
+                                          packingBloc.currentProduct.quantity
                                                   .toStringAsFixed(2) ??
                                               "",
                                           style: TextStyle(
@@ -1117,7 +698,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                           ),
                                         )),
                                     Text(
-                                        packinghBloc.currentProduct.unidades ??
+                                        packingBloc.currentProduct.unidades ??
                                             "",
                                         style: const TextStyle(
                                             color: Colors.black, fontSize: 14)),
@@ -1134,14 +715,14 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                               ? TextFormField(
                                                   showCursor: false,
                                                   textAlign: TextAlign.center,
-                                                  enabled: packinghBloc
+                                                  enabled: packingBloc
                                                           .locationIsOk && //true
-                                                      packinghBloc
+                                                      packingBloc
                                                           .productIsOk && //true
-                                                      packinghBloc
+                                                      packingBloc
                                                           .quantityIsOk && //true
 
-                                                      !packinghBloc
+                                                      !packingBloc
                                                           .locationDestIsOk,
                                                   // showCursor: false,
                                                   controller:
@@ -1149,10 +730,10 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                   focusNode: focusNode3,
                                                   onChanged: (value) {
                                                     validateQuantity(
-                                                        value, packinghBloc);
+                                                        value, packingBloc);
                                                   },
                                                   decoration: InputDecoration(
-                                                    hintText: packinghBloc
+                                                    hintText: packingBloc
                                                         .quantitySelected
                                                         .toString(),
                                                     disabledBorder:
@@ -1173,14 +754,14 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                           LogicalKeyboardKey
                                                               .enter) {
                                                         validateQuantity(
-                                                            packinghBloc
+                                                            packingBloc
                                                                 .scannedValue3,
-                                                            packinghBloc);
+                                                            packingBloc);
 
                                                         return KeyEventResult
                                                             .handled;
                                                       } else {
-                                                        packinghBloc.add(
+                                                        packingBloc.add(
                                                             UpdateScannedValuePackEvent(
                                                                 event.data
                                                                     .keyLabel,
@@ -1193,7 +774,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                         .ignored;
                                                   },
                                                   child: Text(
-                                                      packinghBloc
+                                                      packingBloc
                                                           .quantitySelected
                                                           .toString(),
                                                       style: const TextStyle(
@@ -1202,21 +783,21 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                 )),
                                     ),
                                     IconButton(
-                                        onPressed: packinghBloc
+                                        onPressed: packingBloc
                                                     .configurations
                                                     .result
                                                     ?.result
                                                     ?.manualQuantityPack ==
                                                 false
                                             ? null
-                                            : packinghBloc.quantityIsOk &&
-                                                    packinghBloc
+                                            : packingBloc.quantityIsOk &&
+                                                    packingBloc
                                                             .quantitySelected >=
                                                         0
                                                 ? () {
-                                                    packinghBloc.add(
+                                                    packingBloc.add(
                                                         ShowQuantityPackEvent(
-                                                            !packinghBloc
+                                                            !packingBloc
                                                                 .viewQuantity));
                                                     Future.delayed(
                                                         const Duration(
@@ -1237,7 +818,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                           ),
                         ),
                         Visibility(
-                          visible: packinghBloc.viewQuantity,
+                          visible: packingBloc.viewQuantity,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 2),
@@ -1256,7 +837,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                   // Verifica si el valor no está vacío y si es un número válido
                                   if (value.isNotEmpty) {
                                     try {
-                                      packinghBloc.quantitySelected =
+                                      packingBloc.quantitySelected =
                                           double.parse(value);
                                     } catch (e) {
                                       // Manejo de errores si la conversión falla
@@ -1265,7 +846,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                     }
                                   } else {
                                     // Si el valor está vacío, puedes establecer un valor por defecto
-                                    packinghBloc.quantitySelected =
+                                    packingBloc.quantitySelected =
                                         0; // O cualquier valor que consideres adecuado
                                   }
                                 },
@@ -1283,8 +864,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                   labelText: 'Cantidad',
                                   suffixIconButton: IconButton(
                                     onPressed: () {
-                                      packinghBloc.add(ShowQuantityPackEvent(
-                                          !packinghBloc.viewQuantity));
+                                      packingBloc.add(ShowQuantityPackEvent(
+                                          !packingBloc.viewQuantity));
                                       cantidadController.clear();
                                       //cambiamos el foco pa leer por pda la cantidad
                                       Future.delayed(
@@ -1306,8 +887,8 @@ class _PackingScreenState extends State<ScanPackScreen> {
                               horizontal: 10,
                             ),
                             child: ElevatedButton(
-                              onPressed: packinghBloc.quantityIsOk &&
-                                      packinghBloc.quantitySelected >= 0
+                              onPressed: packingBloc.quantityIsOk &&
+                                      packingBloc.quantitySelected >= 0
                                   ? () {
                                       //cerramos el teclado
                                       FocusScope.of(context).unfocus();
@@ -1328,7 +909,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                               ),
                             )),
                         Visibility(
-                          visible: packinghBloc.viewQuantity &&
+                          visible: packingBloc.viewQuantity &&
                               context
                                   .read<UserBloc>()
                                   .fabricante

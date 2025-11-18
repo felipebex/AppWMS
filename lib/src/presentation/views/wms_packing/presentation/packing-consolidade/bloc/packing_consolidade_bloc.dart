@@ -9,6 +9,7 @@ import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
@@ -121,6 +122,9 @@ class PackingConsolidateBloc
 
   TemperatureIa resultTemperature = TemperatureIa();
 
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
+
   PackingConsolidateBloc() : super(PackingConsolidateInitial()) {
     on<PackingConsolidateEvent>((event, emit) {});
 
@@ -214,6 +218,33 @@ class PackingConsolidateBloc
 
     //*asignar un usuario a una orden de compra
     on<AssignUserToBatch>(_onAssignUserToBatch);
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+  }
+
+  void _onViewProductImageEvent(ViewProductImageEvent event,
+      Emitter<PackingConsolidateState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   //*metodo para obtener los permisos del usuario

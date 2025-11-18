@@ -7,6 +7,7 @@ import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
 
@@ -39,6 +40,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   //*lista de productos
   List<ProductsBatch> filteredProducts = [];
+  List<ProductsBatch> listProducts = [];
   List<String> listOfProductsName = [];
   List<Barcodes> listOfBarcodes = [];
 
@@ -105,6 +107,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   bool isProcessing = false; // Bandera para controlar el estado del proceso
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
+
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
 
   PickingPickBloc() : super(PickingPickInitial()) {
     on<PickingPickEvent>((event, emit) {});
@@ -205,6 +210,34 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     //*obtener todos los pick de componentes desde el historial de odoo
     on<LoadHistoryPickComponentEvent>(_onLoadHistoryPickComponentEvent);
+    //*ver imagen del producto
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+  }
+
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<PickingPickState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   void _onLoadHistoryPickComponentEvent(LoadHistoryPickComponentEvent event,
@@ -1803,6 +1836,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           return;
         }
 
+        listProducts.clear();
+        listProducts.addAll(pickWithProducts.products!);
+
         filteredProducts.clear();
         filteredProducts.addAll(pickWithProducts.products!);
 
@@ -1986,9 +2022,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       // Aquí llamas a tu repositorio para obtener los datos
       final result = await pickingPickRepository.resPicks(event.isLoadinDialog);
 
-      // listOfPick = [];
-      // listOfPickFiltered = [];
-
       //validacion de la version de la app
       if ((result.updateVersion ?? false) == true) {
         emit(NeedUpdateVersionState());
@@ -2030,8 +2063,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         add(FetchPickingPickFromDBEvent(true));
         emit(PickingPickLoaded(result.result ?? []));
         return;
+      } else {
+        listOfPick = [];
+        listOfPickFiltered = [];
+        emit(PickingPickLoaded(result.result ?? []));
       }
-      emit(PickingPickLoaded(result.result ?? []));
     } catch (e) {
       emit(PickingPickError(e.toString()));
     }

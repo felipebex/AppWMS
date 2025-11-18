@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,28 +43,7 @@ class LoginPage extends StatelessWidget {
 
               if (state is LoginFailure) {
                 Get.back();
-                Get.defaultDialog(
-                  title: '360 Software Informa',
-                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                  middleText: state.error,
-                  middleTextStyle: TextStyle(color: black, fontSize: 14),
-                  backgroundColor: Colors.white,
-                  radius: 10,
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColorApp,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('Aceptar', style: TextStyle(color: white)),
-                    ),
-                  ],
-                );
+                showScrollableErrorDialog(state.error);
               }
             },
           ),
@@ -73,33 +53,13 @@ class LoginPage extends StatelessWidget {
 
               if (state is RegisterDeviceIdError) {
                 Get.back();
-                Get.defaultDialog(
-                  title: '360 Software Informa',
-                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                  middleText: state.message,
-                  middleTextStyle: TextStyle(color: black, fontSize: 14),
-                  backgroundColor: Colors.white,
-                  radius: 10,
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColorApp,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('Aceptar', style: TextStyle(color: white)),
-                    ),
-                  ],
-                );
+                showScrollableErrorDialog(state.message);
               }
 
               if (state is RegisterDeviceIdSuccess) {
-                context.read<UserBloc>().add(
-                    GetConfigurations()); //configuracion del usuario
+                context
+                    .read<UserBloc>()
+                    .add(GetConfigurations()); //configuracion del usuario
               }
 
               if (state is ConfigurationLoaded) {
@@ -121,28 +81,7 @@ class LoginPage extends StatelessWidget {
 
               if (state is ConfigurationError) {
                 Get.back();
-                Get.defaultDialog(
-                  title: '360 Software Informa',
-                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                  middleText: state.message,
-                  middleTextStyle: TextStyle(color: black, fontSize: 14),
-                  backgroundColor: Colors.white,
-                  radius: 10,
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColorApp,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('Aceptar', style: TextStyle(color: white)),
-                    ),
-                  ],
-                );
+                showScrollableErrorDialog( state.message);
               }
             },
           ),
@@ -223,7 +162,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-
 class _LoginForm extends StatefulWidget {
   const _LoginForm({super.key});
 
@@ -299,13 +237,15 @@ class _LoginFormState extends State<_LoginForm> {
                     TextFormField(
                       focusNode: _focusNodeEmail,
                       controller: context.read<LoginBloc>().email,
-                      onTap: !context.read<UserBloc>().fabricante.contains("Zebra")
-                          ? null
-                          : () {
-                              setState(() {
-                                FocusScope.of(context).requestFocus(_focusNodeEmail);
-                              });
-                            },
+                      onTap:
+                          !context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? null
+                              : () {
+                                  setState(() {
+                                    FocusScope.of(context)
+                                        .requestFocus(_focusNodeEmail);
+                                  });
+                                },
                       style: const TextStyle(fontSize: 13),
                       decoration: InputDecoration(
                         disabledBorder: const OutlineInputBorder(),
@@ -315,10 +255,12 @@ class _LoginFormState extends State<_LoginForm> {
                           color: primaryColorApp,
                         ),
                         hintText: "Correo electrónico",
-                        hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(10),
-                        errorStyle: const TextStyle(color: Colors.red, fontSize: 10),
+                        errorStyle:
+                            const TextStyle(color: Colors.red, fontSize: 10),
                       ),
                       validator: (value) => Validator.email(value, context),
                     ),
@@ -328,13 +270,15 @@ class _LoginFormState extends State<_LoginForm> {
                       obscureText: context.read<LoginBloc>().isVisible,
                       focusNode: _focusNodePassword,
                       style: const TextStyle(fontSize: 13),
-                      onTap: !context.read<UserBloc>().fabricante.contains("Zebra")
-                          ? null
-                          : () {
-                              setState(() {
-                                FocusScope.of(context).requestFocus(_focusNodePassword);
-                              });
-                            },
+                      onTap:
+                          !context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? null
+                              : () {
+                                  setState(() {
+                                    FocusScope.of(context)
+                                        .requestFocus(_focusNodePassword);
+                                  });
+                                },
                       decoration: InputDecoration(
                         disabledBorder: const OutlineInputBorder(),
                         contentPadding: const EdgeInsets.all(10),
@@ -345,7 +289,9 @@ class _LoginFormState extends State<_LoginForm> {
                         ),
                         suffixIcon: IconButton(
                           onPressed: () {
-                            context.read<LoginBloc>().add(TogglePasswordVisibility());
+                            context
+                                .read<LoginBloc>()
+                                .add(TogglePasswordVisibility());
                           },
                           icon: Icon(
                             context.read<LoginBloc>().isVisible
@@ -356,8 +302,10 @@ class _LoginFormState extends State<_LoginForm> {
                           ),
                         ),
                         hintText: "Contraseña",
-                        errorStyle: const TextStyle(color: Colors.red, fontSize: 10),
-                        hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
+                        errorStyle:
+                            const TextStyle(color: Colors.red, fontSize: 10),
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
                         border: InputBorder.none,
                       ),
                       validator: (value) => Validator.password(value, context),
@@ -376,15 +324,22 @@ class _LoginFormState extends State<_LoginForm> {
                   elevation: 0,
                   color: primaryColorApp,
                   onPressed: () async {
-                    if (!context.read<UserBloc>().fabricante.contains("Zebra")) {
+                    if (!context
+                        .read<UserBloc>()
+                        .fabricante
+                        .contains("Zebra")) {
                       FocusScope.of(context).unfocus();
                     }
                     if (!formkey.currentState!.validate()) return;
-                    
+
                     try {
-                      final result = await InternetAddress.lookup('example.com');
-                      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-                        context.read<LoginBloc>().add(LoginButtonPressed(context));
+                      final result =
+                          await InternetAddress.lookup('example.com');
+                      if (result.isNotEmpty &&
+                          result[0].rawAddress.isNotEmpty) {
+                        context
+                            .read<LoginBloc>()
+                            .add(LoginButtonPressed(context));
                       }
                     } catch (e, s) {
                       print("Error en login: $e $s");
@@ -405,7 +360,8 @@ class _LoginFormState extends State<_LoginForm> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                            child: Text('Aceptar', style: TextStyle(color: white)),
+                            child:
+                                Text('Aceptar', style: TextStyle(color: white)),
                           ),
                         ],
                       );

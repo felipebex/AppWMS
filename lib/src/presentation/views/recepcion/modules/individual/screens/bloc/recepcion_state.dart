@@ -390,3 +390,16 @@ class ProductExpansionToggled extends RecepcionState {
 
   ProductExpansionToggled(this.isExpanded);
 }
+
+
+
+class ViewProductImageLoading extends RecepcionState {}
+class ViewProductImageSuccess extends RecepcionState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends RecepcionState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

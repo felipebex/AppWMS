@@ -37,6 +37,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:wms_app/src/services/webSocket_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final ApiRequestService apiRequestService = ApiRequestService();
@@ -45,6 +46,8 @@ final ApiRequestService apiRequestService = ApiRequestService();
 final internetChecker = CheckInternetConnection();
 final connectionStatusCubit =
     ConnectionStatusCubit(internetChecker: internetChecker);
+
+final WebSocketService webSocketService = WebSocketService();
 void main() async {
   // runZonedGuarded crea una zona de ejecución que captura errores no manejados
   await runZonedGuarded<Future<void>>(() async {
@@ -80,6 +83,8 @@ void main() async {
             exit(0); // Fuerza el cierre de la aplicación
           },
         );
+
+    webSocketService.connect();
 
     // 🚀 EJECUCIÓN DE LA APLICACIÓN
     // Inicia la aplicación Flutter

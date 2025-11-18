@@ -295,3 +295,16 @@ class AssignUserToBatchError extends PackingConsolidateState {
   final String error;
   AssignUserToBatchError(this.error);
 }
+
+
+class ViewProductImageLoading extends PackingConsolidateState {}
+
+class ViewProductImageSuccess extends PackingConsolidateState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends PackingConsolidateState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

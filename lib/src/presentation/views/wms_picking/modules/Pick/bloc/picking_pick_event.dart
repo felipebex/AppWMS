@@ -244,12 +244,12 @@ class LoadSelectedProductEvent extends PickingPickEvent {
   LoadSelectedProductEvent(this.selectedProduct);
 }
 
-
 class LoadHistoryPickEvent extends PickingPickEvent {
   final bool isLoadinDialog;
   final String date;
   LoadHistoryPickEvent(this.isLoadinDialog, this.date);
 }
+
 class LoadHistoryPickComponentEvent extends PickingPickEvent {
   final bool isLoadinDialog;
   final String date;
@@ -260,4 +260,9 @@ class LoadHistoryPickIdEvent extends PickingPickEvent {
   final bool isLoadinDialog;
   final int idPicking;
   LoadHistoryPickIdEvent(this.isLoadinDialog, this.idPicking);
+}
+
+class ViewProductImageEvent extends PickingPickEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
 }

@@ -11,10 +11,133 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/request_sendProducr_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_senProduct_mode.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/send_img_product_model.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/view_url_product_mode.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_new_lote_model.dart';
 
 class InventarioRepository {
+  Future<SendImgProduct> sendImageProduct(
+    int idProduct,
+    File imageFile,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return SendImgProduct(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      final response = await ApiRequestService().postMultipartDynamic(
+        endpoint: 'send_image_product',
+        imageFile: imageFile,
+        fields: {
+          'product_id': idProduct,
+        },
+      );
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+
+        if (jsonResponse['code'] == 400) {
+          return SendImgProduct(
+            msg: jsonResponse['msg'],
+            code: jsonResponse['code'],
+          );
+        } else if (jsonResponse['code'] == 200) {
+          return SendImgProduct(
+            code: jsonResponse['code'],
+            result: jsonResponse['result'],
+            imageUrl: jsonResponse['image_url'],
+            filename: jsonResponse['filename'],
+            productName: jsonResponse['product_name'],
+            productCode: jsonResponse['product_code'],
+            imageSize: jsonResponse['image_size'],
+          );
+        } else {
+          return SendImgProduct(); // Retornamos un objeto vacío en caso de error
+        }
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        print('Error al enviar la imagen del producto: ${response.statusCode}');
+        return SendImgProduct(); // Retornamos un objeto vacío en caso de error
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return SendImgProduct(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendImageProduct: $e, $s');
+      return SendImgProduct(); // Retornamos un objeto vacío en caso de error de red
+    }
+  }
+
+  Future<ViewUrlImgProduct> viewUrlImageProduct(
+    int idProduct,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ViewUrlImgProduct(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      final response = await ApiRequestService().get(
+        endpoint: 'get_imagen_product/$idProduct',
+        isunecodePath: true,
+        isLoadinDialog: isLoadingDialog,
+      );
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+
+        if (jsonResponse['result']['code'] == 200) {
+          return ViewUrlImgProduct(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: ViewUrlImgProductResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+                result: ResultResult(
+                  url: jsonResponse['result']['result']['url'],
+                ),
+              ));
+        } else {
+          return ViewUrlImgProduct(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: ViewUrlImgProductResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+              ));
+        }
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        print('Error al enviar la imagen del producto: ${response.statusCode}');
+        return ViewUrlImgProduct(); // Retornamos un objeto vacío en caso de error
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ViewUrlImgProduct(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendImageProduct: $e, $s');
+      return ViewUrlImgProduct(); // Retornamos un objeto vacío en caso de error de red
+    }
+  }
+
   Future<List<Product>> fetAllProducts(
     bool isLoadinDialog,
   ) async {

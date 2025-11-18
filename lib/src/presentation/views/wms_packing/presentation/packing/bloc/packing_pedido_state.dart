@@ -258,7 +258,6 @@ class CreateBackOrderOrNotFailure extends PackingPedidoState {
   CreateBackOrderOrNotFailure(this.error, this.isBackorder);
 }
 
-
 class ValidateConfirmLoading extends PackingPedidoState {}
 
 class ValidateConfirmSuccess extends PackingPedidoState {
@@ -273,7 +272,6 @@ class ValidateConfirmFailure extends PackingPedidoState {
   ValidateConfirmFailure(this.error);
 }
 
-
 class DeleteProductFromTemporaryPackageError extends PackingPedidoState {
   final String message;
   DeleteProductFromTemporaryPackageError(this.message);
@@ -281,5 +279,16 @@ class DeleteProductFromTemporaryPackageError extends PackingPedidoState {
 
 class DeleteProductFromTemporaryPackageOkState extends PackingPedidoState {}
 
-
 class DeleteProductFromTemporaryPackageLoading extends PackingPedidoState {}
+
+class ViewProductImageLoading extends PackingPedidoState {}
+
+class ViewProductImageSuccess extends PackingPedidoState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends PackingPedidoState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

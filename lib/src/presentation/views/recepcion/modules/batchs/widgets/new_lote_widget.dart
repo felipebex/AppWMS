@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import 'package:intl/intl.dart'; // Importamos el paquete intl
@@ -46,24 +47,26 @@ class _NewLoteScreenState extends State<NewLoteRecepBatchScreen> {
     final size = MediaQuery.sizeOf(context);
     return Scaffold(
       backgroundColor: white,
-      bottomNavigationBar:
-          !viewList && context.read<UserBloc>().fabricante.contains("Zebra")
-              ? Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 35,
-                  ),
-                  child: CustomKeyboard(
-                    isLogin: false,
-                    controller: context.read<RecepcionBatchBloc>().newLoteController,
-                    onchanged: () {
-                      context.read<RecepcionBatchBloc>().newLoteController.text = context.read<RecepcionBatchBloc>().newLoteController.text;
-                    },
-                  ),
-                )
-              : null,
+      bottomNavigationBar: !viewList &&
+              context.read<UserBloc>().fabricante.contains("Zebra")
+          ? Padding(
+              padding: const EdgeInsets.only(
+                bottom: 35,
+              ),
+              child: CustomKeyboard(
+                isLogin: false,
+                controller:
+                    context.read<RecepcionBatchBloc>().newLoteController,
+                onchanged: () {
+                  context.read<RecepcionBatchBloc>().newLoteController.text =
+                      context.read<RecepcionBatchBloc>().newLoteController.text;
+                },
+              ),
+            )
+          : null,
       body: BlocBuilder<RecepcionBatchBloc, RecepcionBatchState>(
         builder: (context, state) {
-    final bloc = context.read<RecepcionBatchBloc>();
+          final bloc = context.read<RecepcionBatchBloc>();
 
           return SizedBox(
             width: size.width * 1,
@@ -110,31 +113,7 @@ class _NewLoteScreenState extends State<NewLoteRecepBatchScreen> {
 
                         if (state is CreateLoteProductFailure) {
                           Navigator.pop(context);
-                          Get.defaultDialog(
-                            title: '360 Software Informa',
-                            titleStyle:
-                                TextStyle(color: Colors.red, fontSize: 18),
-                            middleText: state.error,
-                            middleTextStyle:
-                                TextStyle(color: black, fontSize: 14),
-                            backgroundColor: Colors.white,
-                            radius: 10,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Aceptar',
-                                    style: TextStyle(color: white)),
-                              ),
-                            ],
-                          );
+                          showScrollableErrorDialog(state.error);
                         }
                       }, builder: (context, status) {
                         return Column(
@@ -323,7 +302,7 @@ class _NewLoteScreenState extends State<NewLoteRecepBatchScreen> {
                             );
                           })),
                 ),
-                
+
                 Visibility(
                   visible: !viewList,
                   child: Expanded(

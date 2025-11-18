@@ -7,6 +7,7 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/transferencias/modules/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class Tab3ScreenTrans extends StatelessWidget {
   const Tab3ScreenTrans({
@@ -37,28 +38,7 @@ class Tab3ScreenTrans extends StatelessWidget {
             );
           } else if (state is DeleteLineTransferFailure) {
             Navigator.pop(context);
-            Get.defaultDialog(
-              title: '360 Software Informa',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: state.error,
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
+            showScrollableErrorDialog(state.error);
           } else if (state is DeleteLineTransferSuccess) {
             Navigator.pop(context);
             //mostramos una alerta

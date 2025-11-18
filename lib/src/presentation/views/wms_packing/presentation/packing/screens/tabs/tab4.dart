@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class Tab4PedidoScreen extends StatelessWidget {
   const Tab4PedidoScreen({super.key});
@@ -12,7 +13,14 @@ class Tab4PedidoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocBuilder<PackingPedidoBloc, PackingPedidoState>(
+    return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
+      listener: (context, state) {
+        if (state is ViewProductImageSuccess) {
+          showImageDialog(context, state.imageUrl);
+        } else if (state is ViewProductImageFailure) {
+          showScrollableErrorDialog(state.error);
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
@@ -194,6 +202,40 @@ class Tab4PedidoScreen extends StatelessWidget {
                                                                   fontSize: 12,
                                                                   color:
                                                                       black)),
+                                                      const Spacer(),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          context
+                                                              .read<
+                                                                  PackingPedidoBloc>()
+                                                              .add(ViewProductImageEvent(
+                                                                  product.idProduct ??
+                                                                      0));
+                                                        },
+                                                        child: Card(
+                                                          //borde
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                          ),
+                                                          elevation: 2,
+                                                          color: white,
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(2.0),
+                                                            child: Icon(
+                                                              Icons.image,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 15,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
                                                     ],
                                                   ),
                                                   Row(
@@ -215,7 +257,6 @@ class Tab4PedidoScreen extends StatelessWidget {
                                                                       black)),
                                                     ],
                                                   ),
-                                                 
                                                   Row(
                                                     children: [
                                                       Text(

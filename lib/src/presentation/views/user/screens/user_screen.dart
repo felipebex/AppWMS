@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventari
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 
 class UserScreen extends StatelessWidget {
@@ -90,29 +91,7 @@ class UserScreen extends StatelessWidget {
                 child: BlocConsumer<UserBloc, UserState>(
                   listener: (context, state) {
                     if (state is ConfigurationError) {
-                      Get.defaultDialog(
-                        title: '360 Software Informa',
-                        titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                        middleText: state.message,
-                        middleTextStyle: TextStyle(color: black, fontSize: 14),
-                        backgroundColor: Colors.white,
-                        radius: 10,
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColorApp,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child:
-                                Text('Aceptar', style: TextStyle(color: white)),
-                          ),
-                        ],
-                      );
+                      showScrollableErrorDialog(state.message);
                     }
                   },
                   builder: (context, state) {
@@ -515,40 +494,39 @@ class UserScreen extends StatelessWidget {
                                                             primaryColorApp)),
                                               ),
                                               const SizedBox(height: 10),
-                                               Row(
-                                                  children: [
-                                                    const Text(
-                                                        "Acceso al modulo de produccion: ",
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: black)),
-                                                    const Spacer(),
-                                                    Checkbox(
-                                                        value: config
-                                                                .result
-                                                                ?.result
-                                                                ?.accessProductionModule ??
-                                                            false,
-                                                        onChanged: null),
-                                                    IconButton(
-                                                        onPressed: () {
-                                                          showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return const DialogInfo(
-                                                                  title:
-                                                                      "Acceso al modulo de produccion",
-                                                                  body:
-                                                                      "Acceso al modulo de produccion en la aplicacion",
-                                                                );
-                                                              });
-                                                        },
-                                                        icon: Icon(Icons.help,
-                                                            color:
-                                                                primaryColorApp))
-                                                  ],
-                                                ),
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                      "Acceso al modulo de produccion: ",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black)),
+                                                  const Spacer(),
+                                                  Checkbox(
+                                                      value: config
+                                                              .result
+                                                              ?.result
+                                                              ?.accessProductionModule ??
+                                                          false,
+                                                      onChanged: null),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return const DialogInfo(
+                                                                title:
+                                                                    "Acceso al modulo de produccion",
+                                                                body:
+                                                                    "Acceso al modulo de produccion en la aplicacion",
+                                                              );
+                                                            });
+                                                      },
+                                                      icon: Icon(Icons.help,
+                                                          color:
+                                                              primaryColorApp))
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ),

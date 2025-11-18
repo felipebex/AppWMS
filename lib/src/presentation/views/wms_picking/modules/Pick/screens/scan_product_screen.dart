@@ -13,12 +13,14 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/cant_lineas_muelle_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
@@ -413,6 +415,12 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                       }, listener: (context, state) {
                         print("❤️‍🔥 state ::: $state");
 
+                        if (state is ViewProductImageSuccess) {
+                          showImageDialog(context, state.imageUrl);
+                        } else if (state is ViewProductImageFailure) {
+                          showScrollableErrorDialog(state.error);
+                        }
+
                         if (state is CreateBackOrderOrNotLoading) {
                           showDialog(
                             context: context,
@@ -465,31 +473,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
 
                         if (state is SendProductPickOdooError) {
                           Navigator.pop(context);
-                          Get.defaultDialog(
-                            title: '360 Software Informa',
-                            titleStyle:
-                                TextStyle(color: Colors.red, fontSize: 18),
-                            middleText: state.error,
-                            middleTextStyle:
-                                TextStyle(color: black, fontSize: 14),
-                            backgroundColor: Colors.white,
-                            radius: 10,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Aceptar',
-                                    style: TextStyle(color: white)),
-                              ),
-                            ],
-                          );
+                          showScrollableErrorDialog(state.error);
                         }
 
                         if (state is MuellesLoadingState) {
@@ -506,31 +490,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                         if (state is MuellesErrorState) {
                           Navigator.pop(context);
 
-                          Get.defaultDialog(
-                            title: '360 Software Informa',
-                            titleStyle:
-                                TextStyle(color: Colors.red, fontSize: 18),
-                            middleText: state.error,
-                            middleTextStyle:
-                                TextStyle(color: black, fontSize: 14),
-                            backgroundColor: Colors.white,
-                            radius: 10,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Aceptar',
-                                    style: TextStyle(color: white)),
-                              ),
-                            ],
-                          );
+                          showScrollableErrorDialog(state.error);
                         }
 
                         if (state is MuellesLoadedState) {
@@ -552,31 +512,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                         if (state is ValidateConfirmFailure) {
                           Navigator.pop(context);
 
-                          Get.defaultDialog(
-                            title: '360 Software Informa',
-                            titleStyle:
-                                TextStyle(color: Colors.red, fontSize: 18),
-                            middleText: state.error,
-                            middleTextStyle:
-                                TextStyle(color: black, fontSize: 14),
-                            backgroundColor: Colors.white,
-                            radius: 10,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Aceptar',
-                                    style: TextStyle(color: white)),
-                              ),
-                            ],
-                          );
+                          showScrollableErrorDialog(state.error);
                         }
 
                         if (state is CreateBackOrderOrNotFailure) {
@@ -630,31 +566,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                               ],
                             );
                           } else {
-                            Get.defaultDialog(
-                              title: '360 Software Informa',
-                              titleStyle:
-                                  TextStyle(color: Colors.red, fontSize: 18),
-                              middleText: state.error,
-                              middleTextStyle:
-                                  TextStyle(color: black, fontSize: 14),
-                              backgroundColor: Colors.white,
-                              radius: 10,
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Get.back();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: primaryColorApp,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Text('Aceptar',
-                                      style: TextStyle(color: white)),
-                                ),
-                              ],
-                            );
+                            showScrollableErrorDialog(state.error);
                           }
                         }
 
@@ -1063,6 +975,30 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                               validateProduct(value);
                                             },
                                             decoration: InputDecoration(
+                                              suffixIcon: GestureDetector(
+                                                onTap: () {
+                                                  context
+                                                      .read<PickingPickBloc>()
+                                                      .add(ViewProductImageEvent(
+                                                          currentProduct
+                                                                  .idProduct ??
+                                                              0));
+                                                },
+                                                child: Card(
+                                                  elevation: 2,
+                                                  color: white,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Icon(
+                                                      Icons.image,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                               hintText:
                                                   "${batchBloc.currentProduct.productId}",
                                               // .toString(),
@@ -1303,12 +1239,55 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                       CrossAxisAlignment
                                                           .start, //alineamos el texto a la izquierda
                                                   children: [
-                                                    Text(
-                                                      "${currentProduct.productId}",
-                                                      maxLines: 3,
-                                                      style: const TextStyle(
-                                                          fontSize: 13,
-                                                          color: black),
+                                                    Row(
+                                                      children: [
+                                                        Flexible(
+                                                          child: Text(
+                                                            "${currentProduct.productId}",
+                                                            maxLines: 3,
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color:
+                                                                        black),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 2),
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerRight,
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              context
+                                                                  .read<
+                                                                      PickingPickBloc>()
+                                                                  .add(ViewProductImageEvent(
+                                                                      currentProduct
+                                                                              .idProduct ??
+                                                                          0));
+                                                            },
+                                                            child: Card(
+                                                              elevation: 2,
+                                                              color: white,
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                  Icons.image,
+                                                                  color:
+                                                                      primaryColorApp,
+                                                                  size: 20,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
                                                     ),
                                                     Align(
                                                       alignment:

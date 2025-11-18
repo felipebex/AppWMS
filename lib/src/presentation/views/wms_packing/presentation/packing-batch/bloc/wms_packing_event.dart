@@ -265,11 +265,15 @@ class LoadDocOriginsEvent extends WmsPackingEvent {
   LoadDocOriginsEvent(this.idBatch);
 }
 
-
 class DeleteProductFromTemporaryPackageEvent extends WmsPackingEvent {
   final ProductoPedido product;
 
   DeleteProductFromTemporaryPackageEvent({
     required this.product,
   });
+}
+
+class ViewProductImageEvent extends WmsPackingEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
 }

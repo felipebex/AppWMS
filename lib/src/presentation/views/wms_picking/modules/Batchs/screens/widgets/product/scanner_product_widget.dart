@@ -19,6 +19,7 @@ class ProductScannerWidget extends StatelessWidget {
   final String? expireDate;
   final Size size;
   final Function(String) onValidateProduct;
+  final VoidCallback? onViewImgProduct;
   final Function(String keyLabel)? onKeyScanned;
   final FocusNode focusNode;
   final TextEditingController controller;
@@ -43,6 +44,7 @@ class ProductScannerWidget extends StatelessWidget {
     required this.expireDate,
     required this.size,
     required this.onValidateProduct,
+     this.onViewImgProduct,
     this.onKeyScanned,
     required this.focusNode,
     required this.controller,
@@ -100,8 +102,37 @@ class ProductScannerWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         productDropdown,
-                        Text(currentProductId,
-                            style: TextStyle(fontSize: 12, color: black)),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(currentProductId,
+                                  style: TextStyle(fontSize: 12, color: black)),
+                            ),
+                            const SizedBox(width: 2),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (onViewImgProduct != null) {
+                                    onViewImgProduct!();
+                                  }
+                                },
+                                child: Card(
+                                  elevation: 2,
+                                  color: white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.image,
+                                      color: primaryColorApp,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 10),
                         Row(
                           children: [

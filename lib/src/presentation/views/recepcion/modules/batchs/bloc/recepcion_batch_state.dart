@@ -264,3 +264,14 @@ class ChangeLoteOrderIsOkState extends RecepcionBatchState {
 
 //estado para decir que el dispositivo no esta autorizado
 final class DeviceNotAuthorized extends RecepcionBatchState {}
+
+class ViewProductImageLoading extends RecepcionBatchState {}
+class ViewProductImageSuccess extends RecepcionBatchState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends RecepcionBatchState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

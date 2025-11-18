@@ -8,6 +8,7 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 // import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_edit_product_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_edit_product_widget.dart';
@@ -45,34 +47,16 @@ class PickDetailScreen extends StatelessWidget {
               });
         }
 
+        if (state is ViewProductImageSuccess) {
+          showImageDialog(context, state.imageUrl);
+        } else if (state is ViewProductImageFailure) {
+          showScrollableErrorDialog(state.error);
+        }
+
         if (state is SendProductPickOdooError) {
           Navigator.pop(context);
-          // ErrorDialog.show(
-          //   error: state.error,
-          //   request: state.transferRequest.toMap(),
-          // );
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+
+          showScrollableErrorDialog(state.error);
         }
 
         if (state is SendProductPickOdooSuccess) {
@@ -503,6 +487,65 @@ class PickDetailScreen extends StatelessWidget {
                                                         ),
                                                       ),
                                                     ],
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 5),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    //icono de imagen
+                                                    Icon(
+                                                      Icons.image,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                        'Imagen del producto: ',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black,
+                                                        )),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        context
+                                                            .read<
+                                                                PickingPickBloc>()
+                                                            .add(ViewProductImageEvent(
+                                                                productsBatch
+                                                                        .idProduct ??
+                                                                    0));
+                                                      },
+                                                      child: Card(
+                                                        //borde
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5),
+                                                        ),
+                                                        elevation: 2,
+                                                        color: white,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(2.0),
+                                                          child: Icon(
+                                                            Icons.image,
+                                                            color:
+                                                                primaryColorApp,
+                                                            size: 15,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -1158,7 +1201,6 @@ class DialogoConfirmateProductLoad extends StatelessWidget {
   }
 }
 
-
 // 🔧 Función auxiliar para mostrar errores
 Widget _buildErrorWidget(int index, int totalLength) {
   return Card(
@@ -1173,18 +1215,12 @@ Widget _buildErrorWidget(int index, int totalLength) {
           Text(
             'Error de índice',
             style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-              fontSize: 12
-            ),
+                color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
           ),
           SizedBox(height: 4),
           Text(
             'Índice: $index\nTotal: $totalLength',
-            style: TextStyle(
-              color: Colors.red[700],
-              fontSize: 10
-            ),
+            style: TextStyle(color: Colors.red[700], fontSize: 10),
             textAlign: TextAlign.center,
           ),
         ],

@@ -6,6 +6,7 @@ import 'package:wms_app/src/core/utils/formats_utils.dart';
 import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
@@ -98,6 +99,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   //*indice del producto actual
   int index = 0;
 
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
+
   BatchBloc() : super(BatchInitial()) {
     on<LoadConfigurationsUser>(_onLoadConfigurationsUserEvent);
 
@@ -171,14 +175,40 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //evento par aobtener todos los muelles disponibles
     on<FetchMuellesEvent>(_onFetchMuellesEvent);
 
-
     //*evento para cargar un producto seleccionado
     on<LoadSelectedProductEvent>(_onLoadSelectedProductEvent);
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
   }
 
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<BatchState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
+  }
 
   //metodo para cargar un producto seleccionado
-  void _onLoadSelectedProductEvent(LoadSelectedProductEvent event, Emitter<BatchState> emit) {
+  void _onLoadSelectedProductEvent(
+      LoadSelectedProductEvent event, Emitter<BatchState> emit) {
     try {
       currentProduct = event.selectedProduct;
       quantitySelected = currentProduct.quantitySeparate ?? 0;

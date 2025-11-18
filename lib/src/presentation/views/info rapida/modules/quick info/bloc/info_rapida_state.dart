@@ -160,3 +160,16 @@ class SortProductsFailure extends InfoRapidaState {
   final String error;
   SortProductsFailure(this.error);
 }
+
+
+class ViewProductImageLoading extends InfoRapidaState {}
+
+class ViewProductImageSuccess extends InfoRapidaState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends InfoRapidaState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

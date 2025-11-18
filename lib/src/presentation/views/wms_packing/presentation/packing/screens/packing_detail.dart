@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -11,6 +10,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab3.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab4.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class PackingPedidoDetailScreen extends StatefulWidget {
   const PackingPedidoDetailScreen({
@@ -47,34 +47,11 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.sizeOf(context);
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
       listener: (context, state) {
         if (state is WmsPackingErrorState) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+           showScrollableErrorDialog( state.error);
         }
-       
       },
       builder: (context, state) {
         return WillPopScope(
@@ -88,7 +65,6 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-               
                   context.read<PackingPedidoBloc>().add(
                         LoadPackingPedidoFromDBEvent(),
                       );
@@ -116,7 +92,7 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                tabs: const [
+                tabs: [
                   Tab(
                     text: 'Detalles',
                     icon: Icon(
@@ -125,29 +101,95 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
                       size: 20,
                     ),
                   ),
-                  Tab(
-                    text: 'Por hacer',
-                    icon: Icon(
-                      Icons.pending_actions,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Por hacer',
+                        icon: Icon(
+                          Icons.pending_actions,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            context
+                                .read<PackingPedidoBloc>()
+                                .listOfProductosProgress
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Preparado',
-                    icon: Icon(
-                      Icons.star,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Preparado',
+                        icon: Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: yellow,
+                          child: Text(
+                            context
+                                .read<PackingPedidoBloc>()
+                                .productsDone
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Tab(
-                    text: 'Listo',
-                    icon: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                  Stack(
+                    children: [
+                      Tab(
+                        text: 'Listo',
+                        icon: Icon(
+                          Icons.done,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: green,
+                          child: Text(
+                            context
+                                .read<PackingPedidoBloc>()
+                                .productsDonePacking
+                                .length
+                                .toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

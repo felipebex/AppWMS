@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_done_id_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/history_pick/index_list_pick__done_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 
 class DetailPickDoneScreen extends StatelessWidget {
   final bool isFromPick;
@@ -104,28 +105,7 @@ class DetailPickDoneScreen extends StatelessWidget {
                   ],
                 );
               } else {
-                Get.defaultDialog(
-                  title: '360 Software Informa',
-                  titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-                  middleText: state.error,
-                  middleTextStyle: TextStyle(color: black, fontSize: 14),
-                  backgroundColor: Colors.white,
-                  radius: 10,
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColorApp,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('Aceptar', style: TextStyle(color: white)),
-                    ),
-                  ],
-                );
+                showScrollableErrorDialog(state.error);
               }
             }
           },
@@ -168,7 +148,7 @@ class DetailPickDoneScreen extends StatelessWidget {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                   IndexListPickDoneScreen(
+                                                  IndexListPickDoneScreen(
                                                     isFromPick: isFromPick,
                                                   )),
                                           (route) => false);

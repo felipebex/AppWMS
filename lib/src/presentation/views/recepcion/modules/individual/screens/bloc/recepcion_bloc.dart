@@ -10,6 +10,7 @@ import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_model.dart';
@@ -117,6 +118,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   //*configuracion del usuario //permisos
   Configurations configurations = Configurations();
 
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
+
   RecepcionBloc() : super(RecepcionInitial()) {
     on<RecepcionEvent>((event, emit) {});
     //*obtener todas las ordenes de compra
@@ -219,10 +223,38 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     // ToggleProductExpansionEvent
     on<ToggleProductExpansionEvent>(_onToggleProductExpansionEvent);
 
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+
     //todo devoluciones
     on<FetchDevoluciones>(_onFetchDevoluciones);
     on<FetchDevolucionesOfDB>(_onFetchDevolucionesOfDB);
     on<SearchDevolucionEvent>(_onSearchDevolucionEvent);
+  }
+
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   void _onToggleProductExpansionEvent(

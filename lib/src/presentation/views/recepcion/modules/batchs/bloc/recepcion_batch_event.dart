@@ -204,3 +204,8 @@ class SelectecLoteEvent extends RecepcionBatchEvent {
   SelectecLoteEvent(this.lote);
 }
 
+
+class ViewProductImageEvent extends RecepcionBatchEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
+}

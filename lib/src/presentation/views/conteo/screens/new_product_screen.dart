@@ -24,6 +24,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 class NewProductConteoScreen extends StatefulWidget {
@@ -375,31 +376,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                                   cantidadController: cantidadController);
                             });
                       } else if (state is SendProductConteoFailure) {
-                        Get.defaultDialog(
-                          title: '360 Software Informa',
-                          titleStyle:
-                              TextStyle(color: Colors.red, fontSize: 18),
-                          middleText: state.error,
-                          middleTextStyle:
-                              TextStyle(color: black, fontSize: 14),
-                          backgroundColor: Colors.white,
-                          radius: 10,
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.back();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColorApp,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text('Aceptar',
-                                  style: TextStyle(color: white)),
-                            ),
-                          ],
-                        );
+                        showScrollableErrorDialog(state.error);
                       }
 
                       // * validamos en todo cambio de estado de cantidad separada
@@ -633,7 +610,7 @@ class _NewProductConteoScreenState extends State<NewProductConteoScreen>
                   ),
                 ),
               ),
-              //todo: cantidad 
+              //todo: cantidad
               QuantityScannerWidget(
                 size: size,
                 isQuantityOk: context.read<ConteoBloc>().isQuantityOk,

@@ -18,6 +18,7 @@ import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/dia
 import 'package:wms_app/src/presentation/views/conteo/screens/widgets/product/product_dropdown_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/location/scanner_location_widget.dart';
@@ -25,6 +26,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 import '../../../providers/network/check_internet_connection.dart';
@@ -322,13 +324,12 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
     _controllerQuantity.clear();
     final currentProduct = bloc.currentProduct;
 
-    if (scan == currentProduct?.productBarcode?.toLowerCase()) {
+    if (scan == currentProduct.productBarcode?.toLowerCase()) {
       bloc.add(AddQuantitySeparate(currentProduct.productId ?? 0,
           currentProduct.orderId ?? 0, currentProduct.idMove ?? 0, 1, false));
       bloc.add(ClearScannedValueEvent('quantity'));
     } else {
-      validateScannedBarcode(
-          scan, currentProduct ?? CountedLine(), bloc, false);
+      validateScannedBarcode(scan, currentProduct, bloc, false);
       bloc.add(ClearScannedValueEvent('quantity'));
     }
   }
@@ -357,32 +358,14 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                             listener: (context, state) {
                           print("❤️‍🔥 state : $state");
 
+                          if (state is ViewProductImageSuccess) {
+                            showImageDialog(context, state.imageUrl);
+                          } else if (state is ViewProductImageFailure) {
+                             showScrollableErrorDialog( state.error);
+                          }
+
                           if (state is SendProductConteoFailure) {
-                            Get.defaultDialog(
-                              title: '360 Software Informa',
-                              titleStyle:
-                                  TextStyle(color: Colors.red, fontSize: 18),
-                              middleText: state.error,
-                              middleTextStyle:
-                                  TextStyle(color: black, fontSize: 14),
-                              backgroundColor: Colors.white,
-                              radius: 10,
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Get.back();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: primaryColorApp,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Text('Aceptar',
-                                      style: TextStyle(color: white)),
-                                ),
-                              ],
-                            );
+                            showScrollableErrorDialog( state.error);
                           }
 
                           // * validamos en todo cambio de estado de cantidad separada
@@ -664,6 +647,14 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                   },
                                 );
                               },
+                              onViewImgProduct: () {
+                                context.read<ConteoBloc>().add(
+                                    ViewProductImageEvent(context
+                                            .read<ConteoBloc>()
+                                            .currentProduct
+                                            .productId ??
+                                        0));
+                              },
                             ),
 
                             //todo: lotes
@@ -672,7 +663,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                               visible: context
                                       .read<ConteoBloc>()
                                       .currentProduct
-                                      ?.productTracking ==
+                                      .productTracking ==
                                   "lot",
                               child: Row(
                                 children: [
@@ -1129,7 +1120,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
     //   return;
     // }
 
-    if (bloc.currentProduct?.productTracking == 'lot') {
+    if (bloc.currentProduct.productTracking == 'lot') {
       if (bloc.currentProductLote?.id == null) {
         _audioService.playErrorSound();
         _vibrationService.vibrate();

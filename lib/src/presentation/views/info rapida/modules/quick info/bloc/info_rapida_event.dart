@@ -98,3 +98,8 @@ class SortProductsEvent extends InfoRapidaEvent {
   final bool ascending;
   SortProductsEvent(this.ascending);
 }
+
+class ViewProductImageEvent extends InfoRapidaEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
+}

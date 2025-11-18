@@ -11,8 +11,10 @@ import 'package:wms_app/src/presentation/views/info%20rapida/models/update_produ
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/widgets/info_widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/bloc/transfer_info_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
@@ -78,6 +80,10 @@ class ProductInfoScreen extends StatelessWidget {
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.red),
           );
+        } else if (state is ViewProductImageSuccess) {
+          showImageDialog(context, state.imageUrl);
+        } else if (state is ViewProductImageFailure) {
+          showScrollableErrorDialog(state.error);
         }
       },
       builder: (context, state) {
@@ -117,6 +123,36 @@ class ProductInfoScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
+                            Row(
+                              children: [
+                                Text('Imagen del producto',
+                                    style: TextStyle(
+                                        color: black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold)),
+                                const Spacer(),
+                                GestureDetector(
+                                  onTap: () {
+                                    context.read<InfoRapidaBloc>().add(
+                                        ViewProductImageEvent(
+                                            product?.id ?? 0));
+                                  },
+                                  child: Card(
+                                    elevation: 2,
+                                    color: white,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(
+                                        Icons.image,
+                                        color: primaryColorApp,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
                             EditableReferenceRow(
                               title: 'Nombre: ',
                               isEditMode: bloc.isEdit,

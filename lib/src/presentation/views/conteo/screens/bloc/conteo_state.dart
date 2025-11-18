@@ -6,7 +6,9 @@ sealed class ConteoState {}
 final class ConteoInitial extends ConteoState {}
 
 class ConteoLoading extends ConteoState {}
+
 class NeedUpdateVersionState extends ConteoState {}
+
 final class ConteoLoaded extends ConteoState {
   final List<DatumConteo> conteos;
 
@@ -243,12 +245,23 @@ class GetProductsFailure extends ConteoState {
 
 class UpdateProductLoadingEvent extends ConteoState {}
 
-class ResetValuesState extends ConteoState {
-}
-class ResetValuesLoadingState extends ConteoState {
-}
+class ResetValuesState extends ConteoState {}
+
+class ResetValuesLoadingState extends ConteoState {}
 
 class OrderConteosByStateSuccess extends ConteoState {
   final List<DatumConteo> conteos;
   OrderConteosByStateSuccess(this.conteos);
+}
+
+class ViewProductImageLoading extends ConteoState {}
+
+class ViewProductImageSuccess extends ConteoState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends ConteoState {
+  final String error;
+  ViewProductImageFailure(this.error);
 }
