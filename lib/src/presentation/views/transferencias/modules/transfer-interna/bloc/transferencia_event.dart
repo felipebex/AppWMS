@@ -230,3 +230,9 @@ class ToggleProductExpansionEvent extends TransferenciaEvent {
 
   ToggleProductExpansionEvent(this.isExpanded);
 }
+
+
+class ViewProductImageEvent extends TransferenciaEvent {
+  final int idProduct;
+  ViewProductImageEvent(this.idProduct);
+}

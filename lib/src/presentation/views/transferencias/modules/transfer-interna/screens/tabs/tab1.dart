@@ -223,7 +223,9 @@ class Tab1ScreenTrans extends StatelessWidget {
           final totalEnviadas = context
               .read<TransferenciaBloc>()
               .listProductsTransfer
-              .map((e) => e.quantityDone ?? 0)
+              .map((e) {
+                return e.quantityDone ?? 0;
+              })
               .fold<double>(0, (a, b) => a + b);
 
           return Scaffold(

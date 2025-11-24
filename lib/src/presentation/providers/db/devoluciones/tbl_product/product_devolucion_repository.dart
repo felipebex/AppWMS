@@ -277,4 +277,28 @@ class ProductDevolucionRepository {
       print("❌ Error en updateProductoDevolucion: $e ==> $s");
     }
   }
+
+
+
+
+  //metodo para actualizar un campo especifico de un producto en la tabla de devoluciones
+  Future<int?> setFieldTableProductDevolucion(
+      int productId, String field, dynamic setValue, int lotId) async {
+    try {
+      Database db = await _databaseProvider.getDatabaseInstance();
+      final resUpdate = await db.rawUpdate(
+          'UPDATE ${ProductDevolucionTable.tableName} SET $field = ? '
+          'WHERE ${ProductDevolucionTable.columnProductId} = ? '
+          'AND ${ProductDevolucionTable.columnLotId} = ?',
+          [setValue, productId, lotId]);
+      print(
+          "update TableProductDevolucion (productId ----($productId)). ($field): $resUpdate");
+      return resUpdate;
+    } catch (e, s) {
+      print(
+          "❌ Error en setFieldTableProductDevolucion: $e ==> $s");
+      return null;
+    }
+  }
+
 }

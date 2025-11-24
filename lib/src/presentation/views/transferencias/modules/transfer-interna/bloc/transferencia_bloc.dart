@@ -8,6 +8,7 @@ import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
@@ -101,6 +102,9 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
   //tranferencia actual
   ResultTransFerencias currentTransferencia = ResultTransFerencias();
+
+  //repositorio de inventario
+  InventarioRepository inventarioRepository = InventarioRepository();
 
   TransferenciaBloc() : super(TransferenciaInitial()) {
     on<TransferenciaEvent>((event, emit) {});
@@ -202,6 +206,33 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     on<FetchAllEntrega>(_onfetchEntrega);
     //metodo para obtener todas las transferencias de la base de datos
     on<FetchAllEntregaDB>(_onfetchEntradaDB);
+    on<ViewProductImageEvent>(_onViewProductImageEvent);
+  }
+
+  void _onViewProductImageEvent(
+      ViewProductImageEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      print('Obteniendo imagen del producto con ID: ${event.idProduct}');
+      emit(ViewProductImageLoading());
+
+      final response =
+          await inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result == null ||
+            response.result?.result?.url == null ||
+            response.result?.result?.url == '') {
+          emit(ViewProductImageFailure('Imagen no disponible'));
+          return;
+        }
+        emit(ViewProductImageSuccess(response.result?.result?.url ?? ''));
+      } else {
+        emit(ViewProductImageFailure('Imagen no disponible'));
+      }
+    } catch (e, s) {
+      print('Error en el ViewProductImageEvent: $e, $s');
+      emit(ViewProductImageFailure(e.toString()));
+    }
   }
 
   void _onToggleProductExpansionEvent(
@@ -299,7 +330,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           event.idTransfer,
           event.idProduct,
           'quantity_done',
-          response.result?.result?.cantidadFaltante ?? 0,
+          0,
           event.idMove,
         );
         await db.productTransferenciaRepository

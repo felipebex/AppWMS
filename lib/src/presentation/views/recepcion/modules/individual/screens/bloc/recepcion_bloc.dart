@@ -984,6 +984,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       );
 
       if (responseSend.result?.code == 200) {
+        //AISGAMOS EL NOMBRE DE LA UBICACION DESTINO
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion ?? 0,
+            int.parse(currentProduct.productId),
+            "location_dest_name",
+            configurations.result?.result?.scanDestinationLocationReception ==
+                    true
+                ? currentUbicationDest?.name ?? ''
+                : productBD?.locationDestName ?? '',
+            currentProduct.idMove ?? 0);
         // marcamos tiempo final de sepfaracion
         await db.productEntradaRepository.setFieldTableProductEntrada(
             currentProduct.idRecepcion ?? 0,

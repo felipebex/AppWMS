@@ -358,3 +358,16 @@ class ProductExpansionToggled extends TransferenciaState {
 
   ProductExpansionToggled(this.isExpanded);
 }
+
+
+
+class ViewProductImageLoading extends TransferenciaState {}
+class ViewProductImageSuccess extends TransferenciaState {
+  final String imageUrl;
+  ViewProductImageSuccess(this.imageUrl);
+}
+
+class ViewProductImageFailure extends TransferenciaState {
+  final String error;
+  ViewProductImageFailure(this.error);
+}

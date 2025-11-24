@@ -234,6 +234,8 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       );
 
       if (response.result?.code == 200) {
+
+
         //limpiamos los campos
         add(ClearValueEvent());
         emit(SendDevolucionSuccess(response));
@@ -737,14 +739,10 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
         add(GetLotesProduct());
       }
 
-
       // Actualizar el producto actual
       currentProduct = product;
       viewQuantity = false;
       quantitySelected = 0;
-
-
-      
     } else {
       // Buscar coincidencia directa por barcode o code
       final matchedProduct = productos.firstWhere(

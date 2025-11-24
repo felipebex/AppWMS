@@ -290,7 +290,7 @@ class ProductTransferenciaRepository {
     );
 
     print(
-        "update TableProductTransfer (idProduct ----($productId)) -------($field): $resUpdate");
+        "update setFieldTableProductTransferDone (idProduct ----($productId)) -------($field): $resUpdate");
 
     return resUpdate;
   }

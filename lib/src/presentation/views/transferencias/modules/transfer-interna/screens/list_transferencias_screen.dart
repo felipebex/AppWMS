@@ -571,16 +571,18 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                   size: 15,
                                                 ),
                                                 const SizedBox(width: 5),
-                                                Text(
-                                                  transferenciaDetail.origin ==
-                                                          ""
-                                                      ? 'Sin orden de compra'
-                                                      : transferenciaDetail
-                                                              .origin ??
-                                                          '',
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black),
+                                                Flexible(
+                                                  child: Text(
+                                                    transferenciaDetail.origin ==
+                                                            ""
+                                                        ? 'Sin orden de compra'
+                                                        : transferenciaDetail
+                                                                .origin ??
+                                                            '',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
                                                 ),
                                               ],
                                             ),
