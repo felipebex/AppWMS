@@ -169,28 +169,39 @@ class _ListPackingConsolidadeScreenState
     }
   }
 
-  void goBatchInfo(BuildContext context, PackingConsolidateBloc batchBloc,
-      BatchPackingModel batch) async {
-    // mostramos un dialogo de carga y despues
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // No permitir que el usuario cierre el diálogo manualmente
-      builder: (_) => const DialogLoading(
+void goBatchInfo(BuildContext context, PackingConsolidateBloc batchBloc,
+    BatchPackingModel batch) async {
+  
+  // 1. Variable para capturar el contexto del diálogo (para pop seguro)
+  BuildContext? dialogContext;
+  
+  // 2. Mostrar Diálogo (Capturando el contexto)
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) {
+      dialogContext = ctx; // ✅ Capturamos el contexto del diálogo
+      return const DialogLoading(
         message: 'Cargando interfaz...',
-      ),
-    );
+      );
+    },
+  );
 
-    await Future.delayed(const Duration(seconds: 1));
-    Navigator.pop(context);
+  await Future.delayed(const Duration(seconds: 1));
 
-    Navigator.pushReplacementNamed(
-      context,
-      'pedido-packing-consolidate-list',
-      arguments: [batch],
-    );
+  // 3. Cierre Seguro del Diálogo (El fix para el crash de Navigator)
+  if (dialogContext != null) {
+    Navigator.of(dialogContext!, rootNavigator: true).pop(); // ✅ Uso seguro del contexto capturado
   }
 
+  // 4. Navegación (Lógica sin cambios)
+  Navigator.pushReplacementNamed(
+    context,
+    'pedido-packing-consolidate-list',
+    // ✅ 5. Verificación de la variable `batch` antes de usarla como argumento (Si fuera nula)
+    arguments: [batch], 
+  );
+}
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);

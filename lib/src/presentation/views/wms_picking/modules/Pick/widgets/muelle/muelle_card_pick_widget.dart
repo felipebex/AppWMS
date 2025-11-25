@@ -14,13 +14,11 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 class MuellePickDropdownWidget extends StatefulWidget {
   final String? selectedMuelle;
   final ProductsBatch currentProduct;
-  final bool isPda;
 
   const MuellePickDropdownWidget({
     super.key,
     required this.selectedMuelle,
     required this.currentProduct,
-    required this.isPda,
   });
 
   @override
@@ -149,43 +147,12 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                           context.read<PickingPickBloc>().add(
                               ValidateFieldsEvent(
                                   field: "locationDest", isOk: false));
-                          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          //   duration: const Duration(milliseconds: 1000),
-                          //   content: const Text('Muelle erróneo'),
-                          //   backgroundColor: Colors.red[200],
-                          // ));
                         }
                       }
                     : null,
           ),
 
-          Visibility(
-            visible: widget.isPda,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                context
-                            .read<PickingPickBloc>()
-                            .configurations
-                            .result
-                            ?.result
-                            ?.muelleOption ==
-                        "multiple"
-                    ? context
-                            .read<PickingPickBloc>()
-                            .currentProduct
-                            .locationDestId ??
-                        ""
-                    : context
-                            .read<PickingPickBloc>()
-                            .pickWithProducts
-                            .pick
-                            ?.muelle ??
-                        "",
-                style: const TextStyle(fontSize: 14, color: black),
-              ),
-            ),
-          ),
+        
           Align(
             alignment: Alignment.centerLeft,
             child: Visibility(

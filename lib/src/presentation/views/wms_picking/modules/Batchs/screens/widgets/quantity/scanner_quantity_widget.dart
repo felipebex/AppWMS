@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 
 class QuantityScannerWidget extends StatelessWidget {
   final Size size;
@@ -138,53 +136,41 @@ class QuantityScannerWidget extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 5),
                         height: 30,
                         alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: context
-                                  .read<UserBloc>()
-                                  .fabricante
-                                  .contains("Zebra")
-                              ? TextFormField(
-                                  showCursor: false,
-                                  textAlign: TextAlign.center,
-                                  enabled: locationIsOk &&
-                                      productIsOk &&
-                                      quantityIsOk &&
-                                      !locationDestIsOk,
-                                  controller: controller,
-                                  focusNode: scannerFocusNode,
-                                  onChanged: onValidateScannerInput,
-                                  decoration: InputDecoration(
-                                    hintText: quantitySelected.toString(),
-                                    disabledBorder: InputBorder.none,
-                                    hintStyle: const TextStyle(
-                                        fontSize: 13, color: black),
-                                    border: InputBorder.none,
-                                  ),
-                                )
-                              : Focus(
-                                  focusNode: scannerFocusNode,
-                                  onKey: (node, event) {
-                                    if (event is RawKeyDownEvent) {
-                                      if (event.logicalKey ==
-                                          LogicalKeyboardKey.enter) {
-                                        onValidateScannerInput(controller.text);
-                                        return KeyEventResult.handled;
-                                      } else {
-                                        onKeyScanned(event.data.keyLabel);
-                                      }
-                                      return KeyEventResult.handled;
-                                    }
-                                    return KeyEventResult.ignored;
-                                  },
-                                  child: Text(
-                                    quantitySelected.toString(),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: black, fontSize: 14),
-                                  ),
-                                ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.only(top: 5),
+                              alignment: Alignment.center,
+                              child: Text(
+                                quantitySelected.toString(),
+                                textAlign: TextAlign.center,
+                                style:
+                                    const TextStyle(fontSize: 13, color: black),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.none,
+                              showCursor: false,
+                              textInputAction: TextInputAction.done,
+                              enabled: locationIsOk &&
+                                  productIsOk &&
+                                  quantityIsOk &&
+                                  !locationDestIsOk,
+                              controller: controller,
+                              focusNode: scannerFocusNode,
+                              onFieldSubmitted: onValidateScannerInput,
+                              style: const TextStyle(color: Colors.transparent),
+                              decoration: InputDecoration(
+                                hintText: null,
+                                hintStyle:
+                                    const TextStyle(color: Colors.transparent),
+                                disabledBorder: InputBorder.none,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -242,8 +228,6 @@ class QuantityScannerWidget extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 14)),
             ),
           ),
-          if (viewQuantity && showKeyboard && customKeyboard != null)
-            customKeyboard!,
         ],
       ),
     );

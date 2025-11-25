@@ -16,10 +16,13 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/location/scanner_location_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/muelle/scanner_locationDest_widget.dart';
 
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/cant_lineas_muelle_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
@@ -797,695 +800,91 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                         child: Column(
                       children: [
                         //todo ubicacion de origen
-                        Row(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color:
-                                      batchBloc.locationIsOk ? green : yellow,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                            Card(
-                              color: batchBloc.isLocationOk
-                                  ? batchBloc.locationIsOk
-                                      ? Colors.green[100]
-                                      : Colors.grey[300]
-                                  : Colors.red[200],
-                              elevation: 5,
-                              child: Container(
-                                // color: Colors.amber,
-                                width: size.width * 0.85,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 2),
-                                child: context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra")
-                                    ? Column(
-                                        children: [
-                                          LocationDropdownWidget(
-                                            isPDA: false,
-                                            selectedLocation: selectedLocation,
-                                            positionsOrigen:
-                                                batchBloc.positionsOrigen,
-                                            currentLocationId: batchBloc
-                                                .currentProduct.locationId
-                                                .toString(),
-                                            currentProduct: currentProduct,
-                                          ),
-                                          Container(
-                                            height: 15,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 5),
-                                            child: TextFormField(
-                                              autofocus: true,
-                                              showCursor: false,
-                                              controller:
-                                                  _controllerLocation, // Asignamos el controlador
-                                              enabled: !batchBloc
-                                                      .locationIsOk && // false
-                                                  !batchBloc
-                                                      .productIsOk && // false
-                                                  !batchBloc
-                                                      .quantityIsOk && // false
-                                                  !batchBloc.locationDestIsOk,
 
-                                              focusNode: focusNode1,
-                                              onChanged: (value) {
-                                                // Llamamos a la validación al cambiar el texto
-                                                validateLocation(value);
-                                              },
-                                              decoration: InputDecoration(
-                                                hintText: batchBloc
-                                                    .currentProduct.locationId
-                                                    .toString(),
-                                                disabledBorder:
-                                                    InputBorder.none,
-                                                hintStyle: const TextStyle(
-                                                    fontSize: 14, color: black),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Focus(
-                                        focusNode: focusNode1,
-                                        onKey: (FocusNode node,
-                                            RawKeyEvent event) {
-                                          if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                LogicalKeyboardKey.enter) {
-                                              validateLocation(
-                                                  //validamos la ubicacion
-                                                  batchBloc.scannedValue1);
-
-                                              return KeyEventResult.handled;
-                                            } else {
-                                              batchBloc.add(
-                                                  UpdateScannedValueEvent(
-                                                      event.data.keyLabel,
-                                                      'location'));
-
-                                              return KeyEventResult.handled;
-                                            }
-                                          }
-                                          return KeyEventResult.ignored;
-                                        },
-                                        child: LocationDropdownWidget(
-                                          isPDA: true,
-                                          selectedLocation: selectedLocation,
-                                          positionsOrigen:
-                                              batchBloc.positionsOrigen,
-                                          currentLocationId: batchBloc
-                                              .currentProduct.locationId
-                                              .toString(),
-                                          currentProduct: currentProduct,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ],
+                        LocationScannerWidget(
+                          isLocationOk: batchBloc.isLocationOk,
+                          locationIsOk: batchBloc.locationIsOk,
+                          productIsOk: batchBloc.productIsOk,
+                          quantityIsOk: batchBloc.quantityIsOk,
+                          locationDestIsOk: batchBloc.locationDestIsOk,
+                          currentLocationId:
+                              batchBloc.currentProduct.locationId.toString(),
+                          onValidateLocation: (value) {
+                            validateLocation(value);
+                          },
+                          onKeyScanned: (keyLabel) {
+                            batchBloc.add(
+                                UpdateScannedValueEvent(keyLabel, 'location'));
+                          },
+                          focusNode: focusNode1,
+                          controller: _controllerLocation,
+                          locationDropdown: LocationDropdownWidget(
+                            selectedLocation: selectedLocation,
+                            positionsOrigen: batchBloc.positionsOrigen,
+                            currentLocationId:
+                                batchBloc.currentProduct.locationId.toString(),
+                            currentProduct: currentProduct,
+                          ),
                         ),
-
                         // todo: Producto
 
-                        Row(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: batchBloc.productIsOk ? green : yellow,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                            Card(
-                              color: batchBloc.isProductOk
-                                  ? batchBloc.productIsOk
-                                      ? Colors.green[100]
-                                      : Colors.grey[300]
-                                  : Colors.red[200],
-                              elevation: 5,
-                              child: Container(
-                                width: size.width * 0.85,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 2),
-                                child: context
-                                        .read<UserBloc>()
-                                        .fabricante
-                                        .contains("Zebra")
-                                    ? Column(
-                                        children: [
-                                          ProductPickDropdownWidget(
-                                            selectedProduct: selectedLocation,
-                                            listOfProductsName:
-                                                batchBloc.listOfProductsName,
-                                            currentProductId: batchBloc
-                                                .currentProduct.productId
-                                                .toString(),
-                                            currentProduct: currentProduct,
-                                            isPDA: false,
-                                          ),
-                                          TextFormField(
-                                            showCursor: false,
-                                            enabled:
-                                                batchBloc.locationIsOk && //true
-                                                    !batchBloc
-                                                        .productIsOk && //false
-                                                    !batchBloc
-                                                        .quantityIsOk && //false
-                                                    !batchBloc.locationDestIsOk,
-
-                                            controller:
-                                                _controllerProduct, // Controlador que maneja el texto
-                                            focusNode: focusNode2,
-                                            onChanged: (value) {
-                                              validateProduct(value);
-                                            },
-                                            decoration: InputDecoration(
-                                              suffixIcon: GestureDetector(
-                                                onTap: () {
-                                                  context
-                                                      .read<PickingPickBloc>()
-                                                      .add(ViewProductImageEvent(
-                                                          currentProduct
-                                                                  .idProduct ??
-                                                              0));
-                                                },
-                                                child: Card(
-                                                  elevation: 2,
-                                                  color: white,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Icon(
-                                                      Icons.image,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              hintText:
-                                                  "${batchBloc.currentProduct.productId}",
-                                              // .toString(),
-                                              hintMaxLines: 2,
-                                              disabledBorder: InputBorder.none,
-                                              hintStyle: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                              border: InputBorder.none,
-                                            ),
-                                          ),
-                                          // Lote/Numero de serie
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                SizedBox(
-                                                  height: 20,
-                                                  width: 20,
-                                                  child: SvgPicture.asset(
-                                                    color: primaryColorApp,
-                                                    "assets/icons/barcode.svg",
-                                                    height: 20,
-                                                    width: 20,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  currentProduct.barcode ==
-                                                              false ||
-                                                          currentProduct
-                                                                  .barcode ==
-                                                              null ||
-                                                          currentProduct
-                                                                  .barcode ==
-                                                              ""
-                                                      ? "Sin codigo de barras"
-                                                      : currentProduct.barcode,
-                                                  textAlign: TextAlign.start,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: currentProduct.barcode ==
-                                                                  false ||
-                                                              currentProduct
-                                                                      .barcode ==
-                                                                  null ||
-                                                              currentProduct
-                                                                      .barcode ==
-                                                                  ""
-                                                          ? red
-                                                          : black),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Column(
-                                            children: [
-                                              ExpiryDateWidget(
-                                                  expireDate: currentProduct
-                                                                  .expireDate ==
-                                                              "" ||
-                                                          currentProduct
-                                                                  .expireDate ==
-                                                              null
-                                                      ? DateTime.now()
-                                                      : DateTime.parse(
-                                                          currentProduct
-                                                              .expireDate),
-                                                  size: size,
-                                                  isDetaild: false,
-                                                  isNoExpireDate: currentProduct
-                                                              .expireDate ==
-                                                          ""
-                                                      ? true
-                                                      : false),
-                                              if (currentProduct
-                                                      .productTracking ==
-                                                  "lot")
-                                                Row(
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        'Lote/serie:',
-                                                        style: TextStyle(
-                                                            fontSize: 13,
-                                                            color:
-                                                                primaryColorApp),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        currentProduct.lote ==
-                                                                    "" ||
-                                                                currentProduct
-                                                                        .lote ==
-                                                                    null
-                                                            ? 'Sin lote/serie'
-                                                            : currentProduct
-                                                                    .lote ??
-                                                                '',
-                                                        style: TextStyle(
-                                                            fontSize: 13,
-                                                            color: currentProduct
-                                                                            .lote ==
-                                                                        "" ||
-                                                                    currentProduct
-                                                                            .lote ==
-                                                                        null
-                                                                ? red
-                                                                : black),
-                                                      ),
-                                                    ),
-                                                    const Spacer(),
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return DialogBarcodes(
-                                                                  listOfBarcodes:
-                                                                      batchBloc
-                                                                          .listOfBarcodes);
-                                                            });
-                                                      },
-                                                      child: Visibility(
-                                                        visible: batchBloc
-                                                            .listOfBarcodes
-                                                            .isNotEmpty,
-                                                        child: SizedBox(
-                                                          height: 20,
-                                                          width: 20,
-                                                          child:
-                                                              SvgPicture.asset(
-                                                            color:
-                                                                primaryColorApp,
-                                                            "assets/icons/barcode.svg",
-                                                            height: 20,
-                                                            width: 20,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              Visibility(
-                                                visible:
-                                                    currentProduct.origin !=
-                                                            "" &&
-                                                        currentProduct.origin !=
-                                                            null,
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.file_open_sharp,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                          "Doc. origen: ",
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: grey)),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                            currentProduct
-                                                                    .origin ??
-                                                                "",
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    primaryColorApp)),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      )
-                                    : Focus(
-                                        focusNode: focusNode2,
-                                        onKey: (FocusNode node,
-                                            RawKeyEvent event) {
-                                          if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                LogicalKeyboardKey.enter) {
-                                              validateProduct(
-                                                  batchBloc.scannedValue2);
-                                              return KeyEventResult.handled;
-                                            } else {
-                                              batchBloc.add(
-                                                  UpdateScannedValueEvent(
-                                                      event.data.keyLabel,
-                                                      'product'));
-
-                                              return KeyEventResult.handled;
-                                            }
-                                          }
-                                          return KeyEventResult.ignored;
-                                        },
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              ProductPickDropdownWidget(
-                                                selectedProduct:
-                                                    selectedLocation,
-                                                listOfProductsName: batchBloc
-                                                    .listOfProductsName,
-                                                currentProductId: batchBloc
-                                                    .currentProduct.productId
-                                                    .toString(),
-                                                currentProduct: currentProduct,
-                                                isPDA: false,
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start, //alineamos el texto a la izquierda
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Flexible(
-                                                          child: Text(
-                                                            "${currentProduct.productId}",
-                                                            maxLines: 3,
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        13,
-                                                                    color:
-                                                                        black),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 2),
-                                                        Align(
-                                                          alignment: Alignment
-                                                              .centerRight,
-                                                          child:
-                                                              GestureDetector(
-                                                            onTap: () {
-                                                              context
-                                                                  .read<
-                                                                      PickingPickBloc>()
-                                                                  .add(ViewProductImageEvent(
-                                                                      currentProduct
-                                                                              .idProduct ??
-                                                                          0));
-                                                            },
-                                                            child: Card(
-                                                              elevation: 2,
-                                                              color: white,
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        8.0),
-                                                                child: Icon(
-                                                                  Icons.image,
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  size: 20,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Row(
-                                                        children: [
-                                                          SizedBox(
-                                                            height: 20,
-                                                            width: 20,
-                                                            child: SvgPicture
-                                                                .asset(
-                                                              color:
-                                                                  primaryColorApp,
-                                                              "assets/icons/barcode.svg",
-                                                              height: 20,
-                                                              width: 20,
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 10),
-                                                          Text(
-                                                            currentProduct.barcode ==
-                                                                        false ||
-                                                                    currentProduct
-                                                                            .barcode ==
-                                                                        null ||
-                                                                    currentProduct
-                                                                            .barcode ==
-                                                                        ""
-                                                                ? "Sin codigo de barras"
-                                                                : currentProduct
-                                                                    .barcode,
-                                                            textAlign:
-                                                                TextAlign.start,
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                color: currentProduct.barcode == false ||
-                                                                        currentProduct.barcode ==
-                                                                            null ||
-                                                                        currentProduct.barcode ==
-                                                                            ""
-                                                                    ? red
-                                                                    : black),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-
-                                              const SizedBox(height: 10),
-                                              //informacion del lote:
-                                              Column(
-                                                children: [
-                                                  if (currentProduct
-                                                          .productTracking ==
-                                                      "lot")
-                                                    Row(
-                                                      children: [
-                                                        Align(
-                                                          alignment: Alignment
-                                                              .centerLeft,
-                                                          child: Text(
-                                                            'Lote/serie:',
-                                                            style: TextStyle(
-                                                                fontSize: 13,
-                                                                color:
-                                                                    primaryColorApp),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Align(
-                                                          alignment: Alignment
-                                                              .centerLeft,
-                                                          child: Text(
-                                                            currentProduct.lote ==
-                                                                        "" ||
-                                                                    currentProduct
-                                                                            .lote ==
-                                                                        null
-                                                                ? 'Sin lote/serie'
-                                                                : currentProduct
-                                                                        .lote ??
-                                                                    '',
-                                                            style: TextStyle(
-                                                                fontSize: 13,
-                                                                color: currentProduct.lote ==
-                                                                            "" ||
-                                                                        currentProduct.lote ==
-                                                                            null
-                                                                    ? red
-                                                                    : black),
-                                                          ),
-                                                        ),
-                                                        const Spacer(),
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return DialogBarcodes(
-                                                                      listOfBarcodes:
-                                                                          batchBloc
-                                                                              .listOfBarcodes);
-                                                                });
-                                                          },
-                                                          child: Visibility(
-                                                            visible: batchBloc
-                                                                .listOfBarcodes
-                                                                .isNotEmpty,
-                                                            child: SizedBox(
-                                                              height: 20,
-                                                              width: 20,
-                                                              child: SvgPicture
-                                                                  .asset(
-                                                                color:
-                                                                    primaryColorApp,
-                                                                "assets/icons/barcode.svg",
-                                                                height: 20,
-                                                                width: 20,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                ],
-                                              ),
-                                              Visibility(
-                                                visible:
-                                                    currentProduct.origin != "",
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.file_open_sharp,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                          "Doc. origen: ",
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: grey)),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                          currentProduct
-                                                                  .origin ??
-                                                              "",
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  primaryColorApp)),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              ExpiryDateWidget(
-                                                  expireDate: currentProduct
-                                                                  .expireDate ==
-                                                              "" ||
-                                                          currentProduct
-                                                                  .expireDate ==
-                                                              null
-                                                      ? DateTime.now()
-                                                      : DateTime.parse(
-                                                          currentProduct
-                                                              .expireDate),
-                                                  size: size,
-                                                  isDetaild: false,
-                                                  isNoExpireDate: currentProduct
-                                                              .expireDate ==
-                                                          ""
-                                                      ? true
-                                                      : false),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ],
+                        ProductScannerWidget(
+                          isProductOk: batchBloc.isProductOk,
+                          productIsOk: batchBloc.productIsOk,
+                          locationIsOk: batchBloc.locationIsOk,
+                          quantityIsOk: batchBloc.quantityIsOk,
+                          locationDestIsOk: batchBloc.locationDestIsOk,
+                          currentProductId:
+                              batchBloc.currentProduct.productId.toString(),
+                          barcode: currentProduct.barcode,
+                          lotId: currentProduct.lote,
+                          origin: currentProduct.origin,
+                          expireDate: currentProduct.expireDate,
+                          size: size,
+                          onValidateProduct: (value) {
+                            validateProduct(value); // tu función actual
+                          },
+                          onKeyScanned: (keyLabel) {
+                            batchBloc.add(
+                                UpdateScannedValueEvent(keyLabel, 'product'));
+                          },
+                          focusNode: focusNode2,
+                          controller: _controllerProduct,
+                          productDropdown: ProductPickDropdownWidget(
+                            selectedProduct: selectedLocation,
+                            listOfProductsName: batchBloc.listOfProductsName,
+                            currentProductId:
+                                batchBloc.currentProduct.productId.toString(),
+                            currentProduct: currentProduct,
+                            isPDA: false,
+                          ),
+                          expiryWidget: ExpiryDateWidget(
+                            expireDate: currentProduct.expireDate == "" ||
+                                    currentProduct.expireDate == null
+                                ? DateTime.now()
+                                : DateTime.parse(currentProduct.expireDate),
+                            size: size,
+                            isDetaild: false,
+                            isNoExpireDate:
+                                currentProduct.expireDate == "" ? true : false,
+                          ),
+                          listOfBarcodes: batchBloc.listOfBarcodes,
+                          onBarcodesDialogTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return DialogBarcodes(
+                                    listOfBarcodes: batchBloc.listOfBarcodes);
+                              },
+                            );
+                          },
+                          onViewImgProduct: () {
+                            batchBloc.add(ViewProductImageEvent(
+                                currentProduct.idProduct ?? 0));
+                          },
                         ),
 
-                        //Todo: MUELLE
+                        //Todo: MUELLE DESTINO
 
                         if (batchBloc.filteredProducts
                                     .where((e) => e.isSeparate == 0)
@@ -1494,114 +893,29 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                             batchBloc.filteredProducts
                                 .where((e) => e.isSeparate == 0)
                                 .isEmpty)
-                          Row(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: batchBloc.locationDestIsOk
-                                        ? green
-                                        : yellow,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                              Card(
-                                color: batchBloc.isLocationDestOk
-                                    ? batchBloc.locationDestIsOk
-                                        ? Colors.green[100]
-                                        : Colors.grey[300]
-                                    : Colors.red[200],
-                                elevation: 5,
-                                child: Container(
-                                  width: size.width * 0.85,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                                  child: context
-                                          .read<UserBloc>()
-                                          .fabricante
-                                          .contains("Zebra")
-                                      ? Column(
-                                          children: [
-                                            MuellePickDropdownWidget(
-                                              selectedMuelle: selectedMuelle,
-                                              currentProduct: currentProduct,
-                                              isPda: false,
-                                            ),
-                                            Container(
-                                              height: 15,
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 5),
-                                              child: TextFormField(
-                                                showCursor: false,
-                                                enabled: batchBloc
-                                                        .locationIsOk &&
-                                                    batchBloc.productIsOk &&
-                                                    !batchBloc.quantityIsOk &&
-                                                    !batchBloc.locationDestIsOk,
-                                                controller:
-                                                    _controllerMuelle, // Controlador que maneja el texto
-                                                focusNode: focusNode5,
-                                                onChanged: (value) {
-                                                  validateMuelle(value);
-                                                },
-                                                decoration: InputDecoration(
-                                                  hintText: batchBloc
-                                                              .configurations
-                                                              .result
-                                                              ?.result
-                                                              ?.muelleOption ==
-                                                          "multiple"
-                                                      ? batchBloc.currentProduct
-                                                          .locationDestId
-                                                          .toString()
-                                                      : batchBloc
-                                                          .pickWithProducts
-                                                          .pick
-                                                          ?.muelle,
-                                                  disabledBorder:
-                                                      InputBorder.none,
-                                                  hintStyle: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black),
-                                                  border: InputBorder.none,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Focus(
-                                          focusNode: focusNode5,
-                                          onKey: (FocusNode node,
-                                              RawKeyEvent event) {
-                                            if (event is RawKeyDownEvent) {
-                                              if (event.logicalKey ==
-                                                  LogicalKeyboardKey.enter) {
-                                                validateMuelle(
-                                                    batchBloc.scannedValue4);
-                                                return KeyEventResult.handled;
-                                              } else {
-                                                batchBloc.add(
-                                                    UpdateScannedValueEvent(
-                                                        event.data.keyLabel,
-                                                        'muelle'));
-                                                return KeyEventResult.handled;
-                                              }
-                                            }
-                                            return KeyEventResult.ignored;
-                                          },
-                                          child: MuellePickDropdownWidget(
-                                            selectedMuelle: selectedMuelle,
-                                            currentProduct: currentProduct,
-                                            isPda: true,
-                                          )),
-                                ),
-                              ),
-                            ],
+                          LocationDestScannerWidget(
+                            isLocationDestOk: batchBloc.isLocationDestOk,
+                            locationDestIsOk: batchBloc.locationDestIsOk,
+                            locationIsOk: batchBloc.locationIsOk,
+                            productIsOk: batchBloc.productIsOk,
+                            quantityIsOk: batchBloc.quantityIsOk,
+                            size: size,
+                            muelleHint:
+                                batchBloc.pickWithProducts.pick?.muelle ?? "",
+                            onValidateMuelle: (value) {
+                              validateMuelle(
+                                  value); // tu función actual de validación
+                            },
+                            onKeyScanned: (keyLabel) {
+                              batchBloc.add(
+                                  UpdateScannedValueEvent(keyLabel, 'muelle'));
+                            },
+                            focusNode: focusNode5,
+                            controller: _controllerMuelle,
+                            dropdownWidget: MuellePickDropdownWidget(
+                              selectedMuelle: selectedMuelle,
+                              currentProduct: currentProduct,
+                            ),
                           ),
                       ],
                     )),

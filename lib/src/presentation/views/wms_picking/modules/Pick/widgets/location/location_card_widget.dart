@@ -11,7 +11,6 @@ class LocationDropdownWidget extends StatelessWidget {
   final List<String> positionsOrigen;
   final String currentLocationId;
   final ProductsBatch currentProduct;
-  final bool isPDA;
 
   const LocationDropdownWidget({
     super.key,
@@ -19,13 +18,12 @@ class LocationDropdownWidget extends StatelessWidget {
     required this.positionsOrigen,
     required this.currentLocationId,
     required this.currentProduct,
-    required this.isPDA,
   });
 
   @override
   Widget build(BuildContext context) {
-    final AudioService _audioService = AudioService();
-    final VibrationService _vibrationService = VibrationService();
+    final AudioService audioService = AudioService();
+    final VibrationService vibrationService = VibrationService();
 
     return Center(
       child: Column(
@@ -95,8 +93,8 @@ class LocationDropdownWidget extends StatelessWidget {
                           context.read<PickingPickBloc>().oldLocation =
                               currentProduct.locationId.toString();
                         } else {
-                          _vibrationService.vibrate();
-                          _audioService.playErrorSound();
+                          vibrationService.vibrate();
+                          audioService.playErrorSound();
                           context.read<PickingPickBloc>().add(ValidateFieldsEvent(
                               field: "location", isOk: false));
                           
@@ -120,21 +118,7 @@ class LocationDropdownWidget extends StatelessWidget {
 
           // Mostrar ubicación actual
 
-          Visibility(
-            visible: isPDA,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Text(
-                    currentLocationId,
-                    style: const TextStyle(fontSize: 14, color: black),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 5),
+        
         ],
       ),
     );

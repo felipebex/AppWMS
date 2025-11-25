@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 
 class LocationDestScannerWidget extends StatelessWidget {
   final bool isLocationDestOk;
@@ -59,65 +56,50 @@ class LocationDestScannerWidget extends StatelessWidget {
           child: Container(
             width: size.width * 0.85,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: !context.read<UserBloc>().fabricante.contains("Zebra")
-                ? Focus(
-                    focusNode: focusNode,
-                    onKey: (node, event) {
-                      if (event is RawKeyDownEvent) {
-                        if (event.logicalKey == LogicalKeyboardKey.enter) {
-                          onValidateMuelle(controller.text);
-                          return KeyEventResult.handled;
-                        } else {
-                          if (onKeyScanned != null) {
-                            onKeyScanned!(event.data.keyLabel);
-                          }
-                          return KeyEventResult.handled;
-                        }
-                      }
-                      return KeyEventResult.ignored;
-                    },
-                    child: Column(
-                      children: [
-                        dropdownWidget,
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            muelleHint ?? 'Muelle',
-                            style: TextStyle(fontSize: 14, color: black),
-                          ),
-                        ),
-                      ],
+            child:
+                Column(
+              children: [
+                dropdownWidget,
+                const SizedBox(height: 5),
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 50.0),
+                      child: Text(
+                        muelleHint ?? 'Sin muelle',
+                        style: const TextStyle(fontSize: 14, color: black),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  )
-                : Column(
-                    children: [
-                      dropdownWidget,
-                      const SizedBox(height: 5),
-                      Container(
-                        height: 15,
-                        margin: const EdgeInsets.only(bottom: 5),
-                        child: TextFormField(
-                          showCursor: false,
-                          enabled: locationIsOk &&
-                              productIsOk &&
-                              !quantityIsOk &&
-                              !locationDestIsOk,
-                          controller: controller,
-                          focusNode: focusNode,
-                          onChanged: (value) {
-                            onValidateMuelle(value);
-                          },
-                          decoration: InputDecoration(
-                            hintText: muelleHint,
-                            disabledBorder: InputBorder.none,
-                            hintStyle:
-                                const TextStyle(fontSize: 14, color: black),
-                            border: InputBorder.none,
-                          ),
+                    SizedBox(
+                      height: 20,
+                      child: TextFormField(
+                        keyboardType: TextInputType.none,
+                        showCursor: false,
+                        textInputAction: TextInputAction.done,
+                        enabled: locationIsOk &&
+                            productIsOk &&
+                            !quantityIsOk &&
+                            !locationDestIsOk,
+                        controller: controller,
+                        focusNode: focusNode,
+                        onFieldSubmitted: (value) {
+                          onValidateMuelle(value);
+                        },
+                        style: const TextStyle(color: Colors.transparent),
+                        decoration: InputDecoration(
+                          hintText: null,
+                          hintStyle: const TextStyle(color: Colors.transparent),
+                          disabledBorder: InputBorder.none,
+                          border: InputBorder.none,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],

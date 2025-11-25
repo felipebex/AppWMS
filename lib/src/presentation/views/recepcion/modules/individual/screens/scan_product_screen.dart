@@ -49,37 +49,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     with WidgetsBindingObserver {
   final AudioService _audioService = AudioService();
   final VibrationService _vibrationService = VibrationService();
-  @override
-  void initState() {
-    super.initState();
-    // Añadimos el observer para escuchar el ciclo de vida de la app.
-    WidgetsBinding.instance.addObserver(this);
-  }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.resumed) {
-      if (mounted) {
-        // Aquí se ejecutan las acciones solo si la pantalla aún está montada
-        showDialog(
-          context: context,
-          builder: (context) {
-            return const DialogLoading(
-              message: "Espere un momento...",
-            );
-          },
-        );
-        _handleDependencies();
-        Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pop(context);
-        });
-      }
-    }
-  }
-
-//focus para escanear
+  //focus para escanear
 
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
@@ -96,12 +67,35 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   final TextEditingController _cantidadController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Añadimos el observer para escuchar el ciclo de vida de la app.
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed && mounted) {
+      showDialog(
+        context: context,
+        builder: (context) =>
+            const DialogLoading(message: "Espere un momento..."),
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) Navigator.pop(context);
+      });
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _handleDependencies();
   }
 
-  void _unfocusAll({required FocusNode except}) {
+  void _setOnlyFocus(FocusNode nodeToFocus) {
     for (final node in [
       focusNode2,
       focusNode3,
@@ -109,107 +103,82 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       focusNode5,
       focusNode6
     ]) {
-      if (node != except) node.unfocus();
+      if (node == nodeToFocus) {
+        FocusScope.of(context).requestFocus(node);
+      } else {
+        node.unfocus();
+      }
     }
   }
 
-  void _requestOnly(FocusNode node, String tag) {
-    print("🎯 Enfocando: $tag");
-    FocusScope.of(context).requestFocus(node);
-    _unfocusAll(except: node);
-  }
-
   void _handleDependencies() {
-    print('🚼 _handleDependencies');
     final bloc = context.read<RecepcionBloc>();
-
     final hasLote = bloc.currentProduct.productTracking == "lot";
     final configMuelle =
         bloc.configurations.result?.result?.scanDestinationLocationReception ??
             false;
 
-    if (!bloc.productIsOk && !bloc.quantityIsOk) {
-      _requestOnly(focusNode2, 'product');
-      return;
-    }
-
-    if (hasLote) {
-      print('--- CON LOTE ---');
-      print('productIsOk: ${bloc.productIsOk}');
-      print('quantityIsOk: ${bloc.quantityIsOk}');
-      print('loteIsOk: ${bloc.loteIsOk}');
-      print('viewQuantity: ${bloc.viewQuantity}');
-      print('locationsDestIsok: ${bloc.locationsDestIsok}');
-
-      if (bloc.productIsOk &&
+    final Map<String, bool> focusMap = {
+      'product': !bloc.productIsOk && !bloc.quantityIsOk,
+      'lote': hasLote &&
+          bloc.productIsOk &&
           !bloc.loteIsOk &&
           !bloc.quantityIsOk &&
-          !bloc.viewQuantity) {
-        _requestOnly(focusNode6, 'lote');
-        return;
-      }
+          !bloc.viewQuantity,
+      'muelle': configMuelle &&
+          bloc.productIsOk &&
+          (hasLote ? bloc.loteIsOk : true) &&
+          !bloc.locationsDestIsok &&
+          !bloc.viewQuantity,
+      'quantity': bloc.productIsOk &&
+          (hasLote ? bloc.loteIsOk : true) &&
+          (configMuelle ? bloc.locationsDestIsok : true) &&
+          !bloc.quantityIsOk &&
+          !bloc.viewQuantity,
+    };
 
-      if (configMuelle) {
-        if (bloc.productIsOk && !bloc.quantityIsOk && !bloc.locationsDestIsok) {
-          _requestOnly(focusNode5, 'muelle');
-          return;
-        }
-        if (bloc.productIsOk &&
-            bloc.quantityIsOk &&
-            bloc.locationsDestIsok &&
-            !bloc.viewQuantity) {
-          _requestOnly(focusNode3, 'quantity');
-          return;
-        }
-      } else {
-        if (bloc.productIsOk && !bloc.quantityIsOk && !bloc.viewQuantity) {
-          _requestOnly(focusNode3, 'quantity');
-          return;
-        }
-      }
-    } else {
-      // SIN LOTE
-      print('--- SIN LOTE ---');
-      if (configMuelle) {
-        if (bloc.productIsOk && !bloc.quantityIsOk && !bloc.locationsDestIsok) {
-          _requestOnly(focusNode5, 'muelle');
-          return;
-        }
-        if (bloc.productIsOk &&
-            bloc.quantityIsOk &&
-            bloc.locationsDestIsok &&
-            !bloc.viewQuantity) {
-          _requestOnly(focusNode3, 'quantity');
-          return;
-        }
-      } else {
-        if (bloc.productIsOk && bloc.quantityIsOk && !bloc.viewQuantity) {
-          _requestOnly(focusNode3, 'quantity');
-          return;
-        }
+    final focusNodeByKey = {
+      'product': focusNode2,
+      'lote': focusNode6,
+      'quantity': focusNode3,
+      'muelle': focusNode5,
+    };
+
+    for (final entry in focusMap.entries) {
+      if (entry.value) {
+        debugPrint("🚼 ${entry.key}");
+        _setOnlyFocus(focusNodeByKey[entry.key]!);
+        break;
       }
     }
   }
 
   @override
   void dispose() {
-    focusNode2.dispose(); //product
-    focusNode3.dispose(); //quantity
-    focusNode4.dispose(); //quantity
-    focusNode5.dispose(); //quantity
-    focusNode6.dispose(); //quantity
+    for (final node in [
+      focusNode2,
+      focusNode3,
+      focusNode4,
+      focusNode5,
+      focusNode6,
+    ]) {
+      node.dispose();
+    }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  void validateProduct(String value) {
+  String _getScannedOrManual(String scanned, String manual) {
+    print("Scanned: $scanned, Manual: $manual");
+    final scan = scanned.trim().toLowerCase();
+    return scan.isEmpty ? manual.trim().toLowerCase() : scan;
+  }
+
+  void validateProduct(String value) async {
     final bloc = context.read<RecepcionBloc>();
-
-    String scan = bloc.scannedValue2.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue2.trim().toLowerCase();
-
-    _controllerProduct.text = "";
+    final scan = _getScannedOrManual(bloc.scannedValue2, value);
     final currentProduct = bloc.currentProduct;
+    _controllerProduct.clear();
 
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
       bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
@@ -613,22 +582,20 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                             ],
                           ),
 
-                          //todo : producto
-
                           // todo: Producto
-
                           ProductScannerWidget(
                             isProductOk: recepcionBloc.isProductOk,
                             productIsOk: recepcionBloc.productIsOk,
                             locationIsOk: true,
                             quantityIsOk: recepcionBloc.quantityIsOk,
-                            locationDestIsOk: recepcionBloc.isLocationDestOk,
+                            locationDestIsOk: recepcionBloc.locationsDestIsok,
                             currentProductId: recepcionBloc
                                 .currentProduct.productName
                                 .toString(),
                             barcode:
                                 recepcionBloc.currentProduct.productBarcode,
                             lotId: recepcionBloc.currentProduct.lotName,
+                            origin: '',
                             expireDate:
                                 recepcionBloc.currentProduct.fechaVencimiento,
                             size: size,
@@ -651,7 +618,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                               currentProduct: recepcionBloc.currentProduct,
                               isPDA: false,
                             ),
-                            origin: '',
                             expiryWidget: ExpiryDateWidget(
                               expireDate: recepcionBloc.currentProduct
                                               .fechaVencimiento ==

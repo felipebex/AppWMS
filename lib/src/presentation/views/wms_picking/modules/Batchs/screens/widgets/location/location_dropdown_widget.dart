@@ -137,14 +137,7 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
               style: TextStyle(fontSize: 14, color: red),
             ),
           ),
-        if (widget.isPDA)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              widget.currentLocationId,
-              style: const TextStyle(fontSize: 14, color: black),
-            ),
-          ),
+       
       ],
     );
   }

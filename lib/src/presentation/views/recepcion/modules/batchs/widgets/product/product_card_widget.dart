@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 
@@ -23,6 +25,9 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AudioService _audioService = AudioService();
+    final VibrationService _vibrationService = VibrationService();
+
     return SizedBox(
       height: 48,
       child: Center(
@@ -70,7 +75,11 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
                   ),
                 );
               }).toList(),
-              onChanged: context.read<RecepcionBatchBloc>().configurations.result?.result
+              onChanged: context
+                          .read<RecepcionBatchBloc>()
+                          .configurations
+                          .result
+                          ?.result
                           ?.manualProductReading ==
                       false
                   ? null
@@ -78,33 +87,33 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
                       ? (String? newValue) {
                           if (newValue ==
                               currentProduct.productName.toString()) {
-                            context.read<RecepcionBatchBloc>().add(ValidateFieldsOrderEvent(
-                                field: "product", isOk: true));
+                            context.read<RecepcionBatchBloc>().add(
+                                ValidateFieldsOrderEvent(
+                                    field: "product", isOk: true));
 
-                            context.read<RecepcionBatchBloc>().add(ChangeQuantitySeparate(
-                              0,
-                              int.parse(currentProduct.productId),
-                              currentProduct.idRecepcion ?? 0,
-                              currentProduct.idMove ?? 0,
-                            ));
+                            context
+                                .read<RecepcionBatchBloc>()
+                                .add(ChangeQuantitySeparate(
+                                  0,
+                                  int.parse(currentProduct.productId),
+                                  currentProduct.idRecepcion ?? 0,
+                                  currentProduct.idMove ?? 0,
+                                ));
 
-                            context.read<RecepcionBatchBloc>().add(ChangeProductIsOkEvent(
-                                currentProduct.idRecepcion ?? 0,
-                                true,
-                                int.parse(currentProduct.productId),
-                                0,
-                                currentProduct.idMove ?? 0));
-
-                           
+                            context.read<RecepcionBatchBloc>().add(
+                                ChangeProductIsOkEvent(
+                                    currentProduct.idRecepcion ?? 0,
+                                    true,
+                                    int.parse(currentProduct.productId),
+                                    0,
+                                    currentProduct.idMove ?? 0));
                           } else {
-                            context.read<RecepcionBatchBloc>().add(ValidateFieldsOrderEvent(
-                                field: "product", isOk: false));
+                            context.read<RecepcionBatchBloc>().add(
+                                ValidateFieldsOrderEvent(
+                                    field: "product", isOk: false));
 
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 1000),
-                              content: const Text('Producto erroneo'),
-                              backgroundColor: Colors.red[200],
-                            ));
+                            _vibrationService.vibrate();
+                            _audioService.playErrorSound();
                           }
                         }
                       : null,
@@ -127,8 +136,6 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
                   ),
                 ),
               ),
-
-            
           ],
         ),
       ),

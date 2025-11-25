@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 
 class LocationScannerWidget extends StatelessWidget {
   final bool isLocationOk;
@@ -57,53 +54,50 @@ class LocationScannerWidget extends StatelessWidget {
           child: Container(
             width: MediaQuery.of(context).size.width * 0.85,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child: !context.read<UserBloc>().fabricante.contains("Zebra")
-                ? Focus(
-                    focusNode: focusNode,
-                    onKey: (node, event) {
-                      if (event is RawKeyDownEvent) {
-                        if (event.logicalKey == LogicalKeyboardKey.enter) {
-                          onValidateLocation(controller.text);
-                          return KeyEventResult.handled;
-                        } else {
-                          if (onKeyScanned != null) {
-                            onKeyScanned!(event.data.keyLabel);
-                          }
-                          return KeyEventResult.handled;
-                        }
-                      }
-                      return KeyEventResult.ignored;
-                    },
-                    child: locationDropdown,
-                  )
-                : Column(
-                    children: [
-                      locationDropdown,
-                      Container(
-                        height: 15,
-                        margin: const EdgeInsets.only(bottom: 5),
-                        child: TextFormField(
-                          autofocus: true,
-                          showCursor: false,
-                          controller: controller,
-                          enabled: !locationIsOk &&
-                              !productIsOk &&
-                              !quantityIsOk &&
-                              !locationDestIsOk,
-                          focusNode: focusNode,
-                          onChanged: (value) {
-                            onValidateLocation(value);
-                          },
-                          decoration: InputDecoration(
-                            hintText: currentLocationId,
-                            disabledBorder: InputBorder.none,
-                            hintStyle: TextStyle(fontSize: 14, color: black),
-                            border: InputBorder.none,
-                          ),
+            child:
+                Column(
+              children: [
+                locationDropdown,
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 50.0),
+                      child: Text(
+                        currentLocationId,
+                        style: const TextStyle(fontSize: 14, color: black),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                      child: TextFormField(
+                        keyboardType: TextInputType.none,
+                        showCursor: false,
+                        textInputAction: TextInputAction.done,
+                        enabled: !locationIsOk &&
+                            !productIsOk &&
+                            !quantityIsOk &&
+                            !locationDestIsOk,
+                        controller: controller,
+                        focusNode: focusNode,
+                        onFieldSubmitted: (value) {
+                          focusNode.unfocus();
+                          onValidateLocation(value);
+                        },
+                        style: const TextStyle(color: Colors.transparent),
+                        decoration: InputDecoration(
+                          hintText: null,
+                          hintStyle: const TextStyle(color: Colors.transparent),
+                          disabledBorder: InputBorder.none,
+                          border: InputBorder.none,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],

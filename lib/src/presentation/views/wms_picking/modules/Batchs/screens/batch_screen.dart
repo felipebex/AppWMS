@@ -605,7 +605,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                           },
                         ),
 
-                        //Todo: MUELLE
+                        //Todo: MUELLE DESTINO
 
                         if (batchBloc.filteredProducts
                                     .where((e) => e.isSeparate == 0)
@@ -809,10 +809,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                   }
                   batchBloc.add(ShowQuantityEvent(false));
                 },
-                customKeyboard: CustomKeyboardNumber(
-                  controller: cantidadController,
-                  onchanged: _validatebuttonquantity,
-                ),
+               
               ),
             ],
           ),

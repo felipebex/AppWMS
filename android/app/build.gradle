@@ -1,15 +1,5 @@
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        // Asegúrate de usar una versión de AGP compatible con Gradle 8.3
-        classpath 'com.android.tools.build:gradle:7.4.2'  // Versión recomendada para Gradle 8.x
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.21"  // Actualiza si es necesario
-    }
-}
+
 
 plugins {
     id "com.android.application"

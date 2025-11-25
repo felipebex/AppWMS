@@ -6,7 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
+import 'package:wms_app/src/core/utils/sounds_utils.dart';
 import 'package:wms_app/src/core/utils/theme/input_decoration.dart';
+import 'package:wms_app/src/core/utils/vibrate_utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -47,6 +49,9 @@ class ScanProductRceptionBatchScreen extends StatefulWidget {
 
 class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
     with WidgetsBindingObserver {
+  final AudioService _audioService = AudioService();
+  final VibrationService _vibrationService = VibrationService();
+
   @override
   void initState() {
     super.initState();
@@ -132,13 +137,6 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
     }
 
     if (hasLote) {
-      print('--- CON LOTE ---');
-      print('productIsOk: ${bloc.productIsOk}');
-      print('quantityIsOk: ${bloc.quantityIsOk}');
-      print('loteIsOk: ${bloc.loteIsOk}');
-      print('viewQuantity: ${bloc.viewQuantity}');
-      print('locationsDestIsok: ${bloc.locationsDestIsok}');
-
       if (bloc.productIsOk &&
           !bloc.loteIsOk &&
           !bloc.quantityIsOk &&
@@ -230,6 +228,8 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
       if (!isok) {
         bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: false));
         bloc.add(ClearScannedValueOrderEvent('product'));
+        _vibrationService.vibrate();
+        _audioService.playErrorSound();
       }
     }
   }
@@ -257,6 +257,8 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
       print('lote no encontrado');
       bloc.add(ValidateFieldsOrderEvent(field: "lote", isOk: false));
       bloc.add(ClearScannedValueOrderEvent('lote'));
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
     }
   }
 
@@ -284,6 +286,8 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
     } else {
       validateScannedBarcode(scan.trim(), currentProduct, bloc, false);
       bloc.add(ClearScannedValueOrderEvent('quantity'));
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
     }
   }
 
@@ -321,6 +325,8 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
       print('Ubicacion no encontrada');
       bloc.add(ValidateFieldsOrderEvent(field: "locationDest", isOk: false));
       bloc.add(ClearScannedValueOrderEvent('locationDest'));
+      _vibrationService.vibrate();
+      _audioService.playErrorSound();
     }
   }
 
@@ -543,7 +549,7 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
                             productIsOk: recepcionBloc.productIsOk,
                             locationIsOk: true,
                             quantityIsOk: recepcionBloc.quantityIsOk,
-                            locationDestIsOk: recepcionBloc.isLocationDestOk,
+                            locationDestIsOk: recepcionBloc.locationsDestIsok,
                             currentProductId: recepcionBloc
                                 .currentProduct.productName
                                 .toString(),
