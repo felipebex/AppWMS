@@ -102,8 +102,9 @@ class _Tab2ScreenState extends State<Tab2Screen> {
 
       // 3. TEMPORIZADOR ASÍNCRONO (Retraso de 1 segundo)
       Future.delayed(const Duration(milliseconds: 1000), () {
+        if (!mounted) return;
         // 4. ✅ CORRECCIÓN CRÍTICA: Usar el contexto capturado para el POP seguro
-        if (dialogContext != null) {
+        if (dialogContext != null && dialogContext!.mounted) {
           // El 'pop' ahora es seguro y usa el contexto válido del diálogo
           Navigator.of(dialogContext!, rootNavigator: true).pop();
         }

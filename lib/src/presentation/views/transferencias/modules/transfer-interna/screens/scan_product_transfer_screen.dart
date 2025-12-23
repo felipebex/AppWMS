@@ -331,7 +331,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       }
       //pasamso el foco a ubicacion destino
       Future.delayed(const Duration(seconds: 1), () {
-        FocusScope.of(context).requestFocus(focusNode5);
+        if (mounted) {
+          FocusScope.of(context).requestFocus(focusNode5);
+        }
       });
       _handleDependencies();
     }

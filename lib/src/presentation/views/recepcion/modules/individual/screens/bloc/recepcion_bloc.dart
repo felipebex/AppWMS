@@ -1003,6 +1003,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             currentProduct.idMove ?? 0);
 
         if (event.isSplit) {
+          print("Es un producto split");
           //calculamos la cantidad pendiente del producto
           var pendingQuantity =
               (currentProduct.cantidadFaltante - event.quantity);
@@ -1011,6 +1012,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               currentProduct, pendingQuantity, currentProduct.type ?? "");
         }
 
+           await db.productEntradaRepository.setFieldTableProductSendEntrada(
+            currentProduct.idRecepcion ?? 0,
+            int.parse(currentProduct.productId),
+            "quantity_done",
+            event.quantity ?? 0,
+            currentProduct.idMove);
+
         //actualizamos el idMove del producto que ya fue enviado
         await db.productEntradaRepository.setFieldTableProductSendEntrada(
             currentProduct.idRecepcion ?? 0,
@@ -1018,7 +1026,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             "id_move",
             responseSend.result?.result?.first.id ?? 0,
             currentProduct.idMove);
+     
 
+           
         //si el producto cuaenta con temperatura pedimos temperatura
         if (currentProduct.manejaTemperatura == 1 ||
             currentProduct.manejaTemperatura == true) {

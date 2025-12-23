@@ -543,7 +543,7 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
                             productIsOk: recepcionBloc.productIsOk,
                             locationIsOk: true,
                             quantityIsOk: recepcionBloc.quantityIsOk,
-                            locationDestIsOk: recepcionBloc.isLocationDestOk,
+                            locationDestIsOk: recepcionBloc.locationsDestIsok,
                             currentProductId: recepcionBloc
                                 .currentProduct.productName
                                 .toString(),

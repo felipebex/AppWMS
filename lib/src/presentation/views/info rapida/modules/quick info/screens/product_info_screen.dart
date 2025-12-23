@@ -25,41 +25,60 @@ class ProductInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final product = context.read<InfoRapidaBloc>().infoRapidaResult.result;
+    final bloc = context.read<InfoRapidaBloc>();
+    final product = bloc.infoRapidaResult.result;
+
+    // Verificación de seguridad: Si no hay producto, mostrar error y volver
+    if (product == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudo cargar la información del producto'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     // referenceController
     TextEditingController referenceController = TextEditingController(
-      text: product?.referencia ?? '',
+      text: product.referencia ?? '',
     );
 
     //unidade de medida
     TextEditingController uomController = TextEditingController(
-      text: product?.unidadMedida ?? '',
+      text: product.unidadMedida ?? '',
     );
 
     // priceController
     TextEditingController priceController = TextEditingController(
-      text: product?.precio != null ? '${product?.precio}' : '',
+      text: product.precio != null ? '${product.precio}' : '',
     );
     // pesoController
     TextEditingController pesoController = TextEditingController(
-      text: product?.peso != null ? '${product?.peso}' : '',
+      text: product.peso != null ? '${product.peso}' : '',
     );
     // volumenController
     TextEditingController volumenController = TextEditingController(
-      text: product?.volumen != null ? '${product?.volumen}' : '',
+      text: product.volumen != null ? '${product.volumen}' : '',
     );
 
     // barcodeController
     TextEditingController barcodeController = TextEditingController(
-      text: product?.codigoBarras ?? '',
+      text: product.codigoBarras ?? '',
     );
 
     // nameController
     TextEditingController nameController = TextEditingController(
-      text: product?.nombre ?? '',
+      text: product.nombre ?? '',
     );
 
-    final bloc = context.read<InfoRapidaBloc>();
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
@@ -398,6 +417,12 @@ class ProductInfoScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(0),
                     itemCount: product?.ubicaciones?.length ?? 0,
                     itemBuilder: (contextList, index) {
+                      // Verificación de seguridad para evitar acceso a índice inválido
+                      if (product?.ubicaciones == null ||
+                          index >= (product?.ubicaciones?.length ?? 0)) {
+                        return const SizedBox.shrink();
+                      }
+
                       final ubicacion = product?.ubicaciones?[index];
                       return Card(
                         elevation: 2,
@@ -478,10 +503,13 @@ class ProductInfoScreen extends StatelessWidget {
                                     const Duration(seconds: 1),
                                   );
 
-                                  Navigator.pop(context);
-                                  Navigator.pushReplacementNamed(
-                                      context, 'transfer-info',
-                                      arguments: [product, ubicacion]);
+                                  // Verificar si el contexto sigue siendo válido antes de navegar
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                    Navigator.pushReplacementNamed(
+                                        context, 'transfer-info',
+                                        arguments: [product, ubicacion]);
+                                  }
                                 },
                                 child: Align(
                                   alignment: Alignment.centerLeft,

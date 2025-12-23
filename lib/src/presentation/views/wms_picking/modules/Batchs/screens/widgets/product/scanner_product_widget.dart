@@ -44,7 +44,7 @@ class ProductScannerWidget extends StatelessWidget {
     required this.expireDate,
     required this.size,
     required this.onValidateProduct,
-     this.onViewImgProduct,
+    this.onViewImgProduct,
     this.onKeyScanned,
     required this.focusNode,
     required this.controller,
@@ -248,6 +248,25 @@ class ProductScannerWidget extends StatelessWidget {
                           onValidateProduct(value);
                         },
                         decoration: InputDecoration(
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              if (onViewImgProduct != null) {
+                                onViewImgProduct!();
+                              }
+                            },
+                            child: Card(
+                              elevation: 2,
+                              color: white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Icon(
+                                  Icons.image,
+                                  color: primaryColorApp,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
                           hintText: currentProductId,
                           hintMaxLines: 2,
                           disabledBorder: InputBorder.none,

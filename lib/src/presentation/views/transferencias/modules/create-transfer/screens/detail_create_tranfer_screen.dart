@@ -199,6 +199,8 @@ class DetailCreateTransferScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -217,68 +219,60 @@ class DetailCreateTransferScreen extends StatelessWidget {
                         ),
 
                         //ubicacion de origen
-                        Row(
-                          children: [
-                            Text(
-                              "Ubicación de origen: ",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: primaryColorApp,
-                              ),
-                            ),
-                            Text(
-                                context
-                                        .read<CreateTransferBloc>()
-                                        .currentUbication
-                                        ?.name ??
-                                    "Sin ubicación",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: context
-                                                    .read<CreateTransferBloc>()
-                                                    .currentUbication
-                                                    ?.name ==
-                                                null ||
-                                            context
-                                                    .read<CreateTransferBloc>()
-                                                    .currentUbication
-                                                    ?.name ==
-                                                ""
-                                        ? red
-                                        : black)),
-                          ],
+                        Text(
+                          "Ubicación de origen: ",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: primaryColorApp,
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              "Ubicación destino: ",
-                              style: TextStyle(
+                        Text(
+                            context
+                                    .read<CreateTransferBloc>()
+                                    .currentUbication
+                                    ?.name ??
+                                "Sin ubicación",
+                            style: TextStyle(
                                 fontSize: 14,
-                                color: primaryColorApp,
-                              ),
-                            ),
-                            Text(
-                                context
-                                        .read<CreateTransferBloc>()
-                                        .currentUbicationDest
-                                        ?.name ??
-                                    "Sin ubicación",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: context
-                                                    .read<CreateTransferBloc>()
-                                                    .currentUbicationDest
-                                                    ?.name ==
-                                                null ||
-                                            context
-                                                    .read<CreateTransferBloc>()
-                                                    .currentUbicationDest
-                                                    ?.name ==
-                                                ""
-                                        ? red
-                                        : black)),
-                          ],
+                                color: context
+                                                .read<CreateTransferBloc>()
+                                                .currentUbication
+                                                ?.name ==
+                                            null ||
+                                        context
+                                                .read<CreateTransferBloc>()
+                                                .currentUbication
+                                                ?.name ==
+                                            ""
+                                    ? red
+                                    : black)),
+                        Text(
+                          "Ubicación destino: ",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: primaryColorApp,
+                          ),
                         ),
+                        Text(
+                            context
+                                    .read<CreateTransferBloc>()
+                                    .currentUbicationDest
+                                    ?.name ??
+                                "Sin ubicación",
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: context
+                                                .read<CreateTransferBloc>()
+                                                .currentUbicationDest
+                                                ?.name ==
+                                            null ||
+                                        context
+                                                .read<CreateTransferBloc>()
+                                                .currentUbicationDest
+                                                ?.name ==
+                                            ""
+                                    ? red
+                                    : black)),
                       ],
                     ),
                   ),

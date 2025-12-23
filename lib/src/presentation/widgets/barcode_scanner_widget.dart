@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/core/constans/colors.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'; // Asegúrate de que esta ruta sea correcta
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 
 class BarcodeScannerField extends StatelessWidget {
   final TextEditingController controller;
@@ -22,8 +22,6 @@ class BarcodeScannerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // La lógica de Zebra se maneja una sola vez en el widget padre
-
     return context.select((UserBloc bloc) => bloc.fabricante).contains("Zebra")
         ? _buildZebraInput(context)
         : _buildNonZebraInput(context);
@@ -56,7 +54,7 @@ class BarcodeScannerField extends StatelessWidget {
         if (event is RawKeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.enter) {
             // El `onBarcodeScanned` se llama con el valor final
-            // que asumo está guardado en el BLoC (`scannedValue5`)
+            // que se está guardado en el BLoC (`scannedValue5`)
             onBarcodeScanned(
               scannedValue5,
               context,

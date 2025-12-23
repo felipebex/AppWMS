@@ -319,10 +319,21 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   //metodo para cargar un producto seleccionado
   void _onLoadSelectedProductEvent(
-      LoadSelectedProductEvent event, Emitter<PickingPickState> emit) {
+      LoadSelectedProductEvent event, Emitter<PickingPickState> emit) async {
     try {
+      //limpiamos la busqueda
+      add(ClearSearchProudctsPickEvent());
       currentProduct = event.selectedProduct;
-      quantitySelected = currentProduct.quantitySeparate ?? 0;
+      listOfBarcodes.clear();
+      print("🔍 Lista de barcodes limpiada");
+
+      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+        pickWithProducts.pick?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+        "pick",
+      );
+
       emit(LoadSelectedProductState(currentProduct));
     } catch (e, s) {
       print("❌ Error en _onLoadSelectedProductEvent: $e -> $s");
@@ -1811,11 +1822,14 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         currentProduct.idMove ?? 0,
         "pick",
       );
+      //mostrmaos los datos del producto
+      print(
+          "Producto ID: ${currentProduct.idProduct}, Move ID: ${currentProduct.idMove}, pick ID: ${pickWithProducts.pick?.id}");
       print("listOfBarcodes: ${listOfBarcodes.length}");
+      emit(BarcodesProductLoadedState(listOfBarcodes: listOfBarcodes));
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
     }
-    emit(BarcodesProductLoadedState(listOfBarcodes: listOfBarcodes));
   }
 
   void _onFetchPickWithProductsEvent(

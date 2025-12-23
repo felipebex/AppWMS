@@ -9,6 +9,12 @@ class BarcodesRepository {
   Future<List<Barcodes>> getBarcodesProduct(
       int batchId, int productId, int idMove, String barcodeType) async {
     try {
+      print("🔍 [DB] getBarcodesProduct llamado con:");
+      print("   - batchId: $batchId");
+      print("   - productId: $productId");
+      print("   - idMove: $idMove");
+      print("   - barcodeType: $barcodeType");
+
       // Obtiene la instancia de la base de datos
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -21,9 +27,12 @@ class BarcodesRepository {
         whereArgs: [batchId, idMove, barcodeType],
       );
 
+      print("🔍 [DB] Resultados de la consulta: ${maps.length} registros");
+
       // Verificamos si la consulta ha devuelto resultados
       if (maps.isEmpty) {
-        print("No se encontraron barcodes para los parámetros proporcionados.");
+        print(
+            "⚠️ [DB] No se encontraron barcodes para los parámetros proporcionados.");
         return [];
       }
 
@@ -39,12 +48,18 @@ class BarcodesRepository {
         );
       }).toList();
 
+      print("✅ [DB] Barcodes convertidos: ${barcodes.length}");
+      for (var barcode in barcodes) {
+        print("   - ${barcode.barcode} (cantidad: ${barcode.cantidad})");
+      }
+
       return barcodes;
-    } catch (e) {
-      print("Error al obtener los barcodes: $e");
+    } catch (e, s) {
+      print("❌ [DB] Error al obtener los barcodes: $e => $s");
       return [];
     }
   }
+
   Future<List<Barcodes>> getBarcodesProductNotMove(
       int batchId, int productId, String barcodeType) async {
     try {
@@ -56,9 +71,8 @@ class BarcodesRepository {
         BarcodesPackagesTable.tableName,
         where: '${BarcodesPackagesTable.columnBatchId} = ? AND '
             '${BarcodesPackagesTable.columnIdProduct} = ? AND '
-
             '${BarcodesPackagesTable.columnBarcodeType} = ?',
-        whereArgs: [batchId,  productId, barcodeType],
+        whereArgs: [batchId, productId, barcodeType],
       );
 
       // Verificamos si la consulta ha devuelto resultados
@@ -67,21 +81,25 @@ class BarcodesRepository {
         return [];
       }
 
-     //no traier duplicados por el campo barcode
-    final barcodes = maps.fold<Map<String, Barcodes>>({}, (map, item) {
-  final barcode = item[BarcodesPackagesTable.columnBarcode];
-  if (!map.containsKey(barcode)) {
-    map[barcode] = Barcodes(
-      batchId: item[BarcodesPackagesTable.columnBatchId],
-      idMove: item[BarcodesPackagesTable.columnIdMove],
-      idProduct: item[BarcodesPackagesTable.columnIdProduct],
-      barcode: barcode,
-      cantidad: item[BarcodesPackagesTable.columnCantidad]?.toDouble(),
-      barcodeType: item[BarcodesPackagesTable.columnBarcodeType],
-    );
-  }
-  return map;
-}).values.toList();
+      //no traier duplicados por el campo barcode
+      final barcodes = maps
+          .fold<Map<String, Barcodes>>({}, (map, item) {
+            final barcode = item[BarcodesPackagesTable.columnBarcode];
+            if (!map.containsKey(barcode)) {
+              map[barcode] = Barcodes(
+                batchId: item[BarcodesPackagesTable.columnBatchId],
+                idMove: item[BarcodesPackagesTable.columnIdMove],
+                idProduct: item[BarcodesPackagesTable.columnIdProduct],
+                barcode: barcode,
+                cantidad:
+                    item[BarcodesPackagesTable.columnCantidad]?.toDouble(),
+                barcodeType: item[BarcodesPackagesTable.columnBarcodeType],
+              );
+            }
+            return map;
+          })
+          .values
+          .toList();
       return barcodes;
     } catch (e) {
       print("Error al obtener los barcodes: $e");

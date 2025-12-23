@@ -356,14 +356,18 @@ class _ScanProductPackingConsolidateScreenState
 
           if (state is ChangeLocationPackingIsOkState) {
             Future.delayed(const Duration(seconds: 1), () {
-              FocusScope.of(context).requestFocus(focusNode2);
+              if (mounted) {
+                FocusScope.of(context).requestFocus(focusNode2);
+              }
             });
             _handleDependencies();
           }
 
           if (state is ChangeProductPackingIsOkState) {
             Future.delayed(const Duration(seconds: 1), () {
-              FocusScope.of(context).requestFocus(focusNode3);
+              if (mounted) {
+                FocusScope.of(context).requestFocus(focusNode3);
+              }
             });
             _handleDependencies();
           }
@@ -787,9 +791,11 @@ class _ScanProductPackingConsolidateScreenState
                                                       const Duration(
                                                           milliseconds: 100),
                                                       () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode4);
+                                                    if (mounted) {
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNode4);
+                                                    }
                                                   });
                                                 }
                                               : null,
@@ -853,8 +859,10 @@ class _ScanProductPackingConsolidateScreenState
                                     //cambiamos el foco pa leer por pda la cantidad
                                     Future.delayed(
                                         const Duration(milliseconds: 100), () {
-                                      FocusScope.of(context)
-                                          .requestFocus(focusNode3);
+                                      if (mounted) {
+                                        FocusScope.of(context)
+                                            .requestFocus(focusNode3);
+                                      }
                                     });
                                   },
                                   icon: const Icon(Icons.clear),

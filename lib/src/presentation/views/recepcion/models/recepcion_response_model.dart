@@ -110,6 +110,7 @@ class ResultEntrada {
   String? type;
   String? propietario;
   String? createBackorder;
+  
 
   List<LineasTransferencia>? lineasRecepcion;
   List<LineasTransferencia>? lineasRecepcionEnviadas;
@@ -308,6 +309,7 @@ class LineasTransferencia {
   final dynamic image;  
   final dynamic imageNovedad;  
   final dynamic useExpirationDate;
+  // date_transaction
 
   LineasTransferencia({
     this.id,
@@ -405,7 +407,7 @@ class LineasTransferencia {
         dateEnd: json["date_end"],
         time: json["time"],
         isDoneItem: json["is_done_item"],
-        dateTransaction: json["fecha_transaccion"],
+        dateTransaction: json["date_transaction"],
         isPrincipalItem: json["is_principal_item"],
         cantidadFaltante: json["cantidad_faltante"],
         type: json["type"],
@@ -459,7 +461,7 @@ class LineasTransferencia {
         "date_end": dateEnd,
         "time": time,
         "is_done_item": isDoneItem,
-        "fecha_transaccion": dateTransaction,
+        "date_transaction": dateTransaction,
         "is_principal_item": isPrincipalItem,
         "cantidad_faltante": cantidadFaltante,
         "type": type,

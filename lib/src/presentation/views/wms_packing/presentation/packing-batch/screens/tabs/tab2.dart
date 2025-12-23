@@ -97,10 +97,10 @@ class _Tab2ScreenState extends State<Tab2Screen> {
       );
 
       Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
         // 1. Verificar si el contexto del diálogo es válido
-        if (dialogContext != null) {
-          // ✅ CORRECCIÓN CLAVE: Usamos el contexto capturado para hacer el POP seguro
-          Navigator.of(dialogContext!, rootNavigator: true).pop();
+        if (dialogContext != null && dialogContext!.mounted) {
+          Navigator.of(dialogContext!).pop();
         }
 
         // 2. Navegación a la siguiente vista

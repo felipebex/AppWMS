@@ -107,6 +107,9 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
           }
           // Si la información es válida, mostramos el Snackbar
           Future.microtask(() {
+            if (!mounted)
+              return; // ← Agregado: verificar si el widget sigue montado
+
             Get.snackbar(
               '360 Software Informa',
               'Información encontrada',

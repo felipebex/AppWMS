@@ -613,8 +613,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                             ],
                           ),
 
-                          //todo : producto
-
                           // todo: Producto
 
                           ProductScannerWidget(
@@ -622,7 +620,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                             productIsOk: recepcionBloc.productIsOk,
                             locationIsOk: true,
                             quantityIsOk: recepcionBloc.quantityIsOk,
-                            locationDestIsOk: recepcionBloc.isLocationDestOk,
+                            locationDestIsOk: recepcionBloc.locationsDestIsok,
                             currentProductId: recepcionBloc
                                 .currentProduct.productName
                                 .toString(),

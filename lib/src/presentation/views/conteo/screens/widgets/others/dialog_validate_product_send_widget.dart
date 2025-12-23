@@ -210,7 +210,7 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                     cantidad, 
                     true
                   ));
-                  _safePop(context);
+                  // _safePop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColorApp,
@@ -227,7 +227,7 @@ class DialogValidateProductSendWidget extends StatelessWidget {
                     cantidad, 
                     false
                   ));
-                  _safePop(context);
+                  // _safePop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColorApp,

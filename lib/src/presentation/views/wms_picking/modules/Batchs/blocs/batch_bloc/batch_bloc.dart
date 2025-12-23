@@ -210,8 +210,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onLoadSelectedProductEvent(
       LoadSelectedProductEvent event, Emitter<BatchState> emit) {
     try {
+
+      //pasmos a limpiar la busqueda 
+      add(ClearSearchProudctsBatchEvent());
+
+
       currentProduct = event.selectedProduct;
       quantitySelected = currentProduct.quantitySeparate ?? 0;
+      add(FetchBarcodesProductEvent());
       emit(LoadSelectedProductState(currentProduct));
     } catch (e, s) {
       print("❌ Error en _onLoadSelectedProductEvent: $e -> $s");
@@ -520,6 +526,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onFetchBarcodesProductEvent(
       FetchBarcodesProductEvent event, Emitter<BatchState> emit) async {
     try {
+      print("🔍 Obteniendo códigos de barras para el producto ID: ${currentProduct.idProduct} en el batch ID: ${batchWithProducts.batch?.id}");
       listOfBarcodes.clear();
 
       final responseList = await db.barcodesPackagesRepository.getAllBarcodes();

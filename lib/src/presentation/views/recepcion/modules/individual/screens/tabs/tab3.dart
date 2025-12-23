@@ -61,7 +61,22 @@ class Tab3ScreenRecep extends StatelessWidget {
         },
         builder: (context, state) {
           final recepcionBloc = context.read<RecepcionBloc>();
+// 1. Filtrar la lista
+final listDone = recepcionBloc.listProductsEntrada.where((element) {
+  return element.isDoneItem == 1;
+}).toList();
 
+// 2. Ordenar tomando en cuenta AÑO, MES, DÍA, HORA, MINUTO Y SEGUNDO
+listDone.sort((a, b) {
+  // Convertimos el String a DateTime
+  // DateTime.tryParse lee formatos como "2025-12-23 14:45:25" completos
+  DateTime dateA = DateTime.tryParse(a.dateTransaction ?? '') ?? DateTime(1900);
+  DateTime dateB = DateTime.tryParse(b.dateTransaction ?? '') ?? DateTime(1900);
+  
+  // DESCENDENTE: El tiempo más grande (más reciente) va primero
+  // b comparado con a
+  return dateB.compareTo(dateA); 
+});
           return Scaffold(
             backgroundColor: white,
             body: Container(
@@ -102,10 +117,8 @@ class Tab3ScreenRecep extends StatelessWidget {
                               return element.isDoneItem == 1;
                             }).length,
                             itemBuilder: (context, index) {
-                              final product = recepcionBloc.listProductsEntrada
-                                  .where((element) {
-                                return element.isDoneItem == 1;
-                              }).elementAt(index);
+                              // Obtenemos el producto directamente por su índice
+                              final product = listDone[index];
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(

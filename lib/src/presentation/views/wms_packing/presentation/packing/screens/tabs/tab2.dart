@@ -55,6 +55,9 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
 
     // Función auxiliar para procesar un producto encontrado
     void processProduct(ProductoPedido product) {
+      // Variable para almacenar el contexto creado por showDialog
+      BuildContext? dialogContext;
+
       // VERIFICAR que el producto tenga los datos necesarios
       if (product.idProduct == null ||
           product.pedidoId == null ||
@@ -86,15 +89,28 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
         ))
         ..add(ClearScannedValuePackEvent('toDo'));
 
+      // 1. ABRIR DIÁLOGO Y CAPTURAR SU CONTEXTO
       showDialog(
         context: context,
-        builder: (_) => const DialogLoading(
-          message: 'Cargando información del producto...',
-        ),
+        builder: (ctx) {
+          // ✅ Capturamos el contexto del diálogo como 'ctx'
+          dialogContext = ctx; // Almacenamos la referencia
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
       );
 
+      // 2. TEMPORIZADOR PARA CERRAR Y NAVEGAR
       Future.delayed(const Duration(seconds: 1), () {
-        Navigator.of(context, rootNavigator: true).pop();
+        if (!mounted) return;
+        // 3. ✅ CORRECCIÓN CLAVE: Usar el contexto capturado para el POP
+        if (dialogContext != null && dialogContext!.mounted) {
+          // El 'pop' ahora es seguro y usa el contexto válido del diálogo
+          Navigator.of(dialogContext!, rootNavigator: true).pop();
+        }
+
+        // 4. Navegación a la siguiente vista
         Navigator.pushReplacementNamed(context, 'scan-pack');
       });
 
@@ -473,9 +489,14 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                                       .add(FetchProductEvent(
                                                           product));
 
+                                                  // Variable para capturar el contexto del diálogo
+                                                  BuildContext? dialogContext;
+
                                                   showDialog(
                                                     context: context,
-                                                    builder: (context) {
+                                                    builder: (ctx) {
+                                                      // Capturamos el contexto del diálogo
+                                                      dialogContext = ctx;
                                                       return const DialogLoading(
                                                         message:
                                                             'Cargando información del producto...',
@@ -486,10 +507,18 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                                   Future.delayed(
                                                       const Duration(
                                                           seconds: 1), () {
-                                                    // Cerrar el diálogo de carga
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
+                                                    if (!mounted) return;
+
+                                                    // Cerrar el diálogo de carga usando el contexto capturado
+                                                    if (dialogContext != null &&
+                                                        dialogContext!
+                                                            .mounted) {
+                                                      Navigator.of(
+                                                              dialogContext!,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pop();
+                                                    }
 
                                                     // Ahora navegar a la vista "batch"
                                                     Navigator

@@ -105,8 +105,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
 
       // 2. TEMPORIZADOR PARA CERRAR Y NAVEGAR
       Future.delayed(const Duration(milliseconds: 1000), () {
+        if (!mounted) return;
         // 3. ✅ CORRECCIÓN CLAVE: Usar el contexto capturado para el POP
-        if (dialogContext != null) {
+        if (dialogContext != null && dialogContext!.mounted) {
           // El 'pop' ahora es seguro y usa el contexto válido del diálogo
           Navigator.of(dialogContext!, rootNavigator: true).pop();
         }
@@ -327,25 +328,23 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                         Future.delayed(
                                             const Duration(milliseconds: 1000),
                                             () {
-                                          if (mounted) {
-                                            // Chequeo de seguridad de contexto
+                                          if (!mounted) return;
 
-                                            // 4.1. Cerrar el diálogo de carga (usando el context del widget, ya que el diálogo fue abierto con él)
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop();
+                                          // 4.1. Cerrar el diálogo de carga (usando el context del widget, ya que el diálogo fue abierto con él)
+                                          Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .pop();
 
-                                            // 4.2. Navegar a la vista 'Packing' (Línea 450)
-                                            // Se asume que la vista 'Packing' ahora puede usar los datos que el BLoC ya cargó.
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'scan-product-order',
-                                              arguments: [
-                                                widget.ordenCompra,
-                                                product
-                                              ],
-                                            );
-                                          }
+                                          // 4.2. Navegar a la vista 'Packing' (Línea 450)
+                                          // Se asume que la vista 'Packing' ahora puede usar los datos que el BLoC ya cargó.
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            'scan-product-order',
+                                            arguments: [
+                                              widget.ordenCompra,
+                                              product
+                                            ],
+                                          );
                                         });
                                         print(product.toMap());
                                       },

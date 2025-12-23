@@ -714,6 +714,22 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                             backgroundColor: Colors.red[200],
                           ));
                         }
+
+                        //*estado cuando los barcodes del producto son cargados
+                        if (state is BarcodesProductLoadedState) {
+                          print(
+                              "✅ Barcodes cargados: ${state.listOfBarcodes.length}");
+                          // El estado se emite para forzar el rebuild del UI
+                        }
+
+                        //*estado cuando un producto es seleccionado
+                        if (state is LoadSelectedProductState) {
+                          print(
+                              "✅ Producto seleccionado cargado: ${state.selectedProduct.productId}");
+                          print(
+                              "✅ Barcodes disponibles en el bloc: ${batchBloc.listOfBarcodes.length}");
+                          // El estado se emite para forzar el rebuild del UI
+                        }
                       }, builder: (context, status) {
                         return Column(
                           children: [
@@ -1074,11 +1090,11 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                           ""
                                                       ? true
                                                       : false),
-                                              if (currentProduct
-                                                      .productTracking ==
-                                                  "lot")
-                                                Row(
-                                                  children: [
+                                              Row(
+                                                children: [
+                                                  if (currentProduct
+                                                          .productTracking ==
+                                                      "lot") ...[
                                                     Align(
                                                       alignment:
                                                           Alignment.centerLeft,
@@ -1116,39 +1132,39 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                                 : black),
                                                       ),
                                                     ),
-                                                    const Spacer(),
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return DialogBarcodes(
-                                                                  listOfBarcodes:
-                                                                      batchBloc
-                                                                          .listOfBarcodes);
-                                                            });
-                                                      },
-                                                      child: Visibility(
-                                                        visible: batchBloc
-                                                            .listOfBarcodes
-                                                            .isNotEmpty,
-                                                        child: SizedBox(
+                                                  ],
+                                                  const Spacer(),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return DialogBarcodes(
+                                                                listOfBarcodes:
+                                                                    batchBloc
+                                                                        .listOfBarcodes);
+                                                          });
+                                                    },
+                                                    child: Visibility(
+                                                      visible: batchBloc
+                                                          .listOfBarcodes
+                                                          .isNotEmpty,
+                                                      child: SizedBox(
+                                                        height: 20,
+                                                        width: 20,
+                                                        child: SvgPicture.asset(
+                                                          color:
+                                                              primaryColorApp,
+                                                          "assets/icons/barcode.svg",
                                                           height: 20,
                                                           width: 20,
-                                                          child:
-                                                              SvgPicture.asset(
-                                                            color:
-                                                                primaryColorApp,
-                                                            "assets/icons/barcode.svg",
-                                                            height: 20,
-                                                            width: 20,
-                                                            fit: BoxFit.cover,
-                                                          ),
+                                                          fit: BoxFit.cover,
                                                         ),
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
+                                              ),
                                               Visibility(
                                                 visible:
                                                     currentProduct.origin !=
@@ -1344,11 +1360,11 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                               //informacion del lote:
                                               Column(
                                                 children: [
-                                                  if (currentProduct
-                                                          .productTracking ==
-                                                      "lot")
-                                                    Row(
-                                                      children: [
+                                                  Row(
+                                                    children: [
+                                                      if (currentProduct
+                                                              .productTracking ==
+                                                          "lot") ...[
                                                         Align(
                                                           alignment: Alignment
                                                               .centerLeft,
@@ -1385,42 +1401,41 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                                     : black),
                                                           ),
                                                         ),
-                                                        const Spacer(),
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return DialogBarcodes(
-                                                                      listOfBarcodes:
-                                                                          batchBloc
-                                                                              .listOfBarcodes);
-                                                                });
-                                                          },
-                                                          child: Visibility(
-                                                            visible: batchBloc
-                                                                .listOfBarcodes
-                                                                .isNotEmpty,
-                                                            child: SizedBox(
+                                                      ],
+                                                      const Spacer(),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return DialogBarcodes(
+                                                                    listOfBarcodes:
+                                                                        batchBloc
+                                                                            .listOfBarcodes);
+                                                              });
+                                                        },
+                                                        child: Visibility(
+                                                          visible: batchBloc
+                                                              .listOfBarcodes
+                                                              .isNotEmpty,
+                                                          child: SizedBox(
+                                                            height: 20,
+                                                            width: 20,
+                                                            child: SvgPicture
+                                                                .asset(
+                                                              color:
+                                                                  primaryColorApp,
+                                                              "assets/icons/barcode.svg",
                                                               height: 20,
                                                               width: 20,
-                                                              child: SvgPicture
-                                                                  .asset(
-                                                                color:
-                                                                    primaryColorApp,
-                                                                "assets/icons/barcode.svg",
-                                                                height: 20,
-                                                                width: 20,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              ),
+                                                              fit: BoxFit.cover,
                                                             ),
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ],
                                               ),
                                               Visibility(

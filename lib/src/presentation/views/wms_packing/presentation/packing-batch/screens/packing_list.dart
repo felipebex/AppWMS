@@ -509,6 +509,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                                   // El DynamicSearchBar maneja internamente la lógica de UserBloc para el readOnly
                                 ),
                                 //*buscar por scan
+
                                 BarcodeScannerField(
                                   controller: _controllerToDo,
                                   focusNode: focusNodeBuscar,

@@ -82,7 +82,7 @@ class _PickingPageState extends State<WMSPickingPage> {
       }
     }
 
-    // // Buscar el producto usando el código de barras principal o el código de producto
+    // Buscar el producto usando el código de barras principal o el código de producto
     final batchs = listOfBatchs.firstWhere(
       (b) =>
           b.name?.toLowerCase() == scan || b.zonaEntrega?.toLowerCase() == scan,
@@ -116,7 +116,7 @@ class _PickingPageState extends State<WMSPickingPage> {
             if (state is NeedUpdateVersionState) {
               Get.snackbar(
                 '360 Software Informa',
-              'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
+                'Hay una nueva versión disponible. Actualiza desde la configuración de la app, pulsando el nombre de usuario en el Home',
                 backgroundColor: white,
                 colorText: primaryColorApp,
                 icon: Icon(Icons.error, color: Colors.amber),
@@ -308,8 +308,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                         }),
                       ),
 
-            
-
                       BarcodeScannerField(
                         controller: _controllerToDo,
                         focusNode: focusNodeBuscar,
@@ -357,8 +355,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       horizontal: 10,
                                     ),
                                     child: GestureDetector(
-                                
-
                                       onTap: () async {
                                         print(batch.toMap());
                                         try {
@@ -375,7 +371,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           );
                                         }
                                       },
-
                                       child: Card(
                                         color: batch.isSeparate == 1
                                             ? Colors.green[100]
@@ -715,42 +710,43 @@ class _PickingPageState extends State<WMSPickingPage> {
     );
   }
 
-  void goBatchInfo(BuildContext context, BatchBloc batchBloc, BatchsModel batch) async {
-  
-  // 1. Mostrar Diálogo (Capturamos el contexto del diálogo)
-  BuildContext? dialogContext;
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (ctx) { 
-      dialogContext = ctx; // ✅ Capturamos el contexto del diálogo
-      return const DialogLoading(
-        message: 'Cargando interfaz...',
-      );
-    },
-  );
+  void goBatchInfo(
+      BuildContext context, BatchBloc batchBloc, BatchsModel batch) async {
+    // 1. Mostrar Diálogo (Capturamos el contexto del diálogo)
+    BuildContext? dialogContext;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        dialogContext = ctx; // ✅ Capturamos el contexto del diálogo
+        return const DialogLoading(
+          message: 'Cargando interfaz...',
+        );
+      },
+    );
 
-  // ⚠️ NOTA: El código que carga los datos del Batch debe ejecutarse aquí
-  // Ejemplo: batchBloc.add(FetchBatchData(batch.id));
-  
-  // 2. Esperar un tiempo mínimo fijo para el UX del diálogo (retraso muy corto)
-  // Reemplazamos await Future.delayed(const Duration(seconds: 1));
-  await Future.delayed(const Duration(milliseconds: 300));
+    // ⚠️ NOTA: El código que carga los datos del Batch debe ejecutarse aquí
+    // Ejemplo: batchBloc.add(FetchBatchData(batch.id));
 
-  // 3. Cierre Seguro del Diálogo
-  // Usamos el contexto capturado, asegurando que la acción de pop sea válida
-  if (dialogContext != null) { 
-    Navigator.of(dialogContext!, rootNavigator: true).pop();
+    // 2. Esperar un tiempo mínimo fijo para el UX del diálogo (retraso muy corto)
+    // Reemplazamos await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // 3. Cierre Seguro del Diálogo
+    // Usamos el contexto capturado, asegurando que la acción de pop sea válida
+    if (dialogContext != null) {
+      Navigator.of(dialogContext!, rootNavigator: true).pop();
+    }
+
+    // 4. Navegación (Lógica sin cambios)
+    // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
+    if (batch.isSeparate != 1) {
+      Navigator.pushReplacementNamed(context, 'batch');
+    } else {
+      Navigator.pushReplacementNamed(
+          context, 'batch-detail'); // Asumo que va aquí
+    }
   }
-
-  // 4. Navegación (Lógica sin cambios)
-  // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
-  if (batch.isSeparate != 1) {
-    Navigator.pushReplacementNamed(context, 'batch');
-  } else {
-    Navigator.pushReplacementNamed(context, 'batch-detail'); // Asumo que va aquí
-  }
-}
 
 // Tu código refactorizado en un método privado
   void _handleBatchSelection(
