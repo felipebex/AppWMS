@@ -1,5 +1,3 @@
-// tbl_barcodes_packages.dart
-
 class BarcodesPackagesTable {
   static const String tableName = 'tblbarcodes_packages';
 
@@ -10,6 +8,9 @@ class BarcodesPackagesTable {
   static const String columnBarcode = 'barcode';
   static const String columnCantidad = 'cantidad';
   static const String columnBarcodeType = 'barcode_type';
+  
+  // ✅ NUEVO: Para estrategia Mark & Sweep
+  static const String columnIsSynced = 'is_synced'; 
 
   static String createTable() {
     return '''
@@ -21,8 +22,18 @@ class BarcodesPackagesTable {
       $columnBarcode TEXT,
       $columnBarcodeType TEXT,
       $columnCantidad DECIMAL(10,2),
+      $columnIsSynced INTEGER DEFAULT 0, -- Por defecto no sincronizado
       FOREIGN KEY ($columnBatchId) REFERENCES tblbatchs (id)
-    )
+    );
+
+    -- ✅ ÍNDICE ÚNICO: Reemplaza la lógica manual de "buscar si existe".
+    -- Define qué combinación de campos hace que un registro sea único.
+    CREATE UNIQUE INDEX idx_unique_barcode_entry ON $tableName 
+    ($columnBatchId, $columnIdMove, $columnIdProduct, $columnBarcode, $columnBarcodeType);
+
+    -- ✅ ÍNDICE DE LECTURA: Acelera getBarcodesProduct y similares
+    CREATE INDEX idx_barcodes_search ON $tableName 
+    ($columnBatchId, $columnIdProduct, $columnBarcodeType);
   ''';
   }
 }

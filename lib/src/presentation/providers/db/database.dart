@@ -82,13 +82,25 @@ class DataBaseSqlite {
     return _database;
   }
 
-  // Método para inicializar la base de datos si no está inicializada
+// Método para inicializar la base de datos si no está inicializada
   Future<Database> initDB() async {
     if (_database != null) return _database!;
-    // Si la base de datos no está inicializada, la inicializas aquí
+
     _database = await openDatabase(
       'wmsapp.db',
       version: 15,
+      onConfigure: (db) async {
+        try {
+          // ✅ CORRECCIÓN: Usamos rawQuery porque este PRAGMA devuelve el valor "wal"
+          await db.rawQuery('PRAGMA journal_mode = WAL;');
+          // Este usualmente no retorna, pero por seguridad puedes usar execute o rawQuery
+          await db.execute('PRAGMA synchronous = NORMAL;');
+          // Este tampoco retorna filas
+          await db.execute('PRAGMA cache_size = -10000;');
+        } catch (e) {
+          print("Error configurando PRAGMA: $e");
+        }
+      },
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -214,98 +226,6 @@ class DataBaseSqlite {
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     // Migración para la versión 9
-    if (oldVersion < 9) {
-      // ✅ Solución: Añade la columna 'origin_type' a la tabla 'tbldoc_origin'
-      try {
-        await db.execute('''
-          ALTER TABLE ${DocOriginTable.tableName}
-          ADD COLUMN ${DocOriginTable.columnOriginType} TEXT;
-        ''');
-        print(
-            '✅ Columna ${DocOriginTable.columnOriginType} añadida a ${DocOriginTable.tableName}.');
-      } catch (e) {
-        print(
-            '❌ Error al añadir la columna origin_type, es posible que ya exista.');
-      }
-
-      // Aquí también puedes mantener tu migración anterior
-      try {
-        await db.execute('''
-           ALTER TABLE ${ProductosPedidosTable.tableName}
-           ADD COLUMN ${ProductosPedidosTable.columnProductCode} TEXT NOT NULL DEFAULT '';
-         ''');
-        print(
-            '✅ Columna product_code añadida a ${ProductosPedidosTable.tableName}.');
-      } catch (e) {
-        print(
-            '❌ Error al añadir la columna product_code, es posible que ya exista.');
-      }
-    }
-
-    if (oldVersion < 10) {
-      print('Migrando la base de datos a la versión 10...');
-      try {
-        // ✅ Solución: Añade la nueva columna a la tabla OrdenTable
-        await db.execute('''
-        ALTER TABLE ${OrdenTable.tableName}
-        ADD COLUMN ${OrdenTable.columnObservationGeneral} TEXT NOT NULL DEFAULT '';
-      ''');
-        print(
-            '✅ Columna ${OrdenTable.columnObservationGeneral} añadida a ${OrdenTable.tableName}.');
-      } catch (e) {
-        print(
-            '❌ Error al añadir la columna ${OrdenTable.columnObservationGeneral}, es posible que ya exista.');
-      }
-    }
-
-    if (oldVersion < 11) {
-      print('Migrando la base de datos a la versión 11...');
-      try {
-        // ✅ Solución: Añade la nueva columna a la tabla PickProductsTable
-        await db.execute('''
-        ALTER TABLE ${PickProductsTable.tableName}
-        ADD COLUMN ${PickProductsTable.columnProductTracking} TEXT NOT NULL DEFAULT '';
-      ''');
-        print(
-            '✅ Columna ${PickProductsTable.columnProductTracking} añadida a ${PickProductsTable.tableName}.');
-      } catch (e) {
-        print(
-            '❌ Error al añadir la columna ${PickProductsTable.columnProductTracking}, es posible que ya exista.');
-      }
-    }
-
-    if (oldVersion < 12) {
-      //solucion para cuando la version no tiene la tabla de productos para crear transferencia
-      print('Migrando la base de datos a la versión 12...');
-      try {
-        // Crear la tabla ProductCreateTransferTable si no existe
-        await db.execute(ProductCreateTransferTable.createTable());
-        print(
-            '✅ Tabla ${ProductCreateTransferTable.tableName} creada correctamente.');
-      } catch (e) {
-        print(
-            '❌ Error al crear la tabla ${ProductCreateTransferTable.tableName}, es posible que ya exista.');
-      }
-    }
-
-    if (oldVersion < 13) {
-      //solucion para cuando la version no tiene la tabla de batch packing consolidade
-      print('Migrando la base de datos a la versión 13...');
-      try {
-        // Crear la tabla BatchPackingConsolidateTable si no existe
-        await db.execute(BatchPackingConsolidateTable.createTable());
-        //crear la tabla de pedidos de packing consolidade
-        await db.execute(PedidosPackingConsolidateTable.createTable());
-
-        print(
-            '✅ Tabla ${BatchPackingConsolidateTable.tableName} creada correctamente.');
-        print(
-            '✅ Tabla ${PedidosPackingConsolidateTable.tableName} creada correctamente.');
-      } catch (e) {
-        print(
-            '❌ Error al crear la tabla ${BatchPackingConsolidateTable.tableName}, es posible que ya exista.');
-      }
-    }
 
     if (oldVersion < 14) {
       //solucion para cuando la version no tiene la tabla de maestra de productos de inventario
@@ -338,6 +258,39 @@ class DataBaseSqlite {
       } catch (e) {
         print(
             '❌ Error al añadir la columna ${ConfigurationsTable.columnAccessProductionModule}, es posible que ya exista.');
+      }
+    }
+    if (oldVersion < 16) {
+      // O tu siguiente versión
+      try {
+        // Agregar columna para estrategia Mark & Sweep
+        await db.execute(
+            'ALTER TABLE tblUbicaciones ADD COLUMN is_synced INTEGER DEFAULT 0;');
+
+        // Agregar Índices para velocidad
+        await db.execute(
+            'CREATE INDEX idx_tblUbicaciones_barcode ON tblUbicaciones (barcode);');
+
+        print('Migrando Barcodes: Agregando is_synced e Índices...');
+
+        // 1. Agregar columna para sincronización
+        await db.execute(
+            'ALTER TABLE ${BarcodesPackagesTable.tableName} ADD COLUMN ${BarcodesPackagesTable.columnIsSynced} INTEGER DEFAULT 0;');
+
+        // 2. Índice para búsquedas rápidas (Lectura)
+        await db.execute(
+            'CREATE INDEX idx_barcodes_search ON ${BarcodesPackagesTable.tableName} (${BarcodesPackagesTable.columnBatchId}, ${BarcodesPackagesTable.columnIdProduct}, ${BarcodesPackagesTable.columnBarcodeType});');
+
+        // 3. ÍNDICE ÚNICO (Critico para Escritura Rápida)
+        // Esto permite usar ConflictAlgorithm.replace. Si intentas insertar un duplicado de estos campos, lo actualizará en vez de crear otro.
+        await db.execute('''
+          CREATE UNIQUE INDEX idx_unique_barcode_entry ON ${BarcodesPackagesTable.tableName} 
+          (${BarcodesPackagesTable.columnBatchId}, ${BarcodesPackagesTable.columnIdMove}, ${BarcodesPackagesTable.columnIdProduct}, ${BarcodesPackagesTable.columnBarcode}, ${BarcodesPackagesTable.columnBarcodeType});
+        ''');
+
+        print('✅ Optimización de Barcodes completada.');
+      } catch (e) {
+        print("Error actualizando UbicacionesTable: $e");
       }
     }
   }

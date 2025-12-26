@@ -8,6 +8,9 @@ class UbicacionesTable {
   static const String columnLocationName = 'location_name';
   static const String columnIdWarehouse = 'id_warehouse';
   static const String columnWarehouseName = 'warehouse_name';
+  
+  // Columna técnica para la estrategia de "Marca y Barrido"
+  static const String columnIsSynced = 'is_synced'; 
 
   static String createTable() {
     return '''
@@ -18,8 +21,11 @@ class UbicacionesTable {
       $columnLocationId INTEGER,
       $columnLocationName TEXT,
       $columnIdWarehouse INTEGER,
-      $columnWarehouseName TEXT
-    )
+      $columnWarehouseName TEXT,
+      $columnIsSynced INTEGER DEFAULT 0 
+    );
+    CREATE INDEX idx_${tableName}_barcode ON $tableName ($columnBarcode);
+    CREATE INDEX idx_${tableName}_name ON $tableName ($columnName);
   ''';
   }
 }

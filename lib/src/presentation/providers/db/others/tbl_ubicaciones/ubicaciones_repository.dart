@@ -1,133 +1,173 @@
-import 'package:sqflite/sqlite_api.dart';
+
+
+import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_table.dart';
 
 class UbicacionesRepository {
-  // Método para insertar o actualizar los barcodes de los productos
-  Future<void> insertOrUpdateUbicaciones(
-      List<ResultUbicaciones> ubicacionesList) async {
+  
+  // Tamaño del bloque para procesar. 500 es un balance seguro entre velocidad y consumo de RAM.
+  static const int _batchSize = 500; 
+
+  /// --------------------------------------------------------------------------
+  /// METODO MAESTRO DE SINCRONIZACIÓN (Full Sync)
+  /// --------------------------------------------------------------------------
+  /// 1. MARCA: Pone todos los registros locales como "no sincronizados" (is_synced = 0).
+  /// 2. UPSERT: Inserta o Actualiza los registros nuevos en lotes y los marca como "sincronizados" (is_synced = 1).
+  /// 3. BARRIDO: Elimina los registros que quedaron en 0 (ya no vienen del servidor).
+  Future<void> syncUbicaciones(List<ResultUbicaciones> ubicacionesList) async {
     try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      if (db == null) return;
 
-      // Inicia la transacción
+      // Usamos una transacción exclusiva. Si algo falla, se revierte todo.
       await db.transaction((txn) async {
-        // Crear el batch
-        Batch batch = txn.batch();
-
-        // Obtener todas las ubicaciones existentes de una sola vez
-        final List<Map<String, dynamic>> existingUbicaciones = await txn.query(
-          UbicacionesTable.tableName,
-          columns: [UbicacionesTable.columnId],
-          where: '${UbicacionesTable.columnId} IN (?)',
-          whereArgs: [
-            ubicacionesList.map((ubicacion) => ubicacion.id).toList().join(',')
-          ],
+        
+        // PASO 1: MARCA (Resetear flag)
+        // O(1) - Es instantáneo
+        await txn.rawUpdate(
+          'UPDATE ${UbicacionesTable.tableName} SET ${UbicacionesTable.columnIsSynced} = 0'
         );
 
-        // Crear un conjunto para facilitar la comprobación de existencia
-        Set<int> existingIds = Set.from(
-            existingUbicaciones.map((e) => e[UbicacionesTable.columnId]));
+        // PASO 2: UPSERT POR LOTES (Chunking)
+        // Evita saturar la memoria creando 30,000 operaciones en un solo golpe.
+        int totalProcesados = 0;
 
-        for (var ubicacion in ubicacionesList) {
-          // Validación: Si el código de barras está vacío o es null, se salta este registro
-          if (ubicacion.barcode == null || ubicacion.barcode == "") {
-            continue; // Saltamos esta ubicación y no realizamos ningún insert o update
-          }
+        for (var i = 0; i < ubicacionesList.length; i += _batchSize) {
+          final end = (i + _batchSize < ubicacionesList.length) 
+              ? i + _batchSize 
+              : ubicacionesList.length;
+          final batchList = ubicacionesList.sublist(i, end);
+          
+          final batch = txn.batch();
 
-          if (existingIds.contains(ubicacion.id)) {
-            // Si la ubicacion ya existe, la actualizamos
-            batch.update(
-              UbicacionesTable.tableName,
-              {
-                UbicacionesTable.columnName: ubicacion.name,
-                UbicacionesTable.columnBarcode: ubicacion.barcode,
-                UbicacionesTable.columnLocationId: ubicacion.locationId,
-                UbicacionesTable.columnLocationName: ubicacion.locationName,
-                UbicacionesTable.columnIdWarehouse: ubicacion.idWarehouse,
-                UbicacionesTable.columnWarehouseName: ubicacion.warehouseName,
-              },
-              where: '${UbicacionesTable.columnId} = ?',
-              whereArgs: [ubicacion.id],
-            );
-          } else {
-            // Si no existe, la insertamos
+          for (var item in batchList) {
+            // Validación mínima de integridad
+            if (item.barcode == null || item.barcode!.isEmpty) continue;
+
             batch.insert(
               UbicacionesTable.tableName,
               {
-                UbicacionesTable.columnId: ubicacion.id,
-                UbicacionesTable.columnName: ubicacion.name,
-                UbicacionesTable.columnBarcode: ubicacion.barcode,
-                UbicacionesTable.columnLocationId: ubicacion.locationId,
-                UbicacionesTable.columnLocationName: ubicacion.locationName,
-                UbicacionesTable.columnIdWarehouse: ubicacion.idWarehouse,
-                UbicacionesTable.columnWarehouseName: ubicacion.warehouseName,
+                UbicacionesTable.columnId: item.id,
+                UbicacionesTable.columnName: item.name,
+                UbicacionesTable.columnBarcode: item.barcode,
+                UbicacionesTable.columnLocationId: item.locationId,
+                UbicacionesTable.columnLocationName: item.locationName,
+                UbicacionesTable.columnIdWarehouse: item.idWarehouse,
+                UbicacionesTable.columnWarehouseName: item.warehouseName,
+                // ✅ IMPORTANTE: Marcamos este registro como actualizado
+                UbicacionesTable.columnIsSynced: 1, 
               },
-              conflictAlgorithm: ConflictAlgorithm.replace,
+              // ✅ LA CLAVE: REPLACE actúa como "Insertar si no existe, Actualizar si existe"
+              conflictAlgorithm: ConflictAlgorithm.replace, 
             );
           }
+          
+          // Ejecutamos este lote
+          await batch.commit(noResult: true);
+          totalProcesados += batchList.length;
         }
 
-        // Ejecutar todas las operaciones del batch
-        await batch.commit();
+        // PASO 3: BARRIDO (Eliminar obsoletos)
+        // Borramos todo lo que se quedó con la bandera en 0
+        final deletedCount = await txn.delete(
+          UbicacionesTable.tableName,
+          where: '${UbicacionesTable.columnIsSynced} = ?',
+          whereArgs: [0],
+        );
+
+        print("⚡ Sync Ubicaciones Finalizada: Procesados $totalProcesados | Eliminados (Obsoletos) $deletedCount");
       });
 
-      // Imprimimos el número de registros insertados y actualizados
     } catch (e, s) {
-      print("Error al insertar/actualizar ubicaciones: $e => $s");
+      print("❌ Error crítico en syncUbicaciones: $e => $s");
+      // Opcional: Relanzar error si necesitas manejarlo en la UI
+      // throw e; 
     }
   }
 
-  //metodo para obtener todos las ubicaciones
+  /// --------------------------------------------------------------------------
+  /// SINGLE UPDATE (Para WebSockets / Tiempo Real)
+  /// --------------------------------------------------------------------------
+  Future<void> insertOrUpdateSingle(ResultUbicaciones item) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      await db!.insert(
+        UbicacionesTable.tableName,
+        {
+          UbicacionesTable.columnId: item.id,
+          UbicacionesTable.columnName: item.name,
+          UbicacionesTable.columnBarcode: item.barcode,
+          UbicacionesTable.columnLocationId: item.locationId,
+          UbicacionesTable.columnLocationName: item.locationName,
+          UbicacionesTable.columnIdWarehouse: item.idWarehouse,
+          UbicacionesTable.columnWarehouseName: item.warehouseName,
+          UbicacionesTable.columnIsSynced: 1,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print("Error insertOrUpdateSingle: $e");
+    }
+  }
+
+  /// --------------------------------------------------------------------------
+  /// CONSULTAS OPTIMIZADAS
+  /// --------------------------------------------------------------------------
+
+  // Obtener ubicación por código de barras (Usando el Índice)
+  Future<ResultUbicaciones?> getUbicacionByBarcode(String barcode) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      
+      final List<Map<String, dynamic>> res = await db!.query(
+        UbicacionesTable.tableName,
+        where: '${UbicacionesTable.columnBarcode} = ?',
+        whereArgs: [barcode],
+        limit: 1 // ✅ Optimización: Detener búsqueda al encontrar el primero
+      );
+
+      if (res.isNotEmpty) {
+        return _mapToModel(res.first);
+      }
+      return null;
+
+    } catch (e) {
+      print("Error getUbicacionByBarcode: $e");
+      return null;
+    }
+  }
+
+  // Obtener todas (Con advertencia de memoria)
   Future<List<ResultUbicaciones>> getAllUbicaciones() async {
     try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> maps = await db!.query(UbicacionesTable.tableName);
 
-      // Realizamos la consulta para obtener los barcodes
-      final List<Map<String, dynamic>> maps =
-          await db.query(UbicacionesTable.tableName);
-
-      // Convertimos los resultados de la consulta en objetos Barcodes
-      final List<ResultUbicaciones> ubicaciones = maps.map((map) {
-        return ResultUbicaciones(
-          id: map[UbicacionesTable.columnId],
-          name: map[UbicacionesTable.columnName],
-          barcode: map[UbicacionesTable.columnBarcode],
-          locationId: map[UbicacionesTable.columnLocationId],
-          locationName: map[UbicacionesTable.columnLocationName],
-          idWarehouse: map[UbicacionesTable.columnIdWarehouse],
-          warehouseName: map[UbicacionesTable.columnWarehouseName],
-        );
-      }).toList();
-
-      return ubicaciones;
+      return maps.map((map) => _mapToModel(map)).toList();
     } catch (e) {
-      print("Error al obtener las ubicaciones: $e");
+      print("Error getAllUbicaciones: $e");
       return [];
     }
   }
 
-//metodo para actualizar el nombre y el barcode de una ubicacion
-  Future<void> updateUbicacion(
-    int id,
-    String name,
-    String barcode,
-  ) async {
-    try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
+  /// Helper para mapear de SQL a Modelo (Evita repetir código)
+  ResultUbicaciones _mapToModel(Map<String, dynamic> map) {
+    return ResultUbicaciones(
+      id: map[UbicacionesTable.columnId],
+      name: map[UbicacionesTable.columnName],
+      barcode: map[UbicacionesTable.columnBarcode],
+      locationId: map[UbicacionesTable.columnLocationId],
+      locationName: map[UbicacionesTable.columnLocationName],
+      idWarehouse: map[UbicacionesTable.columnIdWarehouse],
+      warehouseName: map[UbicacionesTable.columnWarehouseName],
+    );
+  }
 
-      // Realizamos la actualización de la ubicación
-      await db.update(
-        UbicacionesTable.tableName,
-        {
-          UbicacionesTable.columnName: name,
-          UbicacionesTable.columnBarcode: barcode,
-        },
-        where: '${UbicacionesTable.columnId} = ?',
-        whereArgs: [id],
-      );
-    } catch (e) {
-      print("Error al actualizar la ubicación: $e");
-    }
+  /// Borrar todo (Reset manual)
+  Future<void> deleteAll() async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    await db!.delete(UbicacionesTable.tableName);
   }
 }
