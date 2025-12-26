@@ -11,28 +11,19 @@ class ProductInventarioTable {
   static const String columnLotName = 'lot_name';
   static const String columnExpirationDate = 'expiration_time';
   static const String columnProductCode = 'code';
-  //weight
   static const String columnWeight = 'weight';
-  // weight_uom_name
   static const String columnWeightUomName = 'weight_uom_name';
-  //volume
   static const String columnVolume = 'volume';
-  //volume_uom_name
   static const String columnVolumeUomName = 'volume_uom_name';
-  //uom
   static const String columnUom = 'uom';
-  // int? locationId;
   static const String columnLocationId = 'location_id';
-  // String? locationName;
   static const String columnLocationName = 'location_name';
-  // dynamic quantity;
   static const String columnQuantity = 'quantity';
-
-  //use_expiration_date
   static const String columnUseExpirationDate = 'use_expiration_date';
-
-  //category
   static const String columnCategory = 'category';
+  
+  // ✅ NUEVO: Columna para estrategia de sincronización
+  static const String columnIsSynced = 'is_synced';
 
   static String createTable() {
     return '''
@@ -55,9 +46,18 @@ class ProductInventarioTable {
         $columnQuantity REAL,
         $columnUseExpirationDate INTEGER,
         $columnCategory TEXT,
-        $columnVolumeUomName TEXT
-        )
+        $columnVolumeUomName TEXT,
+        $columnIsSynced INTEGER DEFAULT 0
+      );
 
-        ''';
+      -- ✅ ÍNDICES DE RENDIMIENTO
+      
+      -- Índice Único para Upsert (Reemplaza duplicados de stock)
+      CREATE UNIQUE INDEX idx_unique_inventory_stock ON $tableName ($columnProductId, $columnLotId, $columnLocationId);
+
+      -- Índices de Búsqueda Rápida
+      CREATE INDEX idx_inv_barcode ON $tableName ($columnBarcode);
+      CREATE INDEX idx_inv_product_id ON $tableName ($columnProductId);
+    ''';
   }
 }

@@ -1,130 +1,123 @@
+
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/inventario/tbl_barcode/barcodes_inventario_table.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 
 class BarcodesInventarioRepository {
+  
+  // Tamaño del bloque para inserción masiva
+  static const int _batchSize = 500;
+
+  /// --------------------------------------------------------------------------
+  /// METODO OPTIMIZADO: insertOrUpdateBarcodes (Mark & Sweep)
+  /// --------------------------------------------------------------------------
   Future<void> insertOrUpdateBarcodes(
       List<BarcodeInventario> barcodesList) async {
-    int insertedCount = 0; // Contador de registros insertados
-    int updatedCount = 0; // Contador de registros actualizados
+    
+    if (barcodesList.isEmpty) return;
 
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Inicia la transacción
       await db.transaction((txn) async {
-        for (var barcode in barcodesList) {
-          // Realizamos la consulta para verificar si ya existe el producto con este barcode
-          final List<Map<String, dynamic>> existingProduct = await txn.query(
-            BarcodesInventarioTable.tableName,
-            where: '${BarcodesInventarioTable.columnIdProduct} = ? AND '
-                '${BarcodesInventarioTable.columnBarcode} = ?',
-            whereArgs: [barcode.idProduct,  barcode.barcode],
-          );
+        
+        // PASO 1: MARCA (Resetear flag)
+        // Marcamos TODO el inventario como no sincronizado.
+        // OJO: Esto asume que estás descargando el catálogo completo de barcodes.
+        await txn.rawUpdate(
+          'UPDATE ${BarcodesInventarioTable.tableName} SET ${BarcodesInventarioTable.columnIsSynced} = 0'
+        );
 
-          if (existingProduct.isNotEmpty) {
-            // Si el producto ya existe, lo actualizamos
-            await txn.update(
+        // PASO 2: UPSERT POR LOTES (Chunking)
+        for (var i = 0; i < barcodesList.length; i += _batchSize) {
+          final end = (i + _batchSize < barcodesList.length)
+              ? i + _batchSize
+              : barcodesList.length;
+          final batchList = barcodesList.sublist(i, end);
+
+          final batch = txn.batch();
+
+          for (final barcode in batchList) {
+            batch.insert(
               BarcodesInventarioTable.tableName,
               {
                 BarcodesInventarioTable.columnIdProduct: barcode.idProduct,
                 BarcodesInventarioTable.columnBarcode: barcode.barcode,
                 BarcodesInventarioTable.columnCantidad: barcode.cantidad ?? 1,
+                // ✅ Marcamos como actualizado
+                BarcodesInventarioTable.columnIsSynced: 1, 
               },
-              where: '${BarcodesInventarioTable.columnIdProduct} = ? AND '
-                  '${BarcodesInventarioTable.columnBarcode} = ?',
-              whereArgs: [
-                barcode.idProduct,
-                barcode.barcode,
-              ],
+              // ✅ Si existe (Producto + Barcode), actualiza. Si no, inserta.
+              conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            updatedCount++; // Incrementamos el contador de actualizaciones
-          } else {
-            // Si el producto no existe, lo insertamos
-            await txn.insert(
-              BarcodesInventarioTable.tableName,
-              {
-                BarcodesInventarioTable.columnIdProduct: barcode.idProduct,
-                BarcodesInventarioTable.columnBarcode: barcode.barcode,
-                BarcodesInventarioTable.columnCantidad: barcode.cantidad ?? 1,
-              },
-              conflictAlgorithm: ConflictAlgorithm
-                  .replace, // Reemplaza si hay conflicto en la clave primaria
-            );
-            insertedCount++; // Incrementamos el contador de inserciones
           }
+          await batch.commit(noResult: true);
         }
-      });
 
-      // Imprimimos el número de registros insertados y actualizados
-      print("Total de registros insertOrUpdateBarcodes: $insertedCount");
-      print("Total de registros insertOrUpdateBarcodes: $updatedCount");
+        // PASO 3: BARRIDO (Limpiar basura)
+        // Borramos los códigos que ya no vienen del servidor
+        int deleted = await txn.delete(
+          BarcodesInventarioTable.tableName,
+          where: '${BarcodesInventarioTable.columnIsSynced} = ?',
+          whereArgs: [0],
+        );
+
+        print("📦 Inventario Barcodes: Procesados ${barcodesList.length} | Eliminados Obsoletos: $deleted");
+      });
     } catch (e, s) {
-      print("Error al insertar/actualizar barcodes: $e => $s");
+      print("❌ Error insertOrUpdateBarcodes: $e => $s");
     }
   }
 
+  /// --------------------------------------------------------------------------
+  /// MÉTODOS DE LECTURA
+  /// --------------------------------------------------------------------------
+
   Future<List<BarcodeInventario>> getAllBarcodes() async {
     try {
-      //mostrar todos los barcodes
-
       Database db = await DataBaseSqlite().getDatabaseInstance();
-
-      // Realizamos la consulta para obtener los barcodes
+      
+      // Consulta simple (Podrías agregar LIMIT si son demasiados)
       final List<Map<String, dynamic>> maps = await db.query(
         BarcodesInventarioTable.tableName,
       );
 
-      // Convertimos los resultados de la consulta en objetos Barcodes
-      final List<BarcodeInventario> barcodes = maps.map((map) {
-        return BarcodeInventario(
-          idProduct: map[BarcodesInventarioTable.columnIdProduct],
-          barcode: map[BarcodesInventarioTable.columnBarcode],
-          cantidad: map[BarcodesInventarioTable.columnCantidad],
-        );
-      }).toList();
-
-      return barcodes;
+      return maps.map((map) => _mapToModel(map)).toList();
     } catch (e) {
       print("Error al obtener los barcodes: $e");
       return [];
     }
   }
 
-  Future<List<BarcodeInventario>> getBarcodesProduct(
-      int productId, ) async {
+  Future<List<BarcodeInventario>> getBarcodesProduct(int productId) async {
     try {
-      // Obtiene la instancia de la base de datos
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Realizamos la consulta para obtener los barcodes
+      // Esta consulta ahora usa el índice 'idx_search_inv_product', es instantánea.
       final List<Map<String, dynamic>> maps = await db.query(
         BarcodesInventarioTable.tableName,
         where: '${BarcodesInventarioTable.columnIdProduct} = ? ',
-        whereArgs: [productId, ],
+        whereArgs: [productId],
       );
 
-      // Verificamos si la consulta ha devuelto resultados
       if (maps.isEmpty) {
-        print("No se encontraron barcodes para los parámetros proporcionados.");
         return [];
       }
 
-      // Convertimos los resultados de la consulta en objetos Barcodes
-      final List<BarcodeInventario> barcodes = maps.map((map) {
-        return BarcodeInventario(
-          idProduct: map[BarcodesInventarioTable.columnIdProduct],
-          barcode: map[BarcodesInventarioTable.columnBarcode],
-          cantidad: map[BarcodesInventarioTable.columnCantidad]
-              , // Asegúrate de convertir el tipo correctamente
-        );
-      }).toList();
-
-      return barcodes;
-    } catch (e,s) {
+      return maps.map((map) => _mapToModel(map)).toList();
+    } catch (e, s) {
       print("Error al obtener los barcodes: $e, =>$s");
       return [];
     }
+  }
+
+  /// Helper privado para mapear
+  BarcodeInventario _mapToModel(Map<String, dynamic> map) {
+    return BarcodeInventario(
+      idProduct: map[BarcodesInventarioTable.columnIdProduct],
+      barcode: map[BarcodesInventarioTable.columnBarcode],
+      cantidad: map[BarcodesInventarioTable.columnCantidad],
+    );
   }
 }

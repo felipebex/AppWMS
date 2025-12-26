@@ -288,6 +288,40 @@ class DataBaseSqlite {
           (${BarcodesPackagesTable.columnBatchId}, ${BarcodesPackagesTable.columnIdMove}, ${BarcodesPackagesTable.columnIdProduct}, ${BarcodesPackagesTable.columnBarcode}, ${BarcodesPackagesTable.columnBarcodeType});
         ''');
 
+        // 1. Agregar columna de sincronización
+        await db.execute(
+            'ALTER TABLE tblbarcodes_inventario ADD COLUMN is_synced INTEGER DEFAULT 0;');
+
+        // 2. ÍNDICE ÚNICO (Para escritura rápida):
+        // Define que la combinación (Producto + Barcode) es única.
+        // Esto permite que 'ConflictAlgorithm.replace' funcione.
+        await db.execute('''
+          CREATE UNIQUE INDEX idx_unique_barcode_inv ON tblbarcodes_inventario 
+          (id_product, barcode);
+        ''');
+
+        // 3. ÍNDICE DE LECTURA (Para búsqueda rápida):
+        await db.execute(
+            'CREATE INDEX idx_search_inv_product ON tblbarcodes_inventario (id_product);');
+
+        // 1. Agregar columna para Mark & Sweep
+        await db.execute(
+            'ALTER TABLE tblproductos_inventario ADD COLUMN is_synced INTEGER DEFAULT 0;');
+
+        // 2. ÍNDICE ÚNICO (Critico para Upsert):
+        // Define que la combinación (Producto + Lote + Ubicación) es única.
+        // Si llega el mismo producto en el mismo lote y ubicación, se actualiza el stock/datos.
+        await db.execute('''
+          CREATE UNIQUE INDEX idx_unique_inventory_stock ON tblproductos_inventario 
+          (product_id, lot_id, location_id);
+        ''');
+
+        // 3. ÍNDICES DE LECTURA (Búsquedas instantáneas):
+        await db.execute(
+            'CREATE INDEX idx_inv_barcode ON tblproductos_inventario (barcode);');
+        await db.execute(
+            'CREATE INDEX idx_inv_product_id ON tblproductos_inventario (product_id);');
+
         print('✅ Optimización de Barcodes completada.');
       } catch (e) {
         print("Error actualizando UbicacionesTable: $e");
