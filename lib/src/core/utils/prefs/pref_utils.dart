@@ -41,6 +41,20 @@ class PrefUtils {
     return preferences.getString(PrefKeys.cookie) ?? "";
   }
 
+  // Guardar la hora actual como última actividad
+  static Future<void> saveLastActiveTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_active_time', DateTime.now().toIso8601String());
+  }
+
+  // Obtener la última hora registrada
+  static Future<DateTime?> getLastActiveTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? timeStr = prefs.getString('last_active_time');
+    if (timeStr == null) return null;
+    return DateTime.tryParse(timeStr);
+  }
+
   //TODO GUARDAMOS LOS DATOS DE LA PDA
 
   static Future<void> setMacPDA(String mac) async {
@@ -160,4 +174,26 @@ class PrefUtils {
     await preferences.remove(PrefKeys.pass);
     await preferences.remove(PrefKeys.rol);
   }
+
+  static Future<void> clearSession() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    
+    // 1. Borramos la hora de actividad (CRÍTICO para que no haga loop infinito de logout)
+    await preferences.remove('last_active_time');
+
+    // 2. Marcamos al usuario como deslogueado
+    await preferences.setBool(PrefKeys.isLoggedIn, false);
+
+    // 3. Limpiamos datos sensibles de la sesión actual
+    await preferences.remove(PrefKeys.cookie);
+    await preferences.remove(PrefKeys.pass);
+    await preferences.remove(PrefKeys.user);
+    await preferences.remove(PrefKeys.userId);
+    await preferences.remove(PrefKeys.email);
+    await preferences.remove(PrefKeys.rol);
+    
+    // NOTA: No borramos Enterprise ni datos de la PDA (Mac, Imei) 
+    // porque esos deben persistir aunque el usuario cierre sesión.
+  }
+
 }

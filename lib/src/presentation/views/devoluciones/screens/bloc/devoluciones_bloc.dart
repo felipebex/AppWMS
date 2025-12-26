@@ -399,6 +399,7 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
     dateLoteController.clear();
     newLoteController.clear();
     searchControllerLote.clear();
+
     print('Lote seleccionado: ${lotesProductCurrent.toMap()}');
     emit(SelectecLoteState(lotesProductCurrent));
   }

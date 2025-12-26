@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
@@ -1072,24 +1073,10 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                           ),
                                           Column(
                                             children: [
-                                              ExpiryDateWidget(
-                                                  expireDate: currentProduct
-                                                                  .expireDate ==
-                                                              "" ||
-                                                          currentProduct
-                                                                  .expireDate ==
-                                                              null
-                                                      ? DateTime.now()
-                                                      : DateTime.parse(
-                                                          currentProduct
-                                                              .expireDate),
-                                                  size: size,
-                                                  isDetaild: false,
-                                                  isNoExpireDate: currentProduct
-                                                              .expireDate ==
-                                                          ""
-                                                      ? true
-                                                      : false),
+                                              ExpirationBadgeWidget(
+                                                expirationDate:
+                                                    currentProduct?.expireDate,
+                                              ),
                                               Row(
                                                 children: [
                                                   if (currentProduct
@@ -1473,24 +1460,10 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                   ],
                                                 ),
                                               ),
-                                              ExpiryDateWidget(
-                                                  expireDate: currentProduct
-                                                                  .expireDate ==
-                                                              "" ||
-                                                          currentProduct
-                                                                  .expireDate ==
-                                                              null
-                                                      ? DateTime.now()
-                                                      : DateTime.parse(
-                                                          currentProduct
-                                                              .expireDate),
-                                                  size: size,
-                                                  isDetaild: false,
-                                                  isNoExpireDate: currentProduct
-                                                              .expireDate ==
-                                                          ""
-                                                      ? true
-                                                      : false),
+                                              ExpirationBadgeWidget(
+                                                expirationDate:
+                                                    currentProduct?.expireDate,
+                                              ),
                                             ],
                                           ),
                                         ),

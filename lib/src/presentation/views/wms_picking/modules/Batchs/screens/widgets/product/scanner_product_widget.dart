@@ -215,7 +215,7 @@ class ProductScannerWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                        if (origin != null && origin!.isNotEmpty)
+                       if (origin != null && origin!.isNotEmpty)
                           Row(
                             children: [
                               Icon(Icons.file_open_sharp,

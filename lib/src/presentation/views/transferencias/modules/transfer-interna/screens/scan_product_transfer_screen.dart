@@ -25,6 +25,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
@@ -756,22 +757,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                               currentProduct: bloc.currentProduct,
                               isPDA: false,
                             ),
-                            expiryWidget: ExpiryDateWidget(
-                              expireDate: bloc.currentProduct
-                                              .fechaVencimiento ==
-                                          "" ||
-                                      bloc.currentProduct.fechaVencimiento ==
-                                          null
-                                  ? DateTime.now()
-                                  : DateTime.parse(
-                                      bloc.currentProduct.fechaVencimiento ??
-                                          ""),
-                              size: size,
-                              isDetaild: false,
-                              isNoExpireDate:
-                                  bloc.currentProduct.fechaVencimiento == ""
-                                      ? true
-                                      : false,
+                            expiryWidget: ExpirationBadgeWidget(
+                              expirationDate:
+                                  bloc.currentProduct?.fechaVencimiento,
                             ),
                             listOfBarcodes: bloc.listOfBarcodes,
                             onBarcodesDialogTap: () {

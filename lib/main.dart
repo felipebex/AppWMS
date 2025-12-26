@@ -9,8 +9,10 @@ import 'package:wms_app/src/core/constans/colors.dart';
 import 'package:wms_app/src/core/routes/app_router.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
+import 'package:wms_app/src/core/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/core/utils/widgets/error_widget.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
@@ -29,6 +31,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/session_timeout_manager_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -101,6 +104,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+// Función para cerrar sesión
+    void _logOut() async {
+      print("⏳ Sesión expirada por inactividad.");
+
+      // 1. Usamos el contexto del Navigator, que sí tiene acceso a los BLoCs
+      final contextWithProviders = navigatorKey.currentContext;
+
+      if (contextWithProviders != null) {
+        PrefUtils.clearPrefs();
+        Preferences.removeUrlWebsite();
+        await DataBaseSqlite().deleteBDCloseSession();
+        await Future.delayed(const Duration(seconds: 1));
+        PrefUtils.setIsLoggedIn(false);
+      }
+
+      // 2. Navegar al Login y limpiar historial
+      navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('enterprice', (route) => false);
+    }
+
     return MultiBlocProvider(
       providers: [
         // ✅ Reutilizamos la instancia única del ConnectionStatusCubit
@@ -150,7 +173,10 @@ class MyApp extends StatelessWidget {
             unencodePath: '/api',
             httpHandler: HttpResponseHandler(context),
           );
-          return navigator!;
+          return SessionTimeoutManager(
+              duration: const Duration(hours: 1),
+              onSessionExpired: _logOut,
+              child: navigator!);
         },
       ),
     );

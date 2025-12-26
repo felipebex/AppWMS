@@ -27,6 +27,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 import '../../../providers/network/check_internet_connection.dart';
@@ -361,11 +362,11 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                           if (state is ViewProductImageSuccess) {
                             showImageDialog(context, state.imageUrl);
                           } else if (state is ViewProductImageFailure) {
-                             showScrollableErrorDialog( state.error);
+                            showScrollableErrorDialog(state.error);
                           }
 
                           if (state is SendProductConteoFailure) {
-                            showScrollableErrorDialog( state.error);
+                            showScrollableErrorDialog(state.error);
                           }
 
                           // * validamos en todo cambio de estado de cantidad separada
@@ -912,50 +913,10 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                                         ),
                                                       ),
 
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Text(
-                                                        'Fecha caducidad: ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: black),
-                                                      ),
-                                                      Text(
-                                                        context
-                                                                    .read<
-                                                                        ConteoBloc>()
-                                                                    .currentProductLote
-                                                                    ?.expirationDate
-                                                                    .toString() ==
-                                                                ""
-                                                            ? "Sin fecha"
-                                                            : context
-                                                                    .read<
-                                                                        ConteoBloc>()
-                                                                    .currentProductLote
-                                                                    ?.expirationDate ??
-                                                                "",
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: context
-                                                                            .read<
-                                                                                ConteoBloc>()
-                                                                            .currentProductLote
-                                                                            ?.expirationDate ==
-                                                                        "" ||
-                                                                    context
-                                                                            .read<ConteoBloc>()
-                                                                            .currentProductLote
-                                                                            ?.expirationDate ==
-                                                                        false
-                                                                ? red
-                                                                : black),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                ExpirationBadgeWidget(
+                                                  expirationDate: context.read<ConteoBloc>()
+                                                      .currentProductLote
+                                                      ?.expirationDate,
                                                 ),
                                               ],
                                             )

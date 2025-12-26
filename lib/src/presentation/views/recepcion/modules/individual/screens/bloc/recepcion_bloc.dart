@@ -1379,6 +1379,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     );
 
     loteIsOk = true;
+    isLoteOk = true;
 
     if (configurations.result?.result?.scanDestinationLocationReception ==
         false) {

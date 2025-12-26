@@ -130,7 +130,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
                 almacenes.any((almacen) => almacen.id == ubicacion.idWarehouse))
             .toList();
 
-        await db.ubicacionesRepository.insertOrUpdateUbicaciones(ubicaciones);
+        await db.ubicacionesRepository.syncUbicaciones(ubicaciones);
 
         almacenes = await db.warehouseRepository.getAllowedWarehouse();
 

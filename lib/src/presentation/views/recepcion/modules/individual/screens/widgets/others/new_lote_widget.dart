@@ -239,7 +239,6 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                       )),
                 ),
                 const SizedBox(height: 10),
-
                 Visibility(
                   visible: viewList,
                   child: Expanded(
@@ -422,111 +421,6 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                           })),
                 ),
                 //todo crear lote
-                // Visibility(
-                //   visible: !viewList,
-                //   child: Expanded(
-                //       child: Padding(
-                //     padding: const EdgeInsets.all(8.0),
-                //     child: Column(
-                //       children: [
-                //         const SizedBox(height: 10),
-                //         SizedBox(
-                //             height: 40,
-                //             child: TextFormField(
-                //               controller: bloc.newLoteController,
-                //               style: TextStyle(color: black, fontSize: 14),
-
-                //               // 1. Ayuda visual del teclado
-                //               textCapitalization: TextCapitalization.characters,
-
-                //               // 2. Reglas de validación en tiempo real
-                //               inputFormatters: [
-                //                 // a. Convierte a mayúsculas
-                //                 UpperCaseTextFormatter(),
-
-                //                 // b. 🚫 Bloquea espacios en blanco (Spacebar)
-                //                 FilteringTextInputFormatter.deny(RegExp(r'\s')),
-                //               ],
-
-                //               decoration: InputDecoration(
-                //                 labelText: 'Nombre del lote',
-                //                 labelStyle: TextStyle(color: primaryColorApp),
-                //                 border: OutlineInputBorder(
-                //                   borderRadius: BorderRadius.circular(10),
-                //                 ),
-                //                 suffixIcon: IconButton(
-                //                     onPressed: () {
-                //                       bloc.newLoteController.clear();
-                //                       FocusScope.of(context).unfocus();
-                //                     },
-                //                     icon: const Icon(Icons.close, color: grey)),
-                //               ),
-                //             )),
-                //         const SizedBox(height: 10),
-                //         Visibility(
-                //           visible:
-                //               bloc.currentProduct.useExpirationDate == true ||
-                //                   bloc.currentProduct.useExpirationDate == 1,
-                //           child: SizedBox(
-                //             height: 40,
-                //             child: TextFormField(
-                //               style: TextStyle(color: black, fontSize: 14),
-                //               controller: bloc.dateLoteController,
-                //               decoration: InputDecoration(
-                //                 suffixIcon: IconButton(
-                //                     onPressed: () {
-                //                       bloc.dateLoteController.clear();
-                //                       FocusScope.of(context).unfocus();
-                //                     },
-                //                     icon: const Icon(Icons.close, color: grey)),
-                //                 labelText: 'Fecha de caducidad',
-                //                 labelStyle: TextStyle(color: primaryColorApp),
-                //                 border: OutlineInputBorder(
-                //                   borderRadius: BorderRadius.circular(10),
-                //                 ),
-                //               ),
-                //               onTap: () async {
-                //                 FocusScope.of(context).unfocus();
-                //                 var pickedDate =
-                //                     await DatePicker.showSimpleDatePicker(
-                //                   titleText: 'Seleccione una fecha',
-                //                   context,
-                //                   confirmText: 'Seleccionar',
-                //                   cancelText: 'Cancelar',
-                //                   // initialDate: DateTime(2020),
-                //                   firstDate:
-                //                       //un mes atras
-                //                       DateTime.now()
-                //                           .subtract(const Duration(days: 30)),
-                //                   lastDate: DateTime.now()
-                //                       .add(const Duration(days: 2000)),
-                //                   dateFormat: "dd-MMMM-yyyy",
-                //                   locale: DateTimePickerLocale.es,
-                //                   looping: false,
-                //                 );
-
-                //                 // Verificar si el usuario seleccionó una fecha
-                //                 if (pickedDate != null) {
-                //                   // Formatear la fecha al formato "yyyy-MM-dd"
-                //                   final formattedDate =
-                //                       DateFormat('yyyy-MM-dd hh:mm')
-                //                           .format(pickedDate);
-
-                //                   // Actualizar el estado de la fecha seleccionada
-                //                   selectedDate = pickedDate;
-                //                   bloc.dateLoteController.text = formattedDate;
-                //                 }
-                //               }, // Llamar al selector de fecha y hora
-                //             ),
-                //           ),
-                //         ),
-                //         //mostrar en cuanto tiempo se vence el lote
-
-                //       ],
-                //     ),
-                //   )),
-                // ),
-
                 Visibility(
                   visible: !viewList,
                   child: Expanded(
@@ -682,7 +576,7 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                                         // CASO: Alerta (menos de 15 días)
                                         bgColor = Colors.orange[50]!;
                                         textColor = Colors.orange[900]!;
-                                        icon = Icons.av_timer;
+                                        icon = Icons.warning_amber_rounded;
                                         text = daysLeft == 0
                                             ? "La fecha ingresada vence hoy"
                                             : "La fecha ingresada vence en $daysLeft días";

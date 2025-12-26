@@ -146,9 +146,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     on<FetchAllBarcodesInventarioEvent>(_onFetchAllBarcodesInventarioEvent);
   }
 
-
-
-
   void _onFetchAllBarcodesInventarioEvent(FetchAllBarcodesInventarioEvent event,
       Emitter<InventarioState> emit) async {
     try {
@@ -401,6 +398,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     try {
       currentProductLote = event.lote;
       loteIsOk = true;
+      isLoteOk = true;
       add(ChangeIsOkQuantity(true));
       emit(ChangeLoteIsOkState(
         loteIsOk,

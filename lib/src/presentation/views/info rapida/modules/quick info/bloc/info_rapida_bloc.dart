@@ -184,7 +184,13 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
       if (response.result?.code == 200) {
         await db.ubicacionesRepository
-            .updateUbicacion(event.locationId, event.name, event.barcode);
+            .insertOrUpdateSingle(
+              ResultUbicaciones(
+                id: event.locationId,
+                name: event.name,
+                barcode: event.barcode,
+              ),
+            );
         infoRapidaResult = response.result ?? InfoRapidaResult();
         emit(EditLocationSuccess());
         add(

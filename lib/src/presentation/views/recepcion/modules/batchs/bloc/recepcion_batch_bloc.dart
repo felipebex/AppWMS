@@ -244,6 +244,7 @@ class RecepcionBatchBloc
     );
 
     loteIsOk = true;
+    isLoteOk = true;
 
     if (configurations.result?.result?.scanDestinationLocationReception ==
         false) {

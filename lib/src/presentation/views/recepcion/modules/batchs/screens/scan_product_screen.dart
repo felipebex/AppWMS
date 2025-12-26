@@ -26,6 +26,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
@@ -574,25 +575,7 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
                               currentProduct: recepcionBloc.currentProduct,
                               isPDA: true,
                             ),
-                            expiryWidget: ExpiryDateWidget(
-                              expireDate: recepcionBloc.currentProduct
-                                              .fechaVencimiento ==
-                                          "" ||
-                                      recepcionBloc.currentProduct
-                                              .fechaVencimiento ==
-                                          null
-                                  ? DateTime.now()
-                                  : DateTime.parse(recepcionBloc
-                                          .currentProduct.fechaVencimiento ??
-                                      ""),
-                              size: size,
-                              isDetaild: false,
-                              isNoExpireDate: recepcionBloc
-                                          .currentProduct.fechaVencimiento ==
-                                      ""
-                                  ? true
-                                  : false,
-                            ),
+                            expiryWidget: Container(),
                             listOfBarcodes: recepcionBloc.listOfBarcodes,
                             onBarcodesDialogTap: () {
                               showDialog(
@@ -831,28 +814,11 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
                                                         ),
                                                       ),
                                                     ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Row(
-                                                  children: [
-                                                    Text(
-                                                      'Fecha caducidad: ',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black),
-                                                    ),
-                                                    Text(
-                                                      recepcionBloc
-                                                              .lotesProductCurrent
-                                                              .expirationDate ??
-                                                          "",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                              ExpirationBadgeWidget(
+                                                  expirationDate: recepcionBloc
+                                                          .lotesProductCurrent
+                                                          .expirationDate ??
+                                                      ""),
                                             ],
                                           )
                                         ],

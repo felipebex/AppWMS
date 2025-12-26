@@ -527,6 +527,7 @@ class CreateTransferBloc
     try {
       currentProductLote = event.lote;
       loteIsOk = true;
+      isLoteOk = true;
       add(ChangeIsOkQuantity(true, currentProduct?.productId ?? 0));
       quantityIsOk = true;
 

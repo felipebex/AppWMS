@@ -198,8 +198,8 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       print('Obteniendo imagen del producto con ID: ${event.idProduct}');
       emit(ViewProductImageLoading());
 
-      final response =
-          await _inventarioRepository.viewUrlImageProduct(event.idProduct, true);
+      final response = await _inventarioRepository.viewUrlImageProduct(
+          event.idProduct, true);
 
       if (response.result?.code == 200) {
         if (response.result?.result == null ||
@@ -1027,6 +1027,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     try {
       currentProductLote = event.lote;
       loteIsOk = true;
+      isLoteOk = true;
       add(ChangeIsOkQuantity(currentProduct.orderId ?? 0, true,
           currentProduct.productId ?? 0, currentProduct.idMove ?? 0));
       quantityIsOk = true;

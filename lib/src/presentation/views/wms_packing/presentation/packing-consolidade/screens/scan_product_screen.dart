@@ -25,6 +25,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
@@ -607,21 +608,9 @@ class _ScanProductPackingConsolidateScreenState
                                 currentProduct: packingBloc.currentProduct,
                                 isPDA: false,
                               ),
-                              expiryWidget: ExpiryDateWidget(
-                                expireDate: packingBloc
-                                                .currentProduct.expireDate ==
-                                            "" ||
-                                        packingBloc.currentProduct.expireDate ==
-                                            null
-                                    ? DateTime.now()
-                                    : DateTime.parse(
-                                        packingBloc.currentProduct.expireDate),
-                                size: size,
-                                isDetaild: false,
-                                isNoExpireDate:
-                                    packingBloc.currentProduct.expireDate == ""
-                                        ? true
-                                        : false,
+                              expiryWidget: ExpirationBadgeWidget(
+                                expirationDate:
+                                    packingBloc.currentProduct?.expireDate,
                               ),
                               listOfBarcodes: packingBloc.listOfBarcodes,
                               onBarcodesDialogTap: () {

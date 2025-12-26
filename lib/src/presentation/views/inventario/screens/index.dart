@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_p
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 class InventarioScreen extends StatefulWidget {
@@ -439,7 +440,7 @@ class _InventarioScreenState extends State<InventarioScreen>
 
         if (state is GetProductsFailureInventory) {
           Navigator.pop(context);
-           showScrollableErrorDialog( state.error);
+          showScrollableErrorDialog(state.error);
         }
 
         //*estado cando la ubicacion de origen es cambiada
@@ -514,7 +515,7 @@ class _InventarioScreenState extends State<InventarioScreen>
 
         if (state is SendProductFailure) {
           Navigator.pop(context);
-           showScrollableErrorDialog( state.error);
+          showScrollableErrorDialog(state.error);
         }
       },
       builder: (context, state) {
@@ -816,27 +817,22 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                           .productIsOk && //false
                                                       !bloc
                                                           .quantityIsOk) //false
-                            
+
                                                   ? () {
-                                                      if (bloc.productos
-                                                          .isEmpty) {
+                                                      if (bloc
+                                                          .productos.isEmpty) {
                                                         Get.defaultDialog(
                                                           title:
                                                               '360 Software Informa',
-                                                          titleStyle:
-                                                              TextStyle(
-                                                                  color: Colors
-                                                                      .red,
-                                                                  fontSize:
-                                                                      18),
+                                                          titleStyle: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 18),
                                                           middleText:
                                                               "No hay productos cargadoss, por favor cargues las productos",
                                                           middleTextStyle:
                                                               TextStyle(
-                                                                  color:
-                                                                      black,
-                                                                  fontSize:
-                                                                      14),
+                                                                  color: black,
+                                                                  fontSize: 14),
                                                           backgroundColor:
                                                               Colors.white,
                                                           radius: 10,
@@ -851,15 +847,17 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                                 //esperamos 1 segundo para que se vea el dialogo
                                                                 Get.back();
                                                               },
-                                                              style: ElevatedButton
-                                                                  .styleFrom(
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
                                                                 backgroundColor:
                                                                     primaryColorApp,
                                                                 shape:
                                                                     RoundedRectangleBorder(
                                                                   borderRadius:
-                                                                      BorderRadius.circular(
-                                                                          10),
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
                                                                 ),
                                                               ),
                                                               child: Text(
@@ -883,8 +881,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                 color: white,
                                                 child: Padding(
                                                   padding:
-                                                      const EdgeInsets.all(
-                                                          6.0),
+                                                      const EdgeInsets.all(6.0),
                                                   child: Row(
                                                     children: [
                                                       Align(
@@ -901,8 +898,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       const Spacer(),
                                                       Image.asset(
                                                         "assets/icons/producto.png",
-                                                        color:
-                                                            primaryColorApp,
+                                                        color: primaryColorApp,
                                                         width: 20,
                                                       ),
                                                     ],
@@ -924,7 +920,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                     !bloc
                                                         .productIsOk && // false
                                                     !bloc.quantityIsOk,
-                            
+
                                                 focusNode: focusNode2,
                                                 onChanged: (value) {
                                                   // Llamamos a la validación al cambiar el texto
@@ -980,12 +976,10 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         : bloc.currentProduct
                                                                 ?.barcode ??
                                                             "",
-                                                    textAlign:
-                                                        TextAlign.start,
+                                                    textAlign: TextAlign.start,
                                                     style: TextStyle(
                                                         fontSize: 12,
-                                                        color: bloc.currentProduct
-                                                                        ?.barcode ==
+                                                        color: bloc.currentProduct?.barcode ==
                                                                     false ||
                                                                 bloc.currentProduct
                                                                         ?.barcode ==
@@ -1014,8 +1008,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       child: SizedBox(
                                                         height: 20,
                                                         width: 20,
-                                                        child:
-                                                            SvgPicture.asset(
+                                                        child: SvgPicture.asset(
                                                           color:
                                                               primaryColorApp,
                                                           "assets/icons/barcode.svg",
@@ -1038,8 +1031,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                           fontSize: 14,
                                                           color: black)),
                                                   Text(
-                                                    bloc.currentProduct
-                                                                    ?.code ==
+                                                    bloc.currentProduct?.code ==
                                                                 false ||
                                                             bloc.currentProduct
                                                                     ?.code ==
@@ -1051,12 +1043,10 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         : bloc.currentProduct
                                                                 ?.code ??
                                                             "",
-                                                    textAlign:
-                                                        TextAlign.start,
+                                                    textAlign: TextAlign.start,
                                                     style: TextStyle(
                                                         fontSize: 12,
-                                                        color: bloc.currentProduct
-                                                                        ?.code ==
+                                                        color: bloc.currentProduct?.code ==
                                                                     false ||
                                                                 bloc.currentProduct
                                                                         ?.code ==
@@ -1082,14 +1072,13 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                 LogicalKeyboardKey.enter) {
                                               validateProduct(
                                                   bloc.scannedValue2);
-                            
+
                                               return KeyEventResult.handled;
                                             } else {
-                                              bloc.add(
-                                                  UpdateScannedValueEvent(
-                                                      event.data.keyLabel,
-                                                      'product'));
-                            
+                                              bloc.add(UpdateScannedValueEvent(
+                                                  event.data.keyLabel,
+                                                  'product'));
+
                                               return KeyEventResult.handled;
                                             }
                                           }
@@ -1129,15 +1118,14 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                             radius: 10,
                                                             actions: [
                                                               ElevatedButton(
-                                                                onPressed:
-                                                                    () {
+                                                                onPressed: () {
                                                                   context
                                                                       .read<
                                                                           InventarioBloc>()
                                                                       .add(
                                                                           GetProductsEvent());
                                                                   //esperamos 1 segundo para que se vea el dialogo
-                            
+
                                                                   Get.back();
                                                                 },
                                                                 style: ElevatedButton
@@ -1201,8 +1189,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                 ),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Text(
                                                   bloc.currentProduct?.name ==
                                                               "" ||
@@ -1219,16 +1206,14 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                 ),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
                                                     SizedBox(
                                                       height: 20,
                                                       width: 20,
                                                       child: SvgPicture.asset(
-                                                        color:
-                                                            primaryColorApp,
+                                                        color: primaryColorApp,
                                                         "assets/icons/barcode.svg",
                                                         height: 20,
                                                         width: 20,
@@ -1237,7 +1222,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Text(
-                                                      bloc.currentProduct?.barcode ==
+                                                      bloc.currentProduct
+                                                                      ?.barcode ==
                                                                   false ||
                                                               bloc.currentProduct
                                                                       ?.barcode ==
@@ -1270,8 +1256,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       onTap: () {
                                                         showDialog(
                                                             context: context,
-                                                            builder:
-                                                                (context) {
+                                                            builder: (context) {
                                                               return DialogBarcodesInventario(
                                                                   listOfBarcodes:
                                                                       bloc.barcodeInventario);
@@ -1284,8 +1269,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         child: SizedBox(
                                                           height: 20,
                                                           width: 20,
-                                                          child: SvgPicture
-                                                              .asset(
+                                                          child:
+                                                              SvgPicture.asset(
                                                             color:
                                                                 primaryColorApp,
                                                             "assets/icons/barcode.svg",
@@ -1300,8 +1285,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                 ),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
                                                     Text('codigo: ',
@@ -1309,7 +1293,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                             fontSize: 14,
                                                             color: black)),
                                                     Text(
-                                                      bloc.currentProduct?.code ==
+                                                      bloc.currentProduct
+                                                                      ?.code ==
                                                                   false ||
                                                               bloc.currentProduct
                                                                       ?.code ==
@@ -1563,39 +1548,10 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       ),
                                                     ),
                                                   ),
-
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    'Fecha caducidad: ',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                  ),
-                                                  Text(
-                                                    bloc.currentProductLote
-                                                                ?.expirationDate
-                                                                .toString() ==
-                                                            ""
-                                                        ? "Sin fecha"
-                                                        : bloc.currentProductLote
-                                                                ?.expirationDate ??
-                                                            "",
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: bloc.currentProductLote
-                                                                        ?.expirationDate ==
-                                                                    "" ||
-                                                                bloc.currentProductLote
-                                                                        ?.expirationDate ==
-                                                                    false
-                                                            ? red
-                                                            : black),
-                                                  ),
-                                                ],
-                                              ),
+                                            ExpirationBadgeWidget(
+                                              expirationDate: bloc
+                                                  .currentProductLote
+                                                  ?.expirationDate,
                                             ),
                                           ],
                                         )

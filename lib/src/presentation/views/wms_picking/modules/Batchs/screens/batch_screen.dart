@@ -27,6 +27,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_picking_incompleted_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/widgets/dialog_error_widget.dart';
+import 'package:wms_app/src/presentation/widgets/expiration_badge_widget.dart';
 import 'package:wms_app/src/presentation/widgets/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/popunButton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
@@ -579,15 +580,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
                             batchBloc: batchBloc,
                             currentProduct: currentProduct,
                           ),
-                          expiryWidget: ExpiryDateWidget(
-                            expireDate: currentProduct.expireDate == "" ||
-                                    currentProduct.expireDate == null
-                                ? DateTime.now()
-                                : DateTime.parse(currentProduct.expireDate),
-                            size: size,
-                            isDetaild: false,
-                            isNoExpireDate:
-                                currentProduct.expireDate == "" ? true : false,
+                          expiryWidget: ExpirationBadgeWidget(
+                            expirationDate: batchBloc
+                                .currentProduct?.expireDate,
                           ),
                           listOfBarcodes: batchBloc.listOfBarcodes,
                           onBarcodesDialogTap: () {
