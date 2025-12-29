@@ -1,4 +1,5 @@
 // configurations_repository.dart
+// ignore_for_file: avoid_print
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -6,252 +7,223 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_configurations/
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 
 class ConfigurationsRepository {
-  // Método para insertar o actualizar una configuración
-  Future<void> insertConfiguration(
-      Configurations configuration, int userId) async {
+  
+  static const int _batchSize = 500;
+
+  /// --------------------------------------------------------------------------
+  /// OPTIMIZED METHOD: syncConfigurations (Mark & Sweep)
+  /// --------------------------------------------------------------------------
+  /// Useful if you download a list of configurations (e.g. for multiple users).
+  Future<void> syncConfigurations(List<Configurations> configList) async {
+    if (configList.isEmpty) return;
+
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Convertir valores booleanos a enteros (0 o 1)
-      Map<String, dynamic> configurationData = {
-        ConfigurationsTable.columnId: userId,
-        ConfigurationsTable.columnName: configuration.result?.result?.name,
-        ConfigurationsTable.columnLastName:
-            configuration.result?.result?.lastName,
-        ConfigurationsTable.columnEmail: configuration.result?.result?.email,
-        ConfigurationsTable.columnRol: configuration.result?.result?.rol,
-        ConfigurationsTable.columnMuelleOption:
-            configuration.result?.result?.muelleOption,
-        ConfigurationsTable.columnLocationPickingManual:
-            _boolToInt(configuration.result?.result?.locationPickingManual),
-        ConfigurationsTable.columnManualProductSelection:
-            _boolToInt(configuration.result?.result?.manualProductSelection),
-        ConfigurationsTable.columnManualQuantity:
-            _boolToInt(configuration.result?.result?.manualQuantity),
-        ConfigurationsTable.columnManualSpringSelection:
-            _boolToInt(configuration.result?.result?.manualSpringSelection),
-        ConfigurationsTable.columnShowDetallesPicking:
-            _boolToInt(configuration.result?.result?.showDetallesPicking),
-        ConfigurationsTable.columnShowNextLocationsInDetails: _boolToInt(
-            configuration.result?.result?.showNextLocationsInDetails),
-        ConfigurationsTable.columnLocationPackManual:
-            _boolToInt(configuration.result?.result?.locationPackManual),
-        ConfigurationsTable.columnShowDetallesPack:
-            _boolToInt(configuration.result?.result?.showDetallesPack),
-        ConfigurationsTable.columnShowNextLocationsInDetailsPack: _boolToInt(
-            configuration.result?.result?.showNextLocationsInDetailsPack),
-        ConfigurationsTable.columnManualProductSelectionPack: _boolToInt(
-            configuration.result?.result?.manualProductSelectionPack),
-        ConfigurationsTable.columnManualQuantityPack:
-            _boolToInt(configuration.result?.result?.manualQuantityPack),
-        ConfigurationsTable.columnManualSpringSelectionPack:
-            _boolToInt(configuration.result?.result?.manualSpringSelectionPack),
-        ConfigurationsTable.columnScanProduct:
-            _boolToInt(configuration.result?.result?.scanProduct),
-        ConfigurationsTable.columnAllowMoveExcess:
-            _boolToInt(configuration.result?.result?.allowMoveExcess),
-        ConfigurationsTable.columnHideExpectedQty:
-            _boolToInt(configuration.result?.result?.hideExpectedQty),
-        ConfigurationsTable.columnManualProductReading:
-            _boolToInt(configuration.result?.result?.manualProductReading),
-        ConfigurationsTable.columnManualSourceLocation:
-            _boolToInt(configuration.result?.result?.manualSourceLocation),
-        ConfigurationsTable.columnShowOwnerField:
-            _boolToInt(configuration.result?.result?.showOwnerField),
-
-        ConfigurationsTable.columnManualProductSelectionTransfer: _boolToInt(
-            configuration.result?.result?.manualProductSelectionTransfer),
-        ConfigurationsTable.columnManualSourceLocationTransfer: _boolToInt(
-            configuration.result?.result?.manualSourceLocationTransfer),
-        ConfigurationsTable.columnManualDestLocationTransfer: _boolToInt(
-            configuration.result?.result?.manualDestLocationTransfer),
-        ConfigurationsTable.columnManualQuantityTransfer:
-            _boolToInt(configuration.result?.result?.manualQuantityTransfer),
-
-        // columnScanDestinationLocationReception
-        ConfigurationsTable.columnScanDestinationLocationReception: _boolToInt(
-            configuration.result?.result?.scanDestinationLocationReception),
-
-        //hide_validate_transfer
-        ConfigurationsTable.columnHideValidateTransfer:
-            _boolToInt(configuration.result?.result?.hideValidateTransfer),
-
-        ConfigurationsTable.columnHideValidateReception:
-            _boolToInt(configuration.result?.result?.hideValidateReception),
-
-        // count_quantity_inventory
-        ConfigurationsTable.columnCountQuantityInventory:
-            _boolToInt(configuration.result?.result?.countQuantityInventory),
-
-        // update_item_inventory
-        ConfigurationsTable.columnUpdateItemInventory:
-            _boolToInt(configuration.result?.result?.updateItemInventory),
-        // update_location_inventory
-        ConfigurationsTable.columnUpdateLocationInventory:
-            _boolToInt(configuration.result?.result?.updateLocationInventory),
-        // hide_validate_packing
-        ConfigurationsTable.columnHideValidatePacking:
-            _boolToInt(configuration.result?.result?.hideValidatePacking),
-        // hide_validate_picking
-        ConfigurationsTable.columnHideValidatePicking:
-            _boolToInt(configuration.result?.result?.hideValidatePicking),
-        //show_photo_temperature
-        ConfigurationsTable.columnShowPhotoTemperature:
-            _boolToInt(configuration.result?.result?.showPhotoTemperature),
-
-            //accessProductionModule
-        ConfigurationsTable.columnAccessProductionModule: _boolToInt(
-            configuration.result?.result?.accessProductionModule),
-
-        // location_manual_inventory
-        ConfigurationsTable.columnLocationManualInventory: _boolToInt(
-            configuration.result?.result?.locationManualInventory),
-        // manual_product_selection_inventory
-        ConfigurationsTable.columnManualProductSelectionInventory: _boolToInt(
-            configuration.result?.result?.manualProductSelectionInventory),
-
-        // returns_location_dest_option
-        ConfigurationsTable.columnReturnsLocationDestOption:
-            configuration.result?.result?.returnsLocationDestOption ??
-                'dynamic',
-      };
-
-      // Realizar la inserción o actualización usando INSERT OR REPLACE
       await db.transaction((txn) async {
-        await txn.insert(
-          ConfigurationsTable.tableName,
-          configurationData,
-          conflictAlgorithm: ConflictAlgorithm
-              .replace, // Actualiza si ya existe un registro con el mismo 'id'
+        // STEP 1: MARK (Reset flag)
+        await txn.rawUpdate(
+          'UPDATE ${ConfigurationsTable.tableName} SET ${ConfigurationsTable.columnIsSynced} = 0'
         );
-      });
 
-      print("Configuración insertada/actualizada con éxito.");
-    } catch (e) {
-      print("Error al insertar/actualizar configuración: $e");
+        // STEP 2: UPSERT BY BATCH
+        for (var i = 0; i < configList.length; i += _batchSize) {
+          final end = (i + _batchSize < configList.length) ? i + _batchSize : configList.length;
+          final batchList = configList.sublist(i, end);
+          final batch = txn.batch();
+
+          for (var config in batchList) {
+            // Note: Assuming 'id' in the model corresponds to the userId for the PK
+            // If not, ensure you pass the correct ID.
+             // Your original code passed 'userId' separately. 
+             // Here we assume config.result.result.id is the key, or we need a way to map it.
+             // Based on getConfiguration, it seems 'id' is stored in the DB.
+             
+             final data = _mapToDB(config);
+             // Ensure ID is set if it comes from the object
+             if (config.result?.result?.id != null) {
+                data[ConfigurationsTable.columnId] = config.result?.result?.id;
+             }
+             
+             batch.insert(
+              ConfigurationsTable.tableName,
+              data,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+          await batch.commit(noResult: true);
+        }
+
+        // STEP 3: SWEEP (Delete obsolete)
+        int deleted = await txn.delete(
+          ConfigurationsTable.tableName,
+          where: '${ConfigurationsTable.columnIsSynced} = ?',
+          whereArgs: [0],
+        );
+
+        print("⚙️ Config Sync: Processed ${configList.length} | Deleted Obsolete: $deleted");
+      });
+    } catch (e, s) {
+      print("❌ Error in syncConfigurations: $e => $s");
     }
   }
 
-  // Método para obtener la configuración de un usuario por su ID
+  /// --------------------------------------------------------------------------
+  /// SINGLE INSERT (Legacy Support / Single User Login)
+  /// --------------------------------------------------------------------------
+  Future<void> insertConfiguration(Configurations configuration, int userId) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      Map<String, dynamic> configurationData = _mapToDB(configuration);
+      // Explicitly set the ID passed as argument
+      configurationData[ConfigurationsTable.columnId] = userId;
+
+      await db.insert(
+        ConfigurationsTable.tableName,
+        configurationData,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      print("✅ Configuration inserted/updated successfully.");
+    } catch (e, s) {
+      print("❌ Error inserting configuration: $e => $s");
+    }
+  }
+
+  /// --------------------------------------------------------------------------
+  /// READ METHOD
+  /// --------------------------------------------------------------------------
   Future<Configurations?> getConfiguration(int userId) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Realizamos la consulta para obtener la configuración del usuario
       final List<Map<String, dynamic>> maps = await db.query(
         ConfigurationsTable.tableName,
         where: '${ConfigurationsTable.columnId} = ?',
         whereArgs: [userId],
       );
 
-      // Verificamos si hay resultados y devolvemos el primero
       if (maps.isNotEmpty) {
-        final map = maps.first;
-
-        // Convertimos el mapa en la estructura de la configuración
-        final config = Configurations(
-          jsonrpc: '2.0',
-          id: 1,
-          result: ConfigurationsResult(
-            code: 200,
-            result: DataConfig(
-              name: map[ConfigurationsTable.columnName],
-              lastName: map[ConfigurationsTable.columnLastName],
-              email: map[ConfigurationsTable.columnEmail],
-              rol: map[ConfigurationsTable.columnRol],
-              id: map[ConfigurationsTable.columnId],
-              locationPickingManual: _intToBool(
-                  map[ConfigurationsTable.columnLocationPickingManual]),
-              manualProductSelection: _intToBool(
-                  map[ConfigurationsTable.columnManualProductSelection]),
-              manualQuantity:
-                  _intToBool(map[ConfigurationsTable.columnManualQuantity]),
-              manualSpringSelection: _intToBool(
-                  map[ConfigurationsTable.columnManualSpringSelection]),
-              showDetallesPicking: _intToBool(
-                  map[ConfigurationsTable.columnShowDetallesPicking]),
-              showNextLocationsInDetails: _intToBool(
-                  map[ConfigurationsTable.columnShowNextLocationsInDetails]),
-              muelleOption: map[ConfigurationsTable.columnMuelleOption],
-              manualProductSelectionPack: _intToBool(
-                  map[ConfigurationsTable.columnManualProductSelectionPack]),
-              manualQuantityPack:
-                  _intToBool(map[ConfigurationsTable.columnManualQuantityPack]),
-              manualSpringSelectionPack: _intToBool(
-                  map[ConfigurationsTable.columnManualSpringSelectionPack]),
-              showDetallesPack:
-                  _intToBool(map[ConfigurationsTable.columnShowDetallesPack]),
-              showNextLocationsInDetailsPack: _intToBool(map[
-                  ConfigurationsTable.columnShowNextLocationsInDetailsPack]),
-              locationPackManual:
-                  _intToBool(map[ConfigurationsTable.columnLocationPackManual]),
-              scanProduct:
-                  _intToBool(map[ConfigurationsTable.columnScanProduct]),
-              allowMoveExcess:
-                  _intToBool(map[ConfigurationsTable.columnAllowMoveExcess]),
-              hideExpectedQty:
-                  _intToBool(map[ConfigurationsTable.columnHideExpectedQty]),
-              manualProductReading: _intToBool(
-                  map[ConfigurationsTable.columnManualProductReading]),
-              manualSourceLocation: _intToBool(
-                  map[ConfigurationsTable.columnManualSourceLocation]),
-              showOwnerField:
-                  _intToBool(map[ConfigurationsTable.columnShowOwnerField]),
-              manualProductSelectionTransfer: _intToBool(map[
-                  ConfigurationsTable.columnManualProductSelectionTransfer]),
-              manualSourceLocationTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualSourceLocationTransfer]),
-              manualDestLocationTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualDestLocationTransfer]),
-              manualQuantityTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualQuantityTransfer]),
-              scanDestinationLocationReception: _intToBool(map[
-                  ConfigurationsTable.columnScanDestinationLocationReception]),
-              countQuantityInventory: _intToBool(
-                  map[ConfigurationsTable.columnCountQuantityInventory]),
-              hideValidateTransfer: _intToBool(
-                  map[ConfigurationsTable.columnHideValidateTransfer]),
-              hideValidateReception: _intToBool(
-                  map[ConfigurationsTable.columnHideValidateReception]),
-              updateItemInventory: _intToBool(
-                  map[ConfigurationsTable.columnUpdateItemInventory]),
-              updateLocationInventory: _intToBool(
-                  map[ConfigurationsTable.columnUpdateLocationInventory]),
-              hideValidatePacking: _intToBool(
-                  map[ConfigurationsTable.columnHideValidatePacking]),
-              hideValidatePicking: _intToBool(
-                  map[ConfigurationsTable.columnHideValidatePicking]),
-              showPhotoTemperature: _intToBool(
-                  map[ConfigurationsTable.columnShowPhotoTemperature]),
-              returnsLocationDestOption: map[ConfigurationsTable.columnReturnsLocationDestOption] ?? 'dynamic',
-              locationManualInventory: _intToBool(
-                  map[ConfigurationsTable.columnLocationManualInventory]),
-            // accessProductionModule
-              accessProductionModule: _intToBool(
-                  map[ConfigurationsTable.columnAccessProductionModule]),
-              manualProductSelectionInventory: _intToBool(
-                  map[ConfigurationsTable.columnManualProductSelectionInventory]),
-            ),
-          ),
-        );
-
-        return config;
+        return _mapFromDB(maps.first);
       } else {
         return null;
       }
     } catch (e, s) {
-      print("Error al obtener la configuración: $e =>$s ");
+      print("Error fetching configuration: $e => $s");
       return null;
     }
   }
 
-  // Función para convertir valores booleanos a enteros (0 o 1)
-  int _boolToInt(bool? value) {
-    return value == true ? 1 : 0;
+  /// --------------------------------------------------------------------------
+  /// PRIVATE HELPERS (Mapping)
+  /// --------------------------------------------------------------------------
+  
+  // Maps Object -> DB Map
+  Map<String, dynamic> _mapToDB(Configurations config) {
+    final res = config.result?.result;
+    return {
+      // Note: ID is handled by the caller typically, but can be here too
+      // ConfigurationsTable.columnId: res?.id, 
+      ConfigurationsTable.columnName: res?.name,
+      ConfigurationsTable.columnLastName: res?.lastName,
+      ConfigurationsTable.columnEmail: res?.email,
+      ConfigurationsTable.columnRol: res?.rol,
+      ConfigurationsTable.columnMuelleOption: res?.muelleOption,
+      ConfigurationsTable.columnLocationPickingManual: _boolToInt(res?.locationPickingManual),
+      ConfigurationsTable.columnManualProductSelection: _boolToInt(res?.manualProductSelection),
+      ConfigurationsTable.columnManualQuantity: _boolToInt(res?.manualQuantity),
+      ConfigurationsTable.columnManualSpringSelection: _boolToInt(res?.manualSpringSelection),
+      ConfigurationsTable.columnShowDetallesPicking: _boolToInt(res?.showDetallesPicking),
+      ConfigurationsTable.columnShowNextLocationsInDetails: _boolToInt(res?.showNextLocationsInDetails),
+      ConfigurationsTable.columnLocationPackManual: _boolToInt(res?.locationPackManual),
+      ConfigurationsTable.columnShowDetallesPack: _boolToInt(res?.showDetallesPack),
+      ConfigurationsTable.columnShowNextLocationsInDetailsPack: _boolToInt(res?.showNextLocationsInDetailsPack),
+      ConfigurationsTable.columnManualProductSelectionPack: _boolToInt(res?.manualProductSelectionPack),
+      ConfigurationsTable.columnManualQuantityPack: _boolToInt(res?.manualQuantityPack),
+      ConfigurationsTable.columnManualSpringSelectionPack: _boolToInt(res?.manualSpringSelectionPack),
+      ConfigurationsTable.columnScanProduct: _boolToInt(res?.scanProduct),
+      ConfigurationsTable.columnAllowMoveExcess: _boolToInt(res?.allowMoveExcess),
+      ConfigurationsTable.columnHideExpectedQty: _boolToInt(res?.hideExpectedQty),
+      ConfigurationsTable.columnManualProductReading: _boolToInt(res?.manualProductReading),
+      ConfigurationsTable.columnManualSourceLocation: _boolToInt(res?.manualSourceLocation),
+      ConfigurationsTable.columnShowOwnerField: _boolToInt(res?.showOwnerField),
+      ConfigurationsTable.columnManualProductSelectionTransfer: _boolToInt(res?.manualProductSelectionTransfer),
+      ConfigurationsTable.columnManualSourceLocationTransfer: _boolToInt(res?.manualSourceLocationTransfer),
+      ConfigurationsTable.columnManualDestLocationTransfer: _boolToInt(res?.manualDestLocationTransfer),
+      ConfigurationsTable.columnManualQuantityTransfer: _boolToInt(res?.manualQuantityTransfer),
+      ConfigurationsTable.columnScanDestinationLocationReception: _boolToInt(res?.scanDestinationLocationReception),
+      ConfigurationsTable.columnHideValidateTransfer: _boolToInt(res?.hideValidateTransfer),
+      ConfigurationsTable.columnHideValidateReception: _boolToInt(res?.hideValidateReception),
+      ConfigurationsTable.columnCountQuantityInventory: _boolToInt(res?.countQuantityInventory),
+      ConfigurationsTable.columnUpdateItemInventory: _boolToInt(res?.updateItemInventory),
+      ConfigurationsTable.columnUpdateLocationInventory: _boolToInt(res?.updateLocationInventory),
+      ConfigurationsTable.columnHideValidatePacking: _boolToInt(res?.hideValidatePacking),
+      ConfigurationsTable.columnHideValidatePicking: _boolToInt(res?.hideValidatePicking),
+      ConfigurationsTable.columnShowPhotoTemperature: _boolToInt(res?.showPhotoTemperature),
+      ConfigurationsTable.columnAccessProductionModule: _boolToInt(res?.accessProductionModule),
+      ConfigurationsTable.columnLocationManualInventory: _boolToInt(res?.locationManualInventory),
+      ConfigurationsTable.columnManualProductSelectionInventory: _boolToInt(res?.manualProductSelectionInventory),
+      ConfigurationsTable.columnReturnsLocationDestOption: res?.returnsLocationDestOption ?? 'dynamic',
+      // ✅ Mark as synced
+      ConfigurationsTable.columnIsSynced: 1,
+    };
   }
 
-  // Función para convertir valores enteros (0, 1) en booleanos
-  bool _intToBool(int value) {
-    return value == 1;
+  // Maps DB Map -> Object
+  Configurations _mapFromDB(Map<String, dynamic> map) {
+    return Configurations(
+      jsonrpc: '2.0',
+      id: 1, // Static or dynamic if needed
+      result: ConfigurationsResult(
+        code: 200,
+        result: DataConfig(
+          id: map[ConfigurationsTable.columnId],
+          name: map[ConfigurationsTable.columnName],
+          lastName: map[ConfigurationsTable.columnLastName],
+          email: map[ConfigurationsTable.columnEmail],
+          rol: map[ConfigurationsTable.columnRol],
+          muelleOption: map[ConfigurationsTable.columnMuelleOption],
+          locationPickingManual: _intToBool(map[ConfigurationsTable.columnLocationPickingManual]),
+          manualProductSelection: _intToBool(map[ConfigurationsTable.columnManualProductSelection]),
+          manualQuantity: _intToBool(map[ConfigurationsTable.columnManualQuantity]),
+          manualSpringSelection: _intToBool(map[ConfigurationsTable.columnManualSpringSelection]),
+          showDetallesPicking: _intToBool(map[ConfigurationsTable.columnShowDetallesPicking]),
+          showNextLocationsInDetails: _intToBool(map[ConfigurationsTable.columnShowNextLocationsInDetails]),
+          locationPackManual: _intToBool(map[ConfigurationsTable.columnLocationPackManual]),
+          showDetallesPack: _intToBool(map[ConfigurationsTable.columnShowDetallesPack]),
+          showNextLocationsInDetailsPack: _intToBool(map[ConfigurationsTable.columnShowNextLocationsInDetailsPack]),
+          manualProductSelectionPack: _intToBool(map[ConfigurationsTable.columnManualProductSelectionPack]),
+          manualQuantityPack: _intToBool(map[ConfigurationsTable.columnManualQuantityPack]),
+          manualSpringSelectionPack: _intToBool(map[ConfigurationsTable.columnManualSpringSelectionPack]),
+          scanProduct: _intToBool(map[ConfigurationsTable.columnScanProduct]),
+          allowMoveExcess: _intToBool(map[ConfigurationsTable.columnAllowMoveExcess]),
+          hideExpectedQty: _intToBool(map[ConfigurationsTable.columnHideExpectedQty]),
+          manualProductReading: _intToBool(map[ConfigurationsTable.columnManualProductReading]),
+          manualSourceLocation: _intToBool(map[ConfigurationsTable.columnManualSourceLocation]),
+          showOwnerField: _intToBool(map[ConfigurationsTable.columnShowOwnerField]),
+          manualProductSelectionTransfer: _intToBool(map[ConfigurationsTable.columnManualProductSelectionTransfer]),
+          manualSourceLocationTransfer: _intToBool(map[ConfigurationsTable.columnManualSourceLocationTransfer]),
+          manualDestLocationTransfer: _intToBool(map[ConfigurationsTable.columnManualDestLocationTransfer]),
+          manualQuantityTransfer: _intToBool(map[ConfigurationsTable.columnManualQuantityTransfer]),
+          scanDestinationLocationReception: _intToBool(map[ConfigurationsTable.columnScanDestinationLocationReception]),
+          hideValidateTransfer: _intToBool(map[ConfigurationsTable.columnHideValidateTransfer]),
+          hideValidateReception: _intToBool(map[ConfigurationsTable.columnHideValidateReception]),
+          countQuantityInventory: _intToBool(map[ConfigurationsTable.columnCountQuantityInventory]),
+          updateItemInventory: _intToBool(map[ConfigurationsTable.columnUpdateItemInventory]),
+          updateLocationInventory: _intToBool(map[ConfigurationsTable.columnUpdateLocationInventory]),
+          hideValidatePacking: _intToBool(map[ConfigurationsTable.columnHideValidatePacking]),
+          hideValidatePicking: _intToBool(map[ConfigurationsTable.columnHideValidatePicking]),
+          showPhotoTemperature: _intToBool(map[ConfigurationsTable.columnShowPhotoTemperature]),
+          accessProductionModule: _intToBool(map[ConfigurationsTable.columnAccessProductionModule]),
+          locationManualInventory: _intToBool(map[ConfigurationsTable.columnLocationManualInventory]),
+          manualProductSelectionInventory: _intToBool(map[ConfigurationsTable.columnManualProductSelectionInventory]),
+          returnsLocationDestOption: map[ConfigurationsTable.columnReturnsLocationDestOption] ?? 'dynamic',
+        ),
+      ),
+    );
   }
+
+  int _boolToInt(bool? value) => value == true ? 1 : 0;
+  bool _intToBool(int? value) => value == 1;
 }

@@ -181,8 +181,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     .read<WMSPickingBloc>()
                     .add(LoadAllNovedades(context)); //n
                 context.read<UserBloc>().add(GetUbicacionesEvent());
-                // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-
                 //esperamos 2 segundos para cerrar el dialogo
                 await Future.delayed(const Duration(seconds: 2), () {
                   Navigator.pop(context);

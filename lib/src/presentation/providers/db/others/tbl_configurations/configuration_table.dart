@@ -3,7 +3,7 @@
 class ConfigurationsTable {
   static const String tableName = 'tblconfigurations';
 
-  // Columnas de la tabla
+  // Columns
   static const String columnId = 'id';
   static const String columnName = 'name';
   static const String columnLastName = 'last_name';
@@ -15,72 +15,41 @@ class ConfigurationsTable {
   static const String columnManualQuantity = 'manual_quantity';
   static const String columnManualSpringSelection = 'manual_spring_selection';
   static const String columnShowDetallesPicking = 'show_detalles_picking';
-  static const String columnShowNextLocationsInDetails =
-      'show_next_locations_in_details';
+  static const String columnShowNextLocationsInDetails = 'show_next_locations_in_details';
   static const String columnLocationPackManual = 'location_pack_manual';
   static const String columnShowDetallesPack = 'show_detalles_pack';
-  static const String columnShowNextLocationsInDetailsPack =
-      'show_next_locations_in_details_pack';
-  static const String columnManualProductSelectionPack =
-      'manual_product_selection_pack';
+  static const String columnShowNextLocationsInDetailsPack = 'show_next_locations_in_details_pack';
+  static const String columnManualProductSelectionPack = 'manual_product_selection_pack';
   static const String columnManualQuantityPack = 'manual_quantity_pack';
-  static const String columnManualSpringSelectionPack =
-      'manual_spring_selection_pack';
+  static const String columnManualSpringSelectionPack = 'manual_spring_selection_pack';
   static const String columnScanProduct = 'scan_product';
-
   static const String columnAllowMoveExcess = 'allow_move_excess';
   static const String columnHideExpectedQty = 'hide_expected_qty';
   static const String columnManualProductReading = 'manual_product_reading';
   static const String columnManualSourceLocation = 'manual_source_location';
   static const String columnShowOwnerField = 'show_owner_field';
-
-  static const String columnManualSourceLocationTransfer =
-      'manual_source_location_transfer';
-  static const String columnManualDestLocationTransfer =
-      'manual_dest_location_transfer';
+  static const String columnManualSourceLocationTransfer = 'manual_source_location_transfer';
+  static const String columnManualDestLocationTransfer = 'manual_dest_location_transfer';
   static const String columnManualQuantityTransfer = 'manual_quantity_transfer';
-  static const String columnManualProductSelectionTransfer =
-      'manual_product_selection_transfer';
-
+  static const String columnManualProductSelectionTransfer = 'manual_product_selection_transfer';
   static const String columnCountQuantityInventory = 'count_quantity_inventory';
-
-  static const String columnScanDestinationLocationReception =
-      'scan_destination_location_reception';
-
-//hide_validate_transfer
+  static const String columnScanDestinationLocationReception = 'scan_destination_location_reception';
   static const String columnHideValidateTransfer = 'hide_validate_transfer';
   static const String columnHideValidateReception = 'hide_validate_reception';
-
-  // update_item_inventory
   static const String columnUpdateItemInventory = 'update_item_inventory';
-  // update_location_inventory
   static const String columnUpdateLocationInventory = 'update_location_inventory';
-  // create_backorder
   static const String columnCreateBackorder = 'create_backorder';
-
-
-  //hide_validate_packing
   static const String columnHideValidatePacking = 'hide_validate_packing';
   static const String columnHideValidatePicking = 'hide_validate_picking';
-
-  //show_photo_temperature
   static const String columnShowPhotoTemperature = 'show_photo_temperature';
-
-  //returns_location_dest_option
-static const String columnReturnsLocationDestOption = 'returns_location_dest_option';  
-
-
-//manual_product_selection_inventory
+  static const String columnReturnsLocationDestOption = 'returns_location_dest_option';  
   static const String columnManualProductSelectionInventory = 'manual_product_selection_inventory';
-  //location_manual_inventory
   static const String columnLocationManualInventory = 'location_manual_inventory';
-
-  //accessProductionModule
   static const String columnAccessProductionModule = 'access_production_module';
 
-  
+  // ✅ NEW: Column for Mark & Sweep strategy
+  static const String columnIsSynced = 'is_synced';
 
-  // Método para crear la tabla
   static String createTable() {
     return '''
       CREATE TABLE $tableName (
@@ -125,7 +94,8 @@ static const String columnReturnsLocationDestOption = 'returns_location_dest_opt
         $columnManualProductSelectionInventory INTEGER,
         $columnAccessProductionModule INTEGER,
         $columnLocationManualInventory INTEGER,
-        $columnCountQuantityInventory INTEGER
+        $columnCountQuantityInventory INTEGER,
+        $columnIsSynced INTEGER DEFAULT 0
       )
     ''';
   }

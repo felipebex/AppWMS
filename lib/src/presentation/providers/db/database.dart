@@ -323,6 +323,19 @@ class DataBaseSqlite {
             'CREATE INDEX idx_inv_product_id ON tblproductos_inventario (product_id);');
 
         print('✅ Optimización de Barcodes completada.');
+
+        print('🚀 Migrando Configuraciones: Optimizando...');
+        await db.execute(
+            'ALTER TABLE tblconfigurations ADD COLUMN is_synced INTEGER DEFAULT 0;');
+        // PK is already an index.
+        print('✅ Optimización Configuraciones completada.');
+        await db.execute(
+            'ALTER TABLE tblnovedades ADD COLUMN is_synced INTEGER DEFAULT 0;');
+
+        // Nota: Como 'id' ya es PRIMARY KEY, SQLite crea un índice único interno automáticamente.
+        // No necesitamos crear un índice adicional para que funcione el conflicto por ID.
+
+        print('✅ Optimización Novedades completada.');
       } catch (e) {
         print("Error actualizando UbicacionesTable: $e");
       }

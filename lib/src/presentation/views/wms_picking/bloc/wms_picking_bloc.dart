@@ -139,7 +139,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         try {
           await DataBaseSqlite()
               .novedadesRepository
-              .insertBatchNovedades(listOfNovedades);
+              .syncNovedades(listOfNovedades);
           print('Novedades insertadas con éxito.');
         } catch (e) {
           print('Error inserting batch of novedades: $e');

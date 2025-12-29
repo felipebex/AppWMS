@@ -6,88 +6,89 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'novedades_table.dart';
 
 class NovedadesRepository {
-  // Método para insertar/actualizar novedades en lote
-  Future<void> insertBatchNovedades(List<Novedad> novedades) async {
+  
+  // Tamaño del bloque para inserción masiva
+  static const int _batchSize = 500;
+
+  /// --------------------------------------------------------------------------
+  /// METODO OPTIMIZADO: syncNovedades (Mark & Sweep)
+  /// --------------------------------------------------------------------------
+  /// 1. MARCA: Pone todos los registros como "no sincronizados" (0).
+  /// 2. UPSERT: Inserta/Actualiza los nuevos y los marca como "sincronizados" (1).
+  /// 3. BARRIDO: Elimina los que quedaron en 0 (ya no existen en el servidor).
+  Future<void> syncNovedades(List<Novedad> novedadesList) async {
+    if (novedadesList.isEmpty) return;
+
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Comienza la transacción
+      // Transacción exclusiva para velocidad y consistencia
       await db.transaction((txn) async {
-        Batch batch = txn.batch();
-
-        // Primero, obtener todas las IDs de las novedades existentes
-        final List<Map<String, dynamic>> existingNovedades = await txn.query(
-          NovedadesTable.tableName,
-          columns: [NovedadesTable.columnId],
-          where: '${NovedadesTable.columnId} IN (?)',
-          whereArgs: [
-            novedades.map((novedad) => novedad.id).toList().join(','),
-          ],
+        
+        // PASO 1: MARCA (Resetear flag)
+        await txn.rawUpdate(
+          'UPDATE ${NovedadesTable.tableName} SET ${NovedadesTable.columnIsSynced} = 0'
         );
 
-        // Crear un conjunto de los IDs existentes para facilitar la comprobación
-        Set<int> existingIds =
-            Set.from(existingNovedades.map((e) => e[NovedadesTable.columnId]));
+        // PASO 2: UPSERT POR LOTES (Chunking)
+        for (var i = 0; i < novedadesList.length; i += _batchSize) {
+          final end = (i + _batchSize < novedadesList.length)
+              ? i + _batchSize
+              : novedadesList.length;
+          final batchList = novedadesList.sublist(i, end);
 
-        // Recorrer todas las novedades y realizar insert o update según corresponda
-        for (var novedad in novedades) {
-          if (existingIds.contains(novedad.id)) {
-            // Si la novedad ya existe, la actualizamos
-            batch.update(
-              NovedadesTable.tableName,
-              {
-                NovedadesTable.columnName: novedad.name,
-                NovedadesTable.columnCode: novedad.code,
-              },
-              where: '${NovedadesTable.columnId} = ?',
-              whereArgs: [novedad.id],
-            );
-          } else {
-            // Si no existe, la insertamos
+          Batch batch = txn.batch();
+
+          for (var novedad in batchList) {
             batch.insert(
               NovedadesTable.tableName,
               {
                 NovedadesTable.columnId: novedad.id,
                 NovedadesTable.columnName: novedad.name,
                 NovedadesTable.columnCode: novedad.code,
+                // ✅ Marcamos como sincronizado
+                NovedadesTable.columnIsSynced: 1,
               },
+              // ✅ Si el ID ya existe, actualiza el nombre/código. Si no, inserta.
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
           }
+          await batch.commit(noResult: true);
         }
 
-        // Ejecutar la transacción en batch
-        await batch.commit();
+        // PASO 3: BARRIDO (Eliminar obsoletos)
+        int deleted = await txn.delete(
+          NovedadesTable.tableName,
+          where: '${NovedadesTable.columnIsSynced} = ?',
+          whereArgs: [0],
+        );
+
+        print("📋 Sync Novedades: Procesados ${novedadesList.length} | Eliminados Obsoletos: $deleted");
       });
 
-      print("Novedades insertadas/actualizadas con éxito.");
-    } catch (e) {
-      print("Error al insertar novedades: $e");
+    } catch (e, s) {
+      print("❌ Error al sincronizar novedades: $e => $s");
     }
   }
 
-  // Método para obtener todas las novedades
+  // Método para obtener todas las novedades (Sin cambios mayores, solo limpieza)
   Future<List<Novedad>> getAllNovedades() async {
     try {
-            Database db = await DataBaseSqlite().getDatabaseInstance();
+      Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Realiza la consulta a la tabla de novedades
       final List<Map<String, dynamic>> maps =
           await db.query(NovedadesTable.tableName);
 
-      // Mapea los resultados a una lista de objetos Novedad
-      final List<Novedad> novedades = maps.map((map) {
+      return maps.map((map) {
         return Novedad(
           id: map[NovedadesTable.columnId],
           name: map[NovedadesTable.columnName],
           code: map[NovedadesTable.columnCode],
         );
       }).toList();
-
-      return novedades;
     } catch (e) {
       print("Error al obtener novedades: $e");
-      return []; // Devuelve una lista vacía en caso de error
+      return [];
     }
   }
 }
